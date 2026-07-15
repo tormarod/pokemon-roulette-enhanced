@@ -24,10 +24,6 @@ import { RareCandyService } from '../services/rare-candy-service/rare-candy.serv
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
-import { GameState } from '../services/game-state-service/game-state';
-
-/** No team or run context exists yet during these — items aren't usable until they're past. */
-const PRE_ADVENTURE_STATES = new Set<GameState>(['game-start', 'character-select', 'starter-pokemon', 'check-shininess']);
 
 @Component({
   selector: 'app-main-game',
@@ -79,8 +75,14 @@ export class MainGameComponent implements OnInit {
       this.pendingTypeBiases = biases;
     });
 
-    this.gameStateService.currentState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
-      this.itemsAvailable = !PRE_ADVENTURE_STATES.has(state);
+    // 'start-adventure' is pushed exactly once, at run setup, and never re-pushed — so as
+    // long as it's still sitting unpopped in the stack, the player hasn't reached the
+    // adventure yet. This (rather than a fixed set of state names) is what correctly tells
+    // apart the one-time pre-adventure "check-shininess" (right after picking a starter)
+    // from every other "check-shininess" triggered by a catch later in the run — the state
+    // name alone is reused throughout the game and can't disambiguate the two.
+    this.gameStateService.currentState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.itemsAvailable = !this.gameStateService.getStateStack().includes('start-adventure');
     });
   }
 

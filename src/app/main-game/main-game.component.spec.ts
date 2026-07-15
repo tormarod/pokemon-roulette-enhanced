@@ -75,7 +75,23 @@ describe('MainGameComponent', () => {
   });
 
   it('should make items available once the game reaches start-adventure', () => {
-    gameStateService.setNextState('start-adventure');
+    // Natural stack drain (no manual setNextState): character-select -> starter-pokemon -> start-adventure.
+    gameStateService.finishCurrentState();
+    gameStateService.finishCurrentState();
+    gameStateService.finishCurrentState();
+    fixture.detectChanges();
+
+    expect(component.itemsAvailable).toBeTrue();
+    expect(fixture.nativeElement.querySelector('app-items')).not.toBeNull();
+  });
+
+  it('should keep items available on a later check-shininess triggered by catching a Pokemon mid-run', () => {
+    // check-shininess is reused for every catch, not just the starter — reaching it again
+    // after the adventure has started must not hide the items panel.
+    gameStateService.finishCurrentState();
+    gameStateService.finishCurrentState();
+    gameStateService.finishCurrentState();
+    gameStateService.setNextState('check-shininess');
     gameStateService.finishCurrentState();
     fixture.detectChanges();
 
