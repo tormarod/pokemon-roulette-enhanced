@@ -12,6 +12,7 @@ describe('PokedexEntryComponent', () => {
   let darkModeServiceSpy: jasmine.SpyObj<DarkModeService>;
   let pokemonServiceSpy: jasmine.SpyObj<PokemonService>;
 
+  const fallbackSpriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png';
   const seenEntry: PokedexEntry = { won: false, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png' };
   const wonEntry: PokedexEntry = { won: true, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png' };
 
@@ -26,7 +27,7 @@ describe('PokedexEntryComponent', () => {
       pokemonId: 25,
       text: 'pokemon.pikachu',
       fillStyle: 'yellow',
-      sprite: null,
+      sprite: { front_default: fallbackSpriteUrl, front_shiny: fallbackSpriteUrl.replace('artwork/', 'artwork/shiny/') },
       shiny: false,
       power: 2,
       weight: 1
@@ -51,22 +52,18 @@ describe('PokedexEntryComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('VIS-01: renders unknown.png when entry is undefined', () => {
-    const img = fixture.nativeElement.querySelector('.pokedex-cell-front img') as HTMLImageElement;
+  it('VIS-01: falls back to the static roster sprite when entry is undefined', () => {
+    const img = fixture.nativeElement.querySelector('.cell-img') as HTMLImageElement;
     expect(img).toBeTruthy();
-    expect(img.src).toContain('unknown.png');
+    expect(img.src).toBe(fallbackSpriteUrl);
   });
 
-  it('VIS-01: does not render sprite img when unseen', () => {
-    const backImg = fixture.nativeElement.querySelector('.pokedex-cell-back img') as HTMLImageElement;
-    expect(backImg).toBeNull();
-  });
-
-  it('VIS-02: renders sprite img when entry is defined', () => {
+  it('VIS-02: renders the entry sprite when entry is defined', () => {
     component.entry = seenEntry;
     fixture.detectChanges();
-    const img = fixture.nativeElement.querySelector('.pokedex-cell-back img') as HTMLImageElement;
+    const img = fixture.nativeElement.querySelector('.cell-img') as HTMLImageElement;
     expect(img).toBeTruthy();
+    expect(img.src).toBe(seenEntry.sprite as string);
     expect(img.getAttribute('loading')).toBe('lazy');
   });
 
@@ -97,30 +94,30 @@ describe('PokedexEntryComponent', () => {
     expect(badge.textContent?.trim()).toBe('#025');
   });
 
-  it('VIS-05: isSeen is false when entry is undefined', () => {
-    expect(component.isSeen).toBeFalse();
+  it('VIS-05: isCaptured is false when entry is undefined', () => {
+    expect(component.isCaptured).toBeFalse();
   });
 
-  it('VIS-05: isSeen is true when entry is defined', () => {
+  it('VIS-05: isCaptured is true when entry is defined', () => {
     component.entry = seenEntry;
     fixture.detectChanges();
-    expect(component.isSeen).toBeTrue();
+    expect(component.isCaptured).toBeTrue();
   });
 
   it('VIS-05: pokemonText returns i18n key', () => {
     expect(component.pokemonText).toBe('pokemon.pikachu');
   });
 
-  it('VIS-06: adds .seen class to cell when entry is defined', () => {
+  it('VIS-06: adds .not-captured class to cell when entry is undefined', () => {
+    const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
+    expect(cell.classList).toContain('not-captured');
+  });
+
+  it('VIS-06: does not have .not-captured class when entry is defined', () => {
     component.entry = seenEntry;
     fixture.detectChanges();
     const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
-    expect(cell.classList).toContain('seen');
-  });
-
-  it('VIS-06: does not have .seen class when unseen', () => {
-    const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
-    expect(cell.classList).not.toContain('seen');
+    expect(cell.classList).not.toContain('not-captured');
   });
 
   it('formatPokemonNumber formats IDs 1-9 with 3 digit padding', () => {
@@ -131,7 +128,7 @@ describe('PokedexEntryComponent', () => {
     expect(component.formatPokemonNumber(1011)).toBe('#1011');
   });
 
-  it('DETAIL-01: clicking seen cell emits entryClicked with pokemonId and entry', () => {
+  it('DETAIL-01: clicking a seen cell emits entryClicked with pokemonId and entry', () => {
     component.entry = seenEntry;
     fixture.detectChanges();
     spyOn(component.entryClicked, 'emit');
@@ -140,26 +137,21 @@ describe('PokedexEntryComponent', () => {
     expect(component.entryClicked.emit).toHaveBeenCalledOnceWith({ pokemonId: 25, entry: seenEntry });
   });
 
-  it('DETAIL-01: clicking unseen cell does NOT emit entryClicked', () => {
+  it('DETAIL-01: clicking an unseen cell emits entryClicked with pokemonId and undefined entry', () => {
     component.entry = undefined;
     fixture.detectChanges();
     spyOn(component.entryClicked, 'emit');
     const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
     cell.click();
-    expect(component.entryClicked.emit).not.toHaveBeenCalled();
+    expect(component.entryClicked.emit).toHaveBeenCalledOnceWith({ pokemonId: 25, entry: undefined });
   });
 
-  it('DETAIL-01: seen cell has .clickable CSS class', () => {
-    component.entry = seenEntry;
-    fixture.detectChanges();
+  it('DETAIL-01: cells always have the .clickable CSS class', () => {
     const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
     expect(cell.classList).toContain('clickable');
-  });
 
-  it('DETAIL-01: unseen cell does NOT have .clickable CSS class', () => {
-    component.entry = undefined;
+    component.entry = seenEntry;
     fixture.detectChanges();
-    const cell = fixture.nativeElement.querySelector('.pokedex-cell') as HTMLElement;
-    expect(cell.classList).not.toContain('clickable');
+    expect(cell.classList).toContain('clickable');
   });
 });

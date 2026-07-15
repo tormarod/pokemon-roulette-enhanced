@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "pokemon-roulette": {
+    "pokemon-roulette-enhanced": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/pokemon-roulette",
+            "outputPath": "dist/pokemon-roulette-enhanced",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -68,10 +68,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "pokemon-roulette:build:production"
+              "buildTarget": "pokemon-roulette-enhanced:build:production"
             },
             "development": {
-              "buildTarget": "pokemon-roulette:build:development"
+              "buildTarget": "pokemon-roulette-enhanced:build:development"
             }
           },
           "defaultConfiguration": "development"
