@@ -16,13 +16,13 @@
     <ul class="nav nav-tabs mb-2">
       <li class="nav-item">
         <button class="nav-link" [class.active]="activeTab === 'local'"
-                (click)="activeTab = 'local'">
+                (click)="setActiveTab('local')">
           {{ 'pokedex.tab.local' | translate: { region: currentRegion } }}
         </button>
       </li>
       <li class="nav-item">
         <button class="nav-link" [class.active]="activeTab === 'national'"
-                (click)="activeTab = 'national'">
+                (click)="setActiveTab('national')">
           {{ 'pokedex.tab.national' | translate }}
         </button>
       </li>
@@ -30,8 +30,11 @@
     <p class="mb-2">
       {{ 'pokedex.caught' | translate }} {{ caughtCount }} / {{ totalCount }}
     </p>
+    <input type="text" class="form-control form-control-sm mb-2"
+           [(ngModel)]="searchTerm"
+           [placeholder]="'pokedex.search' | translate">
     <div class="pokedex-grid">
-      @for (id of activeIds; track id) {
+      @for (id of filteredIds; track id) {
         <app-pokedex-entry
           [pokemonId]="id"
           [entry]="pokedexData?.caught?.[id.toString()]"

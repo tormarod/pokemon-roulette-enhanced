@@ -23,7 +23,7 @@ import { pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-fo
 })
 export class PokedexDetailModalComponent implements OnInit {
   @Input() pokemonId!: number;
-  @Input() entry!: PokedexEntry;
+  @Input() entry: PokedexEntry | undefined;
 
   showShiny = false;
   selectedFormId!: number;

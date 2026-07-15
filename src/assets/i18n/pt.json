@@ -2793,7 +2793,9 @@
       "local": "Pokédex {{region}}",
       "national": "Pokédex Nacional"
     },
-    "caught": "Capturados:"
+    "caught": "Capturados:",
+    "search": "Pesquisar por nome...",
+    "notCaptured": "Ainda não capturado"
   },
   "detail": {
     "name": "Nome",

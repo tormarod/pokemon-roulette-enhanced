@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { NgIconsModule } from '@ng-icons/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../../services/theme-service/theme.service';
@@ -17,7 +18,7 @@ import { pokedexByGeneration } from '../../pokedex/pokedex-by-generation';
 
 @Component({
   selector: 'app-pokedex',
-  imports: [CommonModule, NgIconsModule, TranslatePipe, PokedexEntryComponent],
+  imports: [CommonModule, FormsModule, NgIconsModule, TranslatePipe, PokedexEntryComponent],
   templateUrl: './pokedex.component.html',
   styleUrl: './pokedex.component.css'
 })
@@ -29,7 +30,8 @@ export class PokedexComponent implements OnInit, OnDestroy {
     private modalService: NgbModal,
     private pokedexService: PokedexService,
     private generationService: GenerationService,
-    private pokemonService: PokemonService
+    private pokemonService: PokemonService,
+    private translate: TranslateService
   ) {}
 
   // Omitting static: true causes openPokedex() to fail with undefined ref on first click
@@ -40,6 +42,7 @@ export class PokedexComponent implements OnInit, OnDestroy {
   currentGenerationId: number = 1;
   currentRegion: string = 'Kanto';
   activeTab: 'local' | 'national' = 'local';
+  searchTerm: string = '';
 
   private readonly subscriptions = new Subscription();
 
@@ -64,6 +67,7 @@ export class PokedexComponent implements OnInit, OnDestroy {
 
   openPokedex(): void {
     this.activeTab = 'local';  // per D-03: Local Dex active by default on open
+    this.searchTerm = '';
     this.modalService.open(this.pokedexModal, {
       centered: true,
       size: 'lg'
@@ -72,6 +76,11 @@ export class PokedexComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.modalService.dismissAll();
+  }
+
+  setActiveTab(tab: 'local' | 'national'): void {
+    this.activeTab = tab;
+    this.searchTerm = '';
   }
 
   onEntryClicked(event: PokedexEntryClickEvent): void {
@@ -93,6 +102,15 @@ export class PokedexComponent implements OnInit, OnDestroy {
 
   get activeIds(): number[] {
     return this.activeTab === 'local' ? this.localIds : this.nationalIds;
+  }
+
+  get filteredIds(): number[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.activeIds;
+    return this.activeIds.filter(id => {
+      const key = this.pokemonService.getPokemonById(id)?.text ?? '';
+      return this.translate.instant(key).toLowerCase().includes(term);
+    });
   }
 
   get caughtCount(): number {
