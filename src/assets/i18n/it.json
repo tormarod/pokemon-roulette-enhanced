@@ -281,7 +281,12 @@
           "use": "Ha usato una",
           "victory": "Vittoria?",
           "yes": "Sì",
-          "no": "No"
+          "no": "No",
+          "typeAdvantage": {
+            "overwhelming": "Vantaggio Schiacciante",
+            "advantage": "Vantaggio",
+            "disadvantage": "Svantaggio"
+          }
         },
         "egg": {
           "title": "Quale Pokémon?"
@@ -357,7 +362,12 @@
           "go": "Andiamo!",
           "victory": "Vittoria?",
           "yes": "Sì",
-          "no": "No"
+          "no": "No",
+          "typeAdvantage": {
+            "overwhelming": "Vantaggio Schiacciante",
+            "advantage": "Vantaggio",
+            "disadvantage": "Svantaggio"
+          }
         },
         "snorlax": {
           "outcome": "Risultato",

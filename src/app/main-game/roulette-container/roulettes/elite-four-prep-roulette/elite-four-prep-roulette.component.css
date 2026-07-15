@@ -6,6 +6,10 @@
 	text-align: center;
 }
 
+.go-straight-button {
+	min-width: 200px;
+}
+
 
 .modal-body {
 	color: black;

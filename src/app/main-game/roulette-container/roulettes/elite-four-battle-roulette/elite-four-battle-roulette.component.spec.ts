@@ -9,7 +9,6 @@ import { GymLeader } from '../../../../interfaces/gym-leader';
 import { WheelItem } from '../../../../interfaces/wheel-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
@@ -18,7 +17,6 @@ describe('EliteFourBattleRouletteComponent', () => {
   let component: EliteFourBattleRouletteComponent;
   let fixture: ComponentFixture<EliteFourBattleRouletteComponent>;
   let trainerService: TrainerService;
-  let typeMatchupService: TypeMatchupService;
   let modalQueueService: ModalQueueService;
   let gameStateService: GameStateService;
 
@@ -56,7 +54,6 @@ describe('EliteFourBattleRouletteComponent', () => {
     fixture = TestBed.createComponent(EliteFourBattleRouletteComponent);
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
-    typeMatchupService = TestBed.inject(TypeMatchupService);
     modalQueueService = TestBed.inject(ModalQueueService);
     gameStateService = TestBed.inject(GameStateService);
 
@@ -96,6 +93,38 @@ describe('EliteFourBattleRouletteComponent', () => {
     // base(1) + power(3) = 4 yes;  round(1) + base(2) = 3 no
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4);
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);
+  });
+
+  // ── Type-matchup wiring: the formula itself is tested once in
+  // base-battle-roulette.component.spec.ts. These just confirm elite-four wires
+  // its own baseNoCount(2) into it correctly, plus its own template rendering. ──
+
+  it('should wire a strong matchup into elite-four\'s own yes/no baseline', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
+    component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+
+    const odds: WheelItem[] = (component as any).victoryOdds;
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4); // base(1) + power(2) + delta(1)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2); // elite's base(2) + round(0)
+  });
+
+  it('should wire a weak matchup into elite-four\'s own No count (not a Yes reduction)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
+    component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+    fixture.detectChanges();
+
+    const odds: WheelItem[] = (component as any).victoryOdds;
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(3); // base(1) + power(2)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);  // elite's base(2) + delta(1)
+
+    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    expect(negLabel).not.toBeNull();
+    expect(negDelta.textContent.trim()).toBe('-1');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────
