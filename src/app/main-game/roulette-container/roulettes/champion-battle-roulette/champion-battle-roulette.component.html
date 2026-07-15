@@ -1,5 +1,22 @@
 <h1 class="title">{{ 'game.main.roulette.champion.victory' | translate }}</h1>
 <p class="respin-reason">{{ (retries > 0) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
+@if (currentChampion && currentChampion.types?.length) {
+    <div class="matchup-strip">
+        <div class="matchup-icons-row">
+            @for (type of currentChampion.types; track $index) {
+                <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+            }
+        </div>
+        @if (advantageLabel) {
+            <span class="matchup-label">{{ advantageLabelKey | translate }}</span>
+            <div class="matchup-icons-row">
+                @for (type of (advantageLabel === 'disadvantage' ? matchupDisadvantageTypes : matchupAdvantageTypes); track $index) {
+                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                }
+            </div>
+        }
+    </div>
+}
 <app-wheel
     #wheel
     [items]="victoryOdds"

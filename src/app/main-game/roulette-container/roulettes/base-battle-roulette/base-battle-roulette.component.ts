@@ -5,10 +5,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
 import { WheelItem } from '../../../../interfaces/wheel-item';
+import { PokemonType, pokemonTypeDataByKey } from '../../../../interfaces/pokemon-type';
+import { interleaveOdds } from '../../../../utils/odd-utils';
 
 @Directive()
 export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
@@ -19,6 +22,15 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected retries = 0;
   protected victoryOdds: WheelItem[] = [];
 
+  advantageLabel: 'overwhelming' | 'advantage' | 'disadvantage' | null = null;
+  advantageLabelKey = '';
+  matchupAdvantageTypes: PokemonType[] = [];
+  matchupDisadvantageTypes: PokemonType[] = [];
+  strongCount = 0;
+  weakCount = 0;
+
+  protected readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
+
   private gameSubscription: Subscription | null = null;
   private generationSubscription: Subscription | null = null;
   private teamSubscription: Subscription | null = null;
@@ -28,7 +40,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     protected readonly gameStateService: GameStateService,
     protected readonly generationService: GenerationService,
     protected readonly trainerService: TrainerService,
-    protected readonly translate: TranslateService
+    protected readonly translate: TranslateService,
+    protected readonly typeMatchupService: TypeMatchupService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +71,10 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.modalService.dismissAll();
   }
 
+  getTypeIconUrl(type: PokemonType): string {
+    return `${this.typeIconBaseUrl}/${pokemonTypeDataByKey[type].id}.png`;
+  }
+
   protected plusModifiers(): number {
     let power = 0;
     const xAttacks = this.trainerItems.filter(item => item.name === 'x-attack');
@@ -66,6 +83,55 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       power += meanPower;
     });
     return power;
+  }
+
+  /**
+   * Builds the yes/no ticket pool shared by every battle type: 1 base yes ticket,
+   * team power adjusted for type matchup (see TypeMatchupService), the x-attack
+   * bonus, and round-scaled no tickets. `opponentTypes` may be empty (e.g. a
+   * champion/rival entry that has no types configured), in which case the type
+   * matchup contributes nothing and the label/type-icon state is cleared.
+   */
+  protected buildVictoryOdds(
+    opponentTypes: PokemonType[] | undefined,
+    textPrefix: string,
+    baseNoCount: number,
+    currentRound: number
+  ): WheelItem[] {
+    const yesText = `${textPrefix}.yes`;
+    const noText = `${textPrefix}.no`;
+    const types = opponentTypes?.length ? opponentTypes : [];
+
+    const effectivePower = this.typeMatchupService.calcTeamEffectivePower(this.trainerTeam, types) + this.plusModifiers();
+    const yesOdds: WheelItem[] = [];
+    for (let i = 0; i < Math.round(effectivePower) + 1; i++) {
+      yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
+    }
+
+    if (types.length) {
+      const { strongCount, weakCount } = this.typeMatchupService.calcTeamMatchup(this.trainerTeam, types);
+      this.strongCount = strongCount;
+      this.weakCount = weakCount;
+      this.advantageLabel = this.typeMatchupService.getAdvantageLabel(strongCount, weakCount);
+      this.advantageLabelKey = this.advantageLabel ? `${textPrefix}.typeAdvantage.${this.advantageLabel}` : '';
+      const { advantageTypes, disadvantageTypes } = this.typeMatchupService.getMatchupTypes(this.trainerTeam, types);
+      this.matchupAdvantageTypes = advantageTypes;
+      this.matchupDisadvantageTypes = disadvantageTypes;
+    } else {
+      this.advantageLabel = null;
+      this.advantageLabelKey = '';
+      this.strongCount = 0;
+      this.weakCount = 0;
+      this.matchupAdvantageTypes = [];
+      this.matchupDisadvantageTypes = [];
+    }
+
+    const noOdds: WheelItem[] = [];
+    for (let i = 0; i < baseNoCount + currentRound; i++) {
+      noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
+    }
+
+    return interleaveOdds(yesOdds, noOdds);
   }
 
   protected hasPotions(): ItemItem | undefined {

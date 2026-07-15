@@ -8,10 +8,9 @@ import { WheelComponent } from '../../../../wheel/wheel.component';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { WheelItem } from '../../../../interfaces/wheel-item';
 import { GymLeader } from '../../../../interfaces/gym-leader';
-import { interleaveOdds } from '../../../../utils/odd-utils';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
+import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 
 @Component({
   selector: 'app-rival-battle-roulette',
@@ -40,9 +39,10 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     gameStateService: GameStateService,
     generationService: GenerationService,
     trainerService: TrainerService,
-    translate: TranslateService
+    translate: TranslateService,
+    typeMatchupService: TypeMatchupService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
   }
 
   onItemSelected(index: number): void {
@@ -62,35 +62,16 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
   }
 
   protected override calcVictoryOdds(): void {
-    const yesOdds: WheelItem[] = [];
-    const noOdds: WheelItem[] = [];
-
-    yesOdds.push({ text: 'game.main.roulette.rival.yes', fillStyle: 'green', weight: 1 });
-
-    this.trainerTeam.forEach(pokemon => {
-      for (let i = 0; i < pokemon.power; i++) {
-        yesOdds.push({ text: 'game.main.roulette.rival.yes', fillStyle: 'green', weight: 1 });
-      }
-    });
-
-    const powerModifier = this.plusModifiers();
-    for (let i = 0; i < powerModifier; i++) {
-      yesOdds.push({ text: 'game.main.roulette.rival.yes', fillStyle: 'green', weight: 1 });
-    }
-
-    for (let index = 0; index < this.currentRound; index++) {
-      noOdds.push({ text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 });
-    }
-    // Rival battles mirror the current gym-leader difficulty; starts with 1 noOdds
-    noOdds.push({ text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 });
-
-    this.victoryOdds = interleaveOdds(yesOdds, noOdds);
+    // Rival battles mirror the current gym-leader difficulty; start with 1 base noOdds
+    this.victoryOdds = this.buildVictoryOdds(this.currentRival?.types, 'game.main.roulette.rival', 1, this.currentRound);
   }
 
   private getCurrentRival(): void {
     this.currentRival = this.rivalByGeneration[this.generation.id];
 
     if (this.generation.id === 6) {
+      const rivalTypes = Array.isArray(this.currentRival.types) ? this.currentRival.types : undefined;
+
       this.translate.get(this.currentRival.name).pipe(take(1)).subscribe(translated => {
         const rivalNames = translated.split('/');
         const rivalSprites = Array.isArray(this.currentRival.sprite) ? this.currentRival.sprite : [this.currentRival.sprite];
@@ -103,8 +84,11 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
         this.currentRival = {
           name: rivalNames[selectedIndex],
           sprite: rivalSprites[selectedIndex],
-          quotes: [rivalQuotes[selectedIndex]]
+          quotes: [rivalQuotes[selectedIndex]],
+          types: rivalTypes ? [rivalTypes[selectedIndex]] : undefined
         } as GymLeader;
+
+        this.calcVictoryOdds();
       });
     }
   }

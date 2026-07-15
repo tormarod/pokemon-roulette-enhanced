@@ -6,28 +6,32 @@ export const rivalByGeneration: Record<number, GymLeader> = {
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Spr_B2W2_Blue.png",
     quotes: [
       "rival.blue.quote1",
-    ]
+    ],
+    types: ['normal']
   },
   2: {
     name: 'rival.silver.name',
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Spr_HGSS_Silver.png",
     quotes: [
       "rival.silver.quote1"
-    ]
+    ],
+    types: ['dark']
   },
   3: {
     name: 'rival.wally.name',
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Spr_RS_Wally.png",
     quotes: [
       "rival.wally.quote1"
-    ]
+    ],
+    types: ['psychic']
   },
   4: {
     name: 'rival.barry.name',
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Spr_Pt_Barry.png",
     quotes: [
       "rival.barry.quote1"
-    ]
+    ],
+    types: ['flying']
   },
   5: {
     name: 'rival.n.name',
@@ -36,7 +40,8 @@ export const rivalByGeneration: Record<number, GymLeader> = {
     ],
     quotes: [
       "rival.n.quote1"
-    ]
+    ],
+    types: ['dark']
   },
   6: {
     name: 'rival.calem-serena.name',
@@ -47,21 +52,24 @@ export const rivalByGeneration: Record<number, GymLeader> = {
     quotes: [
       "rival.calem-serena.quote1",
       "rival.calem-serena.quote2"
-    ]
+    ],
+    types: ['normal', 'normal']
   },
   7: {
     name: 'rival.gladion.name',
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/VSGladion.png",
     quotes: [
       "rival.gladion.quote1"
-    ]
+    ],
+    types: ['dark']
   },
   8: {
     name: 'rival.bede.name',
     sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/VSBede.png",
     quotes: [
       "rival.bede.quote1"
-    ]
+    ],
+    types: ['fairy']
   },
   9: {
     name: 'rival.nemona.name',
@@ -69,7 +77,8 @@ export const rivalByGeneration: Record<number, GymLeader> = {
     quotes: [
       "rival.nemona.quote1",
       "rival.nemona.quote2"
-    ]
+    ],
+    types: ['normal']
   },
 
 }

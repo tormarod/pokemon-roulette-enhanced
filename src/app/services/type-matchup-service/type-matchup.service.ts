@@ -63,6 +63,43 @@ export class TypeMatchupService {
   }
 
   /**
+   * Bounded per-Pokémon power delta from a type matchup, scaled down for small teams
+   * so an early-game player with little/no roster choice isn't hit as hard as a
+   * late-game player who can actually pick a well-matched lineup.
+   */
+  private getTypeDelta(teamSize: number): number {
+    if (teamSize <= 2) return 1;
+    if (teamSize <= 4) return 1.5;
+    return 2;
+  }
+
+  /**
+   * A team member's power, adjusted by its own matchup against the opponent's types.
+   * Strong -> +delta, weak -> -delta, both -> cancels to 0. Floored at 1 so a bad
+   * matchup can never reduce a Pokémon below "as if it were neutral at the bottom
+   * of the power scale" — it dampens, it doesn't cripple.
+   */
+  getMemberEffectivePower(member: PokemonItem, opponentTypes: PokemonType[], teamSize: number): number {
+    const memberTypes = ([member.type1, member.type2] as Array<PokemonType | null | undefined>)
+      .filter((t): t is PokemonType => !!t);
+
+    const isStrong = memberTypes.some(mt => opponentTypes.some(ot => this.isStrongAgainst(mt, ot)));
+    const isWeak = memberTypes.some(mt => opponentTypes.some(ot => this.isWeakAgainst(mt, ot)));
+
+    const delta = this.getTypeDelta(teamSize);
+    let adjustment = 0;
+    if (isStrong) adjustment += delta;
+    if (isWeak) adjustment -= delta;
+
+    return Math.max(1, member.power + adjustment);
+  }
+
+  /** Sum of the whole team's type-adjusted effective power against the opponent's types. */
+  calcTeamEffectivePower(team: PokemonItem[], opponentTypes: PokemonType[]): number {
+    return team.reduce((sum, member) => sum + this.getMemberEffectivePower(member, opponentTypes, team.length), 0);
+  }
+
+  /**
    * Returns the unique PokemonType values from the team that are strong or weak
    * against the given opponent types. Used by the inline matchup strip to render
    * type icon rows.

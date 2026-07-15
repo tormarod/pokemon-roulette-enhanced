@@ -9,7 +9,6 @@ import { GymLeader } from '../../../../interfaces/gym-leader';
 import { WheelItem } from '../../../../interfaces/wheel-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
@@ -18,7 +17,6 @@ describe('EliteFourBattleRouletteComponent', () => {
   let component: EliteFourBattleRouletteComponent;
   let fixture: ComponentFixture<EliteFourBattleRouletteComponent>;
   let trainerService: TrainerService;
-  let typeMatchupService: TypeMatchupService;
   let modalQueueService: ModalQueueService;
   let gameStateService: GameStateService;
 
@@ -56,7 +54,6 @@ describe('EliteFourBattleRouletteComponent', () => {
     fixture = TestBed.createComponent(EliteFourBattleRouletteComponent);
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
-    typeMatchupService = TestBed.inject(TypeMatchupService);
     modalQueueService = TestBed.inject(ModalQueueService);
     gameStateService = TestBed.inject(GameStateService);
 
@@ -96,6 +93,34 @@ describe('EliteFourBattleRouletteComponent', () => {
     // base(1) + power(3) = 4 yes;  round(1) + base(2) = 3 no
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4);
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);
+  });
+
+  // ── Type-matchup: capped per-Pokémon delta drives yes-ticket count ─────────
+
+  it('should boost yes slices for a single strong-matched Pokémon (team size 1 -> delta 1)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+    component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+
+    const odds: WheelItem[] = (component as any).victoryOdds;
+    // base(1) + effectivePower(2+1=3) = 4 yes;  round(0) + base(2) = 2 no
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2);
+    expect(component.advantageLabel).toBe('advantage');
+  });
+
+  it('should reduce yes slices for a single weak-matched Pokémon, floored at 1 effective power', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' }));
+    component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+
+    const odds: WheelItem[] = (component as any).victoryOdds;
+    // base(1) + effectivePower(max(1, 2-1)=1) = 2 yes;  2 no
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(2);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2);
+    expect(component.advantageLabel).toBe('disadvantage');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────

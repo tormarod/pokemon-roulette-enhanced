@@ -8,11 +8,10 @@ import { WheelComponent } from '../../../../wheel/wheel.component';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { WheelItem } from '../../../../interfaces/wheel-item';
 import { GymLeader } from '../../../../interfaces/gym-leader';
-import { interleaveOdds } from '../../../../utils/odd-utils';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
+import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 
 @Component({
   selector: 'app-champion-battle-roulette',
@@ -43,9 +42,10 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
     gameStateService: GameStateService,
     generationService: GenerationService,
     trainerService: TrainerService,
-    translate: TranslateService
+    translate: TranslateService,
+    typeMatchupService: TypeMatchupService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
   }
 
   onItemSelected(index: number): void {
@@ -73,37 +73,16 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
   }
 
   protected override calcVictoryOdds(): void {
-    const yesOdds: WheelItem[] = [];
-    const noOdds: WheelItem[] = [];
-
-    yesOdds.push({ text: 'game.main.roulette.champion.yes', fillStyle: 'green', weight: 1 });
-
-    this.trainerTeam.forEach(pokemon => {
-      for (let i = 0; i < pokemon.power; i++) {
-        yesOdds.push({ text: 'game.main.roulette.champion.yes', fillStyle: 'green', weight: 1 });
-      }
-    });
-
-    const powerModifier = this.plusModifiers();
-    for (let i = 0; i < powerModifier; i++) {
-      yesOdds.push({ text: 'game.main.roulette.champion.yes', fillStyle: 'green', weight: 1 });
-    }
-
-    for (let index = 0; index < this.currentRound; index++) {
-      noOdds.push({ text: 'game.main.roulette.champion.no', fillStyle: 'crimson', weight: 1 });
-    }
-    // Champion battles should be the toughest, so it starts with 3 noOdds
-    noOdds.push({ text: 'game.main.roulette.champion.no', fillStyle: 'crimson', weight: 1 });
-    noOdds.push({ text: 'game.main.roulette.champion.no', fillStyle: 'crimson', weight: 1 });
-    noOdds.push({ text: 'game.main.roulette.champion.no', fillStyle: 'crimson', weight: 1 });
-
-    this.victoryOdds = interleaveOdds(yesOdds, noOdds);
+    // Champion battles should be the toughest, so they start with 3 base noOdds
+    this.victoryOdds = this.buildVictoryOdds(this.currentChampion?.types, 'game.main.roulette.champion', 3, this.currentRound);
   }
 
   private getCurrentChampion(): void {
     this.currentChampion = this.championByGeneration[this.generation.id][0];
 
     if (this.generation.id === 7) {
+      const championTypes = Array.isArray(this.currentChampion.types) ? this.currentChampion.types : undefined;
+
       this.translate.get(this.currentChampion.name).pipe(take(1)).subscribe(translated => {
         const championNames = translated.split('/');
         const championSprites = Array.isArray(this.currentChampion.sprite) ? this.currentChampion.sprite : [this.currentChampion.sprite];
@@ -115,8 +94,11 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
         this.currentChampion = {
           name: championNames[randomIndex],
           sprite: championSprites[randomIndex],
-          quotes: [Array.isArray(championQuotes) ? championQuotes[randomIndex] : championQuotes]
+          quotes: [Array.isArray(championQuotes) ? championQuotes[randomIndex] : championQuotes],
+          types: championTypes ? [championTypes[randomIndex]] : undefined
         } as GymLeader;
+
+        this.calcVictoryOdds();
       });
     }
   }

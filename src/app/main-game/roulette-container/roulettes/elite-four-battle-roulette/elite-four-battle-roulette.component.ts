@@ -8,12 +8,9 @@ import { WheelComponent } from '../../../../wheel/wheel.component';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { WheelItem } from '../../../../interfaces/wheel-item';
 import { GymLeader } from '../../../../interfaces/gym-leader';
-import { interleaveOdds } from '../../../../utils/odd-utils';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
-import { PokemonType, pokemonTypeDataByKey } from '../../../../interfaces/pokemon-type';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 
 @Component({
@@ -38,14 +35,6 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
   @Output() fromEliteChange = new EventEmitter<number>();
 
   currentElite!: GymLeader;
-  advantageLabel: 'overwhelming' | 'advantage' | 'disadvantage' | null = null;
-  advantageLabelKey = '';
-  matchupAdvantageTypes: PokemonType[] = [];
-  matchupDisadvantageTypes: PokemonType[] = [];
-  strongCount = 0;
-  weakCount = 0;
-
-  private readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
   constructor(
     modalService: NgbModal,
@@ -54,13 +43,9 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
     generationService: GenerationService,
     trainerService: TrainerService,
     translate: TranslateService,
-    private typeMatchupService: TypeMatchupService
+    typeMatchupService: TypeMatchupService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate);
-  }
-
-  getTypeIconUrl(type: PokemonType): string {
-    return `${this.typeIconBaseUrl}/${pokemonTypeDataByKey[type].id}.png`;
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
   }
 
   onItemSelected(index: number): void {
@@ -88,66 +73,8 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
   }
 
   protected override calcVictoryOdds(): void {
-    const yesOdds: WheelItem[] = [];
-    const noOdds: WheelItem[] = [];
-
-    yesOdds.push({ text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 });
-
-    this.trainerTeam.forEach(pokemon => {
-      for (let i = 0; i < pokemon.power; i++) {
-        yesOdds.push({ text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 });
-      }
-    });
-
-    const powerModifier = this.plusModifiers();
-    for (let i = 0; i < powerModifier; i++) {
-      yesOdds.push({ text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 });
-    }
-
-    if (this.currentElite?.types?.length) {
-      const { strongCount, weakCount } = this.typeMatchupService.calcTeamMatchup(
-        this.trainerTeam,
-        this.currentElite.types
-      );
-      this.strongCount = strongCount;
-      this.weakCount = weakCount;
-      this.advantageLabel = this.typeMatchupService.getAdvantageLabel(strongCount, weakCount);
-
-      if (this.advantageLabel === 'overwhelming') {
-        for (let i = 0; i < 3; i++) yesOdds.push({ text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 });
-      } else if (this.advantageLabel === 'advantage') {
-        for (let i = 0; i < 2; i++) yesOdds.push({ text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 });
-      } else if (this.advantageLabel === 'disadvantage') {
-        const extraNo = weakCount > 3 ? 2 : 1;
-        for (let i = 0; i < extraNo; i++) noOdds.push({ text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 });
-      }
-
-      this.advantageLabelKey = this.advantageLabel
-        ? `game.main.roulette.elite.typeAdvantage.${this.advantageLabel}`
-        : '';
-      const { advantageTypes, disadvantageTypes } = this.typeMatchupService.getMatchupTypes(
-        this.trainerTeam,
-        this.currentElite.types
-      );
-      this.matchupAdvantageTypes = advantageTypes;
-      this.matchupDisadvantageTypes = disadvantageTypes;
-    } else {
-      this.advantageLabel = null;
-      this.advantageLabelKey = '';
-      this.strongCount = 0;
-      this.weakCount = 0;
-      this.matchupAdvantageTypes = [];
-      this.matchupDisadvantageTypes = [];
-    }
-
-    for (let index = 0; index < this.currentRound; index++) {
-      noOdds.push({ text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 });
-    }
-    // Elite four battles should be harder, so it starts with 2 noOdds
-    noOdds.push({ text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 });
-    noOdds.push({ text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 });
-
-    this.victoryOdds = interleaveOdds(yesOdds, noOdds);
+    // Elite four battles should be harder, so it starts with 2 base noOdds
+    this.victoryOdds = this.buildVictoryOdds(this.currentElite?.types, 'game.main.roulette.elite', 2, this.currentRound);
   }
 
   private getCurrentElite(): void {

@@ -9,7 +9,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
                 "champion.blue.quote1",
                 "champion.blue.quote2",
                 "champion.blue.quote3"
-            ]
+            ],
+            types: ['normal']
         }
     ],
     2: [
@@ -19,7 +20,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             quotes: [
                 "champion.lance.quote1",
                 "champion.lance.quote2"
-            ]
+            ],
+            types: ['dragon']
         }
     ],
     3: [
@@ -29,13 +31,15 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             quotes: [
                 "champion.steven.quote1",
                 "champion.steven.quote2"
-            ]
+            ],
+            types: ['steel']
         }
     ],
     4: [
         {
             name: 'champion.cynthia.name',
             sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Diamond_Pearl_Cynthia.png",
+            types: ['dragon'],
             quotes: [
                 "champion.cynthia.quote1",
                 "champion.cynthia.quote2"
@@ -48,7 +52,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             sprite:'https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/Black_White_Alder.png',
             quotes: [
                 "champion.alder.quote1"
-            ]
+            ],
+            types: ['fire']
         }
     ],
     6: [
@@ -57,7 +62,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             sprite: "https://raw.githubusercontent.com/zeroxm/pokemon-roulette-trainer-sprites/refs/heads/main/sprites/XY_Diantha.png",
             quotes: [
                 "champion.diantha.quote1"
-            ]
+            ],
+            types: ['fairy']
         }
     ],
     7: [
@@ -70,7 +76,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             quotes: [
                 "champion.kukui-hau.quote1",
                 "champion.kukui-hau.quote2"
-            ]
+            ],
+            types: ['fighting', 'electric']
         }
     ],
     8: [
@@ -80,7 +87,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             quotes: [
                 "champion.leon.quote1",
                 "champion.leon.quote2"
-            ]
+            ],
+            types: ['fire']
         }
     ],
     9: [
@@ -90,7 +98,8 @@ export const championByGeneration: Record<number, GymLeader[]> = {
             quotes: [
                 "champion.geeta.quote1",
                 "champion.geeta.quote2"
-            ]
+            ],
+            types: ['dark']
         }
     ]
 }
