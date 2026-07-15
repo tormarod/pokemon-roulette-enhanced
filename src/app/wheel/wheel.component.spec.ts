@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WheelComponent } from './wheel.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { SettingsService } from '../services/settings-service/settings.service';
 
 describe('WheelComponent', () => {
   const sigmaTolerance = (p: number, runs: number, sigma = 4) => sigma * Math.sqrt((p * (1 - p)) / runs);
@@ -190,5 +191,30 @@ describe('WheelComponent', () => {
     freshFixture.detectChanges();
 
     expect(freshComponent.selectedItemEvent.emit).not.toHaveBeenCalled();
+  });
+
+  // ── Fast-spin setting ────────────────────────────────────────────────────
+
+  it('should shorten the spin duration when fastSpin is enabled', () => {
+    const settingsService = TestBed.inject(SettingsService);
+    settingsService.toggleFastSpin();
+    component.items = [{ text: 'a', weight: 1, fillStyle: 'red' }];
+    (component as any).translatedItems = component.items;
+
+    component.spinWheel();
+
+    expect(component.duration).toBe(400);
+  });
+
+  it('should leave the spin duration untouched when fastSpin is disabled', () => {
+    const settingsService = TestBed.inject(SettingsService);
+    expect(settingsService.currentSettings.fastSpin).toBeFalse();
+    component.items = [{ text: 'a', weight: 1, fillStyle: 'red' }];
+    (component as any).translatedItems = component.items;
+    const originalDuration = component.duration;
+
+    component.spinWheel();
+
+    expect(component.duration).toBe(originalDuration);
   });
 });

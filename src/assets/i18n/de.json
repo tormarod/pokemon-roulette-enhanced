@@ -4,8 +4,10 @@
     "darkmode": "Dunkler Modus",
     "explanations": "Weniger Hinweise",
     "muteAudio": "Stummschalten",
+    "volume": "Lautstärke",
     "skipShinyRolls": "Shiny Roulette verstecken",
     "skipMegaEvolutionAnimation": "Mega-Entwicklungsanimation überspringen",
+    "fastSpin": "Schnelles Drehen",
     "defaultGender": {
       "title": "Geschlecht des Charakters",
       "male": "Immer Junge",

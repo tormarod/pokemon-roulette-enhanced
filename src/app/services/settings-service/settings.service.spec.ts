@@ -13,4 +13,30 @@ describe('SettingsServiceService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('should default volume to 1 and fastSpin to false', () => {
+    expect(service.currentSettings.volume).toBe(1);
+    expect(service.currentSettings.fastSpin).toBeFalse();
+  });
+
+  it('should set volume', () => {
+    service.setVolume(0.4);
+    expect(service.currentSettings.volume).toBe(0.4);
+  });
+
+  it('should clamp volume to [0, 1]', () => {
+    service.setVolume(-0.5);
+    expect(service.currentSettings.volume).toBe(0);
+
+    service.setVolume(1.5);
+    expect(service.currentSettings.volume).toBe(1);
+  });
+
+  it('should toggle fastSpin', () => {
+    service.toggleFastSpin();
+    expect(service.currentSettings.fastSpin).toBeTrue();
+
+    service.toggleFastSpin();
+    expect(service.currentSettings.fastSpin).toBeFalse();
+  });
 });

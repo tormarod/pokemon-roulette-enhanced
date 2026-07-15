@@ -8,6 +8,7 @@ This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm
 - A reworked type advantage/disadvantage system in battles that stays meaningful at any power level — see [Battle balancing](#battle-balancing) below.
 - "Go Straight" (skip ahead to the next fight without spinning) is now a standalone button below the wheel instead of a wheel option, so opting out of the gamble is a deliberate choice rather than a slice you can land on by chance.
 - Your run now survives a reload or closed tab — team, items, badges, and progress are saved to `localStorage` automatically as you play. See [Run persistence](#run-persistence) below.
+- Settings gained a volume slider (independent of the mute toggle), a "Fast Spin" option that shortens the wheel's reveal animation to under half a second without changing the odds or outcome, and a restart control, so you don't have to leave the Settings screen to start over.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 

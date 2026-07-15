@@ -9,6 +9,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../services/sound-fx-service/sound-fx.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PendingSpinService } from '../services/pending-spin-service/pending-spin.service';
+import { SettingsService } from '../services/settings-service/settings.service';
 
 @Component({
   selector: 'app-wheel',
@@ -57,7 +58,8 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     private translateService: TranslateService,
     private soundFxService: SoundFxService,
     private modalService: NgbModal,
-    private pendingSpinService: PendingSpinService
+    private pendingSpinService: PendingSpinService,
+    private settingsService: SettingsService
   ) {
     this.clickAudio = this.soundFxService.createClickSoundFx();
     this.darkMode = this.themeService.isDark$;
@@ -298,6 +300,12 @@ export class WheelComponent implements AfterViewInit, OnChanges {
   spinWheel(): void {
     if (this.spinning) {
       return;
+    }
+
+    if (this.settingsService.currentSettings.fastSpin) {
+      // Shorten just this spin's reveal animation; winningNumber/finalRotation math
+      // below is untouched, so the wheel still visibly eases onto the right segment.
+      this.duration = 400;
     }
 
     this.spinning = true;
