@@ -16,6 +16,6 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run test -- --watch=false --browsers=ChromeHeadless
-      - run: npx ng deploy --base-href=/pokemon-roulette-enhanced/
+      - run: npx ng deploy --base-href=/pokemon-roulette-enhanced/ --name="github-actions[bot]" --email="github-actions[bot]@users.noreply.github.com"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
