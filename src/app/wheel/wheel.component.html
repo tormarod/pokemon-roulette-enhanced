@@ -1,10 +1,11 @@
 <div class="wheel-container">
-    <p>{{ currentSegment | translate }}</p>
+    <p aria-live="polite">{{ currentSegment | translate }}</p>
     <div class="canvas-container">
         <canvas id="wheel"
                 #wheel
                 [width]="wheelWidth"
                 [height]="canvasHeight"
+                [attr.aria-label]="'wheel.spin' | translate"
                 (click)="spinWheel()">
         </canvas>
         <canvas id="pointer"
