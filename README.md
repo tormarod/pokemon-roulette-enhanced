@@ -1,4 +1,4 @@
-# pokemon-roulette
+# pokemon-roulette-enhanced
 A game involving Pokémon and Roulettes
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.2.
