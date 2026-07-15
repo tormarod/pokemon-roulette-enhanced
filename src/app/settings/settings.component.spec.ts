@@ -17,6 +17,7 @@ describe('SettingsComponent', () => {
   let fixture: ComponentFixture<SettingsComponent>;
 
   beforeEach(async () => {
+    localStorage.clear();
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
     httpSpyObj.get.and.returnValue(of({ sprites: { other: { 'official-artwork': { front_default: 'url', front_shiny: 'url' } } } }));
 
