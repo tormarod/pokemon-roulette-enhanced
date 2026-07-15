@@ -4,8 +4,10 @@
     "darkmode": "Mode sombre",
     "explanations": "Moins d'explications",
     "muteAudio": "Couper l'Audio",
+    "volume": "Volume",
     "skipShinyRolls": "Omettre les Roulettes Shiny",
     "skipMegaEvolutionAnimation": "Passer l'animation de Mega Evolution",
+    "fastSpin": "Rotation Rapide",
     "defaultGender": {
       "title": "Genre du personnage",
       "male": "Toujours Garçon",

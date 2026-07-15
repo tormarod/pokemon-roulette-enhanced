@@ -3,8 +3,10 @@ import { BehaviorSubject, distinctUntilChanged, Observable } from 'rxjs';
 
 export interface GameSettings {
   muteAudio: boolean;
+  volume: number;
   skipShinyRolls: boolean;
   skipMegaEvolutionAnimation: boolean;
+  fastSpin: boolean;
   lessExplanations: boolean;
   defaultGender: 'male' | 'female' | 'always-choose';
 }
@@ -17,8 +19,10 @@ export class SettingsService {
   private readonly STORAGE_KEY = 'pokemon-roulette-settings';
   private readonly defaultSettings: GameSettings = {
     muteAudio: false,
+    volume: 1,
     skipShinyRolls: false,
     skipMegaEvolutionAnimation: false,
+    fastSpin: false,
     lessExplanations: false,
     defaultGender: 'always-choose'
   };
@@ -46,6 +50,19 @@ export class SettingsService {
   toggleSkipShinyRolls(): void {
     const currentSettings = this.currentSettings;
     const newSettings = { ...currentSettings, skipShinyRolls: !currentSettings.skipShinyRolls };
+    this.updateSettings(newSettings);
+  }
+
+  /** Clamped to [0, 1]. Independent of muteAudio, which stays a fast full-silence toggle. */
+  setVolume(volume: number): void {
+    const currentSettings = this.currentSettings;
+    const newSettings = { ...currentSettings, volume: Math.max(0, Math.min(1, volume)) };
+    this.updateSettings(newSettings);
+  }
+
+  toggleFastSpin(): void {
+    const currentSettings = this.currentSettings;
+    const newSettings = { ...currentSettings, fastSpin: !currentSettings.fastSpin };
     this.updateSettings(newSettings);
   }
 

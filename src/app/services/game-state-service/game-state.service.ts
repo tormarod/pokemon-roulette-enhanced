@@ -63,6 +63,17 @@ export class GameStateService {
     this.stateStack.push(newState);
   }
 
+  getStateStack(): GameState[] {
+    return [...this.stateStack];
+  }
+
+  /** Directly overwrites state/stack/round from a saved run, bypassing the normal push/pop flow. */
+  restoreState(state: GameState, stateStack: GameState[], currentRound: number): void {
+    this.stateStack = [...stateStack];
+    this.currentRound.next(currentRound);
+    this.state.next(state);
+  }
+
   finishCurrentState(): GameState {
     if (this.stateStack.length > 0) {
       const poppedState = this.stateStack.pop();

@@ -327,8 +327,20 @@ export class TrainerService implements OnDestroy {
     this.trainerItemsObservable.next(this.trainerItems);
   }
 
+  /** Bulk-overwrites items from a saved run. */
+  restoreItems(items: ItemItem[]): void {
+    this.trainerItems = [...items];
+    this.trainerItemsObservable.next(this.trainerItems);
+  }
+
   getBadgesObservable(): Observable<Badge[]> {
     return this.trainerBadgesObservable.asObservable();
+  }
+
+  /** Bulk-overwrites badges from a saved run. */
+  restoreBadges(badges: Badge[]): void {
+    this.trainerBadges = [...badges];
+    this.trainerBadgesObservable.next(this.trainerBadges);
   }
 
   addBadge(fromRound: number, fromLeader: number = 0): void {

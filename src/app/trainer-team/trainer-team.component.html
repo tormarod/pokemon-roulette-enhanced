@@ -24,6 +24,7 @@
                                         placement="bottom"
                                         container="body"
                                         [ngbTooltip]="pokemonInfoTooltip"
+                                        triggers="hover click"
                                         [tooltipContext]="{ pokemon: trainerTeam[i] }">
 
                                    @if (getMegaStoneSprite(trainerTeam[i]); as megaStoneSprite) {

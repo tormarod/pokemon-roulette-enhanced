@@ -4,8 +4,10 @@
     "darkmode": "Modo oscuro",
     "explanations": "Menos explicaciones",
     "muteAudio": "Silenciar Audio",
+    "volume": "Volumen",
     "skipShinyRolls": "Omitir Tiradas de Shiny",
     "skipMegaEvolutionAnimation": "Omitir animacion de Mega Evolucion",
+    "fastSpin": "Giro Rápido",
     "defaultGender": {
       "title": "Género del Personaje",
       "male": "Siempre Chico",

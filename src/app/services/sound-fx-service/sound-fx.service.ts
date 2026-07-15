@@ -135,8 +135,9 @@ export class SoundFxService {
       gain.connect(context.destination);
 
       const clampedVolume = Math.max(0, Math.min(1, volume));
-      // Mute policy is future-only: each new play reads current mute state.
-      gain.gain.value = this.settingsService.currentSettings.muteAudio ? 0 : clampedVolume;
+      // Mute policy is future-only: each new play reads current mute/volume state.
+      const { muteAudio, volume: volumeSetting } = this.settingsService.currentSettings;
+      gain.gain.value = muteAudio ? 0 : clampedVolume * volumeSetting;
 
       this.trackActiveSource(handle, source);
       source.onended = () => {
