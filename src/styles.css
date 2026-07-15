@@ -45,7 +45,7 @@ body.theme-plain-light {
    fixed regardless of how much (or how little) content it holds, the wheel
    below it also always starts at the same vertical position. */
 .roulette-header {
-  min-height: 220px;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -55,7 +55,7 @@ body.theme-plain-light {
 
 @media (max-width: 768px) {
   .roulette-header {
-    min-height: 170px;
+    min-height: 110px;
   }
 }
 
