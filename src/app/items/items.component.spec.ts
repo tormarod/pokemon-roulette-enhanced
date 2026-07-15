@@ -63,4 +63,12 @@ describe('ItemsComponent', () => {
     expect(component.rareCandyInterrupt.emit).not.toHaveBeenCalled();
     expect(component.megaStoneInterrupt.emit).not.toHaveBeenCalled();
   });
+
+  it('should build the hover tooltip from both the item name and its description', () => {
+    component.trainerItems = [
+      { name: 'honey', text: 'Honey', fillStyle: '', weight: 1, description: 'Biases your next catch or trade.', sprite: '' } as any
+    ];
+
+    expect(component.getItemText(0)).toBe('Honey — Biases your next catch or trade.');
+  });
 });
