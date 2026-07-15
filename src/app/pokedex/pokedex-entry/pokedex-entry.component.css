@@ -4,9 +4,12 @@
   height: 40px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  perspective: 200px;
   cursor: default;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .pokedex-cell.light-cell {
@@ -32,6 +35,11 @@
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
+.pokedex-cell.not-captured .cell-img {
+  filter: grayscale(100%) brightness(0.65);
+  opacity: 0.75;
+}
+
 .number-badge {
   position: absolute;
   top: 2px;
@@ -44,39 +52,6 @@
   border-radius: 2px;
   z-index: 2;
   pointer-events: none;
-}
-
-.pokedex-cell-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  transition: transform 0.4s ease;
-}
-
-.pokedex-cell.seen .pokedex-cell-inner {
-  transform: rotateY(180deg);
-}
-
-.pokedex-cell-front,
-.pokedex-cell-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-}
-
-.pokedex-cell-back {
-  transform: rotateY(180deg);
 }
 
 .cell-img {

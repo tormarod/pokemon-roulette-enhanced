@@ -2793,7 +2793,9 @@
       "local": "{{region}} Dex",
       "national": "National Dex"
     },
-    "caught": "Caught:"
+    "caught": "Caught:",
+    "search": "Search by name...",
+    "notCaptured": "Not yet captured"
   },
   "detail": {
     "name": "Name",

@@ -37,3 +37,29 @@ body.theme-plain-light {
   margin-left: 0px;
   margin-right: 0px;
 }
+
+/* ── Pokémon info tooltip (trainer team) ───────────────────────────────────── */
+
+.pokemon-tooltip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.1rem 0.2rem;
+}
+
+.pokemon-tooltip-name {
+  font-weight: bold;
+}
+
+.pokemon-tooltip-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  justify-content: center;
+}
+
+.pokemon-tooltip-type-icon {
+  width: 4rem;
+  height: auto;
+}

@@ -17,7 +17,12 @@
           @for (pokemon of trainerTeam; track pokemon) {
             <div  class="pokemon-storage-card shadow"
                   cdkDrag>
-              <img class="img-fluid" [src]="getSprite(pokemon)">
+              <img class="img-fluid"
+                   [src]="getSprite(pokemon)"
+                   placement="bottom"
+                   container="body"
+                   [ngbTooltip]="pokemonInfoTooltip"
+                   [tooltipContext]="{ pokemon: pokemon }">
             </div>
           }
     </div>
@@ -33,7 +38,12 @@
         <div  class="pokemon-storage-card shadow"
               [cdkDragData]="pokemon"
               cdkDrag>
-          <img [src]="getSprite(pokemon)" class="img-fluid">
+          <img [src]="getSprite(pokemon)"
+               class="img-fluid"
+               placement="bottom"
+               container="body"
+               [ngbTooltip]="pokemonInfoTooltip"
+               [tooltipContext]="{ pokemon: pokemon }">
         </div>
       }
     </div>
@@ -55,4 +65,16 @@
   <div class="modal-footer">
       <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
   </div>
+</ng-template>
+
+<ng-template #pokemonInfoTooltip let-pokemon="pokemon">
+     <div class="pokemon-tooltip">
+          <div class="pokemon-tooltip-name">{{ pokemon.text | translate }}</div>
+          <div class="pokemon-tooltip-power">{{ 'detail.power' | translate }}: {{ pokemon.power }}</div>
+          <div class="pokemon-tooltip-types">
+               @for (type of getPokemonTypes(pokemon); track type) {
+                    <img class="pokemon-tooltip-type-icon" [src]="getTypeIconUrl(type)" [alt]="type">
+               }
+          </div>
+     </div>
 </ng-template>

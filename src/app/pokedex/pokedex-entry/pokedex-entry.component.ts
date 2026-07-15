@@ -10,7 +10,7 @@ import { PokedexEntry } from '../../services/pokedex-service/pokedex.service';
 
 export interface PokedexEntryClickEvent {
   pokemonId: number;
-  entry: PokedexEntry;
+  entry: PokedexEntry | undefined;
 }
 
 @Component({
@@ -27,8 +27,6 @@ export class PokedexEntryComponent implements OnInit {
 
   darkMode!: Observable<boolean>;
 
-  readonly unknownPngUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/items/unknown.png';
-
   constructor(
     private darkModeService: DarkModeService,
     private themeService: ThemeService,
@@ -39,7 +37,7 @@ export class PokedexEntryComponent implements OnInit {
     this.darkMode = this.themeService.isDark$;
   }
 
-  get isSeen(): boolean {
+  get isCaptured(): boolean {
     return !!this.entry;
   }
 
@@ -52,11 +50,10 @@ export class PokedexEntryComponent implements OnInit {
   }
 
   get spriteUrl(): string | null {
-    return this.entry?.sprite ?? null;
+    return this.entry?.sprite ?? this.pokemonService.getPokemonById(this.pokemonId)?.sprite?.front_default ?? null;
   }
 
   onCellClick(): void {
-    if (!this.isSeen) return;
     this.entryClicked.emit({ pokemonId: this.pokemonId, entry: this.entry! });
   }
 

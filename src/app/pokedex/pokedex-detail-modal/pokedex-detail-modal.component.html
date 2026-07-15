@@ -39,6 +39,10 @@
     </tbody>
   </table>
 
+  @if (!entry) {
+    <p class="text-muted small mb-2">{{ 'pokedex.notCaptured' | translate }}</p>
+  }
+
   @if (hasShinyToggle) {
     <button class="btn btn-sm mb-2"
             [ngClass]="showShiny ? 'btn-warning' : 'btn-outline-warning'"

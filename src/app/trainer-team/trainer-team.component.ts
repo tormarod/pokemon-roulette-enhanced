@@ -12,6 +12,7 @@ import { StoragePcComponent } from "./storage-pc/storage-pc.component";
 import { PokedexComponent } from "./pokedex/pokedex.component";
 import {TranslatePipe} from '@ngx-translate/core';
 import { ItemItem } from '../interfaces/item-item';
+import { PokemonType, pokemonTypeDataByKey } from '../interfaces/pokemon-type';
 
 @Component({
   selector: 'app-trainer-team',
@@ -39,6 +40,8 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   private teamSubscription!: Subscription;
   private badgesSubscription!: Subscription;
 
+  private readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
+
   ngOnInit(): void {
     this.trainerSubscription = this.trainerService.getTrainer().subscribe(trainer => {
       this.trainer = trainer;
@@ -56,6 +59,15 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     this.trainerSubscription?.unsubscribe();
     this.teamSubscription?.unsubscribe();
     this.badgesSubscription?.unsubscribe();
+  }
+
+  getPokemonTypes(pokemon: PokemonItem): PokemonType[] {
+    return [pokemon.type1, pokemon.type2].filter((type): type is PokemonType => !!type);
+  }
+
+  getTypeIconUrl(type: PokemonType): string {
+    const typeData = pokemonTypeDataByKey[type];
+    return `${this.typeIconBaseUrl}/${typeData.id}.png`;
   }
 
   getSprite(pokemon: PokemonItem): string {

@@ -2793,7 +2793,9 @@
       "local": "{{region}}-Pokédex",
       "national": "Nationaler Pokédex"
     },
-    "caught": "Gefangen:"
+    "caught": "Gefangen:",
+    "search": "Nach Namen suchen...",
+    "notCaptured": "Noch nicht gefangen"
   },
   "detail": {
     "name": "Name",
