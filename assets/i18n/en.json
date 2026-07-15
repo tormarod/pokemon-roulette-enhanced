@@ -4,8 +4,10 @@
     "darkmode": "Dark Mode",
     "explanations": "Less Explanations",
     "muteAudio": "Mute Audio",
+    "volume": "Volume",
     "skipShinyRolls": "Hide Shiny Rolls",
     "skipMegaEvolutionAnimation": "Skip Mega Evolution Animation",
+    "fastSpin": "Fast Spin",
     "defaultGender": {
       "title": "Character Gender",
       "male": "Always Boy",

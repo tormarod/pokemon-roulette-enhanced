@@ -4,8 +4,10 @@
     "darkmode": "Modalità scura",
     "explanations": "Meno spiegazioni",
     "muteAudio": "Disattiva audio",
+    "volume": "Volume",
     "skipShinyRolls": "Nascondi i tiri Shiny",
     "skipMegaEvolutionAnimation": "Salta animazione Mega Evoluzione",
+    "fastSpin": "Rotazione Rapida",
     "defaultGender": {
       "title": "Genere del personaggio",
       "male": "Sempre Ragazzo",
