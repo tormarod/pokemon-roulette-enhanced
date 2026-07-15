@@ -23,7 +23,10 @@
     "title": "Having fun spinning? 😁",
     "how_to_help": "If you want to help, you can donate.",
     "donations": "Donations of any amount will be help with motivation for new features.",
-    "support": "Ways to Support",
+    "support": "Support the Original Creator",
+    "supportFork": "Support This Fork",
+    "supportForkDescription": "If you enjoy the new features, consider supporting this fork too!",
+    "buyMeACoffee": "Buy me a Coffee",
     "thanks": "Thank You for playing!",
     "hope": "Whether you donate or simply share the game with others, I hope you have fun!"
   },
@@ -115,7 +118,12 @@
     "bulbapedia": "For their trainer's Sprites which are being used in this project",
     "images": "All image contents of Pokémon and Pokémon related items are Copyright of The Pokémon Company.",
     "endThanks": "Thank You for Playing!",
-    "endWords": "Hope you can have fun with your friends and family playing this game :)"
+    "endWords": "Hope you can have fun with your friends and family playing this game :)",
+    "enhancedFork": {
+      "title": "Enhanced Fork",
+      "description": "This version adds new features on top of the original game. Source code on",
+      "by": "Enhanced by"
+    }
   },
   "game": {
     "coffeeButton": {
