@@ -5,11 +5,14 @@ import { TranslateModule } from '@ngx-translate/core';
 
 describe('WheelComponent', () => {
   const sigmaTolerance = (p: number, runs: number, sigma = 4) => sigma * Math.sqrt((p * (1 - p)) / runs);
+  const PENDING_SPIN_KEY = 'pokemon-roulette-pending-spin';
 
   let component: WheelComponent;
   let fixture: ComponentFixture<WheelComponent>;
 
   beforeEach(async () => {
+    localStorage.clear();
+
     await TestBed.configureTestingModule({
       imports: [WheelComponent, TranslateModule.forRoot()]
     })
@@ -121,5 +124,71 @@ describe('WheelComponent', () => {
     for (let i = 1; i < probabilities.length; i++) {
       expect(Math.abs(probabilities[i] - expectedForLower)).toBeLessThan(lowerTolerance);
     }
+  });
+
+  // ── Pending-spin exploit-proofing: outcome locks in at click time ──────────
+
+  it('should commit a pending spin the instant spinWheel is called, before the animation resolves', () => {
+    component.items = [
+      { text: 'a', weight: 1, fillStyle: 'red' },
+      { text: 'b', weight: 1, fillStyle: 'blue' },
+    ];
+    (component as any).translatedItems = component.items;
+    const pendingSpinService = (component as any).pendingSpinService;
+    spyOn(pendingSpinService, 'commitPendingSpin');
+
+    component.spinWheel();
+
+    expect(pendingSpinService.commitPendingSpin)
+      .toHaveBeenCalledWith(component.items[component.winningNumber].text);
+  });
+
+  it('should clear the pending spin once a spin resolves normally', () => {
+    component.items = [
+      { text: 'a', weight: 1, fillStyle: 'red' },
+    ];
+    (component as any).translatedItems = component.items;
+    (component as any).duration = 0;
+    const pendingSpinService = (component as any).pendingSpinService;
+    spyOn(pendingSpinService, 'clearPendingSpin');
+
+    (component as any).startTime = performance.now() - 1;
+    (component as any).finalRotation = 0;
+    (component as any).winningNumber = 0;
+    (component as any).animate(performance.now());
+
+    expect(pendingSpinService.clearPendingSpin).toHaveBeenCalled();
+  });
+
+  it('should resolve an already-committed pending spin on init instead of animating a fresh spin', () => {
+    localStorage.setItem(PENDING_SPIN_KEY, 'b');
+
+    const freshFixture = TestBed.createComponent(WheelComponent);
+    const freshComponent = freshFixture.componentInstance;
+    freshComponent.items = [
+      { text: 'a', weight: 1, fillStyle: 'red' },
+      { text: 'b', weight: 1, fillStyle: 'blue' },
+    ];
+    spyOn(freshComponent.selectedItemEvent, 'emit');
+
+    freshFixture.detectChanges();
+
+    expect(freshComponent.selectedItemEvent.emit).toHaveBeenCalledWith(1);
+    expect(localStorage.getItem(PENDING_SPIN_KEY)).toBeNull();
+  });
+
+  it('should not resolve a pending spin whose text no longer matches any current item', () => {
+    localStorage.setItem(PENDING_SPIN_KEY, 'no-such-item');
+
+    const freshFixture = TestBed.createComponent(WheelComponent);
+    const freshComponent = freshFixture.componentInstance;
+    freshComponent.items = [
+      { text: 'a', weight: 1, fillStyle: 'red' },
+    ];
+    spyOn(freshComponent.selectedItemEvent, 'emit');
+
+    freshFixture.detectChanges();
+
+    expect(freshComponent.selectedItemEvent.emit).not.toHaveBeenCalled();
   });
 });

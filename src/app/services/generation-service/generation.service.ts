@@ -32,6 +32,14 @@ export class GenerationService {
     this.generation.next(this.generations[index]);
   }
 
+  /** Sets the current generation by its stable `id`, robust to array-order changes. */
+  setGenerationById(id: number): void {
+    const generation = this.generations.find(g => g.id === id);
+    if (generation) {
+      this.generation.next(generation);
+    }
+  }
+
   getGeneration(): Observable<GenerationItem> {
     return this.generation.asObservable();
   }

@@ -8,6 +8,7 @@ import { GameStateService } from '../services/game-state-service/game-state.serv
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../services/sound-fx-service/sound-fx.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { PendingSpinService } from '../services/pending-spin-service/pending-spin.service';
 
 @Component({
   selector: 'app-wheel',
@@ -55,7 +56,8 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     private gameStateService: GameStateService,
     private translateService: TranslateService,
     private soundFxService: SoundFxService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private pendingSpinService: PendingSpinService
   ) {
     this.clickAudio = this.soundFxService.createClickSoundFx();
     this.darkMode = this.themeService.isDark$;
@@ -77,7 +79,31 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       this.preprocessTranslations();
       this.drawWheel();
       this.drawPointer();
+      this.resolvePendingSpinIfAny();
     });
+  }
+
+  /**
+   * If the page was reloaded mid-spin, a previous spinWheel() call already committed
+   * a winning outcome before the reveal animation could finish. Resolve it immediately
+   * (no animation) instead of presenting a fresh, unspun wheel — the result was already
+   * locked in the moment it was clicked.
+   */
+  private resolvePendingSpinIfAny(): void {
+    const pendingWinningText = this.pendingSpinService.consumePendingSpin();
+    if (pendingWinningText === null) {
+      return;
+    }
+
+    const resolvedIndex = this.items.findIndex(item => item.text === pendingWinningText);
+    if (resolvedIndex === -1) {
+      return;
+    }
+
+    this.winningNumber = resolvedIndex;
+    this.spinning = false;
+    this.selectedItemEvent.emit(this.winningNumber);
+    this.gameStateService.setWheelSpinning(false);
   }
 
   @HostListener('window:resize')
@@ -283,6 +309,9 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     const arcSize = (2 * Math.PI) / (totalWeight);
 
     this.winningNumber = this.getRandomWeightedIndex();
+    // Lock the outcome in immediately, before the reveal animation plays — a reload
+    // mid-animation must resolve to this same result, not offer a fresh roll.
+    this.pendingSpinService.commitPendingSpin(this.items[this.winningNumber].text);
 
     this.totalRotations = Math.floor(Math.random() * 4) + 1;
 
@@ -319,6 +348,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       this.spinning = false;
       this.selectedItemEvent.emit(this.winningNumber);
       this.gameStateService.setWheelSpinning(false);
+      this.pendingSpinService.clearPendingSpin();
     }
 
     const segment = this.getCurrentSegment();

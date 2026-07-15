@@ -7,6 +7,7 @@ This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm
 - A full Pokédex view showing every Pokémon (not just caught ones), greyed out until captured, with name search.
 - A reworked type advantage/disadvantage system in battles that stays meaningful at any power level — see [Battle balancing](#battle-balancing) below.
 - "Go Straight" (skip ahead to the next fight without spinning) is now a standalone button below the wheel instead of a wheel option, so opting out of the gamble is a deliberate choice rather than a slice you can land on by chance.
+- Your run now survives a reload or closed tab — team, items, badges, and progress are saved to `localStorage` automatically as you play. See [Run persistence](#run-persistence) below.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 
@@ -23,6 +24,14 @@ Every battle (gym, rival, Elite Four, Champion) resolves as a weighted Yes/No wh
 This replaces an earlier team-size-scaled version of the same idea, which turned out to be confusing in practice: a Pokémon's bonus/penalty could change just because a different, unrelated team member was added or removed, since the delta was looked up from team size rather than the Pokémon itself. Tying it to the Pokémon's own power instead fixes that, and also gives natural, built-in protection for early game (a power-1 starter can only ever swing by ±1) without needing a separate rule for it.
 
 The full calculation lives in [`TypeMatchupService`](src/app/services/type-matchup-service/type-matchup.service.ts), shared by all four battle types via [`BaseBattleRouletteComponent.buildVictoryOdds()`](src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts).
+
+## Run persistence
+
+The game auto-saves your run to `localStorage` as you play — team, PC storage, items, badges, round, and current screen — via [`RunPersistenceService`](src/app/services/run-persistence-service/run-persistence.service.ts). On startup, if a save exists, it's restored before the first screen renders, so a reload or closed tab drops you back where you left off instead of wiping the run. The save is cleared automatically once a run ends (win or loss) or is restarted.
+
+Saving happens on every committed change (team/item/badge/state mutation), not on a timer or only at major checkpoints — this matters for fairness: a save that only happened between battles would let a player spend a potion for extra retries, reload before the battle resolves, and get the potion back for free. Auto-saving on every committed mutation closes that off, since a reload can never rewind past something that already happened.
+
+The wheel spin itself gets the same treatment via a separate, lightweight [`PendingSpinService`](src/app/services/pending-spin-service/pending-spin.service.ts): the instant you click spin, the outcome is decided and committed — before the multi-second reveal animation plays, not after. Reloading mid-animation doesn't offer a fresh roll; the next load immediately resolves to the same outcome you already locked in. What's *not* saved (mid-battle retry count from an unconsumed potion, other in-progress on-screen choices) can only be forfeited by reloading, never regained — reloading mid-fight loses you the extra retries a potion bought, but the potion itself stays spent.
 
 ## Development server
 
