@@ -48,6 +48,11 @@
         (selectedItemEvent)="continueWithItem($event)">
     </app-select-from-item-list-roulette>
   }
+  @case ('select-from-type-list') {
+    <app-select-from-type-list-roulette
+        (selectedTypeEvent)="continueWithType($event)">
+    </app-select-from-type-list-roulette>
+  }
   @case ('select-form') {
     <app-select-form-roulette
         [forms]="pokemonForms"

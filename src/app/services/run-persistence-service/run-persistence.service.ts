@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { GameState } from '../game-state-service/game-state';
 import { GameStateService } from '../game-state-service/game-state.service';
-import { TrainerService } from '../trainer-service/trainer.service';
+import { PendingTypeBiases, TrainerService } from '../trainer-service/trainer.service';
 import { GenerationService } from '../generation-service/generation.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
@@ -18,6 +18,7 @@ export interface SavedRun {
   trainerBadges: Badge[];
   gender: string;
   generationId: number;
+  pendingTypeBiases: PendingTypeBiases;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -50,7 +51,8 @@ export class RunPersistenceService {
       this.trainerService.getBadgesObservable(),
       this.trainerService.getTrainer(),
       this.generationService.getGeneration(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation]) => {
+      this.trainerService.getPendingTypeBiasesObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -66,6 +68,7 @@ export class RunPersistenceService {
         trainerBadges,
         gender: this.trainerService.gender,
         generationId: generation.id,
+        pendingTypeBiases,
       });
     });
   }
@@ -98,6 +101,8 @@ export class RunPersistenceService {
     this.trainerService.restoreItems(run.trainerItems);
     this.trainerService.restoreBadges(run.trainerBadges);
     this.trainerService.setTrainer(run.generationId, run.gender);
+    // Older saves (pre-dating this field) won't have pendingTypeBiases at all — treat as none.
+    this.trainerService.restorePendingTypeBiases(run.pendingTypeBiases ?? { toward: null, away: null });
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
   }
 
@@ -123,7 +128,8 @@ export class RunPersistenceService {
       Array.isArray(run.trainerItems) &&
       Array.isArray(run.trainerBadges) &&
       typeof run.gender === 'string' &&
-      typeof run.generationId === 'number'
+      typeof run.generationId === 'number' &&
+      (run.pendingTypeBiases === undefined || typeof run.pendingTypeBiases === 'object')
     );
   }
 }

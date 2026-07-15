@@ -367,4 +367,95 @@ describe('RouletteContainerComponent', () => {
       expect(trainerService.removeItem).not.toHaveBeenCalled();
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-03: handleTypeBiasItemUse / continueWithType
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleTypeBiasItemUse / continueWithType', () => {
+    const HONEY: any = { name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const REPEL: any = { name: 'repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const POKE_RADAR: any = { name: 'poke-radar', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const MAX_REPEL: any = { name: 'max-repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    it('re-queues the current state, removes the item, and opens the type picker', () => {
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      spyOn(trainerService, 'removeItem');
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+
+      expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
+      expect(trainerService.removeItem).toHaveBeenCalledWith(HONEY);
+      expect(component.getGameState()).toBe('select-from-type-list');
+    });
+
+    it('sets a soft toward bias for Honey', () => {
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('water');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+
+    it('sets a soft away bias for Repel', () => {
+      (component as any).handleTypeBiasItemUse(REPEL);
+      component.continueWithType('fire');
+
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'fire', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+    });
+
+    it('sets a hard toward bias for Poké Radar', () => {
+      (component as any).handleTypeBiasItemUse(POKE_RADAR);
+      component.continueWithType('grass');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'grass', mode: 'hard' });
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+
+    it('sets a hard away bias for Max Repel', () => {
+      (component as any).handleTypeBiasItemUse(MAX_REPEL);
+      component.continueWithType('electric');
+
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+    });
+
+    it('keeps both a toward and an away bias active at the same time when both items are used', () => {
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('water');
+      (component as any).handleTypeBiasItemUse(MAX_REPEL);
+      component.continueWithType('electric');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
+    });
+
+    it('does nothing if continueWithType is called with no pending item', () => {
+      component.continueWithType('psychic');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-04: handleLinkCable
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleLinkCable', () => {
+    const LINK_CABLE: any = { name: 'link-cable', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    it('re-queues the current state, removes the item, and triggers a trade', () => {
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      spyOn(trainerService, 'removeItem');
+      spyOn(component, 'tradePokemon').and.callThrough();
+
+      (component as any).handleLinkCable(LINK_CABLE);
+
+      expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
+      expect(trainerService.removeItem).toHaveBeenCalledWith(LINK_CABLE);
+      expect(component.tradePokemon).toHaveBeenCalled();
+    });
+  });
 });

@@ -189,6 +189,12 @@
           "stoneDesc": "Tocca l'icona della Mega Pietra per attivare la Mega Evoluzione in battaglia!"
         }
       },
+      "activeBias": {
+        "softToward": "Orientato verso",
+        "hardToward": "Garantito",
+        "softAway": "Allontanato da",
+        "hardAway": "Escluso"
+      },
       "roulette": {
         "generation": {
           "title": "Generazione?",
@@ -403,6 +409,9 @@
           "title": "Scambiare per?",
           "which": "Quale Pokémon scambiare?"
         },
+        "typeBias": {
+          "which": "Quale tipo?"
+        },
         "mega": {
           "who": "Chi riceverà una Mega Pietra?",
           "whichStone": "Quale Mega Pietra verrà assegnata?",
@@ -469,6 +478,26 @@
     "escape-rope": {
       "name": "Fune di Fuga",
       "description": "La Fune di Fuga ti salva dalle situazioni difficili!"
+    },
+    "honey": {
+      "name": "Miele",
+      "description": "Usa il Miele per orientare la tua prossima cattura o scambio verso un tipo scelto, fino alla tua prossima palestra!"
+    },
+    "repel": {
+      "name": "Repellente",
+      "description": "Usa il Repellente per allontanare la tua prossima cattura o scambio da un tipo scelto, fino alla tua prossima palestra!"
+    },
+    "poke-radar": {
+      "name": "PokéRadar",
+      "description": "Il PokéRadar garantisce che la tua prossima cattura o scambio sia del tipo scelto, fino alla tua prossima palestra!"
+    },
+    "max-repel": {
+      "name": "Repellente Max",
+      "description": "Il Repellente Max esclude completamente un tipo scelto dalla tua prossima cattura o scambio, fino alla tua prossima palestra!"
+    },
+    "link-cable": {
+      "name": "Cavo Link",
+      "description": "Usa il Cavo Link per attivare subito un'offerta di scambio!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2855,25 @@
       "off": "Normale"
     },
     "mega": "⚡ Mega Evoluto"
+  },
+  "pokemonType": {
+    "normal": "Normale",
+    "fighting": "Lotta",
+    "flying": "Volante",
+    "poison": "Veleno",
+    "ground": "Terra",
+    "rock": "Roccia",
+    "bug": "Insetto",
+    "ghost": "Spettro",
+    "steel": "Acciaio",
+    "fire": "Fuoco",
+    "water": "Acqua",
+    "grass": "Erba",
+    "electric": "Elettro",
+    "psychic": "Psico",
+    "ice": "Ghiaccio",
+    "dragon": "Drago",
+    "dark": "Buio",
+    "fairy": "Folletto"
   }
 }

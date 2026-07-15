@@ -30,6 +30,10 @@ export class ItemsComponent implements OnInit, OnDestroy {
   trainerItems!: ItemItem[];
   @Output() rareCandyInterrupt = new EventEmitter<ItemItem>();
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
+  @Output() typeBiasItemInterrupt = new EventEmitter<ItemItem>();
+  @Output() linkCableInterrupt = new EventEmitter<ItemItem>();
+
+  private static readonly TYPE_BIAS_ITEM_NAMES = new Set(['honey', 'poke-radar', 'repel', 'max-repel']);
 
   darkMode!: Observable<boolean>;
   private itemsSubscription!: Subscription;
@@ -50,6 +54,10 @@ export class ItemsComponent implements OnInit, OnDestroy {
         this.rareCandyInterrupt.emit(item);
       } else if (isMegaStoneItemName(item.name)) {
         this.megaStoneInterrupt.emit(item);
+      } else if (item.name === 'link-cable') {
+        this.linkCableInterrupt.emit(item);
+      } else if (ItemsComponent.TYPE_BIAS_ITEM_NAMES.has(item.name)) {
+        this.typeBiasItemInterrupt.emit(item);
       }
     }
   }

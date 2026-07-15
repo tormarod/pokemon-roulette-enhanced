@@ -106,6 +106,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'female',
       generationId: 3,
+      pendingTypeBiases: { toward: { type: 'water', mode: 'soft' }, away: null },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -124,6 +125,63 @@ describe('RunPersistenceService', () => {
     let observedState: string | undefined;
     restoredGameStateService.currentState.subscribe(s => observedState = s);
     expect(observedState).toBe('gym-battle');
+  });
+
+  it('should save a run snapshot to localStorage when a pending type bias changes', () => {
+    trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.pendingTypeBiases).toEqual({ toward: { type: 'fire', mode: 'hard' }, away: null });
+  });
+
+  it('should restore both pending type biases from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: { type: 'water', mode: 'soft' }, away: { type: 'grass', mode: 'hard' } },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
+    expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual({ type: 'grass', mode: 'hard' });
+  });
+
+  it('should treat an older saved run with no pendingTypeBiases field as having none, without throwing', () => {
+    const legacyRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 0,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      // pendingTypeBiases intentionally omitted, simulating a pre-existing save.
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(() => {
+      TestBed.resetTestingModule();
+      configureFreshTestBed();
+      TestBed.inject(RunPersistenceService);
+    }).not.toThrow();
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toBeNull();
+    expect(restoredTrainerService.currentPendingTypeBiases.away).toBeNull();
   });
 
   it('should discard a corrupt saved run and fall back to a fresh run without throwing', () => {

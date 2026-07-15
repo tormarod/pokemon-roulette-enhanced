@@ -6,4 +6,9 @@ export type RegularItemName =
   | 'x-attack'
   | 'exp-share'
   | 'hyper-potion'
-  | 'escape-rope';
+  | 'escape-rope'
+  | 'honey'
+  | 'repel'
+  | 'poke-radar'
+  | 'max-repel'
+  | 'link-cable';

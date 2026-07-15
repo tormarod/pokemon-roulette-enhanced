@@ -65,5 +65,45 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     fillStyle: 'maroon',
     weight: 1,
     description: 'items.escape-rope.description'
+  },
+  'honey': {
+    text: 'items.honey.name',
+    name: 'honey',
+    sprite: '',
+    fillStyle: 'goldenrod',
+    weight: 1,
+    description: 'items.honey.description'
+  },
+  'repel': {
+    text: 'items.repel.name',
+    name: 'repel',
+    sprite: '',
+    fillStyle: 'teal',
+    weight: 1,
+    description: 'items.repel.description'
+  },
+  'poke-radar': {
+    text: 'items.poke-radar.name',
+    name: 'poke-radar',
+    sprite: '',
+    fillStyle: 'darkred',
+    weight: 0.25,
+    description: 'items.poke-radar.description'
+  },
+  'max-repel': {
+    text: 'items.max-repel.name',
+    name: 'max-repel',
+    sprite: '',
+    fillStyle: 'darkslategray',
+    weight: 0.25,
+    description: 'items.max-repel.description'
+  },
+  'link-cable': {
+    text: 'items.link-cable.name',
+    name: 'link-cable',
+    sprite: '',
+    fillStyle: 'silver',
+    weight: 0.25,
+    description: 'items.link-cable.description'
   }
 };

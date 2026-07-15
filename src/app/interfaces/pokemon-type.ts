@@ -48,3 +48,9 @@ export const pokemonTypeDataByKey: Record<PokemonType, PokemonTypeData> = pokemo
   acc[typeData.key] = typeData;
   return acc;
 }, {} as Record<PokemonType, PokemonTypeData>);
+
+const TYPE_ICON_BASE_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
+
+export function getTypeIconUrl(type: PokemonType): string {
+  return `${TYPE_ICON_BASE_URL}/${pokemonTypeDataByKey[type].id}.png`;
+}

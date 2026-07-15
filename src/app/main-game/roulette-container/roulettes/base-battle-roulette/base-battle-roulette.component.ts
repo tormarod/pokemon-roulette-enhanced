@@ -10,7 +10,7 @@ import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
 import { WheelItem } from '../../../../interfaces/wheel-item';
-import { PokemonType, pokemonTypeDataByKey } from '../../../../interfaces/pokemon-type';
+import { PokemonType, getTypeIconUrl } from '../../../../interfaces/pokemon-type';
 import { interleaveOdds } from '../../../../utils/odd-utils';
 
 @Directive()
@@ -27,8 +27,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   /** Total power gained/lost across the whole team from the matchup, for display. */
   matchupAdvantageDelta = 0;
   matchupDisadvantageDelta = 0;
-
-  protected readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
   private gameSubscription: Subscription | null = null;
   private generationSubscription: Subscription | null = null;
@@ -71,7 +69,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   }
 
   getTypeIconUrl(type: PokemonType): string {
-    return `${this.typeIconBaseUrl}/${pokemonTypeDataByKey[type].id}.png`;
+    return getTypeIconUrl(type);
   }
 
   protected plusModifiers(): number {

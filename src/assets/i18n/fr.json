@@ -189,6 +189,12 @@
           "stoneDesc": "Touchez l'icône de Méga-Pierre pour activer la Méga-Évolution en combat!"
         }
       },
+      "activeBias": {
+        "softToward": "Orienté vers",
+        "hardToward": "Garanti",
+        "softAway": "Éloigné de",
+        "hardAway": "Exclu"
+      },
       "roulette": {
         "generation": {
           "title": "Génération?",
@@ -403,6 +409,9 @@
           "title": "Échanger contre?",
           "which": "Quel Pokémon Échanger?"
         },
+        "typeBias": {
+          "which": "Quel type?"
+        },
         "mega": {
           "who": "Qui recevra une Méga-Pierre?",
           "whichStone": "Quelle Méga-Pierre sera attribuée ?",
@@ -469,6 +478,26 @@
     "escape-rope": {
       "name": "Corde Sortie",
       "description": "La Corde Sortie te sauve des mauvaises situations!"
+    },
+    "honey": {
+      "name": "Miellée",
+      "description": "Utilise la Miellée pour orienter ta prochaine capture ou ton prochain échange vers un type choisi, jusqu'à ton prochain combat d'Arène!"
+    },
+    "repel": {
+      "name": "Repousse",
+      "description": "Utilise Repousse pour éloigner ta prochaine capture ou ton prochain échange d'un type choisi, jusqu'à ton prochain combat d'Arène!"
+    },
+    "poke-radar": {
+      "name": "PokéRadar",
+      "description": "Le PokéRadar garantit que ta prochaine capture ou ton prochain échange sera du type choisi, jusqu'à ton prochain combat d'Arène!"
+    },
+    "max-repel": {
+      "name": "Max Repousse",
+      "description": "Max Repousse exclut totalement un type choisi de ta prochaine capture ou ton prochain échange, jusqu'à ton prochain combat d'Arène!"
+    },
+    "link-cable": {
+      "name": "Câble Link",
+      "description": "Utilise le Câble Link pour déclencher immédiatement une offre d'échange!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2855,25 @@
       "off": "Normal"
     },
     "mega": "⚡ Méga Évolué"
+  },
+  "pokemonType": {
+    "normal": "Normal",
+    "fighting": "Combat",
+    "flying": "Vol",
+    "poison": "Poison",
+    "ground": "Sol",
+    "rock": "Roche",
+    "bug": "Insecte",
+    "ghost": "Spectre",
+    "steel": "Acier",
+    "fire": "Feu",
+    "water": "Eau",
+    "grass": "Plante",
+    "electric": "Électrik",
+    "psychic": "Psy",
+    "ice": "Glace",
+    "dragon": "Dragon",
+    "dark": "Ténèbres",
+    "fairy": "Fée"
   }
 }

@@ -55,6 +55,10 @@ import { MegaStoneService } from '../../services/mega-stone-service/mega-stone.s
 import { megaStoneNamesForBaseId, pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-forms';
 import { MegaEvolutionAnimationModalComponent } from './roulettes/mega-evolution-animation-modal/mega-evolution-animation-modal.component';
 import { SelectFromItemListRouletteComponent } from './roulettes/select-from-item-list-roulette/select-from-item-list-roulette.component';
+import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-type-list-roulette/select-from-type-list-roulette.component';
+import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
+import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
+import { PokemonType } from '../../interfaces/pokemon-type';
 
 @Component({
   selector: 'app-roulette-container',
@@ -69,6 +73,7 @@ import { SelectFromItemListRouletteComponent } from './roulettes/select-from-ite
     PokemonFromGenerationRouletteComponent,
     PokemonFromAuxListRouletteComponent,
     SelectFromItemListRouletteComponent,
+    SelectFromTypeListRouletteComponent,
     SelectFormRouletteComponent,
     GymBattleRouletteComponent,
     CheckEvolutionRouletteComponent,
@@ -103,6 +108,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     private destroyRef = inject(DestroyRef);
     private rareCandySubscription?: Subscription;
     private megaStoneSubscription?: Subscription;
+    private typeBiasItemSubscription?: Subscription;
+    private linkCableSubscription?: Subscription;
+    private pendingTypeBiasItem: ItemItem | null = null;
 
     constructor(
       private evolutionService: EvolutionService,
@@ -118,7 +126,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private settingsService: SettingsService,
       private pokemonFormsService: PokemonFormsService,
       private rareCandyService: RareCandyService,
-      private megaStoneService: MegaStoneService) {
+      private megaStoneService: MegaStoneService,
+      private typeBiasItemService: TypeBiasItemService,
+      private linkCableService: LinkCableService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -154,11 +164,21 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaStoneSubscription = this.megaStoneService.megaStoneTrigger$.subscribe((megaStone) => {
       this.handleMegaStoneActivation(megaStone);
     });
+
+    this.typeBiasItemSubscription = this.typeBiasItemService.typeBiasItemTrigger$.subscribe((item) => {
+      this.handleTypeBiasItemUse(item);
+    });
+
+    this.linkCableSubscription = this.linkCableService.linkCableTrigger$.subscribe((item) => {
+      this.handleLinkCable(item);
+    });
   }
 
   ngOnDestroy(): void {
     this.rareCandySubscription?.unsubscribe();
     this.megaStoneSubscription?.unsubscribe();
+    this.typeBiasItemSubscription?.unsubscribe();
+    this.linkCableSubscription?.unsubscribe();
   }
 
   handleRareCandyEvolution(rareCandy: ItemItem): void {
@@ -479,6 +499,51 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
 
     this.finishCurrentState();
+  }
+
+  /**
+   * Honey/Poké Radar/Repel/Max Repel: pick a type now, apply it to whichever
+   * catch or trade comes next. repeatCurrentState() re-queues the screen the
+   * player was already on, so picking a type is a bonus action, not a
+   * substitute for their normal turn.
+   */
+  private handleTypeBiasItemUse(item: ItemItem): void {
+    this.gameStateService.repeatCurrentState();
+    this.trainerService.removeItem(item);
+    this.pendingTypeBiasItem = item;
+    this.gameStateService.setNextState('select-from-type-list');
+    this.finishCurrentState();
+  }
+
+  continueWithType(type: PokemonType): void {
+    this.finishCurrentState();
+
+    const item = this.pendingTypeBiasItem;
+    this.pendingTypeBiasItem = null;
+    if (!item) {
+      return;
+    }
+
+    // Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
+    // from it. The two directions are independent slots (see PendingTypeBiases)
+    // so using one never clears or overwrites the other.
+    const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
+    if (item.name === 'honey' || item.name === 'poke-radar') {
+      this.trainerService.setTowardBias({ type, mode });
+    } else {
+      this.trainerService.setAwayBias({ type, mode });
+    }
+  }
+
+  /**
+   * Link Cable: trigger a trade encounter on demand instead of waiting for the
+   * adventure wheel to offer one. repeatCurrentState() first, for the same
+   * reason as handleTypeBiasItemUse — this is a bonus action.
+   */
+  private handleLinkCable(item: ItemItem): void {
+    this.gameStateService.repeatCurrentState();
+    this.trainerService.removeItem(item);
+    this.tradePokemon();
   }
 
   exploreCave(): void {

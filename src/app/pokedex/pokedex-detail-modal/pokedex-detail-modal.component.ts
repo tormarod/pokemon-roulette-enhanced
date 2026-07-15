@@ -11,7 +11,7 @@ import { PokemonFormsService } from '../../services/pokemon-forms-service/pokemo
 import { PokedexEntry } from '../../services/pokedex-service/pokedex.service';
 import { PokemonForm } from '../../interfaces/pokemon-form';
 import { PokemonItem } from '../../interfaces/pokemon-item';
-import { PokemonType, pokemonTypeDataByKey } from '../../interfaces/pokemon-type';
+import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-forms';
 
 @Component({
@@ -31,7 +31,6 @@ export class PokedexDetailModalComponent implements OnInit {
   hasError = false;
 
   readonly fallbackUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/items/unknown.png';
-  private readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -88,8 +87,7 @@ export class PokedexDetailModalComponent implements OnInit {
   }
 
   getTypeIconUrl(type: PokemonType): string {
-    const typeData = pokemonTypeDataByKey[type];
-    return `${this.typeIconBaseUrl}/${typeData.id}.png`;
+    return getTypeIconUrl(type);
   }
 
   get hasShinyToggle(): boolean {

@@ -189,6 +189,12 @@
           "stoneDesc": "Toque no ícone da Mega Pedra para ativar a Mega Evolução na batalha!"
         }
       },
+      "activeBias": {
+        "softToward": "Direcionado para",
+        "hardToward": "Garantido",
+        "softAway": "Afastado de",
+        "hardAway": "Excluído"
+      },
       "roulette": {
         "generation": {
           "title": "Geração?",
@@ -403,6 +409,9 @@
           "title": "Trocar por?",
           "which": "Qual Pokémon será trocado?"
         },
+        "typeBias": {
+          "which": "Qual tipo?"
+        },
         "mega": {
           "who": "Quem vai receber uma Mega Pedra?",
           "whichStone": "Qual Mega Pedra será concedida?",
@@ -469,6 +478,26 @@
     "escape-rope": {
       "name": "Corda de Escape",
       "description": "A Corda de Escape te salva de situações ruins!"
+    },
+    "honey": {
+      "name": "Mel",
+      "description": "Use Mel para direcionar sua próxima captura ou troca para um tipo escolhido, até sua próxima batalha de Ginásio!"
+    },
+    "repel": {
+      "name": "Repelente",
+      "description": "Use Repelente para afastar sua próxima captura ou troca de um tipo escolhido, até sua próxima batalha de Ginásio!"
+    },
+    "poke-radar": {
+      "name": "PokéRadar",
+      "description": "O PokéRadar garante que sua próxima captura ou troca seja do tipo escolhido, até sua próxima batalha de Ginásio!"
+    },
+    "max-repel": {
+      "name": "Repelente Máx",
+      "description": "O Repelente Máx exclui completamente um tipo escolhido da sua próxima captura ou troca, até sua próxima batalha de Ginásio!"
+    },
+    "link-cable": {
+      "name": "Cabo Link",
+      "description": "Use o Cabo Link para ativar uma oferta de troca imediatamente!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2855,25 @@
       "off": "Normal"
     },
     "mega": "⚡ Mega Evoluído"
+  },
+  "pokemonType": {
+    "normal": "Normal",
+    "fighting": "Lutador",
+    "flying": "Voador",
+    "poison": "Venenoso",
+    "ground": "Terrestre",
+    "rock": "Pedra",
+    "bug": "Inseto",
+    "ghost": "Fantasma",
+    "steel": "Aço",
+    "fire": "Fogo",
+    "water": "Água",
+    "grass": "Planta",
+    "electric": "Elétrico",
+    "psychic": "Psíquico",
+    "ice": "Gelo",
+    "dragon": "Dragão",
+    "dark": "Sombrio",
+    "fairy": "Fada"
   }
 }

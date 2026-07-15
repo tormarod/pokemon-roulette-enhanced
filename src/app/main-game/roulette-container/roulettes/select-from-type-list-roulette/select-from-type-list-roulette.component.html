@@ -1,0 +1,14 @@
+<div class="roulette-header"><h1 class="title">{{ screenTitle | translate }}</h1></div>
+<div class="type-choice-container">
+    @for (typeData of types; track typeData.key) {
+        <button
+            type="button"
+            class="btn type-choice-button"
+            [style.background-color]="getTypeFillStyle(typeData.key)"
+            (click)="selectType(typeData.key)">
+            <img [src]="getTypeIconUrl(typeData.key)" [alt]="typeData.key" height="24">
+            <span>{{ 'pokemonType.' + typeData.key | translate }}</span>
+        </button>
+    }
+</div>
+<div class="roulette-action-row"></div>
