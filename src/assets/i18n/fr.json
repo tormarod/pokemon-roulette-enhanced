@@ -23,7 +23,10 @@
     "title": "Vous amusez-vous à faire tourner la roue? 😁",
     "how_to_help": "Si vous voulez aider, vous pouvez faire un don.",
     "donations": "Les dons, quel que soit leur montant, aideront à motiver le développement de nouvelles fonctionnalités.",
-    "support": "Façons de soutenir",
+    "support": "Soutenir le créateur original",
+    "supportFork": "Soutenir ce fork",
+    "supportForkDescription": "Si vous aimez les nouvelles fonctionnalités, pensez à soutenir aussi ce fork !",
+    "buyMeACoffee": "Offrez-moi un café",
     "thanks": "Merci d'avoir joué!",
     "hope": "Que vous fassiez un don ou que vous partagiez simplement le jeu avec d'autres, j'espère que vous vous amuserez!"
   },
@@ -115,7 +118,12 @@
     "pokeapi": "Comme ressource pour les données et les sprites de ce jeu",
     "images": "Tous les contenus d'images de Pokémon et des éléments liés à Pokémon sont la propriété de The Pokémon Company.",
     "endThanks": "Merci d'avoir joué!",
-    "endWords": "J'espère que vous pourrez vous amuser avec vos amis et votre famille en jouant à ce jeu :)"
+    "endWords": "J'espère que vous pourrez vous amuser avec vos amis et votre famille en jouant à ce jeu :)",
+    "enhancedFork": {
+      "title": "Fork amélioré",
+      "description": "Cette version ajoute de nouvelles fonctionnalités au jeu original. Code source sur",
+      "by": "Amélioré par"
+    }
   },
   "game": {
     "coffeeButton": {

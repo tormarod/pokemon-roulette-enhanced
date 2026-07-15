@@ -23,7 +23,10 @@
     "title": "Curtiu a roletinha? 😁",
     "how_to_help": "Se quiser ajudar você pode fazer uma doação.",
     "donations": "Doações de qualquer valor dão aquela força para implementarmos novidades.",
-    "support": "Formas de apoiar",
+    "support": "Apoie o criador original",
+    "supportFork": "Apoie este fork",
+    "supportForkDescription": "Se você gosta das novidades, considere apoiar este fork também!",
+    "buyMeACoffee": "Me pague um café",
     "thanks": "E obrigado por jogar!",
     "hope": "Seja doando, seja compartilhando o jogo com os outros, desejo que voce se divirta!"
   },
@@ -115,7 +118,12 @@
     "bulbapedia": "Pelos sprites dos treinadores usados neste projeto",
     "images": "Todos os conteúdos de imagem de Pokémon e itens relacionados são propriedade da The Pokémon Company.",
     "endThanks": "Obrigado por jogar!",
-    "endWords": "Espero que você se divirta com seus amigos e família jogando este jogo :)"
+    "endWords": "Espero que você se divirta com seus amigos e família jogando este jogo :)",
+    "enhancedFork": {
+      "title": "Fork aprimorado",
+      "description": "Esta versão adiciona novas funcionalidades ao jogo original. Código-fonte no",
+      "by": "Aprimorado por"
+    }
   },
   "game": {
     "coffeeButton": {

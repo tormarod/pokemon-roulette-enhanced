@@ -23,7 +23,10 @@
     "title": "Hast du Spaß beim Drehen? 😀",
     "how_to_help": "Falls Du helfen möchtest, kannst Du spenden.",
     "donations": "Spenden jeder Höhe motivieren mich sehr, mehr Features einzubauen.",
-    "support": "Wege zu unterstützen",
+    "support": "Unterstütze den Originalautor",
+    "supportFork": "Unterstütze diesen Fork",
+    "supportForkDescription": "Wenn dir die neuen Funktionen gefallen, unterstütze doch auch diesen Fork!",
+    "buyMeACoffee": "Spendier mir einen Kaffee",
     "thanks": "Danke für's Spielen!",
     "hope": "Egal ob du spendest oder das Spiel mit anderen teilst, ich hoffe Du hast Spaß!"
   },
@@ -115,7 +118,12 @@
     "bulbapedia": "Für ihre Trainer-Sprites, welche in diesem Projekt verwendet werden",
     "images": "Alle Bilder von Pokémon und Pokémon-bezogenen Items sind eingetragene Markenzeichen der The Pokémon Company.",
     "endThanks": "Danke für's Spielen!",
-    "endWords": "Ich hoffe du hast Spaß beim Spielen mit deinen Freunden oder deiner Familie :)"
+    "endWords": "Ich hoffe du hast Spaß beim Spielen mit deinen Freunden oder deiner Familie :)",
+    "enhancedFork": {
+      "title": "Erweiterter Fork",
+      "description": "Diese Version fügt dem Originalspiel neue Funktionen hinzu. Quellcode auf",
+      "by": "Erweitert von"
+    }
   },
   "game": {
     "coffeeButton": {

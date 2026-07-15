@@ -23,7 +23,10 @@
     "title": "¿Te estás divirtiendo girando? 😁",
     "how_to_help": "Si quieres ayudar, puedes hacer una donación.",
     "donations": "Las donaciones de cualquier cantidad ayudarán a motivar la incorporación de nuevas funciones.",
-    "support": "Formas de apoyar",
+    "support": "Apoya al creador original",
+    "supportFork": "Apoya este fork",
+    "supportForkDescription": "Si te gustan las nuevas funciones, ¡considera apoyar también este fork!",
+    "buyMeACoffee": "Invítame un café",
     "thanks": "¡Gracias por jugar!",
     "hope": "Ya sea que dones o simplemente compartas el juego con otros, ¡espero que te diviertas!"
   },
@@ -115,7 +118,12 @@
     "bulbapedia": "Por los sprites de su entrenador que se están utilizando en este proyecto",
     "images": "Todo el contenido de imágenes de Pokémon y los elementos relacionados con Pokémon son propiedad de The Pokémon Company.",
     "endThanks": "¡Gracias por jugar!",
-    "endWords": "Espero que puedas divertirte con tus amigos y tu familia jugando a este juego :)"
+    "endWords": "Espero que puedas divertirte con tus amigos y tu familia jugando a este juego :)",
+    "enhancedFork": {
+      "title": "Fork mejorado",
+      "description": "Esta versión añade nuevas funciones sobre el juego original. Código fuente en",
+      "by": "Mejorado por"
+    }
   },
   "game": {
     "coffeeButton": {
