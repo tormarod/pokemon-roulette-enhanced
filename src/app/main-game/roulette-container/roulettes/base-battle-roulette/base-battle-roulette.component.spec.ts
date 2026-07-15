@@ -98,14 +98,14 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(component.matchupDisadvantageDelta).toBe(0);
   });
 
-  it('boosts yes by the Pokémon\'s own capped delta for a strong matchup', () => {
+  it('boosts yes by half the Pokémon\'s own power, rounded up, for a strong matchup', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
     component.testOpponentTypes = ['fire'];
     component.recalc();
-    // base(1) + yesPower(2 + min(3,2)=2) = 5 yes; no untouched by advantage
-    expect(yesCount()).toBe(5);
+    // base(1) + yesPower(2 + ceil(2/2)=1) = 4 yes; no untouched by advantage
+    expect(yesCount()).toBe(4);
     expect(noCount()).toBe(1);
-    expect(component.matchupAdvantageDelta).toBe(2);
+    expect(component.matchupAdvantageDelta).toBe(1);
     expect(component.matchupDisadvantageDelta).toBe(0);
   });
 
@@ -113,24 +113,24 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
     component.testOpponentTypes = ['fire'];
     component.recalc();
-    // Yes stays at raw power: base(1) + power(2) = 3; No gains min(3,2)=2
+    // Yes stays at raw power: base(1) + power(2) = 3; No gains ceil(2/2)=1
     expect(yesCount()).toBe(3);
-    expect(noCount()).toBe(3);
-    expect(component.matchupDisadvantageDelta).toBe(2);
+    expect(noCount()).toBe(2);
+    expect(component.matchupDisadvantageDelta).toBe(1);
   });
 
-  it('caps the delta at 3 no matter how high the Pokémon\'s power is', () => {
+  it('has no hardcoded ceiling — keeps growing past the old cap of 3 for high power', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 8, type1: 'water' }));
     component.testOpponentTypes = ['fire'];
     component.recalc();
-    expect(component.matchupAdvantageDelta).toBe(3);
+    expect(component.matchupAdvantageDelta).toBe(4); // ceil(8/2) = 4
   });
 
-  it('caps a low-power Pokémon\'s delta at its own power (never a flat 3)', () => {
+  it('still gives a low-power Pokémon a real, non-zero delta (never 0)', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 1, type1: 'grass' })); // weak vs fire
     component.testOpponentTypes = ['fire'];
     component.recalc();
-    expect(component.matchupDisadvantageDelta).toBe(1); // min(3,1) = 1, never 0 and never 3
+    expect(component.matchupDisadvantageDelta).toBe(1); // ceil(1/2) = 1, never 0
   });
 
   it('cancels to neutral when a Pokémon is simultaneously strong and weak', () => {
@@ -150,13 +150,13 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
 
     trainerService.addToTeam(weakOne);
     component.recalc();
-    expect(component.matchupDisadvantageDelta).toBe(3); // min(3,4)
+    expect(component.matchupDisadvantageDelta).toBe(2); // ceil(4/2)
 
     trainerService.addToTeam(strongOne);
     component.recalc();
     // weakOne's own penalty is unchanged by strongOne joining the team
-    expect(component.matchupDisadvantageDelta).toBe(3);
-    expect(component.matchupAdvantageDelta).toBe(1); // min(3,1)
+    expect(component.matchupDisadvantageDelta).toBe(2);
+    expect(component.matchupAdvantageDelta).toBe(1); // ceil(1/2)
 
     trainerService.resetTeam();
     trainerService.addToTeam(strongOne);
@@ -174,8 +174,8 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
 
     expect(component.matchupAdvantageTypes).toEqual(['poison']);
     expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
-    expect(component.matchupAdvantageDelta).toBe(3);
-    expect(component.matchupDisadvantageDelta).toBe(6); // 2 members * min(3,3)
+    expect(component.matchupAdvantageDelta).toBe(2);
+    expect(component.matchupDisadvantageDelta).toBe(4); // 2 members * ceil(3/2)=2
   });
 
   it('applies the x-attack power bonus on top of the type-adjusted yes power', () => {

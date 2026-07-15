@@ -41,7 +41,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     { text: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 3 },
     { text: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.buyPotions', fillStyle: 'darkgoldenrod', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.goStraight', fillStyle: 'green', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 1 },
@@ -90,48 +89,45 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
         this.buyPotionsEvent.emit();
         break;
       case 3:
-        this.doNothingEvent.emit();
-        break;
-      case 4:
         this.catchTwoPokemonEvent.emit();
         break;
-      case 5:
+      case 4:
         this.visitDaycareEvent.emit('visit-daycare');
         break;
-      case 6:
+      case 5:
         this.teamRocketEncounterEvent.emit();
         break;
-      case 7:
+      case 6:
         this.mysteriousEggEvent.emit();
         break;
-      case 8:
+      case 7:
         this.legendaryEncounterEvent.emit();
         break;
-      case 9:
+      case 8:
         this.tradePokemonEvent.emit();
         break;
-      case 10:
+      case 9:
         this.findItemEvent.emit();
         break;
-      case 11:
+      case 10:
         this.exploreCaveEvent.emit();
         break;
-      case 12:
+      case 11:
         this.snorlaxEncounterEvent.emit();
         break;
-      case 13:
+      case 12:
         this.multitaskEvent.emit();
         break;
-      case 14:
+      case 13:
         this.goFishingEvent.emit();
         break;
-      case 15:
+      case 14:
         this.findFossilEvent.emit();
         break;
-      case 16:
+      case 15:
         this.battleRivalEvent.emit();
         break;
-      case 17:
+      case 16:
         this.areaZeroEvent.emit();
         break;
     }

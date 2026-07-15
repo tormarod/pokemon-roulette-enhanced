@@ -4,6 +4,9 @@
             [items]="actions"
             (selectedItemEvent)="onItemSelected($event)">
 </app-wheel>
+<button type="button" class="btn btn-outline-secondary my-2" (click)="doNothingEvent.emit()">
+    {{ 'game.main.roulette.elite.prep.actions.goStraight' | translate }}
+</button>
 
 <ng-template #victoryRoadModal let-modal>
     <div class="modal-body">

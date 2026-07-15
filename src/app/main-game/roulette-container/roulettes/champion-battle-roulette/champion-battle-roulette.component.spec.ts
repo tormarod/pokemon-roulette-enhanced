@@ -79,6 +79,6 @@ describe('ChampionBattleRouletteComponent', () => {
 
     const odds: WheelItem[] = (component as any).victoryOdds;
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(3); // base(1) + power(2)
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(5);  // champion's base(3) + delta(2)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(4);  // champion's base(3) + delta(1)
   });
 });

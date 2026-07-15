@@ -45,7 +45,6 @@ export class EliteFourPrepRouletteComponent implements OnInit {
     { text: 'game.main.roulette.elite.prep.actions.catchThreePokemon', fillStyle: 'green', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.huntLegendary', fillStyle: 'darkgreen', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.findItem', fillStyle: 'darkcyan', weight: 2 },
-    { text: 'game.main.roulette.elite.prep.actions.goStraight', fillStyle: 'blue', weight: 1 },
     { text: 'game.main.roulette.elite.prep.actions.teamRocket', fillStyle: 'purple', weight: 1 }
   ];
 
@@ -70,9 +69,6 @@ export class EliteFourPrepRouletteComponent implements OnInit {
         this.findItemEvent.emit();
         break;
       case 6:
-        this.doNothingEvent.emit();
-        break;
-      case 7:
         this.teamRocketEncounterEvent.emit();
         break;
       default:

@@ -77,7 +77,7 @@ describe('RivalBattleRouletteComponent', () => {
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(5);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(4); // base(1) + power(2) + delta(1)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.no').length).toBe(1); // rival's base(1) + round(0)
   });
 });

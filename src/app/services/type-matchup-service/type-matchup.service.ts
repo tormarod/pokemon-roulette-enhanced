@@ -6,8 +6,6 @@ import { typeMatchups } from './type-matchups-data';
 @Injectable({ providedIn: 'root' })
 export class TypeMatchupService {
 
-  private readonly MAX_TYPE_DELTA = 3;
-
   /** True if pokemonType is super-effective against opponentType. */
   isStrongAgainst(pokemonType: PokemonType, opponentType: PokemonType): boolean {
     return typeMatchups[pokemonType]?.strongAgainst.includes(opponentType) ?? false;
@@ -19,13 +17,16 @@ export class TypeMatchupService {
   }
 
   /**
-   * Bounded per-Pokémon power delta: capped at 3, or at the Pokémon's own power
-   * if lower. Depends only on the Pokémon itself — never on team size or which
-   * other Pokémon are on the roster, so adding/removing an unrelated teammate
-   * can never change what this one contributes.
+   * Per-Pokémon power delta: half its own power, rounded up, uncapped — grows
+   * linearly with power instead of plateauing, so type matchup stays meaningful
+   * even for a maxed-out team. Rounding up (not down) means it's never zero:
+   * even a power-1 Pokémon gets a real ±1, so its matchup always matters.
+   * Depends only on the Pokémon itself — never on team size or which other
+   * Pokémon are on the roster, so adding/removing an unrelated teammate can
+   * never change what this one contributes.
    */
   getMemberDelta(member: PokemonItem): number {
-    return Math.min(this.MAX_TYPE_DELTA, member.power);
+    return Math.ceil(member.power / 2);
   }
 
   private getMemberMatchup(member: PokemonItem, opponentTypes: PokemonType[]): { isStrong: boolean; isWeak: boolean } {

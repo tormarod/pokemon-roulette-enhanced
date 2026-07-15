@@ -106,7 +106,7 @@ describe('EliteFourBattleRouletteComponent', () => {
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(5);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4); // base(1) + power(2) + delta(1)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2); // elite's base(2) + round(0)
   });
 
@@ -119,12 +119,12 @@ describe('EliteFourBattleRouletteComponent', () => {
 
     const odds: WheelItem[] = (component as any).victoryOdds;
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(3); // base(1) + power(2)
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(4);  // elite's base(2) + delta(2)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);  // elite's base(2) + delta(1)
 
     const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
     const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
     expect(negLabel).not.toBeNull();
-    expect(negDelta.textContent.trim()).toBe('-2');
+    expect(negDelta.textContent.trim()).toBe('-1');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────

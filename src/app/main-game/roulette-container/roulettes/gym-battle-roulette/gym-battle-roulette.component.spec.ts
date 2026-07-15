@@ -118,7 +118,7 @@ describe('GymBattleRouletteComponent', () => {
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(5);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(4); // base(1) + power(2) + delta(1)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1); // gym's base(1) + round(0)
   });
 
@@ -149,16 +149,16 @@ describe('GymBattleRouletteComponent', () => {
 
     expect(component.matchupAdvantageTypes).toEqual(['poison']);
     expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
-    expect(component.matchupAdvantageDelta).toBe(3);      // 1 strong-only member * min(3,3)
-    expect(component.matchupDisadvantageDelta).toBe(6);   // 2 weak-only members * min(3,3) = 6, not a flat 3
+    expect(component.matchupAdvantageDelta).toBe(2);      // 1 strong-only member * ceil(3/2)
+    expect(component.matchupDisadvantageDelta).toBe(4);   // 2 weak-only members * ceil(3/2) = 4, not a flat 2
 
     const sectionLabels = fixture.nativeElement.querySelectorAll('.matchup-label-positive, .matchup-label-negative');
     expect(sectionLabels.length).toBe(2); // both an "Advantage" AND a "Disadvantage" heading render
 
     const deltaEls = fixture.nativeElement.querySelectorAll('.matchup-delta');
     const deltaTexts = Array.from(deltaEls).map((el: any) => el.textContent.trim());
-    expect(deltaTexts).toContain('+3');
-    expect(deltaTexts).toContain('-6');
+    expect(deltaTexts).toContain('+2');
+    expect(deltaTexts).toContain('-4');
   });
 
   it('should still show a small, non-zero Disadvantage for a low-power weak Pokémon (no more "-0")', () => {

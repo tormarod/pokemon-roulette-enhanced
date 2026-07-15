@@ -20,8 +20,7 @@ export class StartAdventureRouletteComponent {
   actions: WheelItem[] = [
     { text: 'game.main.roulette.start.actions.catchPokemon', fillStyle: 'crimson', weight: 2 },
     { text: 'game.main.roulette.start.actions.battleTrainer', fillStyle: 'darkorange', weight: 2 },
-    { text: 'game.main.roulette.start.actions.buyPotions', fillStyle: 'green', weight: 2 },
-    { text: 'game.main.roulette.start.actions.goStraight', fillStyle: 'darkcyan', weight: 1 }
+    { text: 'game.main.roulette.start.actions.buyPotions', fillStyle: 'green', weight: 2 }
   ];
 
   onItemSelected(index: number): void {
@@ -34,9 +33,6 @@ export class StartAdventureRouletteComponent {
         break;
       case 2:
         this.buyPotionsEvent.emit();
-        break;
-      case 3:
-        this.doNothingEvent.emit();
         break;
     }
   }

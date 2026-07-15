@@ -3,3 +3,6 @@
             [items]="actions"
             (selectedItemEvent)="onItemSelected($event)">
 </app-wheel>
+<button type="button" class="btn btn-outline-secondary my-2" (click)="doNothingEvent.emit()">
+    {{ 'game.main.roulette.start.actions.goStraight' | translate }}
+</button>
