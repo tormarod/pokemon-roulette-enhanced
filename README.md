@@ -39,5 +39,5 @@ ng test
 Using angular-cli-ghpages
 
 ```bash
-ng deploy --base-href=/pokemon-roulette/
+ng deploy --base-href=/pokemon-roulette-enhanced/
 ```
