@@ -5,7 +5,7 @@ import { DarkModeService } from '../../services/dark-mode-service/dark-mode.serv
 import { ThemeService } from '../../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
@@ -13,6 +13,7 @@ import { GameState } from '../../services/game-state-service/game-state';
 import {TranslatePipe} from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { Subscription } from 'rxjs';
+import { PokemonType, pokemonTypeDataByKey } from '../../interfaces/pokemon-type';
 
 @Component({
   selector: 'app-storage-pc',
@@ -20,6 +21,7 @@ import { Subscription } from 'rxjs';
     DragDropModule,
     CommonModule,
     NgIconsModule,
+    NgbTooltipModule,
     TranslatePipe
   ],
   templateUrl: './storage-pc.component.html',
@@ -53,6 +55,8 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     infoModalMessage = '';
     private readonly subscriptions = new Subscription();
     private removePcTurningOnEndedListener: (() => void) | null = null;
+
+    private readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
     ngOnInit(): void {
       this.darkMode = this.themeService.isDark$;
@@ -114,6 +118,15 @@ export class StoragePcComponent implements OnInit, OnDestroy {
         return pokemon.sprite?.front_shiny || 'place-holder-pixel.png';
       }
       return pokemon.sprite?.front_default || 'place-holder-pixel.png';
+    }
+
+    getPokemonTypes(pokemon: PokemonItem): PokemonType[] {
+      return [pokemon.type1, pokemon.type2].filter((type): type is PokemonType => !!type);
+    }
+
+    getTypeIconUrl(type: PokemonType): string {
+      const typeData = pokemonTypeDataByKey[type];
+      return `${this.typeIconBaseUrl}/${typeData.id}.png`;
     }
 
     drop(event: CdkDragDrop<PokemonItem[]>) {
