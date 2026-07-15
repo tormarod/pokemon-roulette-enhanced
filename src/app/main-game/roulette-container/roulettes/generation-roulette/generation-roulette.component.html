@@ -5,7 +5,7 @@
               [items]="generations"
               (selectedItemEvent)="onItemSelected($event)">
   </app-wheel>
-  <div class="choice-button-container">
+  <div class="choice-button-container roulette-action-row">
     <button
       class="btn choice-button"
       [ngClass]="(darkMode | async) ? 'btn-outline-light' : 'btn-outline-dark'"

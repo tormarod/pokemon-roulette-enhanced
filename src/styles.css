@@ -53,10 +53,19 @@ body.theme-plain-light {
   gap: 4px;
 }
 
-@media (max-width: 768px) {
-  .roulette-header {
-    min-height: 110px;
-  }
+/* ── Roulette action row (Go Straight button slot) ───────────────────────────
+   Only 3 of ~28 wheel screens render a "Go Straight" button below the wheel.
+   On mobile, the team panel stacks directly below the roulette content (see
+   main-game.component.html — the columns are only side-by-side at sm+), so
+   any screen that's taller because it has this button pushes the team panel
+   down relative to screens that don't. Reserving this row's height on every
+   screen — whether or not it actually renders a button — keeps total content
+   height (and therefore the team panel's position) consistent everywhere. */
+.roulette-action-row {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ── Pokémon info tooltip (trainer team) ───────────────────────────────────── */
