@@ -281,7 +281,12 @@
           "use": "A utilisé un(e)",
           "victory": "Victoire?",
           "yes": "Oui",
-          "no": "Non"
+          "no": "Non",
+          "typeAdvantage": {
+            "overwhelming": "Avantage Écrasant",
+            "advantage": "Avantage",
+            "disadvantage": "Désavantage"
+          }
         },
         "egg": {
           "title": "Quel Pokémon?"
@@ -357,7 +362,12 @@
           "go": "C'est parti!",
           "victory": "Victoire?",
           "yes": "Oui",
-          "no": "Non"
+          "no": "Non",
+          "typeAdvantage": {
+            "overwhelming": "Avantage Écrasant",
+            "advantage": "Avantage",
+            "disadvantage": "Désavantage"
+          }
         },
         "snorlax": {
           "outcome": "Résultat",
