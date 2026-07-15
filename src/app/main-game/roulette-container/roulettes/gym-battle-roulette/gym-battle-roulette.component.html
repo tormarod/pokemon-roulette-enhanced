@@ -1,38 +1,40 @@
-<h1 class="title">{{currentLeader.name | translate}} {{ 'game.main.roulette.gym.defeated' | translate }}</h1>
-<p class="respin-reason">
-    {{ (retries > 0) ? (currentItem.text | translate) + " x" + retries : ""}}
-</p>
-@if (currentLeader && currentLeader.types?.length) {
-    <div class="matchup-strip">
-        <div class="matchup-icons-row">
-            @for (type of currentLeader.types; track $index) {
-                <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+<div class="roulette-header">
+    <h1 class="title">{{currentLeader.name | translate}} {{ 'game.main.roulette.gym.defeated' | translate }}</h1>
+    <p class="respin-reason">
+        {{ (retries > 0) ? (currentItem.text | translate) + " x" + retries : ""}}
+    </p>
+    @if (currentLeader && currentLeader.types?.length) {
+        <div class="matchup-strip">
+            <div class="matchup-icons-row">
+                @for (type of currentLeader.types; track $index) {
+                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                }
+            </div>
+            @if (matchupAdvantageDelta > 0) {
+                <div class="matchup-section">
+                    <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.gym.typeAdvantage.advantage' | translate }}</span>
+                    <div class="matchup-icons-row">
+                        @for (type of matchupAdvantageTypes; track $index) {
+                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                        }
+                        <span class="matchup-delta matchup-delta-positive">+{{ matchupAdvantageDelta }}</span>
+                    </div>
+                </div>
+            }
+            @if (matchupDisadvantageDelta > 0) {
+                <div class="matchup-section">
+                    <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.gym.typeAdvantage.disadvantage' | translate }}</span>
+                    <div class="matchup-icons-row">
+                        @for (type of matchupDisadvantageTypes; track $index) {
+                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                        }
+                        <span class="matchup-delta matchup-delta-negative">-{{ matchupDisadvantageDelta }}</span>
+                    </div>
+                </div>
             }
         </div>
-        @if (matchupAdvantageDelta > 0) {
-            <div class="matchup-section">
-                <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.gym.typeAdvantage.advantage' | translate }}</span>
-                <div class="matchup-icons-row">
-                    @for (type of matchupAdvantageTypes; track $index) {
-                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                    }
-                    <span class="matchup-delta matchup-delta-positive">+{{ matchupAdvantageDelta }}</span>
-                </div>
-            </div>
-        }
-        @if (matchupDisadvantageDelta > 0) {
-            <div class="matchup-section">
-                <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.gym.typeAdvantage.disadvantage' | translate }}</span>
-                <div class="matchup-icons-row">
-                    @for (type of matchupDisadvantageTypes; track $index) {
-                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                    }
-                    <span class="matchup-delta matchup-delta-negative">-{{ matchupDisadvantageDelta }}</span>
-                </div>
-            </div>
-        }
-    </div>
-}
+    }
+</div>
 <app-wheel #wheel [items]="victoryOdds" (selectedItemEvent)="onItemSelected($event)">
 </app-wheel>
 

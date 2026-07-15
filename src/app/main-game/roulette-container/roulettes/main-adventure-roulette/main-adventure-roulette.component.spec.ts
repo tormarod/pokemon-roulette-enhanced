@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 
 import { MainAdventureRouletteComponent } from './main-adventure-roulette.component';
+import { WheelComponent } from '../../../../wheel/wheel.component';
 
 describe('MainAdventureRouletteComponent', () => {
   let component: MainAdventureRouletteComponent;
@@ -73,9 +75,24 @@ describe('MainAdventureRouletteComponent', () => {
   it('should emit doNothingEvent directly from the standalone Go Straight button, bypassing the wheel', () => {
     spyOn(component.doNothingEvent, 'emit');
 
-    fixture.nativeElement.querySelector('button.btn-outline-secondary').click();
+    fixture.nativeElement.querySelector('button.go-straight-button').click();
 
     expect(component.doNothingEvent.emit).toHaveBeenCalled();
+  });
+
+  it('should disable the Go Straight button while the wheel is spinning', () => {
+    const wheel = fixture.debugElement.query(By.directive(WheelComponent)).componentInstance as WheelComponent;
+
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button.go-straight-button');
+    expect(button.disabled).toBeFalse();
+
+    wheel.spinning = true;
+    fixture.detectChanges();
+    expect(button.disabled).toBeTrue();
+
+    wheel.spinning = false;
+    fixture.detectChanges();
+    expect(button.disabled).toBeFalse();
   });
 
   // ── onItemSelected: every remaining wheel index must map to its correct event ──

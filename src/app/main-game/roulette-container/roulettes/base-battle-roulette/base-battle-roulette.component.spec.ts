@@ -34,6 +34,14 @@ class TestBattleRouletteComponent extends BaseBattleRouletteComponent {
   recalc(): void {
     this.calcVictoryOdds();
   }
+
+  setItems(items: any[]): void {
+    (this as any).trainerItems = items;
+  }
+
+  testHasPotions(): any {
+    return (this as any).hasPotions();
+  }
 }
 
 describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
@@ -185,5 +193,34 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     component.recalc();
     // mean power (4) added once per x-attack: base(1) + power(4) + meanPower(4) = 9
     expect(yesCount()).toBe(9);
+  });
+
+  // ── hasPotions: worst-to-best consumption order ────────────────────────────
+
+  it('uses the weakest potion first regardless of inventory order', () => {
+    component.setItems([
+      { name: 'hyper-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+      { name: 'potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+      { name: 'super-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+    ]);
+    expect(component.testHasPotions().name).toBe('potion');
+  });
+
+  it('falls back to super-potion, then hyper-potion, once weaker tiers are gone', () => {
+    component.setItems([
+      { name: 'hyper-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+      { name: 'super-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+    ]);
+    expect(component.testHasPotions().name).toBe('super-potion');
+
+    component.setItems([
+      { name: 'hyper-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
+    ]);
+    expect(component.testHasPotions().name).toBe('hyper-potion');
+  });
+
+  it('returns undefined when no potions are in the inventory', () => {
+    component.setItems([{ name: 'x-attack', text: '', fillStyle: '', weight: 1, description: '', sprite: '' }]);
+    expect(component.testHasPotions()).toBeUndefined();
   });
 });

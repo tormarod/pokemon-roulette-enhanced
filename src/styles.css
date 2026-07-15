@@ -38,6 +38,27 @@ body.theme-plain-light {
   margin-right: 0px;
 }
 
+/* ── Roulette header (Go Straight / wheel-position consistency) ─────────────
+   Reserves a fixed-height area for the title/subtitle/matchup-panel above
+   every wheel. Content is top-aligned, so the title always starts at the same
+   vertical position across every screen; because the container height is
+   fixed regardless of how much (or how little) content it holds, the wheel
+   below it also always starts at the same vertical position. */
+.roulette-header {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .roulette-header {
+    min-height: 170px;
+  }
+}
+
 /* ── Pokémon info tooltip (trainer team) ───────────────────────────────────── */
 
 .pokemon-tooltip {

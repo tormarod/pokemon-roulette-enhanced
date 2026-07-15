@@ -132,10 +132,15 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     return interleaveOdds(yesOdds, noOdds);
   }
 
+  /** Weakest to strongest, so weaker potions get used up before stronger ones. */
+  private static readonly potionRanking = ['potion', 'super-potion', 'hyper-potion'];
+
   protected hasPotions(): ItemItem | undefined {
-    return this.trainerItems.find(item =>
-      item.name === 'potion' || item.name === 'super-potion' || item.name === 'hyper-potion'
-    );
+    for (const name of BaseBattleRouletteComponent.potionRanking) {
+      const match = this.trainerItems.find(item => item.name === name);
+      if (match) return match;
+    }
+    return undefined;
   }
 
   /**
