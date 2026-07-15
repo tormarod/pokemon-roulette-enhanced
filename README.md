@@ -5,10 +5,23 @@ A luck-based Pokémon browser game built with Angular. Spin roulettes to pick yo
 This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm](https://github.com/zeroxm/pokemon-roulette)). New features added on top of the original:
 - Rich hover/tap tooltips on team and PC-stored Pokémon showing power and type, for informed swap decisions.
 - A full Pokédex view showing every Pokémon (not just caught ones), greyed out until captured, with name search.
+- A reworked type advantage/disadvantage system in battles that stays meaningful at any power level — see [Battle balancing](#battle-balancing) below.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 
 You can play it here: [https://tormarod.github.io/pokemon-roulette-enhanced/](https://tormarod.github.io/pokemon-roulette-enhanced/)
+
+## Battle balancing
+
+Every battle (gym, rival, Elite Four, Champion) resolves as a weighted Yes/No wheel spin — team power fills the Yes pool, and each Pokémon's own matchup against the opponent's type(s) shifts the odds:
+
+- **Advantage** (a team member has a type super-effective against the opponent) adds to the **Yes** pool.
+- **Disadvantage** (the opponent has a type super-effective against a team member) adds to the **No** pool — a bad matchup shows up as visibly more red on the wheel, not a smaller green wedge.
+- The size of each bonus/penalty is **`min(3, that Pokémon's own power)`** — capped at 3, or lower if the Pokémon's power is lower. It depends only on that one Pokémon, never on team size or which other Pokémon are on the roster, so swapping an unrelated teammate never silently changes another Pokémon's contribution.
+
+This replaces an earlier team-size-scaled version of the same idea, which turned out to be confusing in practice: a Pokémon's bonus/penalty could change just because a different, unrelated team member was added or removed, since the delta was looked up from team size rather than the Pokémon itself. Tying it to the Pokémon's own power instead fixes that, and also gives natural, built-in protection for early game (a power-1 starter can only ever swing by ±1) without needing a separate rule for it.
+
+The full calculation lives in [`TypeMatchupService`](src/app/services/type-matchup-service/type-matchup.service.ts), shared by all four battle types via [`BaseBattleRouletteComponent.buildVictoryOdds()`](src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts).
 
 ## Development server
 

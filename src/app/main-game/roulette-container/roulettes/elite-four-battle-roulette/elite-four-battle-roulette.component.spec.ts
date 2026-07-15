@@ -95,32 +95,36 @@ describe('EliteFourBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);
   });
 
-  // ── Type-matchup: capped per-Pokémon delta drives yes-ticket count ─────────
+  // ── Type-matchup wiring: the formula itself is tested once in
+  // base-battle-roulette.component.spec.ts. These just confirm elite-four wires
+  // its own baseNoCount(2) into it correctly, plus its own template rendering. ──
 
-  it('should boost yes slices for a single strong-matched Pokémon (team size 1 -> delta 1)', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+  it('should wire a strong matchup into elite-four\'s own yes/no baseline', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
     component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(2+1=3) = 4 yes;  round(0) + base(2) = 2 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2);
-    expect(component.advantageLabel).toBe('advantage');
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(5);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2); // elite's base(2) + round(0)
   });
 
-  it('should reduce yes slices for a single weak-matched Pokémon, floored at 1 effective power', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' }));
+  it('should wire a weak matchup into elite-four\'s own No count (not a Yes reduction)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
     component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
+    fixture.detectChanges();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(max(1, 2-1)=1) = 2 yes;  2 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(2);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(2);
-    expect(component.advantageLabel).toBe('disadvantage');
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(3); // base(1) + power(2)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(4);  // elite's base(2) + delta(2)
+
+    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    expect(negLabel).not.toBeNull();
+    expect(negDelta.textContent.trim()).toBe('-2');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────

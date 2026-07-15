@@ -107,47 +107,19 @@ describe('GymBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(3);
   });
 
-  // ── Type-matchup: capped per-Pokémon delta drives yes-ticket count ─────────
+  // ── Type-matchup wiring: the formula itself is tested once in
+  // base-battle-roulette.component.spec.ts. These just confirm gym wires its
+  // own baseNoCount(1) into it correctly, plus gym's own template rendering. ──
 
-  it('should boost yes slices for a single strong-matched Pokémon (team size 1 -> delta 1)', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+  it('should wire a strong matchup into gym\'s own yes/no baseline', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
     component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(2+1=3) = 4 yes;  round(0) + base(1) = 1 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(4);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1);
-    expect(component.advantageLabel).toBe('advantage');
-  });
-
-  it('should reduce yes slices for a single weak-matched Pokémon, floored at 1 effective power', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' }));
-    component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
-    component.currentRound = 0;
-    (component as any).calcVictoryOdds();
-
-    const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(max(1, 2-1)=1) = 2 yes;  1 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(2);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1);
-    expect(component.advantageLabel).toBe('disadvantage');
-  });
-
-  it('should use the full delta (2) once the team has 5-6 members', () => {
-    for (let i = 0; i < 6; i++) {
-      trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
-    }
-    component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
-    component.currentRound = 0;
-    (component as any).calcVictoryOdds();
-
-    const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + 6 * (2+2=4) = 25 yes;  1 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(25);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1);
-    expect(component.advantageLabel).toBe('overwhelming');
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(5);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1); // gym's base(1) + round(0)
   });
 
   it('should not adjust yes slices when the leader has no configured types', () => {
@@ -158,7 +130,53 @@ describe('GymBattleRouletteComponent', () => {
 
     const odds: WheelItem[] = (component as any).victoryOdds;
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(4); // base(1) + power(3)
-    expect(component.advantageLabel).toBeNull();
+    expect(component.matchupAdvantageDelta).toBe(0);
+    expect(component.matchupDisadvantageDelta).toBe(0);
+  });
+
+  it('should render separate Advantage/Disadvantage sections with the correct TOTAL delta, for multiple distinct disadvantage types', () => {
+    // Poison is strong against grass; water AND ground are BOTH weak against
+    // grass (grass beats ground, rock, water) — two distinct disadvantage types
+    // from two different Pokémon, which must both show, with a combined total.
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'poison' })); // strong vs grass
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'water' }));  // weak vs grass
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'ground' })); // weak vs grass
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'normal' })); // neutral
+    component.currentLeader = { name: 'Erika', sprite: '', quotes: [], types: ['grass'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+    fixture.detectChanges();
+
+    expect(component.matchupAdvantageTypes).toEqual(['poison']);
+    expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
+    expect(component.matchupAdvantageDelta).toBe(3);      // 1 strong-only member * min(3,3)
+    expect(component.matchupDisadvantageDelta).toBe(6);   // 2 weak-only members * min(3,3) = 6, not a flat 3
+
+    const sectionLabels = fixture.nativeElement.querySelectorAll('.matchup-label-positive, .matchup-label-negative');
+    expect(sectionLabels.length).toBe(2); // both an "Advantage" AND a "Disadvantage" heading render
+
+    const deltaEls = fixture.nativeElement.querySelectorAll('.matchup-delta');
+    const deltaTexts = Array.from(deltaEls).map((el: any) => el.textContent.trim());
+    expect(deltaTexts).toContain('+3');
+    expect(deltaTexts).toContain('-6');
+  });
+
+  it('should still show a small, non-zero Disadvantage for a low-power weak Pokémon (no more "-0")', () => {
+    // A power-1 Pokémon's penalty is now capped at its own power (1), never 0 —
+    // eliminating the old "-0" display bug entirely, by construction.
+    trainerService.addToTeam(makeTestPokemon({ power: 1, type1: 'fire' })); // weak vs rock
+    component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['rock'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+    fixture.detectChanges();
+
+    expect(component.matchupDisadvantageTypes).toEqual(['fire']);
+    expect(component.matchupDisadvantageDelta).toBe(1);
+
+    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    expect(negLabel).not.toBeNull();
+    expect(negDelta.textContent.trim()).toBe('-1');
   });
 
   // ── onItemSelected: item-use paths ───────────────────────────────────────

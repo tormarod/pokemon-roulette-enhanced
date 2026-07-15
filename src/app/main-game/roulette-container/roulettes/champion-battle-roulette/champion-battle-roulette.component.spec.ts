@@ -67,29 +67,18 @@ describe('ChampionBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(3);
   });
 
-  it('should boost yes slices for a single strong-matched Pokémon (team size 1 -> delta 1)', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+  // Type-matchup formula itself is tested once in
+  // base-battle-roulette.component.spec.ts. This just confirms champion wires
+  // its own baseNoCount(3) into it correctly.
+
+  it('should wire a weak matchup into champion\'s own No count (not a Yes reduction)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
     component.currentChampion = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(2+1=3) = 4 yes;  round(0) + base(3) = 3 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(4);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(3);
-    expect(component.advantageLabel).toBe('advantage');
-  });
-
-  it('should reduce yes slices for a single weak-matched Pokémon, floored at 1 effective power', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' }));
-    component.currentChampion = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
-    component.currentRound = 0;
-    (component as any).calcVictoryOdds();
-
-    const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + effectivePower(max(1, 2-1)=1) = 2 yes;  3 no
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(2);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(3);
-    expect(component.advantageLabel).toBe('disadvantage');
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(3); // base(1) + power(2)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(5);  // champion's base(3) + delta(2)
   });
 });

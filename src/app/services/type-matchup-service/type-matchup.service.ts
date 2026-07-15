@@ -6,6 +6,8 @@ import { typeMatchups } from './type-matchups-data';
 @Injectable({ providedIn: 'root' })
 export class TypeMatchupService {
 
+  private readonly MAX_TYPE_DELTA = 3;
+
   /** True if pokemonType is super-effective against opponentType. */
   isStrongAgainst(pokemonType: PokemonType, opponentType: PokemonType): boolean {
     return typeMatchups[pokemonType]?.strongAgainst.includes(opponentType) ?? false;
@@ -17,86 +19,59 @@ export class TypeMatchupService {
   }
 
   /**
-   * Counts how many team members are strong / weak against the given opponent types.
-   * A member is strong if ANY of its types is SE against ANY opponent type.
-   * A member is weak  if ANY opponent type is SE against ANY of its types.
-   * A member may be counted in both.
+   * Bounded per-Pokémon power delta: capped at 3, or at the Pokémon's own power
+   * if lower. Depends only on the Pokémon itself — never on team size or which
+   * other Pokémon are on the roster, so adding/removing an unrelated teammate
+   * can never change what this one contributes.
    */
-  calcTeamMatchup(
-    team: PokemonItem[],
-    opponentTypes: PokemonType[]
-  ): { strongCount: number; weakCount: number } {
-    let strongCount = 0;
-    let weakCount = 0;
-
-    for (const member of team) {
-      const memberTypes = ([member.type1, member.type2] as Array<PokemonType | null | undefined>)
-        .filter((t): t is PokemonType => !!t);
-
-      const isStrong = memberTypes.some(mt =>
-        opponentTypes.some(ot => this.isStrongAgainst(mt, ot))
-      );
-      const isWeak = memberTypes.some(mt =>
-        opponentTypes.some(ot => this.isWeakAgainst(mt, ot))
-      );
-
-      if (isStrong) strongCount++;
-      if (isWeak) weakCount++;
-    }
-
-    return { strongCount, weakCount };
+  getMemberDelta(member: PokemonItem): number {
+    return Math.min(this.MAX_TYPE_DELTA, member.power);
   }
 
-  /**
-   * Returns a human-readable advantage label.
-   * Strong takes precedence over weak.
-   * Returns null when neither threshold is met.
-   */
-  getAdvantageLabel(
-    strongCount: number,
-    weakCount: number
-  ): 'overwhelming' | 'advantage' | 'disadvantage' | null {
-    if (strongCount >= 3) return 'overwhelming';
-    if (strongCount >= 1) return 'advantage';
-    if (weakCount >= 1)   return 'disadvantage';
-    return null;
-  }
-
-  /**
-   * Bounded per-Pokémon power delta from a type matchup, scaled down for small teams
-   * so an early-game player with little/no roster choice isn't hit as hard as a
-   * late-game player who can actually pick a well-matched lineup.
-   */
-  private getTypeDelta(teamSize: number): number {
-    if (teamSize <= 2) return 1;
-    if (teamSize <= 4) return 1.5;
-    return 2;
-  }
-
-  /**
-   * A team member's power, adjusted by its own matchup against the opponent's types.
-   * Strong -> +delta, weak -> -delta, both -> cancels to 0. Floored at 1 so a bad
-   * matchup can never reduce a Pokémon below "as if it were neutral at the bottom
-   * of the power scale" — it dampens, it doesn't cripple.
-   */
-  getMemberEffectivePower(member: PokemonItem, opponentTypes: PokemonType[], teamSize: number): number {
+  private getMemberMatchup(member: PokemonItem, opponentTypes: PokemonType[]): { isStrong: boolean; isWeak: boolean } {
     const memberTypes = ([member.type1, member.type2] as Array<PokemonType | null | undefined>)
       .filter((t): t is PokemonType => !!t);
 
     const isStrong = memberTypes.some(mt => opponentTypes.some(ot => this.isStrongAgainst(mt, ot)));
     const isWeak = memberTypes.some(mt => opponentTypes.some(ot => this.isWeakAgainst(mt, ot)));
-
-    const delta = this.getTypeDelta(teamSize);
-    let adjustment = 0;
-    if (isStrong) adjustment += delta;
-    if (isWeak) adjustment -= delta;
-
-    return Math.max(1, member.power + adjustment);
+    return { isStrong, isWeak };
   }
 
-  /** Sum of the whole team's type-adjusted effective power against the opponent's types. */
-  calcTeamEffectivePower(team: PokemonItem[], opponentTypes: PokemonType[]): number {
-    return team.reduce((sum, member) => sum + this.getMemberEffectivePower(member, opponentTypes, team.length), 0);
+  /**
+   * Aggregates the whole team's matchup against the opponent's types in one pass:
+   * - yesPower: total power feeding the Yes pool — each member's raw power, plus
+   *   its own capped delta for strong-only members (an advantage grows Yes).
+   * - noBonus: extra No tickets from weak-only members (a disadvantage grows No,
+   *   instead of shrinking Yes — makes a bad matchup visibly show up as more red
+   *   slices on the wheel rather than a smaller green pool).
+   * - advantageDelta / disadvantageDelta: the same two contributions broken out
+   *   for the matchup-strip UI, so the displayed number always matches what was
+   *   actually applied to the odds (same single computation, no drift).
+   * Members that are both strong and weak (a mixed-type Pokémon with one type
+   * favorable and one unfavorable) cancel out and contribute to neither total.
+   */
+  calcTeamMatchupTotals(
+    team: PokemonItem[],
+    opponentTypes: PokemonType[]
+  ): { yesPower: number; noBonus: number; advantageDelta: number; disadvantageDelta: number } {
+    let yesPower = 0;
+    let advantageDelta = 0;
+    let disadvantageDelta = 0;
+
+    for (const member of team) {
+      const { isStrong, isWeak } = this.getMemberMatchup(member, opponentTypes);
+      yesPower += member.power;
+
+      if (isStrong && !isWeak) {
+        const delta = this.getMemberDelta(member);
+        yesPower += delta;
+        advantageDelta += delta;
+      } else if (isWeak && !isStrong) {
+        disadvantageDelta += this.getMemberDelta(member);
+      }
+    }
+
+    return { yesPower, noBonus: disadvantageDelta, advantageDelta, disadvantageDelta };
   }
 
   /**
@@ -110,8 +85,8 @@ export class TypeMatchupService {
    * disadvantageTypes: unique types from team members where ANY opponent type is
    *   SE against that member type. Same ordering and dedup rules.
    *
-   * A type may appear in both arrays (same rule as calcTeamMatchup).
-   * Returns empty arrays when team or opponentTypes is empty.
+   * A type may appear in both arrays (same member could have one of each on its
+   * two types). Returns empty arrays when team or opponentTypes is empty.
    */
   getMatchupTypes(
     team: PokemonItem[],

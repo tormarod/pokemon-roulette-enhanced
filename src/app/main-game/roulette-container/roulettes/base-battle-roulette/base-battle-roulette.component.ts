@@ -22,12 +22,11 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected retries = 0;
   protected victoryOdds: WheelItem[] = [];
 
-  advantageLabel: 'overwhelming' | 'advantage' | 'disadvantage' | null = null;
-  advantageLabelKey = '';
   matchupAdvantageTypes: PokemonType[] = [];
   matchupDisadvantageTypes: PokemonType[] = [];
-  strongCount = 0;
-  weakCount = 0;
+  /** Total power gained/lost across the whole team from the matchup, for display. */
+  matchupAdvantageDelta = 0;
+  matchupDisadvantageDelta = 0;
 
   protected readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
@@ -88,9 +87,10 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   /**
    * Builds the yes/no ticket pool shared by every battle type: 1 base yes ticket,
    * team power adjusted for type matchup (see TypeMatchupService), the x-attack
-   * bonus, and round-scaled no tickets. `opponentTypes` may be empty (e.g. a
-   * champion/rival entry that has no types configured), in which case the type
-   * matchup contributes nothing and the label/type-icon state is cleared.
+   * bonus, and round-scaled no tickets topped up by any type disadvantage.
+   * `opponentTypes` may be empty (e.g. a champion/rival entry that has no types
+   * configured), in which case the type matchup contributes nothing and the
+   * type-icon state is cleared.
    */
   protected buildVictoryOdds(
     opponentTypes: PokemonType[] | undefined,
@@ -102,32 +102,30 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     const noText = `${textPrefix}.no`;
     const types = opponentTypes?.length ? opponentTypes : [];
 
-    const effectivePower = this.typeMatchupService.calcTeamEffectivePower(this.trainerTeam, types) + this.plusModifiers();
+    const { yesPower, noBonus, advantageDelta, disadvantageDelta } =
+      this.typeMatchupService.calcTeamMatchupTotals(this.trainerTeam, types);
+
+    const effectivePower = yesPower + this.plusModifiers();
     const yesOdds: WheelItem[] = [];
     for (let i = 0; i < Math.round(effectivePower) + 1; i++) {
       yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
     }
 
     if (types.length) {
-      const { strongCount, weakCount } = this.typeMatchupService.calcTeamMatchup(this.trainerTeam, types);
-      this.strongCount = strongCount;
-      this.weakCount = weakCount;
-      this.advantageLabel = this.typeMatchupService.getAdvantageLabel(strongCount, weakCount);
-      this.advantageLabelKey = this.advantageLabel ? `${textPrefix}.typeAdvantage.${this.advantageLabel}` : '';
       const { advantageTypes, disadvantageTypes } = this.typeMatchupService.getMatchupTypes(this.trainerTeam, types);
       this.matchupAdvantageTypes = advantageTypes;
       this.matchupDisadvantageTypes = disadvantageTypes;
+      this.matchupAdvantageDelta = advantageDelta;
+      this.matchupDisadvantageDelta = disadvantageDelta;
     } else {
-      this.advantageLabel = null;
-      this.advantageLabelKey = '';
-      this.strongCount = 0;
-      this.weakCount = 0;
       this.matchupAdvantageTypes = [];
       this.matchupDisadvantageTypes = [];
+      this.matchupAdvantageDelta = 0;
+      this.matchupDisadvantageDelta = 0;
     }
 
     const noOdds: WheelItem[] = [];
-    for (let i = 0; i < baseNoCount + currentRound; i++) {
+    for (let i = 0; i < baseNoCount + currentRound + noBonus; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

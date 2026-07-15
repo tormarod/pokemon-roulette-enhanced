@@ -37,64 +37,124 @@ describe('TypeMatchupService', () => {
     expect(service.isWeakAgainst('water', 'fire')).toBeFalse();
   });
 
-  // ── getMemberEffectivePower: the capped additive delta ─────────────────────
+  // ── getMemberDelta: capped at 3, or at the Pokémon's own power if lower ────
 
-  it('returns unchanged power for a neutral matchup', () => {
-    const member = makePokemon({ power: 5, type1: 'normal' });
-    expect(service.getMemberEffectivePower(member, ['rock'], 6)).toBe(5);
+  it('caps the delta at the Pokémon\'s own power when power is below the max', () => {
+    expect(service.getMemberDelta(makePokemon({ power: 1 }))).toBe(1);
+    expect(service.getMemberDelta(makePokemon({ power: 2 }))).toBe(2);
+    expect(service.getMemberDelta(makePokemon({ power: 3 }))).toBe(3);
   });
 
-  it('adds the full delta (2) for a strong matchup on a full 5-6 member team', () => {
-    const member = makePokemon({ power: 5, type1: 'water' });
-    expect(service.getMemberEffectivePower(member, ['fire'], 6)).toBe(7);
+  it('caps the delta at 3 for any power at or above 3', () => {
+    expect(service.getMemberDelta(makePokemon({ power: 4 }))).toBe(3);
+    expect(service.getMemberDelta(makePokemon({ power: 8 }))).toBe(3);
   });
 
-  it('subtracts the full delta (2) for a weak matchup on a full 5-6 member team', () => {
-    const member = makePokemon({ power: 5, type1: 'grass' });
-    expect(service.getMemberEffectivePower(member, ['fire'], 6)).toBe(3);
+  it('never depends on team size — only on the Pokémon\'s own power', () => {
+    const member = makePokemon({ power: 2 });
+    expect(service.getMemberDelta(member)).toBe(service.getMemberDelta(member));
+  });
+
+  // ── calcTeamMatchupTotals: yesPower / noBonus / per-side deltas ────────────
+
+  it('adds the capped delta to yesPower for a strong-only member, no noBonus', () => {
+    const team = [makePokemon({ power: 5, type1: 'water' })]; // strong vs fire
+    const totals = service.calcTeamMatchupTotals(team, ['fire']);
+    expect(totals.yesPower).toBe(8);        // 5 + min(3,5)=3
+    expect(totals.advantageDelta).toBe(3);
+    expect(totals.noBonus).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
+  });
+
+  it('adds the capped delta to noBonus for a weak-only member, yesPower stays at raw power', () => {
+    const team = [makePokemon({ power: 5, type1: 'grass' })]; // weak vs fire
+    const totals = service.calcTeamMatchupTotals(team, ['fire']);
+    expect(totals.yesPower).toBe(5);        // unmodified — the penalty goes to No, not off Yes
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.noBonus).toBe(3);         // min(3,5)=3
+    expect(totals.disadvantageDelta).toBe(3);
+  });
+
+  it('caps a low-power weak member\'s noBonus at its own power', () => {
+    const team = [makePokemon({ power: 1, type1: 'grass' })]; // weak vs fire, power 1
+    const totals = service.calcTeamMatchupTotals(team, ['fire']);
+    expect(totals.yesPower).toBe(1);
+    expect(totals.noBonus).toBe(1); // min(3,1)=1, not a flat 3
   });
 
   it('cancels out to neutral when a member is simultaneously strong and weak', () => {
     // bug is strong against grass, and weak against fire — opponent has both types
-    const member = makePokemon({ power: 5, type1: 'bug' });
-    expect(service.getMemberEffectivePower(member, ['grass', 'fire'], 6)).toBe(5);
+    const team = [makePokemon({ power: 5, type1: 'bug' })];
+    const totals = service.calcTeamMatchupTotals(team, ['grass', 'fire']);
+    expect(totals.yesPower).toBe(5);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.noBonus).toBe(0);
   });
 
-  it('floors effective power at 1 — a bad matchup never goes below "as if neutral at the bottom"', () => {
-    const member = makePokemon({ power: 1, type1: 'grass' });
-    expect(service.getMemberEffectivePower(member, ['fire'], 6)).toBe(1);
+  it('sums contributions across the whole team independently of team size', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'poison' }),  // strong vs grass: +min(3,3)=3
+      makePokemon({ power: 4, type1: 'water' }),   // weak vs grass: noBonus +min(3,4)=3
+      makePokemon({ power: 1, type1: 'ground' }),  // weak vs grass: noBonus +min(3,1)=1
+      makePokemon({ power: 2, type1: 'normal' }),  // neutral
+    ];
+    const totals = service.calcTeamMatchupTotals(team, ['grass']);
+    expect(totals.yesPower).toBe(3 + 3 + 4 + 1 + 2); // raw sum (3+4+1+2=10) + advantage bonus (3)
+    expect(totals.advantageDelta).toBe(3);
+    expect(totals.noBonus).toBe(4); // 3 (water) + 1 (ground)
+    expect(totals.disadvantageDelta).toBe(4);
   });
 
-  it('scales the delta down for small teams (size <= 2 -> delta 1)', () => {
-    const strongMember = makePokemon({ power: 2, type1: 'water' });
-    expect(service.getMemberEffectivePower(strongMember, ['fire'], 1)).toBe(3);
-    expect(service.getMemberEffectivePower(strongMember, ['fire'], 2)).toBe(3);
+  it('a member\'s own contribution is unaffected by adding or removing an unrelated teammate', () => {
+    const sandyShocks = makePokemon({ power: 4, type1: 'electric', type2: 'ground' }); // weak vs grass
+    const withoutOthers = service.calcTeamMatchupTotals([sandyShocks], ['grass']);
+    const withOthers = service.calcTeamMatchupTotals(
+      [sandyShocks, makePokemon({ power: 1, type1: 'poison' }), makePokemon({ power: 2, type1: 'ghost', type2: 'poison' })],
+      ['grass']
+    );
+    // Sandy Shocks alone contributes noBonus 3 either way — the presence of teammates never changes it
+    expect(withoutOthers.noBonus).toBe(3);
+    const sandyShocksOnlyContribution = withOthers.noBonus; // no other weak members in this team
+    expect(sandyShocksOnlyContribution).toBe(3);
   });
 
-  it('uses the medium delta (1.5) for teams of size 3-4', () => {
-    const strongMember = makePokemon({ power: 4, type1: 'water' });
-    expect(service.getMemberEffectivePower(strongMember, ['fire'], 3)).toBe(5.5);
-    expect(service.getMemberEffectivePower(strongMember, ['fire'], 4)).toBe(5.5);
+  it('returns zero totals when opponentTypes is empty', () => {
+    const team = [makePokemon({ power: 5, type1: 'water' }), makePokemon({ power: 3, type1: 'grass' })];
+    const totals = service.calcTeamMatchupTotals(team, []);
+    expect(totals.yesPower).toBe(8); // plain power sum
+    expect(totals.noBonus).toBe(0);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
   it('considers a member strong/weak if EITHER of its two types matches', () => {
     const dualType = makePokemon({ power: 4, type1: 'normal', type2: 'water' });
-    expect(service.getMemberEffectivePower(dualType, ['fire'], 6)).toBe(6); // water is strong vs fire
+    const totals = service.calcTeamMatchupTotals([dualType], ['fire']); // water is strong vs fire
+    expect(totals.yesPower).toBe(7); // 4 + min(3,4)=3
   });
 
-  // ── calcTeamEffectivePower: sums the whole team ─────────────────────────────
+  // ── getMatchupTypes: both advantage AND disadvantage must surface together ──
 
-  it('sums effective power across the whole team', () => {
+  it('returns every distinct advantage AND disadvantage type at once for a mixed team', () => {
     const team = [
-      makePokemon({ power: 5, type1: 'water' }),  // strong vs fire: 5+2=7
-      makePokemon({ power: 3, type1: 'grass' }),  // weak vs fire: 3-2=1
-      makePokemon({ power: 4, type1: 'normal' }), // neutral: 4
+      makePokemon({ power: 3, type1: 'ground' }),  // strong vs electric
+      makePokemon({ power: 3, type1: 'grass' }),   // neutral vs electric
+      makePokemon({ power: 3, type1: 'flying' }),  // weak vs electric
     ];
-    expect(service.calcTeamEffectivePower(team, ['fire'])).toBe(12);
+    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['electric']);
+    expect(advantageTypes).toEqual(['ground']);
+    expect(disadvantageTypes).toEqual(['flying']);
   });
 
-  it('returns the plain power sum when opponentTypes is empty', () => {
-    const team = [makePokemon({ power: 5, type1: 'water' }), makePokemon({ power: 3, type1: 'grass' })];
-    expect(service.calcTeamEffectivePower(team, [])).toBe(8);
+  it('collects multiple distinct disadvantage types from different team members', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'poison' }),  // weak vs ground
+      makePokemon({ power: 3, type1: 'electric' }), // weak vs ground
+      makePokemon({ power: 3, type1: 'normal' }),  // neutral vs ground
+    ];
+    const { disadvantageTypes } = service.getMatchupTypes(team, ['ground']);
+    expect(disadvantageTypes.length).toBe(2);
+    expect(disadvantageTypes).toContain('poison');
+    expect(disadvantageTypes).toContain('electric');
   });
 });
