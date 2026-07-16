@@ -9,6 +9,7 @@ This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm
 - "Go Straight" (skip ahead to the next fight without spinning) is now a standalone button below the wheel instead of a wheel option, so opting out of the gamble is a deliberate choice rather than a slice you can land on by chance.
 - Your run now survives a reload or closed tab — team, items, badges, and progress are saved to `localStorage` automatically as you play. See [Run persistence](#run-persistence) below.
 - Settings gained a volume slider (independent of the mute toggle), a "Fast Spin" option that shortens the wheel's reveal animation to under half a second without changing the odds or outcome, and a restart control, so you don't have to leave the Settings screen to start over.
+- You can now see and act on what's coming before you commit to a roster — see [Opponent agency](#opponent-agency) below.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 
@@ -25,6 +26,16 @@ Every battle (gym, rival, Elite Four, Champion) resolves as a weighted Yes/No wh
 This replaces an earlier team-size-scaled version of the same idea, which turned out to be confusing in practice: a Pokémon's bonus/penalty could change just because a different, unrelated team member was added or removed, since the delta was looked up from team size rather than the Pokémon itself. Tying it to the Pokémon's own power instead fixes that, and also gives natural, built-in protection for early game (a power-1 starter can only ever swing by ±1) without needing a separate rule for it.
 
 The full calculation lives in [`TypeMatchupService`](src/app/services/type-matchup-service/type-matchup.service.ts), shared by all four battle types via [`BaseBattleRouletteComponent.buildVictoryOdds()`](src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts).
+
+## Opponent agency
+
+Team composition used to be fully locked in by catch/trade RNG before the upcoming opponent's type was ever revealed — the reveal only happened once the battle screen itself mounted, well after any roster-building decisions were made. A few additions give the player real, informed agency over that process without touching the core RNG loop or the [battle-odds math](#battle-balancing) itself:
+
+- **Opponent preview**: a persistent banner shows the next gym leader's type (or, once you reach `elite-four-preparation`, the first Elite Four member's) throughout the roster-building stretch that precedes them, so swapping team members or using a bias item below is an informed choice instead of a guess. It's hidden during actual battles (which reveal their own opponent) and before the adventure starts. A handful of rounds resolve to one of several possible types only once the battle begins (e.g. gym leader trios); the preview shows every possible type for those rounds rather than falsely implying certainty.
+- **Type-bias items**: Honey and Repel (common, granted at the start of every run) bias your next catch or trade *toward* or *away from* a type you pick by clicking it directly — no RNG in the pick itself. Poké Radar and Max Repel (rarer, found via the wheel) do the same as a hard guarantee/exclusion instead of a soft bias. A "toward" and an "away" bias can be active at the same time (e.g. Honey *and* Max Repel together), each shown in its own indicator next to the Items panel. Whichever effect(s) you've set stay active for the rest of the current gym stretch — any number of catch/trade spins — and clear automatically once you reach the next battle, so an unused bias never leaks into a fight or a future stretch.
+- **Link Cable** (rarer still) triggers a trade encounter on demand instead of waiting for the adventure wheel to offer one.
+- **Trade-out is a direct pick**: choosing which of your *own* Pokémon to offer in a trade is a clickable grid, not a wheel spin — nothing was ever being won by randomizing a choice among Pokémon you already own. Evolution choices and a Team Rocket encounter's steal target stay wheel-based, since those still involve genuine randomness.
+- **Team Rocket's steal odds are weighted by power**: a stronger Pokémon puts up more of a fight, so it's harder for Team Rocket to steal than a weak one — previously every team member was equally likely to be taken.
 
 ## Run persistence
 
