@@ -1,6 +1,25 @@
 <div class="roulette-header"><h1 class="title">{{wheelTitle | translate}}</h1></div>
-<app-wheel  #wheel
-            [items]="trainerTeam"
-            (selectedItemEvent)="onItemSelected($event)">
-</app-wheel>
+@if (pickMode) {
+    <div class="pokemon-pick-container">
+        @for (pokemon of trainerTeam; track pokemon) {
+            <button
+                type="button"
+                class="btn pokemon-pick-button"
+                (click)="selectPokemon(pokemon)">
+                <img [src]="getSprite(pokemon)" [alt]="pokemon.text | translate" class="pokemon-pick-sprite">
+                <span class="pokemon-pick-name">{{ pokemon.text | translate }}</span>
+                <div class="pokemon-pick-types">
+                    @for (type of getPokemonTypes(pokemon); track type) {
+                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="18">
+                    }
+                </div>
+            </button>
+        }
+    </div>
+} @else {
+    <app-wheel  #wheel
+                [items]="trainerTeam"
+                (selectedItemEvent)="onItemSelected($event)">
+    </app-wheel>
+}
 <div class="roulette-action-row"></div>

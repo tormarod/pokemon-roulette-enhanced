@@ -279,6 +279,15 @@ describe('RouletteContainerComponent', () => {
       expect((component as any).auxPokemonList.length).toBe(2);
     });
 
+    it('with team >= 2 and no escape-rope → auxPokemonListPickMode stays false (still a wheel spin)', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(4));
+
+      component.stealPokemon();
+
+      expect(component.auxPokemonListPickMode).toBeFalse();
+    });
+
     it('with team < 2 → opens teamRocketFailsModal', () => {
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
 
@@ -324,6 +333,15 @@ describe('RouletteContainerComponent', () => {
       component.tradePokemon();
 
       expect((component as any).auxPokemonList.length).toBe(2);
+    });
+
+    it('with multi-member team → auxPokemonListPickMode is true (direct pick, not a wheel)', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(4));
+
+      component.tradePokemon();
+
+      expect(component.auxPokemonListPickMode).toBeTrue();
     });
   });
 

@@ -203,6 +203,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   altPrizeText = '';
   auxItemList: ItemItem[] = [];
   auxPokemonList: PokemonItem[] = [];
+  /** True only for trade-out: picking which owned Pokémon to offer is a direct pick, not a wheel spin. */
+  auxPokemonListPickMode = false;
   pokemonForms: PokemonForm[] = [];
   currentContextItem!: ItemItem;
   currentContextPokemon!: PokemonItem;
@@ -344,6 +346,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
 
     this.customWheelTitle = 'game.main.roulette.evolve.who';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('evolve-pokemon');
     this.gameStateService.setNextState('select-from-pokemon-list');
 
@@ -440,6 +443,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
 
     this.customWheelTitle = 'game.main.roulette.evolve.whoExpShare';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('evolve-pokemon');
     this.gameStateService.setNextState('select-from-pokemon-list');
   }
@@ -495,6 +499,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     } else {
       this.auxPokemonList = trainerTeam;
       this.customWheelTitle = 'game.main.roulette.trade.which';
+      this.auxPokemonListPickMode = true;
       this.gameStateService.setNextState('select-from-pokemon-list');
     }
 
@@ -621,6 +626,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     } else {
       this.auxPokemonList = trainerTeam;
       this.customWheelTitle = 'game.main.roulette.teamrocket.steal.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('steal-pokemon');
       this.gameStateService.setNextState('select-from-pokemon-list');
       this.finishCurrentState();
@@ -775,6 +781,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaSelectionMode = 'battle-award-pokemon';
     this.auxPokemonList = candidates;
     this.customWheelTitle = 'game.main.roulette.mega.who';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('select-from-pokemon-list');
   }
 
@@ -972,6 +979,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.auxPokemonList = pokemonEvolutions;
       this.currentContextPokemon = pokemon;
       this.customWheelTitle = 'game.main.roulette.evolve.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('select-evolution');
       this.gameStateService.setNextState('select-from-pokemon-list');
       this.finishCurrentState();
@@ -1057,6 +1065,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.auxPokemonList = pokemonEvolutions;
       this.currentContextPokemon = pokemon;
       this.customWheelTitle = 'game.main.roulette.evolve.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('select-evolution');
       this.gameStateService.setNextState('select-from-pokemon-list');
     }
