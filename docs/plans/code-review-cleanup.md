@@ -1,8 +1,9 @@
 # Plan: Code-review backlog cleanup
 
-Status: **DONE.** All 8 fixes implemented and tested (530/530 tests passing).
+Status: **DONE.** All 7 fixes implemented, tested (530/530 passing), and pushed to PR #19.
 Owner: tormarod
 Last updated: 2026-07-16
+Completed: 2026-07-16
 
 **Severity note:** the backlog's `[CRITICAL]` labels are wrong. The two "memory
 leaks" aren't leaks — `translateService.get()` completes (WheelComponent), and
