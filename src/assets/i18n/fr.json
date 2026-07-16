@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miellée",
-      "description": "Utilise la Miellée pour orienter ta prochaine capture ou ton prochain échange vers un type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers un type choisi, jusqu'à ton prochain combat d'Arène!"
     },
     "repel": {
       "name": "Repousse",
-      "description": "Utilise Repousse pour éloigner ta prochaine capture ou ton prochain échange d'un type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Utilise Repousse pour éloigner ton prochain Pokémon sauvage d'un type choisi, jusqu'à ton prochain combat d'Arène!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "Le PokéRadar garantit que ta prochaine capture ou ton prochain échange sera du type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Le PokéRadar garantit que ton prochain Pokémon sauvage sera du type choisi, jusqu'à ton prochain combat d'Arène!"
     },
     "max-repel": {
       "name": "Max Repousse",
-      "description": "Max Repousse exclut totalement un type choisi de ta prochaine capture ou ton prochain échange, jusqu'à ton prochain combat d'Arène!"
+      "description": "Max Repousse exclut totalement un type choisi de ton prochain Pokémon sauvage, jusqu'à ton prochain combat d'Arène!"
     },
     "link-cable": {
       "name": "Câble Link",

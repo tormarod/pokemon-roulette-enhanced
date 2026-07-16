@@ -45,7 +45,8 @@ describe('StarterRouletteComponent', () => {
         {
           provide: PokemonService,
           useValue: {
-            getPokemonByIdArray
+            getPokemonByIdArray,
+            getAllPokemon: () => []
           }
         }
       ]

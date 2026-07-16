@@ -7,6 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-starter-roulette',
@@ -19,7 +21,8 @@ export class StarterRouletteComponent implements OnInit, OnDestroy {
 
   constructor(
     private generationService: GenerationService,
-    private pokemonService: PokemonService
+    private pokemonService: PokemonService,
+    private trainerService: TrainerService
   ) { }
 
   startersByGeneration = starterByGeneration;
@@ -33,7 +36,10 @@ export class StarterRouletteComponent implements OnInit, OnDestroy {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const starterIds = this.startersByGeneration[this.generation.id] ?? [];
-      this.starters = this.pokemonService.getPokemonByIdArray(starterIds);
+      this.starters = applyTypeBias(
+        this.pokemonService.getPokemonByIdArray(starterIds),
+        this.trainerService.currentPendingTypeBiases
+      );
     });
   }
 

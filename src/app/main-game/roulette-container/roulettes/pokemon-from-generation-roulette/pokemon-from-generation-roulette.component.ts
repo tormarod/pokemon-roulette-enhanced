@@ -7,11 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
-import { TrainerService, TypeBiasEntry } from '../../../../services/trainer-service/trainer.service';
-import { PokemonType } from '../../../../interfaces/pokemon-type';
-
-const TOWARD_SOFT_WEIGHT_MULTIPLIER = 4;
-const AWAY_SOFT_WEIGHT_MULTIPLIER = 0.25;
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-pokemon-from-generation-roulette',
@@ -42,7 +39,7 @@ export class PokemonFromGenerationRouletteComponent implements OnInit, OnDestroy
       this.generation = gen;
       const pokemonIds = this.pokemonByGeneration[this.generation.id] ?? [];
       const allPokemon = this.pokemonService.getPokemonByIdArray(pokemonIds);
-      this.pokemon = this.applyTypeBias(this.filterByPower(allPokemon));
+      this.pokemon = applyTypeBias(this.filterByPower(allPokemon), this.trainerService.currentPendingTypeBiases);
     });
   }
 
@@ -62,48 +59,5 @@ export class PokemonFromGenerationRouletteComponent implements OnInit, OnDestroy
       return pokemon.filter(p => p.power <= 2);
     }
     return pokemon;
-  }
-
-  /**
-   * A hard filter that would empty the pool is skipped (falls back to the
-   * unfiltered pool) rather than ever soft-locking the catch wheel.
-   */
-  private applyTypeBias(pokemon: PokemonItem[]): PokemonItem[] {
-    const { toward, away } = this.trainerService.currentPendingTypeBiases;
-    let result = pokemon;
-
-    if (toward?.mode === 'hard') {
-      const filtered = result.filter(p => this.matchesType(p, toward.type));
-      if (filtered.length > 0) {
-        result = filtered;
-      }
-    }
-    if (away?.mode === 'hard') {
-      const filtered = result.filter(p => !this.matchesType(p, away.type));
-      if (filtered.length > 0) {
-        result = filtered;
-      }
-    }
-
-    if (toward?.mode === 'soft' || away?.mode === 'soft') {
-      result = result.map(p => this.applySoftWeight(p, toward, away));
-    }
-
-    return result;
-  }
-
-  private applySoftWeight(pokemon: PokemonItem, toward: TypeBiasEntry | null, away: TypeBiasEntry | null): PokemonItem {
-    let weight = pokemon.weight;
-    if (toward?.mode === 'soft' && this.matchesType(pokemon, toward.type)) {
-      weight *= TOWARD_SOFT_WEIGHT_MULTIPLIER;
-    }
-    if (away?.mode === 'soft' && this.matchesType(pokemon, away.type)) {
-      weight *= AWAY_SOFT_WEIGHT_MULTIPLIER;
-    }
-    return weight === pokemon.weight ? pokemon : { ...pokemon, weight };
-  }
-
-  private matchesType(pokemon: PokemonItem, type: PokemonType): boolean {
-    return pokemon.type1 === type || pokemon.type2 === type;
   }
 }

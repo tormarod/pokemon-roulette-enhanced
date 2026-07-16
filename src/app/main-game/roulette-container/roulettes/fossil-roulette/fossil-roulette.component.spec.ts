@@ -45,7 +45,8 @@ describe('FossilRouletteComponent', () => {
         {
           provide: PokemonService,
           useValue: {
-            getPokemonByIdArray
+            getPokemonByIdArray,
+            getAllPokemon: () => []
           }
         }
       ]

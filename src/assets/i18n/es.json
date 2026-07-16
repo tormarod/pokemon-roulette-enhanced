@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miel",
-      "description": "Usa Miel para orientar tu próxima captura o intercambio hacia un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+      "description": "Usa Miel para orientar tu próximo Pokémon salvaje hacia un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
     },
     "repel": {
       "name": "Repelente",
-      "description": "Usa Repelente para alejar tu próxima captura o intercambio de un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+      "description": "Usa Repelente para alejar tu próximo Pokémon salvaje de un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "¡El PokéRadar garantiza que tu próxima captura o intercambio sea del tipo elegido, hasta tu próximo combate de Gimnasio!"
+      "description": "¡El PokéRadar garantiza que tu próximo Pokémon salvaje sea del tipo elegido, hasta tu próximo combate de Gimnasio!"
     },
     "max-repel": {
       "name": "Repelente Max",
-      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próxima captura o intercambio, hasta tu próximo combate de Gimnasio!"
+      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próximo Pokémon salvaje, hasta tu próximo combate de Gimnasio!"
     },
     "link-cable": {
       "name": "Cable Link",

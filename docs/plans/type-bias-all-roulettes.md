@@ -1,6 +1,11 @@
 # Extend type-bias items to all pokemon-obtaining roulettes
 
-Status: approved, not started.
+Status: done. All 4 steps implemented; full test suite (520 specs) passes;
+app boots cleanly with no console errors. A full manual playthrough
+reaching each of the 9 wheels wasn't performed in this session (would
+require a long multi-battle run) — verification relied on the dedicated
+`apply-type-bias.spec.ts` covering every bias combination plus each
+component spec confirming correct wiring.
 
 ## Context
 
