@@ -179,6 +179,19 @@ describe('GymBattleRouletteComponent', () => {
     expect(negDelta.textContent.trim()).toBe('-1');
   });
 
+  it('renders every entry in the leader\'s types list, including a repeated emphasis type', () => {
+    // Drayden/Iris-style repeated type: ['dragon', 'dragon'] is an intentional
+    // emphasis lever (see GymLeader.types doc comment), not a dedupe bug — the
+    // opponent-type icon row should render both entries, not collapse them.
+    component.currentLeader = { name: 'Drayden', sprite: '', quotes: [], types: ['dragon', 'dragon'] } as GymLeader;
+    component.currentRound = 0;
+    (component as any).calcVictoryOdds();
+    fixture.detectChanges();
+
+    const opponentIcons = fixture.nativeElement.querySelectorAll('.matchup-icons-row')[0].querySelectorAll('img');
+    expect(opponentIcons.length).toBe(2);
+  });
+
   // ── onItemSelected: item-use paths ───────────────────────────────────────
 
   it('should emit true on winning spin regardless of retries', () => {

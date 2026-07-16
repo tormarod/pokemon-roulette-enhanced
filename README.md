@@ -5,7 +5,7 @@ A luck-based Pokémon browser game built with Angular. Spin roulettes to pick yo
 This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm](https://github.com/zeroxm/pokemon-roulette)). New features added on top of the original:
 - Rich hover/tap tooltips on team and PC-stored Pokémon showing power and type, for informed swap decisions.
 - A full Pokédex view showing every Pokémon (not just caught ones), greyed out until captured, with name search.
-- A reworked type advantage/disadvantage system in battles that stays meaningful at any power level — see [Battle balancing](#battle-balancing) below.
+- A reworked type advantage/disadvantage system in battles that stays meaningful at any power level, rewards defensive resists (not just offensive answers), and gives trainers a documented way to lean hard into a type — see [Battle balancing](#battle-balancing) below.
 - "Go Straight" (skip ahead to the next fight without spinning) is now a standalone button below the wheel instead of a wheel option, so opting out of the gamble is a deliberate choice rather than a slice you can land on by chance.
 - Your run now survives a reload or closed tab — team, items, badges, and progress are saved to `localStorage` automatically as you play. See [Run persistence](#run-persistence) below.
 - Settings gained a volume slider (independent of the mute toggle), a "Fast Spin" option that shortens the wheel's reveal animation to under half a second without changing the odds or outcome, and a restart control, so you don't have to leave the Settings screen to start over.
@@ -17,13 +17,19 @@ You can play it here: [https://tormarod.github.io/pokemon-roulette-enhanced/](ht
 
 ## Battle balancing
 
-Every battle (gym, rival, Elite Four, Champion) resolves as a weighted Yes/No wheel spin — team power fills the Yes pool, and each Pokémon's own matchup against the opponent's type(s) shifts the odds:
+Every battle (gym, rival, Elite Four, Champion) resolves as a weighted Yes/No wheel spin — team power fills the Yes pool, and each Pokémon's own matchup against the opponent's type(s) shifts the odds. Advantage always adds to the **Yes** pool and disadvantage always adds to the **No** pool, so a bad matchup shows up as visibly more red on the wheel, not a smaller green wedge — every Pokémon keeps its full power in green regardless of matchup.
 
-- **Advantage** (a team member has a type super-effective against the opponent) adds to the **Yes** pool.
-- **Disadvantage** (the opponent has a type super-effective against a team member) adds to the **No** pool — a bad matchup shows up as visibly more red on the wheel, not a smaller green wedge.
-- The size of each bonus/penalty is **`ceil(that Pokémon's own power / 2)`** — half its own power, rounded up, with no upper cap. It depends only on that one Pokémon, never on team size or which other Pokémon are on the roster, so swapping an unrelated teammate never silently changes another Pokémon's contribution. It also scales with the Pokémon as it grows: a stronger evolution carries a bigger swing instead of plateauing at a flat cap, so type matchups stay meaningful even for a maxed-out late-game team.
+Each team member is classified into a **graded tier**, not a boolean, by combining both its offensive answer and its defensive read against the opponent's type(s):
 
-This replaces an earlier team-size-scaled version of the same idea, which turned out to be confusing in practice: a Pokémon's bonus/penalty could change just because a different, unrelated team member was added or removed, since the delta was looked up from team size rather than the Pokémon itself. Tying it to the Pokémon's own power instead fixes that, and also gives natural, built-in protection for early game (a power-1 starter can only ever swing by ±1) without needing a separate rule for it.
+- **Strong** — offensively super-effective, or immune to the opponent's attack. Adds `ceil(power / 2)` to Yes.
+- **Resistant** / **hard-resistant** — nets a defensive resist against the opponent (no offensive answer needed). Adds a smaller `ceil(power / 4)` / `2 × ceil(power / 4)` to Yes — a real reward for a defensively solid pick, not just an offensive one.
+- **Neutral** — no meaningful edge either way. No effect.
+- **Weak** / **hard-countered** — the opponent is super-effective against it, with no resistance to soften the hit. Adds `ceil(power / 2)` / `2 × ceil(power / 2)` to No. The "hard" tier (double the plain penalty) is deliberately harsher at every power level, so a genuine hard counter always stings more than an ordinary weakness.
+- Immunity beats everything: a member immune to the opponent's attack is always **strong**, even if one of its other types would otherwise be weak.
+
+None of this uses raw damage multipliers (no `4×`/`0.25×` ticket math) — effectiveness is bucketed into tiers first, then converted to a ticket delta, which keeps swings bounded and avoids a double-weak Pokémon turning into an unwinnable wall. Deltas scale with that Pokémon's own power (`1..8`) and depend only on that one Pokémon, never on team size or which other Pokémon are on the roster, so swapping an unrelated teammate never silently changes another Pokémon's contribution.
+
+A trainer's `types` list can also **repeat a type on purpose** (e.g. Elite Four member Lance is `['dragon', 'dragon']`) — this is a deliberate emphasis lever, not a data typo. A repeated type means the trainer leans hard into it: a member weak to it is punished as hard-countered rather than merely weak, and symmetrically, a member that resists it is rewarded as hard-resistant rather than merely resistant.
 
 The full calculation lives in [`TypeMatchupService`](src/app/services/type-matchup-service/type-matchup.service.ts), shared by all four battle types via [`BaseBattleRouletteComponent.buildVictoryOdds()`](src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts).
 
