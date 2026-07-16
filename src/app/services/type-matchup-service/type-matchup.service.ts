@@ -99,13 +99,14 @@ export class TypeMatchupService {
    * Buckets a member's overall matchup into one of six tiers by combining
    * offense (does it hit the opponent super-effectively?) with the graded
    * defense read from `getDefenseTier`. An immune member is always 'strong'
-   * (a defensive wall). An offensively-strong member that is also weak on
-   * defense cancels out to 'neutral', matching the existing cancel behavior.
-   * A member that's weak on defense with no offensive answer and no way out
-   * (double-stacked or hit by two distinct opponent types) is 'hard-countered'.
-   * A member with no offensive answer that instead *nets a resist* (0.5x/0.25x,
-   * no weakness to fall back to) is 'resistant' — the defensively-excellent
-   * matchup this tier exists to stop reading as identical to blank neutral.
+   * (a defensive wall) unless offensively walled (can't damage the opponent).
+   * An offensively-strong member that is also weak on defense cancels out to
+   * 'neutral', matching the existing cancel behavior. A member that's weak on
+   * defense with no offensive answer and no way out (double-stacked or hit by
+   * two distinct opponent types) is 'hard-countered'. A member with no offensive
+   * answer that instead *nets a resist* (0.5x/0.25x, no weakness to fall back
+   * to) is 'resistant' — the defensively-excellent matchup this tier exists to
+   * stop reading as identical to blank neutral, UNLESS offensively walled.
    * 'hard-resistant' is the resist-side analogue of 'hard-countered' (double
    * resist, or resisting two distinct opponent types) — including the emphasis
    * lever: resisting a type a trainer repeats in their `types` list (see
@@ -121,13 +122,22 @@ export class TypeMatchupService {
     const isOffenseStrong = memberTypes.some(mt => opponentTypes.some(ot => this.isStrongAgainst(mt, ot)));
     const defenseTier = this.getDefenseTier(memberTypes, opponentTypes);
 
-    if (defenseTier === 'immune') return 'strong';
+    // The member has no effective offense at all — not super-effective against
+    // anything, and every one of its attacking types is resisted or nullified by
+    // every opponent type. Best-case read: if ANY member type can hit ANY opponent
+    // type neutrally-or-better, it is NOT walled.
+    const offensivelyWalled =
+      !isOffenseStrong &&
+      memberTypes.length > 0 &&
+      opponentTypes.every(ot => memberTypes.every(mt => this.resists(ot, mt) || this.isImmuneTo(ot, mt)));
+
+    if (defenseTier === 'immune') return offensivelyWalled ? 'neutral' : 'strong';
     if (isOffenseStrong && (defenseTier === 'weak' || defenseTier === 'doubleWeak')) return 'neutral';
     if (isOffenseStrong) return 'strong';
     if (defenseTier === 'doubleWeak') return 'hard-countered';
     if (defenseTier === 'weak') return 'weak';
-    if (defenseTier === 'doubleResist') return 'hard-resistant';
-    if (defenseTier === 'resist') return 'resistant';
+    if (defenseTier === 'doubleResist') return offensivelyWalled ? 'neutral' : 'hard-resistant';
+    if (defenseTier === 'resist') return offensivelyWalled ? 'neutral' : 'resistant';
     return 'neutral';
   }
 

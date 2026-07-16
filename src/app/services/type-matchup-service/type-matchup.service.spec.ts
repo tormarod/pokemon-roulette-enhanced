@@ -393,4 +393,56 @@ describe('TypeMatchupService', () => {
     expect(hardCountered.noBonus).toBeGreaterThan(weak.noBonus);
     expect(hardCountered.yesPower).toBe(weak.yesPower); // same green either way
   });
+
+  // ── Offensive resistance: cancel phantom advantages ────────────────────────
+
+  it('is "neutral" for Poison vs Poison (offensively resisted — the reported bug)', () => {
+    const poison = makePokemon({ power: 4, type1: 'poison' });
+    expect(service.getMemberTier(poison, ['poison'])).toBe('neutral');
+  });
+
+  it('is "neutral" for Steel vs Steel (mirror offensive resistance)', () => {
+    const steel = makePokemon({ power: 4, type1: 'steel' });
+    expect(service.getMemberTier(steel, ['steel'])).toBe('neutral');
+  });
+
+  it('is "neutral" for Normal vs Ghost (immune both ways — offensive immunity)', () => {
+    const normal = makePokemon({ power: 4, type1: 'normal' });
+    expect(service.getMemberTier(normal, ['ghost'])).toBe('neutral');
+  });
+
+  it('is "neutral" for Steel vs Steel, Steel (doubleResist walled by repeated emphasized type)', () => {
+    const steel = makePokemon({ power: 4, type1: 'steel' });
+    expect(service.getMemberTier(steel, ['steel', 'steel'])).toBe('neutral');
+  });
+
+  it('remains "strong" for Poison/Steel vs Poison (steel can poke, not fully walled)', () => {
+    const poisonSteel = makePokemon({ power: 4, type1: 'poison', type2: 'steel' });
+    expect(service.getMemberTier(poisonSteel, ['poison'])).toBe('strong');
+  });
+
+  it('remains "strong" for Water vs Fire (SE + resist, unchanged)', () => {
+    const water = makePokemon({ power: 4, type1: 'water' });
+    expect(service.getMemberTier(water, ['fire'])).toBe('strong');
+  });
+
+  it('remains "weak" for Grass vs Fire (unchanged)', () => {
+    const grass = makePokemon({ power: 4, type1: 'grass' });
+    expect(service.getMemberTier(grass, ['fire'])).toBe('weak');
+  });
+
+  it('remains "weak" for Fire vs Water (offensively resisted but defensively weak stays weak)', () => {
+    const fire = makePokemon({ power: 4, type1: 'fire' });
+    expect(service.getMemberTier(fire, ['water'])).toBe('weak');
+  });
+
+  it('remains "weak" for Electric vs Ground (offensively nullified but defensively weak stays weak)', () => {
+    const electric = makePokemon({ power: 4, type1: 'electric' });
+    expect(service.getMemberTier(electric, ['ground'])).toBe('weak');
+  });
+
+  it('remains "strong" for Grass vs Water (SE vs water + resists water, unchanged)', () => {
+    const grass = makePokemon({ power: 4, type1: 'grass' });
+    expect(service.getMemberTier(grass, ['water'])).toBe('strong');
+  });
 });
