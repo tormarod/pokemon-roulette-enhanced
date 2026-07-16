@@ -215,6 +215,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   auxPokemonList: PokemonItem[] = [];
   /** True only for trade-out: picking which owned Pokémon to offer is a direct pick, not a wheel spin. */
   auxPokemonListPickMode = false;
+  /** Original (unweighted) team references behind auxPokemonList's steal-pokemon clones, same order. */
+  private stealCandidates: PokemonItem[] = [];
   pokemonForms: PokemonForm[] = [];
   currentContextItem!: ItemItem;
   currentContextPokemon!: PokemonItem;
@@ -438,11 +440,17 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         this.replaceForEvolution(this.currentContextPokemon, pokemon);
         this.showpkmnEvoModal();
         break;
-      case 'steal-pokemon':
-        this.stolenPokemon = pokemon;
-        this.removeFromTeam(pokemon);
+      case 'steal-pokemon': {
+        // auxPokemonList holds power-weighted clones (see weightByInversePower), not the
+        // real team objects — resolve back to the original by shared position so
+        // TrainerService.removeFromTeam's reference-based indexOf still finds it.
+        const index = this.auxPokemonList.indexOf(pokemon);
+        const original = index !== -1 ? this.stealCandidates[index] : pokemon;
+        this.stolenPokemon = original;
+        this.removeFromTeam(original);
         this.finishCurrentState();
         break;
+      }
       case 'trade-pokemon':
         this.currentContextPokemon = pokemon;
         break;
@@ -670,13 +678,23 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     } else if (this.trainerService.hasItem('escape-rope')) {
       this.useEscapeRope();
     } else {
-      this.auxPokemonList = trainerTeam;
+      this.stealCandidates = trainerTeam;
+      this.auxPokemonList = this.weightByInversePower(trainerTeam);
       this.customWheelTitle = 'game.main.roulette.teamrocket.steal.which';
       this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('steal-pokemon');
       this.gameStateService.setNextState('select-from-pokemon-list');
       this.finishCurrentState();
     }
+  }
+
+  /**
+   * A stronger Pokémon puts up more of a fight, so it's harder for Team Rocket
+   * to steal — clones with an adjusted weight rather than mutating the real
+   * team objects, since .weight is read by every other wheel too.
+   */
+  private weightByInversePower(pokemon: PokemonItem[]): PokemonItem[] {
+    return pokemon.map(p => ({ ...p, weight: 1 / p.power }));
   }
 
   teamRocketDefeated(): void {

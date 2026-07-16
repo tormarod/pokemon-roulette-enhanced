@@ -343,6 +343,43 @@ describe('RouletteContainerComponent', () => {
       expect(component.auxPokemonListPickMode).toBeFalse();
     });
 
+    it('weights each candidate inversely to its power — a stronger Pokemon is harder to steal', () => {
+      const weak: any = { ...makePokemon(1), power: 1 };
+      const strong: any = { ...makePokemon(4), power: 4 };
+      trainerService.addToTeam(weak);
+      trainerService.addToTeam(strong);
+
+      component.stealPokemon();
+
+      const list = (component as any).auxPokemonList;
+      expect(list.find((p: any) => p.pokemonId === 1).weight).toBe(1);
+      expect(list.find((p: any) => p.pokemonId === 4).weight).toBe(0.25);
+    });
+
+    it('does not mutate the real team objects\' weight', () => {
+      const strong: any = { ...makePokemon(4), power: 4 };
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(strong);
+
+      component.stealPokemon();
+
+      expect(trainerService.getTeam().find(p => p.pokemonId === 4)!.weight).toBe(1);
+    });
+
+    it('picking a steal candidate removes the correct original team member, not a clone', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam({ ...makePokemon(4), power: 4 });
+      const storedTarget = trainerService.getTeam().find(p => p.pokemonId === 4)!;
+
+      component.stealPokemon();
+      const weightedClone = (component as any).auxPokemonList.find((p: any) => p.pokemonId === 4);
+      component.continueWithPokemon(weightedClone);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(trainerService.getTeam()[0].pokemonId).toBe(1);
+      expect((component as any).stolenPokemon).toBe(storedTarget);
+    });
+
     it('with team < 2 → opens teamRocketFailsModal', () => {
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
 
