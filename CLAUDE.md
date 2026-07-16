@@ -70,6 +70,7 @@ Local runs are fast and reliable (~10s for the full suite, clean exit). `karma.c
 
 These are workflow preferences for how to run a session in this repo, learned from past sessions that grew unwieldy:
 
+- **Push back; verify before accepting.** Don't just agree or implement whatever is asked — this is a two-way critical relationship, not order-taking. Check facts against the code, docs, and reality first; if a request rests on a wrong premise, say so with evidence rather than building on it. **It is fine — encouraged — to recommend NOT making a change** (leave it as-is, defer, or drop it) when that's the better call, and to explain the trade-off. Disagreement with reasons is more useful than compliance. (This cuts both ways: the user won't accept our claims uncritically either, so back assertions with specifics.)
 - **Never `git push` unless explicitly asked** (or the user runs `/push`). Committing is fine; pushing is not, without a clear go-ahead.
 - **Check open PRs before assuming one is open** Always ask before opening a new PR.
 - **Checkpoint multi-phase work.** For a plan with several phases, don't treat one "go ahead" as license to run all phases autonomously in one stretch. Pause after each phase (or every couple) for review before continuing.

@@ -13,4 +13,76 @@ Last updated: 2026-07-16
 
 ## Open items
 
-None currently.
+### "What's new" update modal on deploy of player-facing changes
+
+Show a modal to the player after a deploy that introduces **gameplay changes,
+new features, new items, balance tweaks, etc.** — summarizing what changed.
+**Must NOT pop up for silent releases** (performance, efficiency, refactors,
+build/CI, dependency bumps, docs) — those ship without bothering the player.
+
+Why: players should notice new content/mechanics; they should not be interrupted
+by a modal for invisible under-the-hood work.
+
+Sketch (decide when this becomes a plan):
+- **Version-gated, show-once.** Compare the app's current version against a
+  `last-seen-version` in `localStorage` (own `pokemon-roulette-*` key, or fold
+  into `SettingsService`). Only show when it advanced *and* the new release is
+  flagged player-facing.
+- **Explicit player-facing flag per release** is what encodes the "not for perf
+  changes" rule — a release is silent unless it carries notes. Options to weigh:
+  a curated release-notes data file (list of `{ version, notes[] }`, player-facing
+  entries only), vs. deriving from Conventional-Commit types (`feat`/balance →
+  show, `perf`/`refactor`/`chore` → silent). The data file is simpler and gives
+  control over wording; the commit-derived route automates but needs discipline.
+- On dismiss, write the current version to `last-seen-version` so it won't
+  reappear. First-ever visit (no stored version) should NOT dump full history —
+  treat as already-seen.
+- i18n the notes (all 6 locales) like other user-facing strings.
+
+Open questions: where release notes live (data file vs generated); manual "view
+changelog again" entry point (e.g. near Credits); how the deployed build learns
+its version + player-facing flag (build-time inject vs committed data file).
+
+### In-game player suggestions / bug-report + "most wanted" feedback
+
+Let players submit feature suggestions and bug reports from the page, and give
+the owner a view of what players most want. **Not yet decided — options below;
+needs a direction before it becomes a plan.**
+
+Hard constraint: the game is a **static SPA on GitHub Pages, no backend, no
+player accounts**. So the real questions are *where feedback lands* and *how
+much player friction is acceptable*. Two sub-goals pull apart: "open an issue in
+the repo" (centralize with the owner) vs. "see what players most want" (needs
+**voting/aggregation** — raw issues/forms don't give that).
+
+Repo reality (checked 2026-07-16): repo is **public**, but **Issues and
+Discussions are both currently DISABLED** and there are no issue templates — any
+GitHub-native route needs those toggled on first. Natural in-game entry point:
+alongside the Credits/Coffee/Settings pages.
+
+Options:
+- **A. Prefilled "New Issue" link** — button → `…/issues/new` with a template.
+  Zero infra, triaged in-repo, GitHub moderates. But needs a GitHub account
+  (casual players won't have one); "most wanted" = manually sort by 👍.
+- **B. GitHub Discussions + upvoting** — best GitHub-native answer to "what
+  players most want" (native upvotes, top-sorted Ideas). Zero infra; still needs
+  a GitHub account. Can embed in-page via giscus.
+- **C. Dedicated feedback board** (Featurebase/Canny free tier, or self-hosted
+  Fider) — players submit + upvote **without** a GitHub account; owner gets a
+  ranked roadmap. Best UX for the goal. Cost: third-party dependency + external
+  scripts + player data leaving the site (privacy — likely young audience).
+- **D. Simple form** (Tally/Google/Formspree) — dead simple, no account, owner
+  owns data. No voting / players can't see each other's ideas → weak for "most
+  wanted"; good only for raw collection.
+- **E. Serverless → GitHub issue** — in-game form POSTs to a tiny free-tier
+  function (Cloudflare Worker / Netlify / Vercel, or a GitHub Action via
+  `repository_dispatch`) that opens the issue server-side with a token. Faithful
+  "opens an issue in the repo" **without** account friction. Cost: a small
+  function + secret management (token can't live in the static client) + spam
+  guard (honeypot/rate-limit).
+
+Leaning: **B (Discussions + voting)** for least effort if GitHub-account friction
+is acceptable; **C or E** if reaching casual players (no account) matters more.
+Split bugs (Issues/template, structured) from ideas (Discussions/board, voting).
+Favor no-PII + moderated options given the audience. Enabling Issues/Discussions
+is a repo-settings change the owner must make.
