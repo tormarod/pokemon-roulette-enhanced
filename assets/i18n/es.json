@@ -3013,5 +3013,21 @@
     "dragon": "Dragón",
     "dark": "Siniestro",
     "fairy": "Hada"
+  },
+  "v2_1_0": "Versión 2.1.0",
+  "whatsNew": {
+    "title": "Novedades",
+    "dismiss": "Entendido",
+    "settingsEntry": "Novedades",
+    "v2_1_0": {
+      "0": "⚔️ Enfrentamientos por tipo rediseñados — ahora graduales y recompensando resistencias defensivas, no solo ofensa.",
+      "1": "📊 Nueva página de Estadísticas: victorias, rachas, Pokémon más usado & insignia, tu némesis, y seguimiento de suerte.",
+      "2": "📈 Historial de partidas con tendencia de victorias, logros y estadísticas por generación.",
+      "3": "💾 Exporta/importa tu perfil completo o comparte una imagen de estadísticas.",
+      "4": "🔍 Pokédex completo con búsqueda por nombre, plus tooltips de poder/tipo en tus Pokémon.",
+      "5": "👀 Vista previa del rival muestra el tipo del próximo líder de gimnasio o del Alto Mando mientras formas tu equipo.",
+      "6": "🎯 Objetos de sesgo de tipo para controlar tu próximo atrapo, intercambios directos y Team Rocket más inteligente.",
+      "7": "💿 Las partidas se guardan solas, plus nuevos ajustes: volumen, Giro Rápido, reinicio, y botón 'Go Straight'."
+    }
   }
 }

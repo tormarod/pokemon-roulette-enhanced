@@ -3013,5 +3013,21 @@
     "dragon": "Dragão",
     "dark": "Sombrio",
     "fairy": "Fada"
+  },
+  "v2_1_0": "Versão 2.1.0",
+  "whatsNew": {
+    "title": "Novidades",
+    "dismiss": "Entendi",
+    "settingsEntry": "Novidades",
+    "v2_1_0": {
+      "0": "⚔️ Confrontos de tipo reformulados — agora graduais e recompensando resistências defensivas, não apenas ataque.",
+      "1": "📊 Nova página de Estatísticas: vitórias, sequências, Pokémon mais usado & símbolo, seu rival, e rastreamento de sorte.",
+      "2": "📈 Histórico de partidas com tendência de vitórias, conquistas e estatísticas por geração.",
+      "3": "💾 Exporte/importe seu perfil completo ou compartilhe uma imagem de estatísticas.",
+      "4": "🔍 Pokédex completo com busca por nome e dicas de poder/tipo nos seus Pokémon.",
+      "5": "👀 Prévia do oponente mostra o tipo do próximo líder de ginásio ou Elite dos Quatro enquanto monta a equipe.",
+      "6": "🎯 Itens de tendência de tipo para controlar seu próximo atrapo, trocas diretas e Equipe Rocket mais inteligente.",
+      "7": "💿 As rodadas salvam automaticamente, mais novas configurações: volume, Giro Rápido, reiniciar, e botão 'Go Straight'."
+    }
   }
 }
