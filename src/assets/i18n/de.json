@@ -155,7 +155,8 @@
       "longestRun": "Längste Runde",
       "favoriteGeneration": "Lieblingsgeneration",
       "rounds": "{{count}} Runden",
-      "none": "—"
+      "none": "—",
+      "perfectRuns": "Perfekte Runden (keine Kampfniederlagen)"
     },
     "pokemon": {
       "title": "Pokémon",
@@ -163,7 +164,9 @@
       "mostChosenStarter": "Meistgewählter Starter",
       "signaturePokemon": "Signatur-Pokémon",
       "favoriteTypes": "Lieblingstypen",
-      "none": "Noch keine"
+      "none": "Noch keine",
+      "legendariesCaught": "Gefangene Legendäre",
+      "evolutionsPerformed": "Durchgeführte Entwicklungen"
     },
     "battles": {
       "title": "Kämpfe",
@@ -178,12 +181,75 @@
       "eliteFour": "Top Vier",
       "champion": "Champion"
     },
+    "luck": {
+      "title": "Glück & Rad",
+      "totalSpins": "Drehungen insgesamt",
+      "actualYesRate": "Tatsächliche Ja-Quote",
+      "expectedYesRate": "Erwartete Ja-Quote",
+      "luckIndex": "Glücksindex",
+      "luckIndexHint": "Tatsächliche Ja-Quote minus der von den Chancen implizierten Quote — positiv bedeutet, dass du gerade Glück hast.",
+      "potionsUsed": "Verwendete Tränke",
+      "teamRocketStealsSuffered": "Von Team Rocket gestohlene Pokémon"
+    },
+    "history": {
+      "title": "Spielverlauf",
+      "winRateTrend": "Siegquoten-Verlauf",
+      "recentForm": "Letzte Form (letzte 10)",
+      "recentFormNone": "Noch keine Läufe",
+      "playTime": "Gesamtspielzeit",
+      "victory": "Sieg",
+      "defeat": "Niederlage",
+      "none": "Noch kein Spielverlauf"
+    },
+    "achievements": {
+      "title": "Erfolge",
+      "unlockedToastHeader": "Erfolg freigeschaltet!",
+      "locked": "Gesperrt",
+      "firstVictory": { "name": "Erster Sieg", "description": "Gewinne eine Runde." },
+      "wins10": { "name": "Erfahrener Champion", "description": "Gewinne 10 Runden." },
+      "wins50": { "name": "Legendärer Champion", "description": "Gewinne 50 Runden." },
+      "winStreak5": { "name": "Auf Erfolgskurs", "description": "Erreiche eine Siegesserie von 5." },
+      "winStreak10": { "name": "Unaufhaltsam", "description": "Erreiche eine Siegesserie von 10." },
+      "firstShiny": { "name": "Shiny-Jäger", "description": "Fange dein erstes Shiny-Pokémon." },
+      "firstLegendary": { "name": "Mythenjäger", "description": "Fange ein legendäres oder Paradox-Pokémon." },
+      "perfectRun": { "name": "Makelloser Sieg", "description": "Gewinne eine Runde ohne eine einzige Kampfniederlage." },
+      "championEveryGeneration": { "name": "Meister aller Regionen", "description": "Besiege den Champion in jeder Generation." }
+    },
+    "share": {
+      "title": "Meine Statistiken teilen",
+      "cardTitle": "Meine Pokémon-Roulette-Statistiken",
+      "action": "Teilen / Bild herunterladen",
+      "text": "Schau dir meine Pokémon-Roulette-Statistiken an!"
+    },
+    "export": {
+      "action": "Statistiken exportieren (JSON)"
+    },
+    "import": {
+      "action": "Statistiken importieren (JSON)",
+      "success": "Statistiken erfolgreich importiert!",
+      "error": "Diese Datei konnte nicht importiert werden — stelle sicher, dass es sich um einen gültigen Statistik-Export handelt."
+    },
     "reset": {
       "action": "Statistiken zurücksetzen",
       "title": "Statistiken zurücksetzen?",
       "warning": "Dadurch werden alle deine Lebenszeit-Statistiken dauerhaft gelöscht. Deine aktuelle Runde und dein Pokédex sind davon nicht betroffen. Dies kann nicht rückgängig gemacht werden.",
       "confirm": "Zurücksetzen",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "section": {
+        "action": "Bereich zurücksetzen",
+        "luck": {
+          "title": "Glück & Rad-Statistiken zurücksetzen?",
+          "warning": "Dadurch werden deine Glücks- und Rad-Statistiken (Drehungen, verwendete Tränke, Team-Rocket-Diebstähle) dauerhaft gelöscht. Andere Statistiken sind nicht betroffen. Dies kann nicht rückgängig gemacht werden."
+        },
+        "runHistory": {
+          "title": "Spielverlauf zurücksetzen?",
+          "warning": "Dadurch wird dein Spielverlauf-Protokoll dauerhaft gelöscht. Andere Statistiken sind nicht betroffen. Dies kann nicht rückgängig gemacht werden."
+        },
+        "achievements": {
+          "title": "Erfolge zurücksetzen?",
+          "warning": "Dadurch werden alle Erfolge wieder als gesperrt markiert. Falls die zugrunde liegenden Statistiken bereits erfüllt sind, können sie sofort erneut freigeschaltet werden. Dies kann nicht rückgängig gemacht werden."
+        }
+      }
     }
   },
   "game": {

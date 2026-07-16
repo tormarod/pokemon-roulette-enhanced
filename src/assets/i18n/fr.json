@@ -155,7 +155,8 @@
       "longestRun": "Partie la plus longue",
       "favoriteGeneration": "Génération préférée",
       "rounds": "{{count}} manches",
-      "none": "—"
+      "none": "—",
+      "perfectRuns": "Parties parfaites (aucune défaite en combat)"
     },
     "pokemon": {
       "title": "Pokémon",
@@ -163,7 +164,9 @@
       "mostChosenStarter": "Starter le plus choisi",
       "signaturePokemon": "Pokémon fétiche",
       "favoriteTypes": "Types préférés",
-      "none": "Aucun pour l'instant"
+      "none": "Aucun pour l'instant",
+      "legendariesCaught": "Légendaires capturés",
+      "evolutionsPerformed": "Évolutions réalisées"
     },
     "battles": {
       "title": "Combats",
@@ -178,12 +181,75 @@
       "eliteFour": "Conseil des 4",
       "champion": "Champion"
     },
+    "luck": {
+      "title": "Chance & Roue",
+      "totalSpins": "Total des tours",
+      "actualYesRate": "Taux de Oui réel",
+      "expectedYesRate": "Taux de Oui attendu",
+      "luckIndex": "Indice de chance",
+      "luckIndexHint": "Taux de Oui réel moins celui impliqué par les probabilités — positif signifie que vous avez de la chance.",
+      "potionsUsed": "Potions utilisées",
+      "teamRocketStealsSuffered": "Pokémon volés par la Team Rocket"
+    },
+    "history": {
+      "title": "Historique des Parties",
+      "winRateTrend": "Tendance du Taux de Victoire",
+      "recentForm": "Forme Récente (10 dernières)",
+      "recentFormNone": "Pas encore de parties",
+      "playTime": "Temps de Jeu Total",
+      "victory": "Victoire",
+      "defeat": "Défaite",
+      "none": "Pas encore d'historique de parties"
+    },
+    "achievements": {
+      "title": "Succès",
+      "unlockedToastHeader": "Succès débloqué !",
+      "locked": "Verrouillé",
+      "firstVictory": { "name": "Première Victoire", "description": "Gagnez une partie." },
+      "wins10": { "name": "Champion Aguerri", "description": "Gagnez 10 parties." },
+      "wins50": { "name": "Champion Légendaire", "description": "Gagnez 50 parties." },
+      "winStreak5": { "name": "En Pleine Lancée", "description": "Atteignez une série de 5 victoires." },
+      "winStreak10": { "name": "Inarrêtable", "description": "Atteignez une série de 10 victoires." },
+      "firstShiny": { "name": "Chasseur de Chromatiques", "description": "Capturez votre premier Pokémon chromatique." },
+      "firstLegendary": { "name": "Chasseur de Mythes", "description": "Capturez un Pokémon légendaire ou Paradoxe." },
+      "perfectRun": { "name": "Victoire Parfaite", "description": "Gagnez une partie sans subir aucune défaite en combat." },
+      "championEveryGeneration": { "name": "Maître de Toutes les Régions", "description": "Battez le Champion dans chaque génération." }
+    },
+    "share": {
+      "title": "Partager Mes Statistiques",
+      "cardTitle": "Mes Statistiques Pokémon Roulette",
+      "action": "Partager / Télécharger l'Image",
+      "text": "Regardez mes statistiques Pokémon Roulette !"
+    },
+    "export": {
+      "action": "Exporter les Statistiques (JSON)"
+    },
+    "import": {
+      "action": "Importer les Statistiques (JSON)",
+      "success": "Statistiques importées avec succès !",
+      "error": "Ce fichier n'a pas pu être importé — vérifiez qu'il s'agit d'un export de statistiques valide."
+    },
     "reset": {
       "action": "Réinitialiser les statistiques",
       "title": "Réinitialiser les statistiques ?",
       "warning": "Cela effacera définitivement toutes vos statistiques à vie. Votre partie en cours et votre Pokédex ne seront pas affectés. Cette action est irréversible.",
       "confirm": "Réinitialiser",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "section": {
+        "action": "Réinitialiser la Section",
+        "luck": {
+          "title": "Réinitialiser les statistiques Chance & Roue ?",
+          "warning": "Cela effacera définitivement vos statistiques de chance et de roue (tours, potions utilisées, vols de la Team Rocket). Les autres statistiques ne sont pas affectées. Cette action est irréversible."
+        },
+        "runHistory": {
+          "title": "Réinitialiser l'historique des parties ?",
+          "warning": "Cela effacera définitivement votre journal d'historique des parties. Les autres statistiques ne sont pas affectées. Cette action est irréversible."
+        },
+        "achievements": {
+          "title": "Réinitialiser les succès ?",
+          "warning": "Cela marquera à nouveau tous les succès comme verrouillés. Si les statistiques sous-jacentes les remplissent déjà, ils pourraient se débloquer immédiatement à nouveau. Cette action est irréversible."
+        }
+      }
     }
   },
   "game": {

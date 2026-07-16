@@ -1,6 +1,7 @@
-import { PlayerStats } from '../../interfaces/player-stats';
+import { PlayerStats, RunLogEntry } from '../../interfaces/player-stats';
 import { PokemonType } from '../../interfaces/pokemon-type';
 import { BattleType } from './stats.service';
+import { ACHIEVEMENTS } from './achievements';
 
 export interface TopEntry {
   pokemonId: number;
@@ -26,6 +27,13 @@ export interface BattleTypeRates {
   rival: number | null;
   eliteFour: number | null;
   champion: number | null;
+}
+
+export interface AchievementProgress {
+  id: string;
+  nameKey: string;
+  descriptionKey: string;
+  unlocked: boolean;
 }
 
 /**
@@ -58,9 +66,47 @@ export interface PlayerStatsSummary {
   battleTypeWinRates: BattleTypeRates;
   /** Share of all defeats that happened at the Champion specifically — the "heartbreak counter". */
   championHeartbreakRate: number | null;
+
+  // Luck / wheel (V2 Group A)
+  totalSpins: number;
+  /** Actual yes-rate across all spins, or null with no spins yet. */
+  actualYesRate: number | null;
+  /** Average pre-spin yes-share across all spins, or null with no spins yet — "how good the odds looked". */
+  expectedYesRate: number | null;
+  /**
+   * actualYesRate − expectedYesRate: positive means landing Yes more than the
+   * odds implied (lucky), negative means less (unlucky). Null with no spins yet.
+   */
+  luckIndex: number | null;
+  potionsUsed: number;
+  teamRocketStealsSuffered: number;
+
+  // Run-history log (V2 Group C) + playtime (V2 Group D)
+  firstPlayedAt: number | null;
+  lastPlayedAt: number | null;
+  /** Sum of (endedAt − startedAt) across every logged run. */
+  totalPlaytimeMs: number;
+  /** Last RECENT_FORM_COUNT results, most recent first — true = victory. */
+  recentForm: boolean[];
+  /** Win rate within recentForm, or null with no runs yet. */
+  recentFormWinRate: number | null;
+  /** Cumulative win rate after each run, oldest to newest — a trend line source. */
+  winRateTrend: number[];
+  /** Run-history entries, most recent first, for a browsable run list. */
+  runHistory: RunLogEntry[];
+
+  // Data-gap fills (V2 Group D, remainder)
+  legendariesCaught: number;
+  evolutionsPerformed: number;
+  perfectRuns: number;
+
+  // Achievements (V2 Group B)
+  /** Every declared achievement with its unlocked state, in ACHIEVEMENTS order. */
+  achievements: AchievementProgress[];
 }
 
 const TOP_OWNED_COUNT = 3;
+const RECENT_FORM_COUNT = 10;
 
 export function computeStatsSummary(stats: PlayerStats): PlayerStatsSummary {
   return {
@@ -90,7 +136,60 @@ export function computeStatsSummary(stats: PlayerStats): PlayerStatsSummary {
       champion: rate(stats.battleTypeWins.champion, stats.battleTypeWins.champion + stats.battleTypeLosses.champion),
     },
     championHeartbreakRate: rate(stats.battleTypeLosses.champion, stats.defeats),
+    totalSpins: stats.totalSpins,
+    actualYesRate: rate(stats.yesLandings, stats.totalSpins),
+    expectedYesRate: stats.totalSpins > 0 ? stats.sumExpectedYesProbability / stats.totalSpins : null,
+    luckIndex: luckIndex(stats),
+    potionsUsed: stats.potionsUsed,
+    teamRocketStealsSuffered: stats.teamRocketStealsSuffered,
+    firstPlayedAt: stats.firstPlayedAt,
+    lastPlayedAt: stats.lastPlayedAt,
+    totalPlaytimeMs: stats.runHistory.reduce((sum, run) => sum + Math.max(0, run.endedAt - run.startedAt), 0),
+    recentForm: recentForm(stats.runHistory),
+    recentFormWinRate: recentFormWinRate(stats.runHistory),
+    winRateTrend: winRateTrend(stats.runHistory),
+    runHistory: [...stats.runHistory].reverse(),
+    legendariesCaught: stats.legendariesCaught,
+    evolutionsPerformed: stats.evolutionsPerformed,
+    perfectRuns: stats.perfectRuns,
+    achievements: ACHIEVEMENTS.map(achievement => ({
+      id: achievement.id,
+      nameKey: achievement.nameKey,
+      descriptionKey: achievement.descriptionKey,
+      unlocked: !!stats.unlockedAchievementIds[achievement.id],
+    })),
   };
+}
+
+/** Last RECENT_FORM_COUNT results, most recent first (see PlayerStatsSummary.recentForm). */
+function recentForm(history: RunLogEntry[]): boolean[] {
+  return history.slice(-RECENT_FORM_COUNT).reverse().map(run => run.victory);
+}
+
+function recentFormWinRate(history: RunLogEntry[]): number | null {
+  const recent = history.slice(-RECENT_FORM_COUNT);
+  return rate(recent.filter(run => run.victory).length, recent.length);
+}
+
+/** Cumulative win rate after each run, in chronological (oldest-first) order. */
+function winRateTrend(history: RunLogEntry[]): number[] {
+  let wins = 0;
+  return history.map((run, index) => {
+    if (run.victory) {
+      wins++;
+    }
+    return wins / (index + 1);
+  });
+}
+
+/** actualYesRate − expectedYesRate, or null with no spins yet (see PlayerStatsSummary.luckIndex). */
+function luckIndex(stats: PlayerStats): number | null {
+  if (stats.totalSpins === 0) {
+    return null;
+  }
+  const actual = stats.yesLandings / stats.totalSpins;
+  const expected = stats.sumExpectedYesProbability / stats.totalSpins;
+  return actual - expected;
 }
 
 /** wins/total as a 0-1 fraction, or null when there's nothing to divide by yet (no empty-history NaN/Infinity). */

@@ -10,6 +10,19 @@ export interface BattleTypeCounts {
   champion: number;
 }
 
+/** Max entries kept in PlayerStats.runHistory — oldest dropped past this (plan V2 §3.C). */
+export const RUN_HISTORY_CAP = 30;
+
+/** One completed run's summary, appended to PlayerStats.runHistory at recordRunEnd. */
+export interface RunLogEntry {
+  victory: boolean;
+  generationId: number;
+  roundsReached: number;
+  starterPokemonId: number;
+  startedAt: number;
+  endedAt: number;
+}
+
 /**
  * Lifetime, cross-run player statistics. Persisted independently of
  * RunPersistenceService's run blob and never cleared by it — see
@@ -52,6 +65,30 @@ export interface PlayerStats {
   nemesisDefeats: Record<string, number>;
   battleTypeWins: BattleTypeCounts;
   battleTypeLosses: BattleTypeCounts;
+
+  // Luck / wheel (V2 Group A)
+  totalSpins: number;
+  yesLandings: number;
+  /** Sum of each spin's pre-spin yes-share (yesTickets/totalTickets) — the denominator for the expected win rate. */
+  sumExpectedYesProbability: number;
+  potionsUsed: number;
+  teamRocketStealsSuffered: number;
+
+  // Run-history log (V2 Group C) + playtime timestamps (V2 Group D)
+  /** Capped at RUN_HISTORY_CAP entries, oldest dropped first. */
+  runHistory: RunLogEntry[];
+  firstPlayedAt: number | null;
+  lastPlayedAt: number | null;
+
+  // Data-gap fills (V2 Group D, remainder) + achievements (V2 Group B)
+  legendariesCaught: number;
+  evolutionsPerformed: number;
+  /** Runs won with zero battle losses (gym/rival/eliteFour/champion combined) along the way. */
+  perfectRuns: number;
+  /** Keyed by GenerationItem.id; true once the champion has been defeated in that generation. */
+  championGenerationIds: Record<number, boolean>;
+  /** Keyed by Achievement.id — see achievements.ts. */
+  unlockedAchievementIds: Record<string, boolean>;
 }
 
 export function createDefaultPlayerStats(): PlayerStats {
@@ -77,6 +114,19 @@ export function createDefaultPlayerStats(): PlayerStats {
     nemesisDefeats: {},
     battleTypeWins: { gym: 0, rival: 0, eliteFour: 0, champion: 0 },
     battleTypeLosses: { gym: 0, rival: 0, eliteFour: 0, champion: 0 },
+    totalSpins: 0,
+    yesLandings: 0,
+    sumExpectedYesProbability: 0,
+    potionsUsed: 0,
+    teamRocketStealsSuffered: 0,
+    runHistory: [],
+    firstPlayedAt: null,
+    lastPlayedAt: null,
+    legendariesCaught: 0,
+    evolutionsPerformed: 0,
+    perfectRuns: 0,
+    championGenerationIds: {},
+    unlockedAchievementIds: {},
   };
 }
 
@@ -116,6 +166,19 @@ export function normalizePlayerStats(value: unknown): PlayerStats {
     nemesisDefeats: recordOr(partial.nemesisDefeats, defaults.nemesisDefeats),
     battleTypeWins: battleTypeCountsOr(partial.battleTypeWins, defaults.battleTypeWins),
     battleTypeLosses: battleTypeCountsOr(partial.battleTypeLosses, defaults.battleTypeLosses),
+    totalSpins: numberOr(partial.totalSpins, defaults.totalSpins),
+    yesLandings: numberOr(partial.yesLandings, defaults.yesLandings),
+    sumExpectedYesProbability: numberOr(partial.sumExpectedYesProbability, defaults.sumExpectedYesProbability),
+    potionsUsed: numberOr(partial.potionsUsed, defaults.potionsUsed),
+    teamRocketStealsSuffered: numberOr(partial.teamRocketStealsSuffered, defaults.teamRocketStealsSuffered),
+    runHistory: runHistoryOr(partial.runHistory, defaults.runHistory),
+    firstPlayedAt: nullableNumberOr(partial.firstPlayedAt, defaults.firstPlayedAt),
+    lastPlayedAt: nullableNumberOr(partial.lastPlayedAt, defaults.lastPlayedAt),
+    legendariesCaught: numberOr(partial.legendariesCaught, defaults.legendariesCaught),
+    evolutionsPerformed: numberOr(partial.evolutionsPerformed, defaults.evolutionsPerformed),
+    perfectRuns: numberOr(partial.perfectRuns, defaults.perfectRuns),
+    championGenerationIds: recordOr(partial.championGenerationIds, defaults.championGenerationIds),
+    unlockedAchievementIds: recordOr(partial.unlockedAchievementIds, defaults.unlockedAchievementIds),
   };
 }
 
@@ -132,4 +195,29 @@ function battleTypeCountsOr(value: unknown, fallback: BattleTypeCounts): BattleT
     return fallback;
   }
   return { ...fallback, ...value as Partial<BattleTypeCounts> };
+}
+
+function nullableNumberOr(value: unknown, fallback: number | null): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function isValidRunLogEntry(value: unknown): value is RunLogEntry {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const entry = value as Partial<RunLogEntry>;
+  return typeof entry.victory === 'boolean'
+    && typeof entry.generationId === 'number'
+    && typeof entry.roundsReached === 'number'
+    && typeof entry.starterPokemonId === 'number'
+    && typeof entry.startedAt === 'number'
+    && typeof entry.endedAt === 'number';
+}
+
+/** Drops malformed entries rather than discarding the whole log, then re-applies the cap. */
+function runHistoryOr(value: unknown, fallback: RunLogEntry[]): RunLogEntry[] {
+  if (!Array.isArray(value)) {
+    return fallback;
+  }
+  return value.filter(isValidRunLogEntry).slice(-RUN_HISTORY_CAP);
 }

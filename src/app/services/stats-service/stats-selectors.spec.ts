@@ -1,5 +1,6 @@
 import { computeStatsSummary } from './stats-selectors';
-import { createDefaultPlayerStats, PlayerStats } from '../../interfaces/player-stats';
+import { createDefaultPlayerStats, PlayerStats, RunLogEntry } from '../../interfaces/player-stats';
+import { ACHIEVEMENTS } from './achievements';
 
 describe('computeStatsSummary', () => {
   const withStats = (overrides: Partial<PlayerStats>): PlayerStats => ({
@@ -21,6 +22,47 @@ describe('computeStatsSummary', () => {
     expect(summary.topOwnedPokemon).toEqual([]);
     expect(summary.favoriteTypes).toEqual([]);
     expect(summary.battleTypeWinRates).toEqual({ gym: null, rival: null, eliteFour: null, champion: null });
+    expect(summary.actualYesRate).toBeNull();
+    expect(summary.expectedYesRate).toBeNull();
+    expect(summary.luckIndex).toBeNull();
+    expect(summary.recentForm).toEqual([]);
+    expect(summary.recentFormWinRate).toBeNull();
+    expect(summary.winRateTrend).toEqual([]);
+    expect(summary.runHistory).toEqual([]);
+    expect(summary.totalPlaytimeMs).toBe(0);
+    expect(summary.achievements.length).toBe(ACHIEVEMENTS.length);
+    expect(summary.achievements.every(a => !a.unlocked)).toBeTrue();
+  });
+
+  // ── Luck / wheel ─────────────────────────────────────────────────────────
+
+  it('should compute actual/expected yes rates and a positive luck index when running lucky', () => {
+    const summary = computeStatsSummary(withStats({
+      totalSpins: 10,
+      yesLandings: 8,
+      sumExpectedYesProbability: 5, // average expected yes-share of 0.5
+    }));
+
+    expect(summary.actualYesRate).toBe(0.8);
+    expect(summary.expectedYesRate).toBe(0.5);
+    expect(summary.luckIndex).toBeCloseTo(0.3);
+  });
+
+  it('should compute a negative luck index when running unlucky', () => {
+    const summary = computeStatsSummary(withStats({
+      totalSpins: 10,
+      yesLandings: 2,
+      sumExpectedYesProbability: 5,
+    }));
+
+    expect(summary.luckIndex).toBeCloseTo(-0.3);
+  });
+
+  it('should pass through potionsUsed and teamRocketStealsSuffered unchanged', () => {
+    const summary = computeStatsSummary(withStats({ potionsUsed: 3, teamRocketStealsSuffered: 2 }));
+
+    expect(summary.potionsUsed).toBe(3);
+    expect(summary.teamRocketStealsSuffered).toBe(2);
   });
 
   // ── Rates ────────────────────────────────────────────────────────────────
@@ -121,5 +163,86 @@ describe('computeStatsSummary', () => {
     }));
 
     expect(summary.nemesis?.key).toBe('gym:alpha');
+  });
+
+  // ── Run-history log ─────────────────────────────────────────────────────
+
+  const makeRun = (overrides: Partial<RunLogEntry>): RunLogEntry => ({
+    victory: true,
+    generationId: 1,
+    roundsReached: 5,
+    starterPokemonId: 1,
+    startedAt: 1000,
+    endedAt: 2000,
+    ...overrides,
+  });
+
+  it('should expose runHistory most-recent-first without mutating the source array', () => {
+    const runHistory = [makeRun({ starterPokemonId: 1 }), makeRun({ starterPokemonId: 2 }), makeRun({ starterPokemonId: 3 })];
+    const summary = computeStatsSummary(withStats({ runHistory }));
+
+    expect(summary.runHistory.map(run => run.starterPokemonId)).toEqual([3, 2, 1]);
+    expect(runHistory.map(run => run.starterPokemonId)).toEqual([1, 2, 3]);
+  });
+
+  it('should compute recentForm (most-recent-first) and its win rate over the last 10 runs', () => {
+    const runHistory = [
+      makeRun({ victory: true }), makeRun({ victory: false }), makeRun({ victory: true }),
+    ];
+    const summary = computeStatsSummary(withStats({ runHistory }));
+
+    expect(summary.recentForm).toEqual([true, false, true]);
+    expect(summary.recentFormWinRate).toBeCloseTo(2 / 3);
+  });
+
+  it('should only consider the last 10 runs for recentForm even with a longer history', () => {
+    const runHistory = [
+      ...Array.from({ length: 15 }, () => makeRun({ victory: false })),
+      ...Array.from({ length: 10 }, () => makeRun({ victory: true })),
+    ];
+    const summary = computeStatsSummary(withStats({ runHistory }));
+
+    expect(summary.recentForm.length).toBe(10);
+    expect(summary.recentForm.every(result => result)).toBeTrue();
+    expect(summary.recentFormWinRate).toBe(1);
+  });
+
+  it('should compute a cumulative win-rate trend in chronological order', () => {
+    const runHistory = [
+      makeRun({ victory: true }), makeRun({ victory: true }), makeRun({ victory: false }), makeRun({ victory: true }),
+    ];
+    const summary = computeStatsSummary(withStats({ runHistory }));
+
+    expect(summary.winRateTrend).toEqual([1, 1, 2 / 3, 0.75]);
+  });
+
+  it('should sum playtime across all logged runs, clamping any negative duration to zero', () => {
+    const runHistory = [
+      makeRun({ startedAt: 0, endedAt: 60_000 }), // 1 minute
+      makeRun({ startedAt: 1000, endedAt: 500 }), // corrupt/negative duration
+    ];
+    const summary = computeStatsSummary(withStats({ runHistory }));
+
+    expect(summary.totalPlaytimeMs).toBe(60_000);
+  });
+
+  // ── Data-gap fills + achievements ────────────────────────────────────────
+
+  it('should pass through legendariesCaught, evolutionsPerformed, and perfectRuns unchanged', () => {
+    const summary = computeStatsSummary(withStats({ legendariesCaught: 2, evolutionsPerformed: 7, perfectRuns: 1 }));
+
+    expect(summary.legendariesCaught).toBe(2);
+    expect(summary.evolutionsPerformed).toBe(7);
+    expect(summary.perfectRuns).toBe(1);
+  });
+
+  it('should mark only unlocked achievements as unlocked, in ACHIEVEMENTS order', () => {
+    const summary = computeStatsSummary(withStats({
+      unlockedAchievementIds: { 'first-victory': true },
+    }));
+
+    expect(summary.achievements.map(a => a.id)).toEqual(ACHIEVEMENTS.map(a => a.id));
+    expect(summary.achievements.find(a => a.id === 'first-victory')?.unlocked).toBeTrue();
+    expect(summary.achievements.filter(a => a.unlocked).length).toBe(1);
   });
 });

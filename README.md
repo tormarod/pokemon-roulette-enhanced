@@ -10,7 +10,7 @@ This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm
 - Your run now survives a reload or closed tab — team, items, badges, and progress are saved to `localStorage` automatically as you play. See [Run persistence](#run-persistence) below.
 - Settings gained a volume slider (independent of the mute toggle), a "Fast Spin" option that shortens the wheel's reveal animation to under half a second without changing the odds or outcome, and a restart control, so you don't have to leave the Settings screen to start over.
 - You can now see and act on what's coming before you commit to a roster — see [Opponent agency](#opponent-agency) below.
-- A new Statistics page tracks activity across runs — victories, streaks, most-owned and signature Pokémon, your "nemesis" opponent, and more — persisted separately from the current run so it survives resets, with an explicit reset control of its own.
+- A new Statistics page tracks activity across runs — victories, streaks, most-owned and signature Pokémon, your "nemesis" opponent, and more — persisted separately from the current run so it survives resets, with an explicit reset control of its own. It also tracks luck (are you landing Yes more or less than the odds implied?), a browsable run-history log with recent form and a win-rate trend chart, achievements with unlock toasts, and lets you export/import your stats as JSON or share a stats card image, with per-section resets alongside the full reset.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 

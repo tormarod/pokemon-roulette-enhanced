@@ -456,6 +456,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         const index = this.auxPokemonList.indexOf(pokemon);
         const original = index !== -1 ? this.stealCandidates[index] : pokemon;
         this.stolenPokemon = original;
+        this.statsService.recordStealSuffered();
         this.removeFromTeam(original);
         this.finishCurrentState();
         break;
@@ -670,6 +671,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   paradoxCaptureSuccess(): void {
+    this.statsService.recordLegendaryCaught();
     this.preparePokemonCapture(this.currentContextPokemon);
   }
 
@@ -750,6 +752,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
   
   legendaryCaptureSuccess(): void {
+    this.statsService.recordLegendaryCaught();
     this.preparePokemonCapture(this.currentContextPokemon);
   }
 
@@ -845,7 +848,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         return baseId !== null && baseId !== id ? [id, baseId] : [id];
       }))];
       this.pokedexService.markWon(wonIds);
-      this.statsService.recordBattleWin('champion');
+      this.statsService.recordBattleWin('champion', this.generation.id);
       this.gameStateService.advanceRound();
       this.statsService.recordRunEnd(true, this.leadersDefeatedAmount);
       this.finishCurrentState();
@@ -1135,6 +1138,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.registerInPokedex(pokemonIn);
     this.pkmnEvoTitle = "game.main.roulette.evolve.modal.title"
     this.trainerService.replaceForEvolution(this.pkmnOut, this.pkmnIn);
+    this.statsService.recordEvolutionPerformed();
 
     if (this.evolutionService.isNincadaSpecialEvolution(pokemonOut)) {
       const nincadaEvolutions = this.evolutionService.getEvolutions(pokemonOut);

@@ -11,6 +11,17 @@
         <app-credits-button></app-credits-button>
       </div>
       <div class="col-6 col-sm-12 mb-2">
+        <button type="button" class="btn btn-secondary w-100" (click)="exportStats()">
+          {{ 'stats.export.action' | translate }}
+        </button>
+      </div>
+      <div class="col-6 col-sm-12 mb-2">
+        <button type="button" class="btn btn-secondary w-100" (click)="triggerImport()">
+          {{ 'stats.import.action' | translate }}
+        </button>
+        <input #importFileInput type="file" accept="application/json" class="d-none" (change)="onImportFileSelected($event)">
+      </div>
+      <div class="col-6 col-sm-12 mb-2">
         <button type="button" class="btn btn-danger w-100" (click)="showResetConfirmModal()">
           {{ 'stats.reset.action' | translate }}
         </button>
@@ -20,6 +31,12 @@
   <div class="col-12 col-sm-9">
     <div class="container">
       <h1 class="mt-sm-5 text-center fw-bold">{{ 'stats.title' | translate }}</h1>
+
+      @if (importResult === 'success') {
+        <div class="alert alert-success text-center mt-3">{{ 'stats.import.success' | translate }}</div>
+      } @else if (importResult === 'error') {
+        <div class="alert alert-danger text-center mt-3">{{ 'stats.import.error' | translate }}</div>
+      }
 
       @if (summary$ | async; as summary) {
         @if (summary.runsPlayed === 0) {
@@ -68,6 +85,7 @@
                 {{ 'stats.records.favoriteGeneration' | translate }}:
                 <strong>{{ summary.favoriteGenerationId !== null ? generationLabel(summary.favoriteGenerationId) : ('stats.records.none' | translate) }}</strong>
               </div>
+              <div class="col-6 col-md-4">{{ 'stats.records.perfectRuns' | translate }}: <strong>{{ summary.perfectRuns }}</strong></div>
             </div>
           </div>
 
@@ -100,16 +118,30 @@
                 {{ 'stats.pokemon.signaturePokemon' | translate }}:
                 <strong>{{ summary.signaturePokemonId !== null ? (pokemonText(summary.signaturePokemonId) | translate) : ('stats.pokemon.none' | translate) }}</strong>
               </div>
+              <div class="col-6 col-md-4">{{ 'stats.pokemon.legendariesCaught' | translate }}: <strong>{{ summary.legendariesCaught }}</strong></div>
+              <div class="col-6 col-md-4">{{ 'stats.pokemon.evolutionsPerformed' | translate }}: <strong>{{ summary.evolutionsPerformed }}</strong></div>
             </div>
 
             @if (summary.favoriteTypes.length > 0) {
               <h5 class="mt-3">{{ 'stats.pokemon.favoriteTypes' | translate }}</h5>
-              <div class="d-flex flex-wrap gap-2">
+              <div class="d-flex flex-wrap gap-2 mb-3">
                 @for (entry of summary.favoriteTypes; track entry.type) {
                   <span class="badge text-bg-secondary">
                     <img [src]="getTypeIconUrl(entry.type)" [alt]="entry.type" height="16">
                     {{ 'pokemonType.' + entry.type | translate }} ({{ entry.count }})
                   </span>
+                }
+              </div>
+
+              <div class="type-bar-chart">
+                @for (entry of summary.favoriteTypes; track entry.type) {
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <img [src]="getTypeIconUrl(entry.type)" [alt]="entry.type" height="16" class="flex-shrink-0">
+                    <div class="type-bar-track flex-grow-1">
+                      <div class="type-bar-fill" [style.width.%]="typeBarWidth(entry, summary.favoriteTypes)"></div>
+                    </div>
+                    <span class="flex-shrink-0">{{ entry.count }}</span>
+                  </div>
                 }
               </div>
             }
@@ -144,6 +176,129 @@
               <strong>{{ formatRate(summary.championHeartbreakRate) }}</strong>
             </p>
           </div>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">{{ 'stats.luck.title' | translate }}</h3>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="showSectionResetConfirm('luck')">
+                {{ 'stats.reset.section.action' | translate }}
+              </button>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-4">{{ 'stats.luck.totalSpins' | translate }}: <strong>{{ summary.totalSpins }}</strong></div>
+              <div class="col-6 col-md-4">{{ 'stats.luck.actualYesRate' | translate }}: <strong>{{ formatRate(summary.actualYesRate) }}</strong></div>
+              <div class="col-6 col-md-4">{{ 'stats.luck.expectedYesRate' | translate }}: <strong>{{ formatRate(summary.expectedYesRate) }}</strong></div>
+              <div class="col-6 col-md-4" [title]="'stats.luck.luckIndexHint' | translate">
+                {{ 'stats.luck.luckIndex' | translate }}:
+                <strong>{{ formatRate(summary.luckIndex) }}</strong>
+              </div>
+              <div class="col-6 col-md-4">{{ 'stats.luck.potionsUsed' | translate }}: <strong>{{ summary.potionsUsed }}</strong></div>
+              <div class="col-6 col-md-4">{{ 'stats.luck.teamRocketStealsSuffered' | translate }}: <strong>{{ summary.teamRocketStealsSuffered }}</strong></div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">{{ 'stats.history.title' | translate }}</h3>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="showSectionResetConfirm('runHistory')">
+                {{ 'stats.reset.section.action' | translate }}
+              </button>
+            </div>
+
+            @if (summary.winRateTrend.length > 1) {
+              <h5 class="mt-3">{{ 'stats.history.winRateTrend' | translate }}</h5>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="win-rate-trend-chart mb-3">
+                <polyline [attr.points]="winRateTrendPoints(summary.winRateTrend)" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>
+              </svg>
+            }
+
+            <h5>{{ 'stats.history.recentForm' | translate }}</h5>
+            @if (summary.recentForm.length > 0) {
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                @for (result of summary.recentForm; track $index) {
+                  <span class="badge" [class.text-bg-success]="result" [class.text-bg-danger]="!result">
+                    {{ (result ? 'stats.history.victory' : 'stats.history.defeat') | translate }}
+                  </span>
+                }
+                <span class="ms-2">{{ formatRate(summary.recentFormWinRate) }}</span>
+              </div>
+            } @else {
+              <p>{{ 'stats.history.recentFormNone' | translate }}</p>
+            }
+
+            <p>
+              {{ 'stats.history.playTime' | translate }}:
+              <strong>{{ formatDuration(summary.totalPlaytimeMs) }}</strong>
+            </p>
+
+            @if (summary.runHistory.length > 0) {
+              <div class="run-history-list">
+                @for (run of summary.runHistory; track trackByRunEnd($index, run)) {
+                  <div class="d-flex flex-wrap gap-2 py-1 border-bottom">
+                    <span class="badge" [class.text-bg-success]="run.victory" [class.text-bg-danger]="!run.victory">
+                      {{ (run.victory ? 'stats.history.victory' : 'stats.history.defeat') | translate }}
+                    </span>
+                    <span>{{ generationLabel(run.generationId) }}</span>
+                    <span>{{ pokemonText(run.starterPokemonId) | translate }}</span>
+                    <span>{{ 'stats.records.rounds' | translate: { count: run.roundsReached } }}</span>
+                    <span class="text-muted">{{ formatDate(run.endedAt) }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p>{{ 'stats.history.none' | translate }}</p>
+            }
+          </div>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="fw-bold mb-0">{{ 'stats.achievements.title' | translate }}</h3>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="showSectionResetConfirm('achievements')">
+                {{ 'stats.reset.section.action' | translate }}
+              </button>
+            </div>
+            <div class="row">
+              @for (achievement of summary.achievements; track achievement.id) {
+                <div class="col-6 col-md-4 mb-2">
+                  <div class="p-2 border rounded" [class.opacity-50]="!achievement.unlocked">
+                    <div class="fw-bold">
+                      @if (achievement.unlocked) {
+                        {{ achievement.nameKey | translate }}
+                      } @else {
+                        {{ 'stats.achievements.locked' | translate }}
+                      }
+                    </div>
+                    <div class="small">{{ achievement.descriptionKey | translate }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="fw-bold">{{ 'stats.share.title' | translate }}</h3>
+            <div #shareCard class="share-card p-4 mb-3">
+              <div class="fw-bold fs-4 mb-2">{{ 'stats.share.cardTitle' | translate }}</div>
+              <div class="row">
+                <div class="col-6">{{ 'stats.lifetime.victories' | translate }}: <strong>{{ summary.victories }}</strong></div>
+                <div class="col-6">{{ 'stats.lifetime.winRate' | translate }}: <strong>{{ formatRate(summary.winRate) }}</strong></div>
+                <div class="col-6">{{ 'stats.lifetime.bestWinStreak' | translate }}: <strong>{{ summary.bestWinStreak }}</strong></div>
+                <div class="col-6">{{ 'stats.records.longestRun' | translate }}: <strong>{{ 'stats.records.rounds' | translate: { count: summary.longestRunRounds } }}</strong></div>
+                <div class="col-6" [title]="'stats.luck.luckIndexHint' | translate">{{ 'stats.luck.luckIndex' | translate }}: <strong>{{ formatRate(summary.luckIndex) }}</strong></div>
+                <div class="col-6">{{ 'stats.achievements.title' | translate }}: <strong>{{ unlockedAchievementCount(summary) }}/{{ summary.achievements.length }}</strong></div>
+              </div>
+              @if (summary.favoriteTypes.length > 0) {
+                <div class="mt-2">
+                  {{ 'stats.pokemon.favoriteTypes' | translate }}:
+                  <img [src]="getTypeIconUrl(summary.favoriteTypes[0].type)" [alt]="summary.favoriteTypes[0].type" height="18">
+                  <strong>{{ 'pokemonType.' + summary.favoriteTypes[0].type | translate }}</strong>
+                </div>
+              }
+            </div>
+            <button type="button" class="btn btn-primary" (click)="shareStatsCard()">
+              {{ 'stats.share.action' | translate }}
+            </button>
+          </div>
         }
       }
     </div>
@@ -157,6 +312,17 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" (click)="confirmReset()">{{ 'stats.reset.confirm' | translate }}</button>
+    <button type="button" class="btn btn-primary" (click)="closeModal()">{{ 'stats.reset.cancel' | translate }}</button>
+  </div>
+</ng-template>
+
+<ng-template #sectionResetModal let-modal>
+  <div class="modal-body">
+    <h1>{{ 'stats.reset.section.' + pendingResetSection + '.title' | translate }}</h1>
+    <p>{{ 'stats.reset.section.' + pendingResetSection + '.warning' | translate }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" (click)="confirmSectionReset()">{{ 'stats.reset.confirm' | translate }}</button>
     <button type="button" class="btn btn-primary" (click)="closeModal()">{{ 'stats.reset.cancel' | translate }}</button>
   </div>
 </ng-template>

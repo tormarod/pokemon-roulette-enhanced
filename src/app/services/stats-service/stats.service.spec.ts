@@ -95,6 +95,8 @@ describe('StatsService', () => {
     expect(service.current.victories).toBe(0);
     expect(service.current.battleTypeWins).toEqual({ gym: 0, rival: 0, eliteFour: 0, champion: 0 });
     expect(service.current.speciesOwnedCounts).toEqual({});
+    expect(service.current.runHistory).toEqual([]);
+    expect(service.current.firstPlayedAt).toBeNull();
   });
 
   it('should discard a corrupt saved blob and fall back to defaults without throwing', () => {
@@ -274,6 +276,294 @@ describe('StatsService', () => {
       service.recordRunEnd(false, 3);
 
       expect(service.current.speciesVictoryCounts).toEqual({ 25: 1 });
+    });
+  });
+
+  describe('recordSpin / recordPotionUsed / recordStealSuffered', () => {
+    it('should accumulate spin counts and the expected-probability sum', () => {
+      service.recordSpin(true, 0.6);
+      service.recordSpin(false, 0.4);
+
+      expect(service.current.totalSpins).toBe(2);
+      expect(service.current.yesLandings).toBe(1);
+      expect(service.current.sumExpectedYesProbability).toBeCloseTo(1.0);
+    });
+
+    it('should increment potionsUsed on each call', () => {
+      service.recordPotionUsed();
+      service.recordPotionUsed();
+
+      expect(service.current.potionsUsed).toBe(2);
+    });
+
+    it('should increment teamRocketStealsSuffered on each call', () => {
+      service.recordStealSuffered();
+
+      expect(service.current.teamRocketStealsSuffered).toBe(1);
+    });
+  });
+
+  describe('run-history log + playtime timestamps', () => {
+    /** Deterministic, monotonically increasing clock for run-log timing assertions. */
+    const fakeClock = (start = 1000) => {
+      let t = start;
+      spyOn(service as any, 'now').and.callFake(() => t++);
+    };
+
+    it('should set firstPlayedAt on the first run only, and bump lastPlayedAt on every run end', () => {
+      fakeClock();
+      service.recordRunStart(1, 1);
+      const firstPlayedAt = service.current.firstPlayedAt;
+      service.recordRunEnd(true, 5);
+      const lastPlayedAtAfterFirst = service.current.lastPlayedAt;
+
+      service.recordRunStart(1, 4);
+      service.recordRunEnd(false, 3);
+
+      expect(firstPlayedAt).not.toBeNull();
+      expect(service.current.firstPlayedAt).toBe(firstPlayedAt!);
+      expect(service.current.lastPlayedAt).not.toBe(lastPlayedAtAfterFirst);
+    });
+
+    it('should append a run-history entry with the run\'s generation, starter, result and timing', () => {
+      fakeClock();
+      service.recordRunStart(3, 4);
+      service.recordRunEnd(true, 12);
+
+      expect(service.current.runHistory.length).toBe(1);
+      expect(service.current.runHistory[0]).toEqual(jasmine.objectContaining({
+        victory: true,
+        generationId: 3,
+        roundsReached: 12,
+        starterPokemonId: 4,
+      }));
+      expect(service.current.runHistory[0].endedAt).toBeGreaterThan(service.current.runHistory[0].startedAt);
+    });
+
+    it('should append entries in chronological order, oldest first', () => {
+      fakeClock();
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 1);
+      service.recordRunStart(1, 4);
+      service.recordRunEnd(false, 2);
+      service.recordRunStart(1, 7);
+      service.recordRunEnd(true, 3);
+
+      const history = service.current.runHistory;
+      expect(history.map(run => run.starterPokemonId)).toEqual([1, 4, 7]);
+      expect(history[0].startedAt).toBeLessThan(history[1].startedAt);
+      expect(history[1].startedAt).toBeLessThan(history[2].startedAt);
+    });
+
+    it('should cap run-history at 30 entries, dropping the oldest first', () => {
+      fakeClock();
+      for (let i = 0; i < 31; i++) {
+        service.recordRunStart(1, i);
+        service.recordRunEnd(true, 1);
+      }
+
+      const history = service.current.runHistory;
+      expect(history.length).toBe(30);
+      // The very first run (starterPokemonId 0) should have been dropped; runs 1..30 remain.
+      expect(history.map(run => run.starterPokemonId)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
+    });
+
+    it('should not append a run-history entry if recordRunEnd is called without a preceding recordRunStart', () => {
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.runHistory).toEqual([]);
+    });
+  });
+
+  describe('recordLegendaryCaught / recordEvolutionPerformed', () => {
+    it('should increment legendariesCaught on each call', () => {
+      service.recordLegendaryCaught();
+      service.recordLegendaryCaught();
+
+      expect(service.current.legendariesCaught).toBe(2);
+    });
+
+    it('should increment evolutionsPerformed on each call', () => {
+      service.recordEvolutionPerformed();
+
+      expect(service.current.evolutionsPerformed).toBe(1);
+    });
+  });
+
+  describe('recordBattleWin champion generationId + perfectRuns', () => {
+    it('should mark the generation as champion-cleared only when a generationId is passed for a champion win', () => {
+      service.recordBattleWin('champion', 3);
+      service.recordBattleWin('gym');
+
+      expect(service.current.championGenerationIds).toEqual({ 3: true });
+    });
+
+    it('should credit a perfect run when a victorious run had zero battle losses', () => {
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.perfectRuns).toBe(1);
+    });
+
+    it('should not credit a perfect run when the run had any battle loss, even if it was ultimately won', () => {
+      service.recordRunStart(1, 1);
+      service.recordBattleLoss('rival');
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.perfectRuns).toBe(0);
+    });
+
+    it('should never credit a perfect run for a defeat', () => {
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(false, 5);
+
+      expect(service.current.perfectRuns).toBe(0);
+    });
+
+    it('should reset the per-run battle-loss count between runs', () => {
+      service.recordRunStart(1, 1);
+      service.recordBattleLoss('gym', 'gym:Brock');
+      service.recordRunEnd(false, 3);
+
+      service.recordRunStart(1, 4);
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.perfectRuns).toBe(1);
+    });
+  });
+
+  describe('achievement unlocking', () => {
+    it('should unlock first-victory and emit it exactly once when the first run is won', () => {
+      const unlocked: string[] = [];
+      service.getAchievementUnlockedObservable().subscribe(achievement => unlocked.push(achievement.id));
+
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.unlockedAchievementIds['first-victory']).toBeTrue();
+      expect(unlocked.filter(id => id === 'first-victory').length).toBe(1);
+
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      expect(unlocked.filter(id => id === 'first-victory').length).toBe(1);
+    });
+
+    it('should unlock first-shiny as soon as recordShiny is called, independent of run boundaries', () => {
+      service.recordShiny();
+
+      expect(service.current.unlockedAchievementIds['first-shiny']).toBeTrue();
+    });
+
+    it('should unlock champion-every-generation only once every generation has been champion-cleared', () => {
+      for (let genId = 1; genId <= 8; genId++) {
+        service.recordBattleWin('champion', genId);
+      }
+      expect(service.current.unlockedAchievementIds['champion-every-generation']).toBeUndefined();
+
+      service.recordBattleWin('champion', 9);
+
+      expect(service.current.unlockedAchievementIds['champion-every-generation']).toBeTrue();
+    });
+
+    it('should unlock perfect-run only after a loss-free victory', () => {
+      service.recordRunStart(1, 1);
+      service.recordBattleLoss('rival');
+      service.recordRunEnd(true, 5);
+      expect(service.current.unlockedAchievementIds['perfect-run']).toBeUndefined();
+
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+      expect(service.current.unlockedAchievementIds['perfect-run']).toBeTrue();
+    });
+  });
+
+  describe('per-section resets', () => {
+    it('resetLuckStats should clear only luck/wheel fields, leaving other stats untouched', () => {
+      service.recordSpin(true, 0.5);
+      service.recordPotionUsed();
+      service.recordStealSuffered();
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      service.resetLuckStats();
+
+      expect(service.current.totalSpins).toBe(0);
+      expect(service.current.yesLandings).toBe(0);
+      expect(service.current.sumExpectedYesProbability).toBe(0);
+      expect(service.current.potionsUsed).toBe(0);
+      expect(service.current.teamRocketStealsSuffered).toBe(0);
+      expect(service.current.victories).toBe(1);
+    });
+
+    it('resetRunHistory should clear only the run-history log', () => {
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      service.resetRunHistory();
+
+      expect(service.current.runHistory).toEqual([]);
+      expect(service.current.victories).toBe(1);
+    });
+
+    it('resetAchievements should clear unlocked ids without re-triggering an immediate re-unlock/toast', () => {
+      const unlocked: string[] = [];
+      service.getAchievementUnlockedObservable().subscribe(a => unlocked.push(a.id));
+
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5); // unlocks first-victory (and perfect-run)
+      expect(service.current.unlockedAchievementIds['first-victory']).toBeTrue();
+
+      service.resetAchievements();
+
+      expect(service.current.unlockedAchievementIds).toEqual({});
+      // resetAchievements bypasses unlock detection, so no new emission fires
+      // even though victories/perfectRuns still satisfy the predicates.
+      expect(unlocked.filter(id => id === 'first-victory').length).toBe(1);
+    });
+  });
+
+  describe('exportStats / importStats', () => {
+    it('should export the current stats as parseable JSON matching current state', () => {
+      service.recordRunStart(2, 4);
+      service.recordRunEnd(true, 9);
+
+      const exported = JSON.parse(service.exportStats());
+
+      expect(exported.victories).toBe(1);
+      expect(exported.generationPlayCounts).toEqual({ 2: 1 });
+    });
+
+    it('should import a valid exported blob, replacing current stats', () => {
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+      const exported = service.exportStats();
+
+      service.reset();
+      expect(service.current.victories).toBe(0);
+
+      const succeeded = service.importStats(exported);
+
+      expect(succeeded).toBeTrue();
+      expect(service.current.victories).toBe(1);
+    });
+
+    it('should normalize a partial/legacy imported blob rather than rejecting it', () => {
+      const succeeded = service.importStats(JSON.stringify({ version: 1, runsPlayed: 3 }));
+
+      expect(succeeded).toBeTrue();
+      expect(service.current.runsPlayed).toBe(3);
+      expect(service.current.victories).toBe(0);
+    });
+
+    it('should reject invalid JSON and leave current stats untouched', () => {
+      service.recordRunStart(1, 1);
+      service.recordRunEnd(true, 5);
+
+      const succeeded = service.importStats('{not valid json');
+
+      expect(succeeded).toBeFalse();
+      expect(service.current.victories).toBe(1);
     });
   });
 

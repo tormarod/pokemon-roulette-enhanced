@@ -155,7 +155,8 @@
       "longestRun": "Longest Run",
       "favoriteGeneration": "Favorite Generation",
       "rounds": "{{count}} rounds",
-      "none": "—"
+      "none": "—",
+      "perfectRuns": "Perfect Runs (no battle losses)"
     },
     "pokemon": {
       "title": "Pokémon",
@@ -163,7 +164,9 @@
       "mostChosenStarter": "Most-Chosen Starter",
       "signaturePokemon": "Signature Pokémon",
       "favoriteTypes": "Favorite Types",
-      "none": "None yet"
+      "none": "None yet",
+      "legendariesCaught": "Legendaries Caught",
+      "evolutionsPerformed": "Evolutions Performed"
     },
     "battles": {
       "title": "Battles",
@@ -178,12 +181,75 @@
       "eliteFour": "Elite Four",
       "champion": "Champion"
     },
+    "luck": {
+      "title": "Luck & Wheel",
+      "totalSpins": "Total Spins",
+      "actualYesRate": "Actual Yes Rate",
+      "expectedYesRate": "Expected Yes Rate",
+      "luckIndex": "Luck Index",
+      "luckIndexHint": "Actual Yes rate minus what the odds implied — positive means you're running lucky.",
+      "potionsUsed": "Potions Used",
+      "teamRocketStealsSuffered": "Pokémon Stolen by Team Rocket"
+    },
+    "history": {
+      "title": "Run History",
+      "winRateTrend": "Win Rate Trend",
+      "recentForm": "Recent Form (last 10)",
+      "recentFormNone": "No runs yet",
+      "playTime": "Total Play Time",
+      "victory": "Victory",
+      "defeat": "Defeat",
+      "none": "No run history yet"
+    },
+    "achievements": {
+      "title": "Achievements",
+      "unlockedToastHeader": "Achievement Unlocked!",
+      "locked": "Locked",
+      "firstVictory": { "name": "First Victory", "description": "Win a run." },
+      "wins10": { "name": "Seasoned Champion", "description": "Win 10 runs." },
+      "wins50": { "name": "Legendary Champion", "description": "Win 50 runs." },
+      "winStreak5": { "name": "On a Roll", "description": "Reach a 5-run win streak." },
+      "winStreak10": { "name": "Unstoppable", "description": "Reach a 10-run win streak." },
+      "firstShiny": { "name": "Shiny Hunter", "description": "Catch your first shiny Pokémon." },
+      "firstLegendary": { "name": "Myth Buster", "description": "Catch a legendary or Paradox Pokémon." },
+      "perfectRun": { "name": "Flawless Victory", "description": "Win a run without a single battle loss." },
+      "championEveryGeneration": { "name": "Master of All Regions", "description": "Defeat the Champion in every generation." }
+    },
+    "share": {
+      "title": "Share My Stats",
+      "cardTitle": "My Pokémon Roulette Stats",
+      "action": "Share / Download Image",
+      "text": "Check out my Pokémon Roulette stats!"
+    },
+    "export": {
+      "action": "Export Stats (JSON)"
+    },
+    "import": {
+      "action": "Import Stats (JSON)",
+      "success": "Stats imported successfully!",
+      "error": "That file couldn't be imported — check it's a valid stats export."
+    },
     "reset": {
       "action": "Reset Statistics",
       "title": "Reset Statistics?",
       "warning": "This will permanently erase all your lifetime statistics. Your current run and Pokédex are not affected. This cannot be undone.",
       "confirm": "Reset",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "section": {
+        "action": "Reset Section",
+        "luck": {
+          "title": "Reset Luck & Wheel Stats?",
+          "warning": "This will permanently erase your luck and wheel statistics (spins, potions used, Team Rocket steals). Other statistics are not affected. This cannot be undone."
+        },
+        "runHistory": {
+          "title": "Reset Run History?",
+          "warning": "This will permanently erase your run history log. Other statistics are not affected. This cannot be undone."
+        },
+        "achievements": {
+          "title": "Reset Achievements?",
+          "warning": "This will mark all achievements as locked again. If their underlying stats already qualify, they may unlock again immediately. This cannot be undone."
+        }
+      }
     }
   },
   "game": {

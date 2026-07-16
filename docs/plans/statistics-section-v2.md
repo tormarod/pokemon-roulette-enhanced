@@ -1,8 +1,10 @@
 # Plan: Player Statistics — V2
 
-Status: **Phase 1 (Luck/wheel, Group A) and Phase 2 (Run-history log, Group C +
-playtime timestamps) shipped 2026-07-16. Phase 3 (Achievements) next.**
-Per-generation breakdown (Group F) deferred to a future V3.
+Status: **All V2 phases (1-5) shipped 2026-07-16: Luck/wheel (Group A),
+Run-history log (Group C + playtime timestamps), Achievements (Group B) +
+remaining data-gap fills (Group D), and Presentation/sharing (Group E).
+README updated (Phase 5).**
+Per-generation breakdown (Group F) deferred to a future V3 — see §8.
 Owner: tormarod
 Last updated: 2026-07-16
 Builds on: `docs/plans/statistics-section.md` (V1, shipped in commit `e1bda41`).
@@ -140,17 +142,57 @@ oldest), chronological ordering, and the no-preceding-`recordRunStart` edge
 case; 455/455 tests pass, `ng build` succeeds. UI not verified in a live
 browser this session — no browser-automation tool was available.*
 
-**Phase 3 — Achievements (Group B) + remaining data-gaps (D).** Declarative
-list + unlocked-set persistence + unlock detection on stats change + toast;
-add `legendariesCaught` / `evolutionsPerformed` / `perfectRuns` hooks the
-achievements reference. *Checkpoint: review predicates against fixtures.*
+**Phase 3 — Achievements (Group B) + remaining data-gaps (D). SHIPPED
+2026-07-16.** `Achievement` interface (`interfaces/achievement.ts`) +
+declarative `ACHIEVEMENTS` list (`stats-service/achievements.ts`, 9 unlock
+conditions from the plan's examples: first victory, 10/50 wins, 5/10-win
+streak, first shiny, first legendary/Paradox catch, perfect run, champion in
+every generation). `PlayerStats` gained `legendariesCaught`,
+`evolutionsPerformed`, `perfectRuns` (needs a memory-only per-run battle-loss
+counter mirroring `currentRunSpeciesSeen`, folded in at `recordRunEnd`),
+`championGenerationIds` (narrow additive Record, not a full Group-F re-key —
+only feeds the one achievement predicate), and `unlockedAchievementIds`.
+Unlock detection runs inside `StatsService.update()` on every mutation (cheap:
+~9 predicates) via `applyAchievementUnlocks`, emitting newly-unlocked
+achievements on a `Subject` consumed by a new `AchievementToastComponent`
+mounted once at the app root (`app.component.html`) via `ngb-toast`, so a
+toast fires regardless of which screen is showing. Stats screen got a new
+"Achievements" grid (locked tiles hide name/description) plus the
+`legendariesCaught`/`evolutionsPerformed`/`perfectRuns` counters folded into
+existing Pokémon/Records sections. i18n added across all 6 locales, including
+each achievement's name/description and the toast header.
+`recordBattleWin('champion', generationId)` gained an optional second param
+(only meaningful for champion wins) to feed `championGenerationIds`.
+*Checkpoint: `achievements.spec.ts` exercises every predicate directly against
+threshold-boundary fixtures (e.g. wins-10 at 9 vs. 10, champion-every-gen at
+8-of-9 vs. all 9); `stats.service.spec.ts` covers unlock-once-only emission
+and the perfect-run per-run-loss-reset edge case; 480/480 tests pass, `ng
+build` succeeds. UI not verified in a live browser this session — no
+browser-automation tool was available.*
 
-**Phase 4 — Presentation (Group E).** Share-to-PNG card, hand-rolled charts,
-export/import JSON, per-section reset. *Checkpoint: eyeball card + charts in the
-app.*
+**Phase 4 — Presentation (Group E). SHIPPED 2026-07-16.** Share-to-PNG card
+(`shareStatsCard()`, mirrors `end-game.component.ts`'s existing
+`dom-to-image-more` + Web Share API pattern — `navigator.share` with a file
+where supported, an anchor-download fallback otherwise); two hand-rolled
+charts with no new dependency — a type-distribution bar chart (CSS width %
+off the already-sorted `favoriteTypes`) and an SVG polyline win-rate-trend
+line off `winRateTrend`; `StatsService.exportStats()`/`importStats()` (JSON
+download/upload, the latter normalizing through `normalizePlayerStats` and
+routing through `update()` so a newer app version's achievements can unlock
+against imported progress); three per-section resets (`resetLuckStats`,
+`resetRunHistory`, `resetAchievements`) alongside V1's reset-all, each
+`persist()`-ing directly (bypassing achievement unlock detection) so clearing
+`unlockedAchievementIds` doesn't immediately re-fire toasts for
+still-satisfied predicates. i18n added across all 6 locales. *Checkpoint:
+487/487 tests pass (export/import round-trip, invalid-JSON rejection,
+per-section reset isolation), `ng build` succeeds. UI/charts/share-card not
+eyeballed in a live browser this session — no browser-automation tool was
+available.*
 
-**Phase 5 — Docs.** README feature-list entry; update both plan statuses.
-(Group F / per-gen deferred to a separate V3 plan unless pulled in via §7.)
+**Phase 5 — Docs. SHIPPED 2026-07-16.** README "New features" entry expanded
+to cover luck tracking, run history/trend, achievements, and export/share;
+this plan's status and phase sections updated as each phase shipped.
+(Group F / per-gen deferred to a separate V3 plan — see §8.)
 
 ## 6. Testing / validation
 

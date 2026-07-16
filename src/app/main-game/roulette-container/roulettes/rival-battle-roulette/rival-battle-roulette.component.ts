@@ -11,6 +11,7 @@ import { TrainerService } from '../../../../services/trainer-service/trainer.ser
 import { GymLeader } from '../../../../interfaces/gym-leader';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
+import { StatsService } from '../../../../services/stats-service/stats.service';
 
 @Component({
   selector: 'app-rival-battle-roulette',
@@ -41,12 +42,14 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     generationService: GenerationService,
     trainerService: TrainerService,
     translate: TranslateService,
-    typeMatchupService: TypeMatchupService
+    typeMatchupService: TypeMatchupService,
+    statsService: StatsService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
   }
 
   onItemSelected(index: number): void {
+    this.recordSpin(index);
     if (this.victoryOdds[index].text === 'game.main.roulette.rival.yes') {
       this.battleResultEvent.emit(true);
     } else {

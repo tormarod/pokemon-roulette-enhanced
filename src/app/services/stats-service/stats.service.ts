@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { BattleTypeCounts, createDefaultPlayerStats, normalizePlayerStats, PlayerStats } from '../../interfaces/player-stats';
+import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
+import { BattleTypeCounts, createDefaultPlayerStats, normalizePlayerStats, PlayerStats, RUN_HISTORY_CAP, RunLogEntry } from '../../interfaces/player-stats';
+import { Achievement } from '../../interfaces/achievement';
+import { ACHIEVEMENTS } from './achievements';
 import { TrainerService } from '../trainer-service/trainer.service';
 import { computeStatsSummary, PlayerStatsSummary } from './stats-selectors';
 
@@ -34,6 +36,22 @@ export class StatsService {
    */
   private currentRunSpeciesSeen = new Set<number>();
 
+  /**
+   * In-progress run's start timing/context, captured at recordRunStart and
+   * consumed at recordRunEnd to build the RunLogEntry — recordRunEnd only
+   * receives (victory, roundsReached), not the generation/starter/start time.
+   * Memory-only like currentRunSpeciesSeen: a lost mid-run reload just means
+   * no log entry for that run, never a gameplay-affecting loss (plan §3).
+   */
+  private currentRunStartedAt: number | null = null;
+  private currentRunGenerationId: number | null = null;
+  private currentRunStarterPokemonId: number | null = null;
+
+  /** Count of battle losses (any type) so far this run — zero at recordRunEnd means a "perfect run". */
+  private currentRunBattleLossCount = 0;
+
+  private readonly achievementUnlockedSubject = new Subject<Achievement>();
+
   constructor(private trainerService: TrainerService) {
     this.statsSubject = new BehaviorSubject<PlayerStats>(this.loadStats());
 
@@ -63,19 +81,77 @@ export class StatsService {
     return this.statsSubject.pipe(map(computeStatsSummary));
   }
 
+  /** Emits each Achievement the moment it's newly unlocked — for a toast (plan V2 §7.2). */
+  getAchievementUnlockedObservable(): Observable<Achievement> {
+    return this.achievementUnlockedSubject.asObservable();
+  }
+
   reset(): void {
     this.currentRunSpeciesSeen = new Set();
     this.persist(createDefaultPlayerStats());
   }
 
+  /**
+   * Per-section resets (plan V2 §3.E / §7 — V1 only had reset-all). These
+   * `persist()` directly rather than going through `update()`, so clearing
+   * `unlockedAchievementIds` doesn't immediately re-trigger every achievement
+   * whose underlying counters still satisfy its predicate.
+   */
+  resetLuckStats(): void {
+    this.persist({
+      ...this.current,
+      totalSpins: 0,
+      yesLandings: 0,
+      sumExpectedYesProbability: 0,
+      potionsUsed: 0,
+      teamRocketStealsSuffered: 0,
+    });
+  }
+
+  resetRunHistory(): void {
+    this.persist({ ...this.current, runHistory: [] });
+  }
+
+  resetAchievements(): void {
+    this.persist({ ...this.current, unlockedAchievementIds: {} });
+  }
+
+  /** Serializes the full current PlayerStats blob for local backup (plan V2 §7.5). */
+  exportStats(): string {
+    return JSON.stringify(this.current, null, 2);
+  }
+
+  /**
+   * Parses and normalizes a previously-exported blob, replacing current
+   * stats wholesale. Goes through `update()` (not a direct `persist()`) so a
+   * newer app version's achievements can unlock against imported progress.
+   * Returns false (leaving current stats untouched) on invalid JSON.
+   */
+  importStats(json: string): boolean {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(json);
+    } catch {
+      return false;
+    }
+    this.update(() => normalizePlayerStats(parsed));
+    return true;
+  }
+
   /** Call once, at the moment a new run's starter is captured. */
   recordRunStart(generationId: number, starterPokemonId: number): void {
     this.currentRunSpeciesSeen = new Set();
+    this.currentRunStartedAt = this.now();
+    this.currentRunGenerationId = generationId;
+    this.currentRunStarterPokemonId = starterPokemonId;
+    this.currentRunBattleLossCount = 0;
+
     this.update(stats => ({
       ...stats,
       runsPlayed: stats.runsPlayed + 1,
       generationPlayCounts: incrementRecord(stats.generationPlayCounts, generationId),
       starterCounts: incrementRecord(stats.starterCounts, starterPokemonId),
+      firstPlayedAt: stats.firstPlayedAt ?? this.currentRunStartedAt,
     }));
   }
 
@@ -87,7 +163,44 @@ export class StatsService {
     this.update(stats => ({ ...stats, shiniesCaught: stats.shiniesCaught + 1 }));
   }
 
-  recordBattleWin(battleType: BattleType): void {
+  /** Call for both a legendary and a Paradox capture (plan V2 §3.D). */
+  recordLegendaryCaught(): void {
+    this.update(stats => ({ ...stats, legendariesCaught: stats.legendariesCaught + 1 }));
+  }
+
+  recordEvolutionPerformed(): void {
+    this.update(stats => ({ ...stats, evolutionsPerformed: stats.evolutionsPerformed + 1 }));
+  }
+
+  /**
+   * Call once per wheel spin on a Yes/No battle roulette, right before the
+   * spin resolves. `expectedProbability` is the pre-spin yes-share
+   * (yesTickets/totalTickets) — the luck index compares the actual yes-rate
+   * against the average of these expectations (see computeStatsSummary).
+   */
+  recordSpin(landedYes: boolean, expectedProbability: number): void {
+    this.update(stats => ({
+      ...stats,
+      totalSpins: stats.totalSpins + 1,
+      yesLandings: landedYes ? stats.yesLandings + 1 : stats.yesLandings,
+      sumExpectedYesProbability: stats.sumExpectedYesProbability + expectedProbability,
+    }));
+  }
+
+  recordPotionUsed(): void {
+    this.update(stats => ({ ...stats, potionsUsed: stats.potionsUsed + 1 }));
+  }
+
+  recordStealSuffered(): void {
+    this.update(stats => ({ ...stats, teamRocketStealsSuffered: stats.teamRocketStealsSuffered + 1 }));
+  }
+
+  /**
+   * `generationId` should only be passed for a champion win — it feeds the
+   * "champion in every generation" achievement (see achievements.ts) and is
+   * ignored for every other battle type.
+   */
+  recordBattleWin(battleType: BattleType, generationId?: number): void {
     this.update(stats => {
       const next: PlayerStats = {
         ...stats,
@@ -96,6 +209,9 @@ export class StatsService {
       const counterField = BATTLES_WON_COUNTER[battleType];
       if (counterField) {
         (next[counterField] as number) = (stats[counterField] as number) + 1;
+      }
+      if (battleType === 'champion' && generationId !== undefined) {
+        next.championGenerationIds = { ...stats.championGenerationIds, [generationId]: true };
       }
       return next;
     });
@@ -108,6 +224,7 @@ export class StatsService {
    * a "nemesis" and callers should omit the key for it.
    */
   recordBattleLoss(battleType: BattleType, opponentKey?: string): void {
+    this.currentRunBattleLossCount++;
     this.update(stats => ({
       ...stats,
       battleTypeLosses: { ...stats.battleTypeLosses, [battleType]: stats.battleTypeLosses[battleType] + 1 },
@@ -124,6 +241,11 @@ export class StatsService {
   recordRunEnd(victory: boolean, roundsReached: number): void {
     const team = this.trainerService.getTeam();
     const speciesSeen = this.currentRunSpeciesSeen;
+    const startedAt = this.currentRunStartedAt;
+    const generationId = this.currentRunGenerationId;
+    const starterPokemonId = this.currentRunStarterPokemonId;
+    const battleLossCount = this.currentRunBattleLossCount;
+    const endedAt = this.now();
 
     this.update(stats => {
       const next: PlayerStats = {
@@ -131,7 +253,13 @@ export class StatsService {
         longestRunRounds: Math.max(stats.longestRunRounds, roundsReached),
         speciesOwnedCounts: incrementRecordForEach(stats.speciesOwnedCounts, speciesSeen),
         typeCounts: { ...stats.typeCounts },
+        lastPlayedAt: endedAt,
       };
+
+      if (startedAt !== null && generationId !== null && starterPokemonId !== null) {
+        const entry: RunLogEntry = { victory, generationId, roundsReached, starterPokemonId, startedAt, endedAt };
+        next.runHistory = [...stats.runHistory, entry].slice(-RUN_HISTORY_CAP);
+      }
 
       for (const pokemon of team) {
         if (pokemon.type1) {
@@ -150,6 +278,9 @@ export class StatsService {
           ? roundsReached
           : Math.min(stats.fastestVictoryRounds, roundsReached);
         next.speciesVictoryCounts = incrementRecordForEach(stats.speciesVictoryCounts, speciesSeen);
+        if (battleLossCount === 0) {
+          next.perfectRuns = stats.perfectRuns + 1;
+        }
       } else {
         next.defeats = stats.defeats + 1;
         next.currentStreak = stats.currentStreak < 0 ? stats.currentStreak - 1 : -1;
@@ -159,6 +290,10 @@ export class StatsService {
     });
 
     this.currentRunSpeciesSeen = new Set();
+    this.currentRunStartedAt = null;
+    this.currentRunGenerationId = null;
+    this.currentRunStarterPokemonId = null;
+    this.currentRunBattleLossCount = 0;
   }
 
   protected loadStats(): PlayerStats {
@@ -185,7 +320,37 @@ export class StatsService {
   }
 
   protected update(mutate: (stats: PlayerStats) => PlayerStats): void {
-    this.persist(mutate(this.current));
+    this.persist(this.applyAchievementUnlocks(mutate(this.current)));
+  }
+
+  /**
+   * Runs every ACHIEVEMENTS predicate against the freshly-mutated stats and
+   * marks/emits any not-yet-unlocked achievement whose condition now holds.
+   * Cheap (achievement count is small) so it's fine to run on every mutation
+   * rather than only at run boundaries — some achievements (e.g. first-shiny)
+   * unlock mid-run.
+   */
+  private applyAchievementUnlocks(stats: PlayerStats): PlayerStats {
+    let unlockedIds = stats.unlockedAchievementIds;
+    let changed = false;
+
+    for (const achievement of ACHIEVEMENTS) {
+      if (!unlockedIds[achievement.id] && achievement.isUnlocked(stats)) {
+        if (!changed) {
+          unlockedIds = { ...unlockedIds };
+          changed = true;
+        }
+        unlockedIds[achievement.id] = true;
+        this.achievementUnlockedSubject.next(achievement);
+      }
+    }
+
+    return changed ? { ...stats, unlockedAchievementIds: unlockedIds } : stats;
+  }
+
+  /** Overridable seam for deterministic timing in tests. */
+  protected now(): number {
+    return Date.now();
   }
 }
 

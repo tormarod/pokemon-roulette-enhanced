@@ -11,6 +11,7 @@ import { TrainerService } from '../../../../services/trainer-service/trainer.ser
 import { GymLeader } from '../../../../interfaces/gym-leader';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
+import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 
 @Component({
@@ -44,12 +45,14 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
     generationService: GenerationService,
     trainerService: TrainerService,
     translate: TranslateService,
-    typeMatchupService: TypeMatchupService
+    typeMatchupService: TypeMatchupService,
+    statsService: StatsService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
   }
 
   onItemSelected(index: number): void {
+    this.recordSpin(index);
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.elite.yes') {
       this.battleResultEvent.emit(true);
