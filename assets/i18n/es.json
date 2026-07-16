@@ -127,12 +127,146 @@
       "by": "Mejorado por"
     }
   },
+  "stats": {
+    "title": "Estadísticas",
+    "empty": "¡Juega una partida para ver tus estadísticas!",
+    "lifetime": {
+      "title": "Totales de por vida",
+      "runsPlayed": "Partidas jugadas",
+      "victories": "Victorias",
+      "defeats": "Derrotas",
+      "winRate": "Tasa de victorias",
+      "currentStreak": "Racha actual",
+      "bestWinStreak": "Mejor racha de victorias",
+      "gymLeadersDefeated": "Líderes de gimnasio derrotados",
+      "eliteFourDefeated": "Alto Mando derrotado",
+      "championsDefeated": "Campeones derrotados",
+      "pokemonCaught": "Pokémon capturados",
+      "shiniesCaught": "Shinies capturados"
+    },
+    "streak": {
+      "none": "Sin racha todavía",
+      "win": "{{count}} victorias seguidas",
+      "loss": "{{count}} derrotas seguidas"
+    },
+    "records": {
+      "title": "Récords",
+      "fastestVictory": "Victoria más rápida",
+      "longestRun": "Partida más larga",
+      "favoriteGeneration": "Generación favorita",
+      "rounds": "{{count}} rondas",
+      "none": "—",
+      "perfectRuns": "Partidas perfectas (sin derrotas en combate)"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon más poseídos",
+      "mostChosenStarter": "Inicial más elegido",
+      "signaturePokemon": "Pokémon insignia",
+      "favoriteTypes": "Tipos favoritos",
+      "none": "Ninguno todavía",
+      "legendariesCaught": "Legendarios capturados",
+      "evolutionsPerformed": "Evoluciones realizadas"
+    },
+    "battles": {
+      "title": "Combates",
+      "nemesis": "Némesis",
+      "nemesisNone": "¡Aún no has perdido ninguna partida!",
+      "winRateByType": "Tasa de victorias por tipo de combate",
+      "championHeartbreakRate": "Partidas terminadas por el Campeón"
+    },
+    "battleType": {
+      "gym": "Líderes de gimnasio",
+      "rival": "Rival",
+      "eliteFour": "Alto Mando",
+      "champion": "Campeón"
+    },
+    "luck": {
+      "title": "Suerte y Ruleta",
+      "totalSpins": "Giros totales",
+      "actualYesRate": "Tasa de Sí real",
+      "expectedYesRate": "Tasa de Sí esperada",
+      "luckIndex": "Índice de suerte",
+      "luckIndexHint": "Tasa de Sí real menos la que implicaban las probabilidades — positivo significa que tienes suerte.",
+      "potionsUsed": "Pociones usadas",
+      "teamRocketStealsSuffered": "Pokémon robados por el Team Rocket"
+    },
+    "history": {
+      "title": "Historial de Partidas",
+      "winRateTrend": "Tendencia de Tasa de Victorias",
+      "recentForm": "Forma Reciente (últimas 10)",
+      "recentFormNone": "Aún no hay partidas",
+      "playTime": "Tiempo de Juego Total",
+      "victory": "Victoria",
+      "defeat": "Derrota",
+      "none": "Aún no hay historial de partidas"
+    },
+    "perGeneration": {
+      "title": "Por Generación",
+      "none": "Aún no hay partidas en esta generación",
+      "noBreakdownYet": "Todavía no hay desglose de Pokémon/tipo/némesis para esta generación — empezará a registrarse desde tu próxima partida aquí."
+    },
+    "achievements": {
+      "title": "Logros",
+      "unlockedToastHeader": "¡Logro desbloqueado!",
+      "locked": "Bloqueado",
+      "firstVictory": { "name": "Primera Victoria", "description": "Gana una partida." },
+      "wins10": { "name": "Campeón Experimentado", "description": "Gana 10 partidas." },
+      "wins50": { "name": "Campeón Legendario", "description": "Gana 50 partidas." },
+      "winStreak5": { "name": "En Racha", "description": "Alcanza una racha de 5 victorias." },
+      "winStreak10": { "name": "Imparable", "description": "Alcanza una racha de 10 victorias." },
+      "firstShiny": { "name": "Cazador de Shinies", "description": "Captura tu primer Pokémon shiny." },
+      "firstLegendary": { "name": "Cazamitos", "description": "Captura un Pokémon legendario o Paradox." },
+      "perfectRun": { "name": "Victoria Perfecta", "description": "Gana una partida sin sufrir ninguna derrota en combate." },
+      "championEveryGeneration": { "name": "Maestro de Todas las Regiones", "description": "Derrota al Campeón en todas las generaciones." }
+    },
+    "share": {
+      "title": "Compartir Mis Estadísticas",
+      "cardTitle": "Mis Estadísticas de Pokémon Roulette",
+      "action": "Compartir / Descargar Imagen",
+      "text": "¡Mira mis estadísticas de Pokémon Roulette!"
+    },
+    "export": {
+      "action": "Exportar Perfil (JSON)"
+    },
+    "import": {
+      "action": "Importar Perfil (JSON)",
+      "success": "¡Perfil importado correctamente!",
+      "error": "No se pudo importar ese archivo — comprueba que sea una exportación de perfil válida.",
+      "unsupportedVersion": "Ese perfil se exportó con una versión más reciente de la app y no se puede importar aquí."
+    },
+    "reset": {
+      "action": "Restablecer estadísticas",
+      "title": "¿Restablecer estadísticas?",
+      "warning": "Esto borrará permanentemente todas tus estadísticas de por vida. Tu partida actual y tu Pokédex no se verán afectadas. Esta acción no se puede deshacer.",
+      "confirm": "Restablecer",
+      "cancel": "Cancelar",
+      "section": {
+        "action": "Restablecer Sección",
+        "luck": {
+          "title": "¿Restablecer estadísticas de Suerte y Ruleta?",
+          "warning": "Esto borrará permanentemente tus estadísticas de suerte y ruleta (giros, pociones usadas, robos del Team Rocket). Las demás estadísticas no se ven afectadas. Esta acción no se puede deshacer."
+        },
+        "runHistory": {
+          "title": "¿Restablecer historial de partidas?",
+          "warning": "Esto borrará permanentemente tu registro de historial de partidas. Las demás estadísticas no se ven afectadas. Esta acción no se puede deshacer."
+        },
+        "achievements": {
+          "title": "¿Restablecer logros?",
+          "warning": "Esto marcará todos los logros como bloqueados de nuevo. Si las estadísticas subyacentes ya los cumplen, podrían desbloquearse de inmediato otra vez. Esta acción no se puede deshacer."
+        }
+      }
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "¿Me invitas a un café?"
     },
     "creditsButton": {
       "label": "Créditos"
+    },
+    "statsButton": {
+      "label": "Estadísticas"
     },
     "end": {
       "champion": "Campeón de",

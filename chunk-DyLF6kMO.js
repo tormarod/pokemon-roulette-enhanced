@@ -1,1 +1,0 @@
-import {$ as $v,w as ec,t as tE,x as tc}from'./main-RSOMKN64.js';var m=class t{static \u0275fac=function(n){return new(n||t)};static \u0275cmp=$v({type:t,selectors:[["app-not-found"]],decls:2,vars:0,template:function(n,c){n&1&&(ec(0,"p"),tE(1,"not-found works!"),tc());},encapsulation:2,changeDetection:1})};export{m as NotFoundComponent};
