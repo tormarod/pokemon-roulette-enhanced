@@ -7,6 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-legendary-roulette',
@@ -17,7 +19,11 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
 })
 export class LegendaryRouletteComponent implements OnInit, OnDestroy {
 
-  constructor(private generationService: GenerationService, private pokemonService: PokemonService) {
+  constructor(
+    private generationService: GenerationService,
+    private pokemonService: PokemonService,
+    private trainerService: TrainerService
+  ) {
   }
 
   legendaryByGeneration = legendaryByGeneration;
@@ -32,7 +38,10 @@ export class LegendaryRouletteComponent implements OnInit, OnDestroy {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const legendaryIds = this.legendaryByGeneration[this.generation.id] ?? [];
-      this.legendaries = this.pokemonService.getPokemonByIdArray(legendaryIds);
+      this.legendaries = applyTypeBias(
+        this.pokemonService.getPokemonByIdArray(legendaryIds),
+        this.trainerService.currentPendingTypeBiases
+      );
     });
   }
 

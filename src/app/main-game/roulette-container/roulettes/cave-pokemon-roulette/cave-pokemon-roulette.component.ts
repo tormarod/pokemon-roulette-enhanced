@@ -7,6 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-cave-pokemon-roulette',
@@ -18,7 +20,11 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
 export class CavePokemonRouletteComponent implements OnInit, OnDestroy {
 
 
-  constructor(private generationService: GenerationService, private pokemonService: PokemonService) {
+  constructor(
+    private generationService: GenerationService,
+    private pokemonService: PokemonService,
+    private trainerService: TrainerService
+  ) {
   }
 
   cavePokemonByGeneration = cavePokemonByGeneration;
@@ -32,7 +38,10 @@ export class CavePokemonRouletteComponent implements OnInit, OnDestroy {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const cavePokemonIds = this.cavePokemonByGeneration[this.generation.id] ?? [];
-      this.cavePokemon = this.pokemonService.getPokemonByIdArray(cavePokemonIds);
+      this.cavePokemon = applyTypeBias(
+        this.pokemonService.getPokemonByIdArray(cavePokemonIds),
+        this.trainerService.currentPendingTypeBiases
+      );
     });
   }
 

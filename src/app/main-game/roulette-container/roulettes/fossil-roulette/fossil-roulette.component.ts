@@ -7,6 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-fossil-roulette',
@@ -19,7 +21,8 @@ export class FossilRouletteComponent implements OnInit, OnDestroy {
 
   constructor(
     private generationService: GenerationService,
-    private pokemonService: PokemonService
+    private pokemonService: PokemonService,
+    private trainerService: TrainerService
   ) {
   }
 
@@ -34,7 +37,10 @@ export class FossilRouletteComponent implements OnInit, OnDestroy {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const fossilIds = this.fossilByGeneration[this.generation.id] ?? [];
-      this.fossils = this.pokemonService.getPokemonByIdArray(fossilIds);
+      this.fossils = applyTypeBias(
+        this.pokemonService.getPokemonByIdArray(fossilIds),
+        this.trainerService.currentPendingTypeBiases
+      );
     });
   }
 

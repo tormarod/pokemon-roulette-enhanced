@@ -45,7 +45,8 @@ describe('FishingRouletteComponent', () => {
         {
           provide: PokemonService,
           useValue: {
-            getPokemonByIdArray
+            getPokemonByIdArray,
+            getAllPokemon: () => []
           }
         }
       ]

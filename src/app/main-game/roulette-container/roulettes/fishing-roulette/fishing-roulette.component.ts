@@ -7,6 +7,8 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-fishing-roulette',
@@ -19,7 +21,8 @@ export class FishingRouletteComponent {
 
   constructor(
     private generationService: GenerationService,
-    private pokemonService: PokemonService
+    private pokemonService: PokemonService,
+    private trainerService: TrainerService
   ) {
   }
 
@@ -34,7 +37,10 @@ export class FishingRouletteComponent {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const fishIds = this.fishByGeneration[this.generation.id] ?? [];
-      this.fish = this.pokemonService.getPokemonByIdArray(fishIds);
+      this.fish = applyTypeBias(
+        this.pokemonService.getPokemonByIdArray(fishIds),
+        this.trainerService.currentPendingTypeBiases
+      );
     });
   }
 

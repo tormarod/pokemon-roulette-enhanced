@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miele",
-      "description": "Usa il Miele per orientare la tua prossima cattura o scambio verso un tipo scelto, fino alla tua prossima palestra!"
+      "description": "Usa il Miele per orientare il tuo prossimo Pokémon selvatico verso un tipo scelto, fino alla tua prossima palestra!"
     },
     "repel": {
       "name": "Repellente",
-      "description": "Usa il Repellente per allontanare la tua prossima cattura o scambio da un tipo scelto, fino alla tua prossima palestra!"
+      "description": "Usa il Repellente per allontanare il tuo prossimo Pokémon selvatico da un tipo scelto, fino alla tua prossima palestra!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "Il PokéRadar garantisce che la tua prossima cattura o scambio sia del tipo scelto, fino alla tua prossima palestra!"
+      "description": "Il PokéRadar garantisce che il tuo prossimo Pokémon selvatico sia del tipo scelto, fino alla tua prossima palestra!"
     },
     "max-repel": {
       "name": "Repellente Max",
-      "description": "Il Repellente Max esclude completamente un tipo scelto dalla tua prossima cattura o scambio, fino alla tua prossima palestra!"
+      "description": "Il Repellente Max esclude completamente un tipo scelto dal tuo prossimo Pokémon selvatico, fino alla tua prossima palestra!"
     },
     "link-cable": {
       "name": "Cavo Link",

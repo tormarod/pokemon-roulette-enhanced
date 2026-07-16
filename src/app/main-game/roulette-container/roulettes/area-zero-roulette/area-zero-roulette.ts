@@ -4,6 +4,8 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { areaZeroParadoxPokemonIds } from './area-zero-pokemon';
+import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { applyTypeBias } from '../../../../services/trainer-service/apply-type-bias';
 
 @Component({
   selector: 'app-area-zero-roulette',
@@ -14,8 +16,11 @@ import { areaZeroParadoxPokemonIds } from './area-zero-pokemon';
 })
 export class AreaZeroRoulette {
 
-  constructor(private pokemonService: PokemonService) {
-    this.paradoxPokemon = this.pokemonService.getPokemonByIdArray(areaZeroParadoxPokemonIds);
+  constructor(private pokemonService: PokemonService, private trainerService: TrainerService) {
+    this.paradoxPokemon = applyTypeBias(
+      this.pokemonService.getPokemonByIdArray(areaZeroParadoxPokemonIds),
+      this.trainerService.currentPendingTypeBiases
+    );
   }
 
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
