@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStra
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable, Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ItemItem } from '../interfaces/item-item';
 import { CommonModule } from '@angular/common';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +27,7 @@ export class ItemsComponent implements OnInit, OnDestroy {
     private translateService: TranslateService
   ) {
     this.darkMode = this.themeService.isDark$;
+    this.darkMode.pipe(takeUntilDestroyed()).subscribe(v => this.isDark = v);
   }
 
   trainerItems!: ItemItem[];
@@ -37,6 +39,7 @@ export class ItemsComponent implements OnInit, OnDestroy {
   private static readonly TYPE_BIAS_ITEM_NAMES = new Set(['honey', 'poke-radar', 'repel', 'max-repel']);
 
   darkMode!: Observable<boolean>;
+  isDark = false;
   private itemsSubscription!: Subscription;
 
   ngOnInit(): void {

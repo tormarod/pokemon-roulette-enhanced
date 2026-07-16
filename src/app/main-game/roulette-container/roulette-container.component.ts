@@ -699,11 +699,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         centered: true,
         size: 'md'
       }).then(modalRef => {
-        modalRef.result.then(() => {
-          return this.doNothing();
-        }, () => {
-          return this.doNothing();
-        });
+        const onDone = () => this.doNothing();
+        modalRef.result.then(onDone).catch(() => {});
       });
     } else if (this.trainerService.hasItem('escape-rope')) {
       this.useEscapeRope();
@@ -769,11 +766,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         centered: true,
         size: 'md'
       }).then(modalRef => {
-        modalRef.result.then(() => {
-          this.finishCurrentState();
-        }, () => {
-          this.finishCurrentState();
-        });
+        const onDone = () => this.finishCurrentState();
+        modalRef.result.then(onDone, onDone);
       });
     } else {
       this.finishCurrentState();
@@ -1191,11 +1185,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         centered: true,
         size: 'md'
       }).then(modalRef => {
-        modalRef.result.then(() => {
-          this.finishCurrentState();
-        }, () => {
-          this.finishCurrentState();
-        });
+        const onDone = () => this.finishCurrentState();
+        modalRef.result.then(onDone, onDone);
       });
     } else {
       this.finishCurrentState();
@@ -1214,11 +1205,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
           centered: true,
           size: 'md'
         }).then(modalRef => {
-          modalRef.result.then(() => {
-            this.finishCurrentState();
-          }, () => {
-            this.finishCurrentState();
-          });
+          const onDone = () => this.finishCurrentState();
+          modalRef.result.then(onDone, onDone);
         });
       } else {
         this.finishCurrentState();

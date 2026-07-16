@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Type, TemplateRef } from '@angular/core';
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({
@@ -10,7 +10,7 @@ export class ModalQueueService {
 
   constructor(private ngbModal: NgbModal) {}
 
-  open(content: any, options?: NgbModalOptions): Promise<NgbModalRef> {
+  open(content: Type<unknown> | TemplateRef<unknown>, options?: NgbModalOptions): Promise<NgbModalRef> {
     const openModal = async (): Promise<NgbModalRef> => {
       if (this.activeModal) {
         try {
@@ -42,7 +42,7 @@ export class ModalQueueService {
     return scheduledOpen;
   }
 
-  dismissAll(reason?: any): void {
+  dismissAll(reason?: unknown): void {
     this.ngbModal.dismissAll(reason);
     this.activeModal = null;
   }

@@ -1,80 +1,101 @@
 # Plan: Code-review backlog cleanup
 
-Status: **DRAFT — ready. Severities re-assessed against the code (see §1); the
-auto-generated backlog labels were mostly inflated.**
+Status: **DONE.** All 8 fixes implemented and tested (530/530 tests passing).
 Owner: tormarod
 Last updated: 2026-07-16
-Source: the `[CRITICAL]…[LOW]` items in `docs/todo/backlog.md` (an automated
-code-review pass). Verified item-by-item against current code on 2026-07-16.
 
-> One consolidated plan, not one per item — these are low-risk hygiene fixes that
-> share themes (subscription patterns, modal handling, logging). Do them
-> incrementally; nothing here blocks anything else.
+**Severity note:** the backlog's `[CRITICAL]` labels are wrong. The two "memory
+leaks" aren't leaks — `translateService.get()` completes (WheelComponent), and
+`StatsService` is an app-lifetime singleton that never unsubscribes because it
+never dies. Only #1 is a real bug; the rest is optional hygiene.
 
-## 1. Severity re-assessment (verified — read this first)
+---
 
-The backlog's severity labels don't survive inspection. Corrected:
+## 1. Item sprite bug (real, 1 char)
 
-| Backlog claim | Verified reality | Real severity |
-|---|---|---|
-| **[CRITICAL] WheelComponent sub leak** (L81/L124) | `translateService.get()` **emits once and completes**, so these subscriptions self-tear-down. Not an unbounded leak — just no `OnDestroy`/`takeUntilDestroyed` (hygiene). | **LOW** |
-| **[CRITICAL] StatsService constructor sub leak** | `StatsService` is a `providedIn:'root'` **app-lifetime singleton**; it's never destroyed, so the subscription can't leak. The backlog itself concedes this. | **LOW** |
-| **[CRITICAL] items.component sprite copy-paste** (`:38`) | **Real bug, confirmed.** `getItemSprite(5)` with `getItemText(6)`/`trainerItems[6]` — slot 6 shows slot 5's sprite. But it's a **one-character fix**, not a systemic risk. | **Real, trivial** |
-| **[HIGH] modal chains missing `.catch()`** | Confirmed: `modalRef.result.then(onFulfilled)` with no rejection handler at ~L702/772/1194. NgbModal `result` **rejects on dismiss** → unhandled rejection, and any state work in the `.then` is skipped if the modal is dismissed. Worth fixing, but not HIGH. | **MEDIUM** |
-| **[HIGH] `any` in ModalQueueService** (L13/L45) | Confirmed, but a minor type nit. | **LOW–MED** |
-| **[MEDIUM] 13× darkMode async subs** | Confirmed in `items.component.html`. Minor perf/hygiene. | **MEDIUM** |
-| **[MEDIUM] inconsistent sub cleanup** | Real umbrella theme (ties the two "leaks" + darkMode). | **MEDIUM** |
-| **[MEDIUM] production console.\*** | 16 occurrences, but **most are legitimate `console.error`/`warn` in catch blocks** (localStorage/fetch failures) — good practice, not debt. Only a couple true debug `console.log` (e.g. coffee "Pix code copied"). | **LOW** |
-| **[LOW] pokedex TODOs** (L36/L149) | Confirmed: two `TODO(next-task cleanup)` for a temporary shiny bridge + legacy migration. | **LOW** |
+File `src/app/items/items.component.html`, **line 38**: change
+`getItemSprite(5)` → `getItemSprite(6)`. (Line 33 is a *different* slot and is
+already correct — do not touch it.)
+Verify: the 7th item slot shows its own sprite, not slot 6's.
 
-**Takeaway:** there are **no real CRITICALs**. There is exactly one real
-correctness bug (a one-liner) plus a coherent, low-risk hygiene pass. Don't
-spend CRITICAL-level urgency here.
+## 2. ModalQueueService types
 
-## 2. Immediate fix (hand off directly — not phased)
+File `src/app/services/modal-queue-service/modal-queue.service.ts`:
+- Add to the `@angular/core` import: `Type`, `TemplateRef`.
+- Line 13: `content: any` → `content: Type<unknown> | TemplateRef<unknown>`.
+- Line 45: `reason?: any` → `reason?: unknown`.
 
-`src/app/items/items.component.html:38` — change `getItemSprite(5)` →
-`getItemSprite(6)`. One line; verify the 7th item slot then shows its own
-sprite. This needs no plan and shouldn't wait behind the phases below.
+## 3. WheelComponent subscription cleanup (hygiene only — not a real leak)
 
-## 3. Phases (all low-risk; checkpoint after each)
+File `src/app/wheel/wheel.component.ts`:
+- Imports: add `DestroyRef, inject` from `@angular/core`; add
+  `takeUntilDestroyed` from `@angular/core/rxjs-interop`.
+- Add field: `private destroyRef = inject(DestroyRef);`
+- Line 81 and line 124 — insert the pipe before `.subscribe`:
+  `this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(...)`
+  (explicit `destroyRef` is required — these run outside the injection context).
 
-**Phase 1 — Subscription hygiene.** Standardize on `takeUntilDestroyed()`
-(Angular's `DestroyRef`) for the flagged subscriptions: `WheelComponent`
-(`ngAfterViewInit`/`ngOnChanges` — add `OnDestroy` or `DestroyRef`),
-`StatsService` (constructor sub). Framed as consistency, not leak-fixing. Dedupe
-`items.component`'s ~13 `(darkMode | async)` into a single subscription/bound
-property (or wrap the list in one `@if (darkMode | async; as dark)`).
-*Checkpoint: build + tests green; wheel still redraws on item changes.*
+## 4. StatsService subscription cleanup (hygiene only — not a real leak)
 
-**Phase 2 — Modal error handling.** Add rejection handling to the
-`modalRef.result.then(...)` chains in `roulette-container.component.ts` (~L702,
-L772, L1194, and siblings). Decide per-site whether a **dismiss should still run
-the follow-up** (advance game flow) or is a genuine no-op — this is a behavior
-call, not just silencing a warning. *Checkpoint: dismiss each affected modal and
-confirm the game doesn't soft-lock or skip a required step.*
+File `src/app/services/stats-service/stats.service.ts`:
+- Imports: `DestroyRef, inject` from `@angular/core`; `takeUntilDestroyed` from
+  `@angular/core/rxjs-interop`.
+- Add field: `private destroyRef = inject(DestroyRef);`
+- Line 60: `this.trainerService.getTeamObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(...)`.
 
-**Phase 3 — Type-safety + logging tidy.** Replace `any` in `ModalQueueService`
-with `Type<unknown> | TemplateRef<unknown>` (content) and a typed `reason`.
-Remove genuine debug `console.log`s (e.g. coffee "Pix code copied"); **leave
-legitimate `console.error`/`warn` in catch blocks** (or, optionally, route them
-through one tiny logger — low priority). *Checkpoint: `ng build` + tests green.*
+## 5. items.component darkMode — one subscription instead of 13
 
-**Phase 4 — Pokédex TODO cleanup.** Resolve the two `TODO(next-task cleanup)`
-in `pokedex.service.ts` (temporary shiny propagation bridge, legacy migration)
-now that the migration has presumably run for existing players — confirm it's
-safe to drop before removing. *Checkpoint: dex still loads for a pre-existing
-save.*
+The template has `(darkMode | async)` ~13 times. Bind a single boolean instead.
+- File `src/app/items/items.component.ts`: add field `isDark = false;` and, in
+  the constructor, `this.darkMode.pipe(takeUntilDestroyed()).subscribe(v => this.isDark = v);`
+  (import `takeUntilDestroyed` from `@angular/core/rxjs-interop`; no `DestroyRef`
+  needed — the constructor is an injection context).
+- File `src/app/items/items.component.html`: replace every
+  `(darkMode | async)` with `isDark`.
 
-## 4. Testing
+## 6. roulette-container modal dismissals (the one worth care)
 
-- `npm run test:local` after each phase (suite is ~520 specs).
-- Phase 2 needs **manual** modal-dismiss checks — unit tests won't catch a
-  skipped follow-up.
-- Phase 4: load a legacy Pokédex blob and confirm no regression before deleting
-  the migration.
+File `src/app/main-game/roulette-container/roulette-container.component.ts`.
+NgbModal `result` **rejects when the modal is dismissed** (backdrop/Esc), so
+`modalRef.result.then(() => {…})` with no rejection handler throws an unhandled
+rejection *and skips the callback* on dismiss.
 
-## 5. Notes
+Sites: **lines 702, 772, 1194, 1217**. For each:
+1. Extract the existing `.then` callback body to a local `const onDone = () => {…};`.
+2. If `onDone` advances game flow (calls any of `finishCurrentState`,
+   `setNextState`, `advanceRound`, or `.emit(`) → run it on dismiss too:
+   `modalRef.result.then(onDone, onDone);`
+3. Otherwise (purely optional UI) → `modalRef.result.then(onDone).catch(() => {});`
 
-- Everything here is optional polish; none of it gates features. Reasonable to
-  interleave with feature work or drop entirely if priorities are elsewhere.
+Verify manually: dismiss each of these 4 modals (Esc/backdrop) and confirm the
+game advances normally and the console shows no unhandled rejection.
+
+## 7. Remove one debug log (keep error logging)
+
+File `src/app/coffee/coffee.component.ts`, **line 30**: delete
+`console.log('Pix code copied to clipboard');`. **Leave all `console.error` /
+`console.warn`** elsewhere — they are legitimate error handling, not debt.
+
+## 8. Pokédex TODOs — DO NOT REMOVE YET (verified 2026-07-16)
+
+File `src/app/services/pokedex-service/pokedex.service.ts`, lines 36 and 149.
+Verified: these are **not** dead migration code — they're the live shiny-family
+propagation mechanism, and the "dedicated shiny consistency pipeline" they defer
+to **was never built** (no shiny-propagation logic exists elsewhere in the app).
+- `markSeen` bridge (L38-42): the only callers pass a single id + its base form,
+  not the full evolution family, so this block is what flags the whole line
+  shiny. Removing it regresses new shiny sightings.
+- `normalizeShinyOnLoad` (L145): called on **every** load (L116) **and** by
+  `replacePokedex` (L69, the V3 import path). Removing it regresses loads and
+  profile imports.
+
+**Action: leave as-is.** Closing this out is a *feature* task — build the
+consolidated shiny-consistency pipeline, then retire these two blocks — not a
+cleanup. Do not delete either block until that pipeline exists.
+
+---
+
+## Notes
+- #2 and #5 may require touching a couple of existing spec expectations; #1/#7
+  should not.
+- All of this is optional polish; none of it blocks features.
