@@ -34,6 +34,26 @@ Scope / open questions (decide before it becomes a plan):
 - UI: the bias indicator(s) next to the Items panel should show the stacked
   strength (e.g. "×2").
 
+### Use bias items inside the obtain wheels, with visual feedback
+
+Today Honey/Repel (and the hard-bias items) are used from the **Items panel** to
+set a *pending* bias that applies to the **next** Pokémon-obtaining wheel. Let the
+player also use a bias item **while an obtain wheel is already on screen** (catch,
+trade, fossil, legendary, cave, starter, fishing, mysterious egg, Area Zero) and
+have it take effect on **that** spin.
+
+And **reflect the applied bias on the wheel visually** — e.g. the biased-*toward*
+type's slices grow / are highlighted (and the biased-*away* type's slices shrink),
+so the player can see the effect they spent an item on before spinning.
+
+Open questions (decide before it becomes a plan):
+- In-wheel affordance to use an item (a small item button/panel on the obtain-wheel
+  screen, without leaving it).
+- The wheel must **re-render live** when a bias is applied mid-screen (rebuild the
+  weighted slices, then redraw).
+- Interaction with the stacking feature above (using a 2nd Honey in-wheel should
+  compound and re-render).
+
 ### In-game player suggestions / bug-report + "most wanted" feedback
 
 Let players submit feature suggestions and bug reports from the page, and give
