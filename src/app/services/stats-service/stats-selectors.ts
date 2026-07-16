@@ -105,6 +105,30 @@ export interface PlayerStatsSummary {
   achievements: AchievementProgress[];
 }
 
+/**
+ * Per-generation view (plan V3 §4). Run/win/loss/streak/record fields are
+ * derived from runHistory filtered by generationId — no schema change needed
+ * since RunLogEntry already carries generationId (V2 Phase 2). Species/type/
+ * nemesis breakdowns instead come from the additive *ByGen counters
+ * (PlayerStats), which only populate going forward — a generation played
+ * entirely before V3 shipped will show empty topOwnedPokemon/favoriteTypes/
+ * nemesis here even though its run history still counts (plan §4/§8.3:
+ * additive-only, no migration).
+ */
+export interface PlayerGenerationStatsSummary {
+  generationId: number;
+  runsPlayed: number;
+  victories: number;
+  defeats: number;
+  winRate: number | null;
+  bestWinStreak: number;
+  fastestVictoryRounds: number | null;
+  longestRunRounds: number;
+  topOwnedPokemon: TopEntry[];
+  favoriteTypes: TypeEntry[];
+  nemesis: NemesisEntry | null;
+}
+
 const TOP_OWNED_COUNT = 3;
 const RECENT_FORM_COUNT = 10;
 
@@ -159,6 +183,37 @@ export function computeStatsSummary(stats: PlayerStats): PlayerStatsSummary {
       unlocked: !!stats.unlockedAchievementIds[achievement.id],
     })),
   };
+}
+
+/** See PlayerGenerationStatsSummary. */
+export function computeGenerationStatsSummary(stats: PlayerStats, generationId: number): PlayerGenerationStatsSummary {
+  const runs = stats.runHistory.filter(run => run.generationId === generationId);
+  const victories = runs.filter(run => run.victory);
+
+  return {
+    generationId,
+    runsPlayed: runs.length,
+    victories: victories.length,
+    defeats: runs.length - victories.length,
+    winRate: rate(victories.length, runs.length),
+    bestWinStreak: bestWinStreakInHistory(runs),
+    fastestVictoryRounds: victories.length > 0 ? Math.min(...victories.map(run => run.roundsReached)) : null,
+    longestRunRounds: runs.length > 0 ? Math.max(...runs.map(run => run.roundsReached)) : 0,
+    topOwnedPokemon: topEntries(stats.speciesOwnedCountsByGen[generationId] ?? {}, TOP_OWNED_COUNT),
+    favoriteTypes: topTypeEntries(stats.typeCountsByGen[generationId] ?? {}),
+    nemesis: topNemesis(stats.nemesisDefeatsByGen[generationId] ?? {}),
+  };
+}
+
+/** Longest run of consecutive victories within a chronological (oldest-first) run list. */
+function bestWinStreakInHistory(history: RunLogEntry[]): number {
+  let best = 0;
+  let current = 0;
+  for (const run of history) {
+    current = run.victory ? current + 1 : 0;
+    best = Math.max(best, current);
+  }
+  return best;
 }
 
 /** Last RECENT_FORM_COUNT results, most recent first (see PlayerStatsSummary.recentForm). */

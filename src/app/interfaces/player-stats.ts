@@ -89,6 +89,19 @@ export interface PlayerStats {
   championGenerationIds: Record<number, boolean>;
   /** Keyed by Achievement.id — see achievements.ts. */
   unlockedAchievementIds: Record<string, boolean>;
+
+  // Per-generation breakdown (V3 §4). Additive-only, no migration: these start
+  // empty and populate going forward, so a generation played entirely before
+  // V3 shipped simply has no per-gen species/type/nemesis data — its
+  // run/win/loss/streak/record stats are still derivable from runHistory
+  // (which already carries generationId per entry, see V2 Phase 2), so those
+  // aren't duplicated here.
+  /** Outer key: GenerationItem.id. Inner: PokemonItem.pokemonId — same "owned" definition as speciesOwnedCounts. */
+  speciesOwnedCountsByGen: Record<number, Record<number, number>>;
+  /** Outer key: GenerationItem.id. Inner: PokemonType — same definition as typeCounts. */
+  typeCountsByGen: Record<number, Partial<Record<PokemonType, number>>>;
+  /** Outer key: GenerationItem.id. Inner: opponent key — same definition as nemesisDefeats. */
+  nemesisDefeatsByGen: Record<number, Record<string, number>>;
 }
 
 export function createDefaultPlayerStats(): PlayerStats {
@@ -127,6 +140,9 @@ export function createDefaultPlayerStats(): PlayerStats {
     perfectRuns: 0,
     championGenerationIds: {},
     unlockedAchievementIds: {},
+    speciesOwnedCountsByGen: {},
+    typeCountsByGen: {},
+    nemesisDefeatsByGen: {},
   };
 }
 
@@ -179,6 +195,9 @@ export function normalizePlayerStats(value: unknown): PlayerStats {
     perfectRuns: numberOr(partial.perfectRuns, defaults.perfectRuns),
     championGenerationIds: recordOr(partial.championGenerationIds, defaults.championGenerationIds),
     unlockedAchievementIds: recordOr(partial.unlockedAchievementIds, defaults.unlockedAchievementIds),
+    speciesOwnedCountsByGen: nestedRecordOr(partial.speciesOwnedCountsByGen, defaults.speciesOwnedCountsByGen),
+    typeCountsByGen: nestedRecordOr(partial.typeCountsByGen, defaults.typeCountsByGen),
+    nemesisDefeatsByGen: nestedRecordOr(partial.nemesisDefeatsByGen, defaults.nemesisDefeatsByGen),
   };
 }
 
@@ -188,6 +207,19 @@ function numberOr(value: unknown, fallback: number): number {
 
 function recordOr<T extends Record<string, unknown>>(value: unknown, fallback: T): T {
   return value && typeof value === 'object' && !Array.isArray(value) ? { ...fallback, ...value as T } : fallback;
+}
+
+/** Two-level version of recordOr(), for the per-generation breakdown's outer-key-by-generationId records. */
+function nestedRecordOr<T extends Record<string, unknown>>(value: unknown, fallback: Record<number, T>): Record<number, T> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return fallback;
+  }
+
+  const result: Record<number, T> = {};
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+    result[Number(key)] = recordOr(nested, {} as T);
+  }
+  return result;
 }
 
 function battleTypeCountsOr(value: unknown, fallback: BattleTypeCounts): BattleTypeCounts {

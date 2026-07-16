@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
 import { BattleTypeCounts, createDefaultPlayerStats, normalizePlayerStats, PlayerStats, RUN_HISTORY_CAP, RunLogEntry } from '../../interfaces/player-stats';
 import { Achievement } from '../../interfaces/achievement';
+import { PokemonItem } from '../../interfaces/pokemon-item';
+import { PokemonType } from '../../interfaces/pokemon-type';
 import { ACHIEVEMENTS } from './achievements';
 import { TrainerService } from '../trainer-service/trainer.service';
-import { computeStatsSummary, PlayerStatsSummary } from './stats-selectors';
+import { computeStatsSummary, computeGenerationStatsSummary, PlayerStatsSummary, PlayerGenerationStatsSummary } from './stats-selectors';
 
 export type BattleType = keyof BattleTypeCounts;
 
@@ -79,6 +81,11 @@ export class StatsService {
 
   getSummaryObservable(): Observable<PlayerStatsSummary> {
     return this.statsSubject.pipe(map(computeStatsSummary));
+  }
+
+  /** Per-generation view (plan V3 §4) — 'all' generations' derivation stays computeStatsSummary above, unchanged. */
+  getGenerationSummaryObservable(generationId: number): Observable<PlayerGenerationStatsSummary> {
+    return this.statsSubject.pipe(map(stats => computeGenerationStatsSummary(stats, generationId)));
   }
 
   /** Emits each Achievement the moment it's newly unlocked — for a toast (plan V2 §7.2). */
@@ -225,10 +232,14 @@ export class StatsService {
    */
   recordBattleLoss(battleType: BattleType, opponentKey?: string): void {
     this.currentRunBattleLossCount++;
+    const generationId = this.currentRunGenerationId;
     this.update(stats => ({
       ...stats,
       battleTypeLosses: { ...stats.battleTypeLosses, [battleType]: stats.battleTypeLosses[battleType] + 1 },
       nemesisDefeats: opponentKey ? incrementRecord(stats.nemesisDefeats, opponentKey) : stats.nemesisDefeats,
+      nemesisDefeatsByGen: opponentKey && generationId !== null
+        ? incrementNestedRecord(stats.nemesisDefeatsByGen, generationId, opponentKey)
+        : stats.nemesisDefeatsByGen,
     }));
   }
 
@@ -252,7 +263,7 @@ export class StatsService {
         ...stats,
         longestRunRounds: Math.max(stats.longestRunRounds, roundsReached),
         speciesOwnedCounts: incrementRecordForEach(stats.speciesOwnedCounts, speciesSeen),
-        typeCounts: { ...stats.typeCounts },
+        typeCounts: addTeamTypeCounts(stats.typeCounts, team),
         lastPlayedAt: endedAt,
       };
 
@@ -261,13 +272,12 @@ export class StatsService {
         next.runHistory = [...stats.runHistory, entry].slice(-RUN_HISTORY_CAP);
       }
 
-      for (const pokemon of team) {
-        if (pokemon.type1) {
-          next.typeCounts[pokemon.type1] = (next.typeCounts[pokemon.type1] ?? 0) + 1;
-        }
-        if (pokemon.type2) {
-          next.typeCounts[pokemon.type2] = (next.typeCounts[pokemon.type2] ?? 0) + 1;
-        }
+      if (generationId !== null) {
+        next.speciesOwnedCountsByGen = incrementNestedRecordForEach(stats.speciesOwnedCountsByGen, generationId, speciesSeen);
+        next.typeCountsByGen = {
+          ...stats.typeCountsByGen,
+          [generationId]: addTeamTypeCounts(stats.typeCountsByGen[generationId] ?? {}, team),
+        };
       }
 
       if (victory) {
@@ -362,6 +372,38 @@ function incrementRecordForEach(record: Record<number, number>, keys: Iterable<n
   const next = { ...record };
   for (const key of keys) {
     next[key] = (next[key] ?? 0) + 1;
+  }
+  return next;
+}
+
+/** Two-level version of incrementRecord() for the per-generation breakdown (plan V3 §4). */
+function incrementNestedRecord<K extends string | number>(
+  nested: Record<number, Record<K, number>>,
+  generationId: number,
+  key: K
+): Record<number, Record<K, number>> {
+  return { ...nested, [generationId]: incrementRecord(nested[generationId] ?? ({} as Record<K, number>), key) };
+}
+
+/** Two-level version of incrementRecordForEach() for the per-generation breakdown (plan V3 §4). */
+function incrementNestedRecordForEach(
+  nested: Record<number, Record<number, number>>,
+  generationId: number,
+  keys: Iterable<number>
+): Record<number, Record<number, number>> {
+  return { ...nested, [generationId]: incrementRecordForEach(nested[generationId] ?? {}, keys) };
+}
+
+/** Shared by the lifetime typeCounts and the per-generation typeCountsByGen breakdown. */
+function addTeamTypeCounts(base: Partial<Record<PokemonType, number>>, team: PokemonItem[]): Partial<Record<PokemonType, number>> {
+  const next = { ...base };
+  for (const pokemon of team) {
+    if (pokemon.type1) {
+      next[pokemon.type1] = (next[pokemon.type1] ?? 0) + 1;
+    }
+    if (pokemon.type2) {
+      next[pokemon.type2] = (next[pokemon.type2] ?? 0) + 1;
+    }
   }
   return next;
 }

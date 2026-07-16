@@ -201,6 +201,11 @@
       "defeat": "Derrota",
       "none": "Ainda não há histórico de partidas"
     },
+    "perGeneration": {
+      "title": "Por Geração",
+      "none": "Ainda não há partidas nesta geração",
+      "noBreakdownYet": "Ainda não há detalhamento de Pokémon/tipo/nêmesis para esta geração — o rastreamento começa a partir da sua próxima partida aqui."
+    },
     "achievements": {
       "title": "Conquistas",
       "unlockedToastHeader": "Conquista Desbloqueada!",
@@ -222,12 +227,13 @@
       "text": "Veja minhas estatísticas de Pokémon Roulette!"
     },
     "export": {
-      "action": "Exportar Estatísticas (JSON)"
+      "action": "Exportar Perfil (JSON)"
     },
     "import": {
-      "action": "Importar Estatísticas (JSON)",
-      "success": "Estatísticas importadas com sucesso!",
-      "error": "Não foi possível importar esse arquivo — verifique se é uma exportação de estatísticas válida."
+      "action": "Importar Perfil (JSON)",
+      "success": "Perfil importado com sucesso!",
+      "error": "Não foi possível importar esse arquivo — verifique se é uma exportação de perfil válida.",
+      "unsupportedVersion": "Esse perfil foi exportado com uma versão mais recente do app e não pode ser importado aqui."
     },
     "reset": {
       "action": "Redefinir Estatísticas",

@@ -50,7 +50,7 @@ describe('PokedexService', () => {
 
   // DATA-03: Constructor reads from localStorage
   it('should restore state from localStorage on construction', () => {
-    const saved: PokedexData = { caught: { '4': { won: false, sprite: 'https://example.com/4.png' } } };
+    const saved: PokedexData = { version: 1, caught: { '4': { won: false, sprite: 'https://example.com/4.png' } } };
     localStorage.setItem('pokemon-roulette-pokedex', JSON.stringify(saved));
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
@@ -71,6 +71,54 @@ describe('PokedexService', () => {
       'not-valid-json',
       'falling back to empty pokedex'
     );
+  });
+
+  // NORMALIZE-01: malformed individual entries are dropped, not the whole Pokédex
+  it('should drop malformed entries on load while keeping valid ones', () => {
+    localStorage.setItem(
+      'pokemon-roulette-pokedex',
+      JSON.stringify({ version: 1, caught: { '1': { won: true, sprite: 'https://example.com/1.png' }, '2': 'not-an-entry', '3': null } })
+    );
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const newService = TestBed.inject(PokedexService);
+
+    expect(newService.currentPokedex.caught['1']).toBeTruthy();
+    expect(newService.currentPokedex.caught['2']).toBeUndefined();
+    expect(newService.currentPokedex.caught['3']).toBeUndefined();
+  });
+
+  // NORMALIZE-02: missing fields on an otherwise-valid entry default safely
+  it('should default missing entry fields on load', () => {
+    localStorage.setItem('pokemon-roulette-pokedex', JSON.stringify({ version: 1, caught: { '5': {} } }));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const newService = TestBed.inject(PokedexService);
+
+    expect(newService.currentPokedex.caught['5'].won).toBeFalse();
+    expect(newService.currentPokedex.caught['5'].sprite).toBeNull();
+  });
+
+  // NORMALIZE-03: version is forced to the current version regardless of stored value
+  it('should force the current version on load even if an older/newer value was stored', () => {
+    localStorage.setItem('pokemon-roulette-pokedex', JSON.stringify({ version: 999, caught: {} }));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const newService = TestBed.inject(PokedexService);
+
+    expect(newService.currentPokedex.version).toBe(1);
+  });
+
+  // NORMALIZE-04: round-trip through save/load preserves data
+  it('should round-trip caught entries through save and load', () => {
+    service.markSeen(1);
+    service.markWon([1]);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const newService = TestBed.inject(PokedexService);
+
+    expect(newService.currentPokedex.caught['1'].won).toBeTrue();
+    expect(newService.currentPokedex.caught['1'].sprite).toBeTruthy();
   });
 
   // DATA-04: No reset method exists that could be wired to game loop
@@ -151,6 +199,7 @@ describe('PokedexService', () => {
 
   it('should normalize shiny on load for existing related entries only and persist the migration — SHINY-03', () => {
     const saved: PokedexData = {
+      version: 1,
       caught: {
         '25': { won: false, sprite: 'https://example.com/25.png', shiny: true },
         '26': { won: false, sprite: 'https://example.com/26.png' },

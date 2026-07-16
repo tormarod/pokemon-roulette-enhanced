@@ -11,7 +11,7 @@
         <app-credits-button></app-credits-button>
       </div>
       <div class="col-6 col-sm-12 mb-2">
-        <button type="button" class="btn btn-secondary w-100" (click)="exportStats()">
+        <button type="button" class="btn btn-secondary w-100" (click)="exportProfile()">
           {{ 'stats.export.action' | translate }}
         </button>
       </div>
@@ -34,7 +34,9 @@
 
       @if (importResult === 'success') {
         <div class="alert alert-success text-center mt-3">{{ 'stats.import.success' | translate }}</div>
-      } @else if (importResult === 'error') {
+      } @else if (importResult === 'unsupported-version') {
+        <div class="alert alert-danger text-center mt-3">{{ 'stats.import.unsupportedVersion' | translate }}</div>
+      } @else if (importResult === 'invalid') {
         <div class="alert alert-danger text-center mt-3">{{ 'stats.import.error' | translate }}</div>
       }
 
@@ -251,6 +253,77 @@
           </div>
 
           <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <h3 class="fw-bold mb-0">{{ 'stats.perGeneration.title' | translate }}</h3>
+              <select class="form-select form-select-sm w-auto" (change)="onGenerationFilterChange($event)">
+                @for (generation of generations; track generation.id) {
+                  <option [value]="generation.id">{{ generationLabel(generation.id) }}</option>
+                }
+              </select>
+            </div>
+
+            @if (generationSummary$ | async; as genSummary) {
+              @if (genSummary.runsPlayed === 0) {
+                <p class="mt-2">{{ 'stats.perGeneration.none' | translate }}</p>
+              } @else {
+                <div class="row mt-2">
+                  <div class="col-6 col-md-4">{{ 'stats.lifetime.runsPlayed' | translate }}: <strong>{{ genSummary.runsPlayed }}</strong></div>
+                  <div class="col-6 col-md-4">{{ 'stats.lifetime.victories' | translate }}: <strong>{{ genSummary.victories }}</strong></div>
+                  <div class="col-6 col-md-4">{{ 'stats.lifetime.defeats' | translate }}: <strong>{{ genSummary.defeats }}</strong></div>
+                  <div class="col-6 col-md-4">{{ 'stats.lifetime.winRate' | translate }}: <strong>{{ formatRate(genSummary.winRate) }}</strong></div>
+                  <div class="col-6 col-md-4">{{ 'stats.lifetime.bestWinStreak' | translate }}: <strong>{{ genSummary.bestWinStreak }}</strong></div>
+                  <div class="col-6 col-md-4">
+                    {{ 'stats.records.fastestVictory' | translate }}:
+                    <strong>{{ genSummary.fastestVictoryRounds !== null ? ('stats.records.rounds' | translate: { count: genSummary.fastestVictoryRounds }) : ('stats.records.none' | translate) }}</strong>
+                  </div>
+                  <div class="col-6 col-md-4">
+                    {{ 'stats.records.longestRun' | translate }}:
+                    <strong>{{ 'stats.records.rounds' | translate: { count: genSummary.longestRunRounds } }}</strong>
+                  </div>
+                </div>
+
+                @if (genSummary.topOwnedPokemon.length > 0) {
+                  <h5 class="mt-3">{{ 'stats.pokemon.topOwned' | translate }}</h5>
+                  <div class="d-flex flex-wrap gap-3 mb-3">
+                    @for (entry of genSummary.topOwnedPokemon; track trackByPokemonId($index, entry)) {
+                      <div class="text-center">
+                        @if (pokemonSprite(entry.pokemonId); as sprite) {
+                          <img [src]="sprite" [alt]="pokemonText(entry.pokemonId) | translate" height="64">
+                        }
+                        <div>{{ pokemonText(entry.pokemonId) | translate }}</div>
+                        <div>x{{ entry.count }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (genSummary.favoriteTypes.length > 0) {
+                  <h5>{{ 'stats.pokemon.favoriteTypes' | translate }}</h5>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    @for (entry of genSummary.favoriteTypes; track entry.type) {
+                      <span class="badge text-bg-secondary">
+                        <img [src]="getTypeIconUrl(entry.type)" [alt]="entry.type" height="16">
+                        {{ 'pokemonType.' + entry.type | translate }} ({{ entry.count }})
+                      </span>
+                    }
+                  </div>
+                }
+
+                @if (genSummary.nemesis; as nemesis) {
+                  <p>
+                    {{ 'stats.battles.nemesis' | translate }}:
+                    <strong>{{ nemesis.name | translate }} ({{ 'stats.battleType.' + nemesis.battleType | translate }}) x{{ nemesis.count }}</strong>
+                  </p>
+                }
+
+                @if (genSummary.topOwnedPokemon.length === 0 && genSummary.favoriteTypes.length === 0 && !genSummary.nemesis) {
+                  <p class="text-muted small">{{ 'stats.perGeneration.noBreakdownYet' | translate }}</p>
+                }
+              }
+            }
+          </div>
+
+          <div class="mt-4">
             <div class="d-flex justify-content-between align-items-center">
               <h3 class="fw-bold mb-0">{{ 'stats.achievements.title' | translate }}</h3>
               <button type="button" class="btn btn-sm btn-outline-danger" (click)="showSectionResetConfirm('achievements')">
@@ -260,7 +333,7 @@
             <div class="row">
               @for (achievement of summary.achievements; track achievement.id) {
                 <div class="col-6 col-md-4 mb-2">
-                  <div class="p-2 border rounded" [class.opacity-50]="!achievement.unlocked">
+                  <div class="achievement-tile p-2 rounded" [class.opacity-50]="!achievement.unlocked">
                     <div class="fw-bold">
                       @if (achievement.unlocked) {
                         {{ achievement.nameKey | translate }}
@@ -277,7 +350,7 @@
 
           <div class="mt-4">
             <h3 class="fw-bold">{{ 'stats.share.title' | translate }}</h3>
-            <div #shareCard class="share-card p-4 mb-3">
+            <div #shareCard class="share-card p-4 mb-3" [style.background-image]="shareCardBackgroundImage">
               <div class="fw-bold fs-4 mb-2">{{ 'stats.share.cardTitle' | translate }}</div>
               <div class="row">
                 <div class="col-6">{{ 'stats.lifetime.victories' | translate }}: <strong>{{ summary.victories }}</strong></div>

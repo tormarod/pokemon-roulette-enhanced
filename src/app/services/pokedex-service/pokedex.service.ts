@@ -1,23 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, distinctUntilChanged, Observable } from 'rxjs';
+import { createDefaultPokedexData, normalizePokedexData, PokedexData, PokedexEntry } from '../../interfaces/pokedex-data';
 import { evolutionChain } from '../evolution-service/evolution-chain';
 import { pokemonForms } from '../pokemon-forms-service/pokemon-forms';
 
-export interface PokedexEntry {
-  won: boolean;
-  sprite: string | null;
-  shiny?: boolean;
-  mega?: boolean;
-}
-
-export interface PokedexData {
-  caught: Record<string, PokedexEntry>;
-}
+export type { PokedexData, PokedexEntry } from '../../interfaces/pokedex-data';
 
 @Injectable({ providedIn: 'root' })
 export class PokedexService {
   private readonly STORAGE_KEY = 'pokemon-roulette-pokedex';
-  private readonly defaultPokedex: PokedexData = { caught: {} };
+  private readonly defaultPokedex: PokedexData = createDefaultPokedexData();
   private readonly spriteCache = new Map<number, string>();
   private readonly reverseEvolutionChain = this.buildReverseEvolutionChain();
 
@@ -53,7 +45,7 @@ export class PokedexService {
       return;
     }
 
-    this.updatePokedex({ caught: updatedCaught });
+    this.updatePokedex(updatedCaught);
   }
 
   markWon(pokemonIds: number[]): void {
@@ -64,7 +56,19 @@ export class PokedexService {
       const sprite = this.getSpriteUrl(pokemonId);
       updatedCaught[key] = { ...updatedCaught[key], won: true, sprite: updatedCaught[key]?.sprite ?? sprite };
     }
-    this.updatePokedex({ caught: updatedCaught });
+    this.updatePokedex(updatedCaught);
+  }
+
+  /**
+   * Replaces the whole Pokédex from an imported (possibly partial/legacy)
+   * blob — normalizes it the same way the load path does, including the
+   * shiny-family propagation fixup, then persists (plan V3 §5).
+   */
+  replacePokedex(data: unknown): void {
+    const normalized = normalizePokedexData(data);
+    const { data: fixedUp } = this.normalizeShinyOnLoad(normalized);
+    this.savePokedexToStorage(fixedUp);
+    this.pokedexSubject$.next(fixedUp);
   }
 
   /** Permanently marks that the given Pokémon has mega-evolved at least once. No-op if already set. */
@@ -85,7 +89,7 @@ export class PokedexService {
       mega: true,
     };
 
-    this.updatePokedex({ caught: updatedCaught });
+    this.updatePokedex(updatedCaught);
   }
 
   private getSpriteUrl(pokemonId: number): string {
@@ -97,7 +101,8 @@ export class PokedexService {
     return url;
   }
 
-  private updatePokedex(data: PokedexData): void {
+  private updatePokedex(caught: Record<string, PokedexEntry>): void {
+    const data: PokedexData = { version: this.defaultPokedex.version, caught };
     this.savePokedexToStorage(data);
     this.pokedexSubject$.next(data);
   }
@@ -161,7 +166,7 @@ export class PokedexService {
     }
 
     return {
-      data: { caught: normalizedCaught },
+      data: { version: data.version, caught: normalizedCaught },
       changed,
     };
   }
@@ -258,16 +263,14 @@ export class PokedexService {
 
   private getPokedexFromStorage(): PokedexData | null {
     const storageItem = localStorage.getItem(this.STORAGE_KEY);
-    if (storageItem) {
-      try {
-        const parsed = JSON.parse(storageItem);
-        if (parsed.caught && !Array.isArray(parsed.caught)) {
-          return parsed as PokedexData;
-        }
-      } catch (error) {
-        console.error('Invalid pokedex localStorage item:', storageItem, 'falling back to empty pokedex');
-      }
+    if (!storageItem) {
+      return null;
     }
-    return null;
+    try {
+      return normalizePokedexData(JSON.parse(storageItem));
+    } catch (error) {
+      console.error('Invalid pokedex localStorage item:', storageItem, 'falling back to empty pokedex');
+      return null;
+    }
   }
 }

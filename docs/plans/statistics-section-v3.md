@@ -1,7 +1,8 @@
 # Plan: Player Statistics — V3
 
-Status: **DRAFT — early. Blocked on V2 completion (see §2). Awaiting scope
-decisions (§8).**
+Status: **All V3 phases (1-4) shipped 2026-07-16: Pokédex normalizer,
+unified profile export/import (ProfileBackupService), per-generation
+breakdown, and docs (this update + README).**
 Owner: tormarod
 Last updated: 2026-07-16
 Builds on: `docs/plans/statistics-section.md` (V1) and
@@ -46,8 +47,12 @@ Every `localStorage` key in the app today, by category:
   has `normalizePlayerStats()` per-field defaulting.
 - `pokemon-roulette-pokedex` — `PokedexService`, shape `PokedexData`.
   **Not versioned**; load only sanity-checks `parsed.caught` is a non-array.
-- *achievements key* — created by V2 Group B (unlocked-id set). TBD name; expect
-  it to follow the `pokemon-roulette-*` convention.
+- **Correction (verified 2026-07-16, V2 shipped this differently than assumed
+  here): there is no separate achievements key.** `unlockedAchievementIds` is a
+  field *inside* `PlayerStats` itself (`src/app/interfaces/player-stats.ts`),
+  persisted under the existing `pokemon-roulette-stats` key. §5's bundle only
+  needs two real stores — `stats` (already carries achievements) and
+  `pokedex` — not three.
 
 **Preferences (maybe include — see §8):**
 - `pokemon-roulette-settings` — `SettingsService`.
@@ -86,7 +91,8 @@ would a migration be unavoidable, and it'd be lossy — recommend not.)
 
 ## 5. Feature 2 — Unified profile export / import
 
-Replace V2's stats-only JSON with a **namespaced profile bundle**:
+Replace V2's stats-only JSON with a **namespaced profile bundle**. Two stores
+only — achievements ride inside `stats` already (see §3 correction):
 
 ```jsonc
 {
@@ -94,9 +100,8 @@ Replace V2's stats-only JSON with a **namespaced profile bundle**:
   "bundleVersion": 1,
   "exportedAt": "<ISO timestamp>",
   "stores": {
-    "stats":        { "version": <n>, "data": { /* PlayerStats blob */ } },
-    "pokedex":      { "version": <n>, "data": { /* PokedexData blob */ } },
-    "achievements": { "version": <n>, "data": { /* unlocked set   */ } }
+    "stats":   { "version": <n>, "data": { /* PlayerStats blob, incl. unlockedAchievementIds */ } },
+    "pokedex": { "version": <n>, "data": { /* PokedexData blob */ } }
   }
 }
 ```
@@ -133,34 +138,103 @@ Design:
 
 ## 7. Implementation phases (checkpoint after each)
 
-**Phase 1 — Pokédex normalizer.** Add versioning + `normalizePokedexData()` to
-`PokedexService` (safe default-on-load), with tests. Prereq for safe import; no
-user-visible change. *Checkpoint: existing dex still loads.*
+**Phase 1 — Pokédex normalizer. SHIPPED 2026-07-16.** Added `version`,
+`createDefaultPokedexData()`, `normalizePokedexData()` in a new
+`src/app/interfaces/pokedex-data.ts` (mirroring `player-stats.ts`'s pattern);
+`PokedexService` now imports from there (re-exporting the types for existing
+consumers) and its load path (`getPokedexFromStorage`) uses
+`normalizePokedexData()` instead of the old ad-hoc `parsed.caught &&
+!Array.isArray(...)` check — malformed individual entries are now dropped
+rather than discarding the whole Pokédex on any shape mismatch.
+`updatePokedex()` now takes just the `caught` record and stamps the current
+version internally, so every write site (`markSeen`/`markWon`/`markMega`) stays
+untouched. No user-visible change. *Checkpoint: existing dex still loads; new
+tests cover malformed-entry dropping, missing-field defaulting, forced version
+on load, and a save/load round-trip; 491/491 tests pass, `ng build` succeeds.*
 
-**Phase 2 — Unified export/import.** `ProfileBackupService` + bundle
-format; wire export/import UI, superseding V2's stats-only buttons; bundle-guard
-+ per-store normalize on import. Tests for round-trip, partial bundle, wrong
-`kind`, and newer-`bundleVersion` rejection. *Checkpoint: export on one profile,
-import on a cleared one, verify stats+dex+achievements restored.*
+**Phase 2 — Unified export/import. SHIPPED 2026-07-16.** New
+`ProfileBackupService` (`src/app/services/profile-backup-service/`) owns
+`exportProfile()`/`importProfile()` around a two-store bundle
+(`{ kind: "pokemon-roulette-profile", bundleVersion: 1, exportedAt,
+stores: { stats, pokedex } }`) — reuses `StatsService.exportStats()`/
+`importStats()` internally rather than duplicating normalize/persist logic
+("generalize, don't fork"); added `PokedexService.replacePokedex()` as the
+Pokédex-side equivalent (normalizes + re-runs the existing shiny-family
+fixup). Import rejects a wrong `kind`, a `bundleVersion` newer than
+understood, or invalid JSON — old V2 stats-only export files are **not**
+accepted (plan §8.4), each rejection distinguishable in the UI
+(`success` / `invalid` / `unsupported-version`). Stats screen's export/import
+buttons now call `ProfileBackupService` instead of `StatsService` directly;
+i18n updated across all 6 locales (relabeled Stats→Profile, added
+`stats.import.unsupportedVersion`). `StatsService.exportStats()`/
+`importStats()` kept as-is (still unit-tested directly, now also reused
+internally). *Checkpoint: round-trip export→import tested (stats + Pokédex
+both restored), wrong-kind/invalid-JSON/newer-bundleVersion/malformed-store-data
+all covered; 499/499 tests pass, `ng build` succeeds. UI not eyeballed in a
+live browser this session — no browser-automation tool was available.*
 
-**Phase 3 — Per-generation breakdown.** Run-log-derived per-gen stats +
-additive per-gen counters for species/types/nemesis + `generationId | 'all'`
-selector arg + a generation filter on the stats screen. *Checkpoint: 'all'
-matches today's numbers; a per-gen view reconciles against the run-log.*
+**Phase 3 — Per-generation breakdown. SHIPPED 2026-07-16.** Three additive
+`PlayerStats` fields, all `Record<generationId, Record<innerKey, number>>`,
+defaulting to `{}` (no version bump): `speciesOwnedCountsByGen`,
+`typeCountsByGen`, `nemesisDefeatsByGen` — normalized via a new
+`nestedRecordOr()` helper mirroring `recordOr()`. `StatsService.recordRunEnd`/
+`recordBattleLoss` fold into these alongside their existing lifetime
+counterparts, keyed by `this.currentRunGenerationId` (already tracked since
+V2). New `computeGenerationStatsSummary(stats, generationId)` in
+`stats-selectors.ts` (returns `PlayerGenerationStatsSummary`) derives
+runs/wins/losses/win-rate/best-streak/fastest-victory/longest-run from
+`runHistory` filtered by `generationId` — **no schema change needed for
+those**, since `RunLogEntry` already carries `generationId` (V2 Phase 2) — and
+reads species/type/nemesis top entries from the new `*ByGen` counters, which
+are empty for any generation played entirely before this phase shipped
+(expected, not a bug — the plan's "additive, no migration" decision, §8.3).
+`StatsService.getGenerationSummaryObservable(generationId)` added alongside
+the existing (unchanged) `getSummaryObservable()`. Stats screen gained a
+generation filter `<select>` in a new "Per-Generation" section between Run
+History and Achievements — selecting a generation reveals its stats inline;
+"All Generations" (default) leaves the rest of the screen exactly as before.
+i18n added across all 6 locales. *Checkpoint: new selector/service tests cover
+per-gen filtering, chronological best-streak-within-generation, fastest/
+longest within a generation, reading from `*ByGen` not the lifetime counters,
+and the empty-breakdown-for-pre-V3-generations case; 512/512 tests pass, `ng
+build` succeeds. UI not eyeballed in a live browser this session — no
+browser-automation tool was available; worth checking the dropdown's contrast
+across all three themes.*
+**Post-checkpoint iteration (same day):** first pass had an "All Generations"
+dropdown option that fell through to a blank panel (`generationSummary$`
+emitted `null`, template rendered nothing). Rather than patch that in, the
+user asked to drop "All Generations" entirely — the lifetime totals are
+already shown in the sections above, so the per-gen panel doesn't need to
+duplicate them. Simplified: `selectedGenerationId$` is a plain
+`BehaviorSubject<number>` defaulting to the first generation in
+`GenerationService`'s list, the dropdown only lists real generations, and
+`generationSummary$` always resolves through
+`StatsService.getGenerationSummaryObservable()` — no branching, no null case.
+512/512 tests pass, `ng build` succeeds.
 
-**Phase 4 — Docs.** README entry; update all three plan statuses.
+**Phase 4 — Docs. SHIPPED 2026-07-16.** README "New features" entry expanded
+to mention the per-generation breakdown and the unified profile export/import
+(replacing the old "export/import your stats as JSON" wording). This plan's
+status header and phase sections updated as each phase shipped (including two
+post-checkpoint iterations on Phase 3 — see its entry above). V1/V2 plans were
+already marked shipped from prior sessions; no further changes needed there.
 
-## 8. Open decisions (settle before implementation)
+## 8. Decisions (settled 2026-07-16)
 
-1. **Preferences in the backup?** Include `settings`/`theme` in the profile
-   bundle, or profile-progress stores only (stats/pokedex/achievements)?
-   (Recommend: progress-only; prefs are device-local.)
-2. **Import mode** — whole-profile replace, or per-store merge? (Recommend:
-   replace-per-store for v1.)
-3. **Per-gen retroactivity** — accept that per-gen species/type/nemesis start
-   empty and fill going forward (additive, no migration), or pay for a lossy
-   migration to re-key existing counters? (Recommend: additive, no migration.)
-4. **Old stats-only files** — keep importing V2's stats-only JSON, or only
-   accept the new bundle? (Recommend: accept both.)
-5. **Per-gen UI** — a filter dropdown on the existing screen, or a separate
-   per-generation view/tab?
+1. **Preferences in the backup?** **Progress-only** (stats incl. achievements +
+   Pokédex). Settings/theme excluded, stay device-local.
+2. **Import mode** — **replace-per-store**. Import overwrites stats and Pokédex
+   wholesale; no merge logic.
+3. **Per-gen retroactivity** — **additive only, no migration**. New per-gen
+   counters (species/types/nemesis) start empty and populate going forward. No
+   `PLAYER_STATS_VERSION` bump. Lifetime "All" totals stay untouched/authoritative.
+4. **Old stats-only files** — **bundle format only, not accepted**. Import
+   rejects a bare V2 stats-only JSON with a clear "unsupported format" error
+   rather than silently partial-restoring. (Deliberately dropped the draft's own
+   "accept both" recommendation — simpler code path, acceptable for a low-stakes
+   local feature.)
+5. **Per-gen UI** — filter dropdown on the existing stats screen (not a separate
+   tab/view), consistent with how the screen already organizes sections.
+
+Net: implement §4 and §5 as designed, phases per §7, with the two corrections
+above (achievements has no separate key; bundle-only import, no V2 back-compat).

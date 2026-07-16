@@ -1,4 +1,4 @@
-import { computeStatsSummary } from './stats-selectors';
+import { computeStatsSummary, computeGenerationStatsSummary } from './stats-selectors';
 import { createDefaultPlayerStats, PlayerStats, RunLogEntry } from '../../interfaces/player-stats';
 import { ACHIEVEMENTS } from './achievements';
 
@@ -244,5 +244,101 @@ describe('computeStatsSummary', () => {
     expect(summary.achievements.map(a => a.id)).toEqual(ACHIEVEMENTS.map(a => a.id));
     expect(summary.achievements.find(a => a.id === 'first-victory')?.unlocked).toBeTrue();
     expect(summary.achievements.filter(a => a.unlocked).length).toBe(1);
+  });
+});
+
+describe('computeGenerationStatsSummary', () => {
+  const withStats = (overrides: Partial<PlayerStats>): PlayerStats => ({
+    ...createDefaultPlayerStats(),
+    ...overrides,
+  });
+
+  const makeRun = (overrides: Partial<RunLogEntry>): RunLogEntry => ({
+    victory: true,
+    generationId: 1,
+    roundsReached: 5,
+    starterPokemonId: 1,
+    startedAt: 1000,
+    endedAt: 2000,
+    ...overrides,
+  });
+
+  it('should return nulls/zeros/empties for a generation with no runs, never NaN or Infinity', () => {
+    const summary = computeGenerationStatsSummary(createDefaultPlayerStats(), 3);
+
+    expect(summary.generationId).toBe(3);
+    expect(summary.runsPlayed).toBe(0);
+    expect(summary.winRate).toBeNull();
+    expect(summary.bestWinStreak).toBe(0);
+    expect(summary.fastestVictoryRounds).toBeNull();
+    expect(summary.longestRunRounds).toBe(0);
+    expect(summary.topOwnedPokemon).toEqual([]);
+    expect(summary.favoriteTypes).toEqual([]);
+    expect(summary.nemesis).toBeNull();
+  });
+
+  it('should only count runs matching the requested generation', () => {
+    const runHistory = [
+      makeRun({ generationId: 1, victory: true }),
+      makeRun({ generationId: 2, victory: false }),
+      makeRun({ generationId: 1, victory: false }),
+    ];
+    const summary = computeGenerationStatsSummary(withStats({ runHistory }), 1);
+
+    expect(summary.runsPlayed).toBe(2);
+    expect(summary.victories).toBe(1);
+    expect(summary.defeats).toBe(1);
+    expect(summary.winRate).toBe(0.5);
+  });
+
+  it('should compute the best win streak within the filtered generation only, in chronological order', () => {
+    const runHistory = [
+      makeRun({ generationId: 1, victory: true }),
+      makeRun({ generationId: 1, victory: true }),
+      makeRun({ generationId: 2, victory: true }),
+      makeRun({ generationId: 2, victory: true }),
+      makeRun({ generationId: 2, victory: true }),
+      makeRun({ generationId: 1, victory: false }),
+      makeRun({ generationId: 1, victory: true }),
+    ];
+
+    expect(computeGenerationStatsSummary(withStats({ runHistory }), 1).bestWinStreak).toBe(2);
+    expect(computeGenerationStatsSummary(withStats({ runHistory }), 2).bestWinStreak).toBe(3);
+  });
+
+  it('should compute fastestVictoryRounds and longestRunRounds within the generation', () => {
+    const runHistory = [
+      makeRun({ generationId: 1, victory: true, roundsReached: 8 }),
+      makeRun({ generationId: 1, victory: false, roundsReached: 12 }),
+      makeRun({ generationId: 1, victory: true, roundsReached: 3 }),
+    ];
+    const summary = computeGenerationStatsSummary(withStats({ runHistory }), 1);
+
+    expect(summary.fastestVictoryRounds).toBe(3);
+    expect(summary.longestRunRounds).toBe(12);
+  });
+
+  it('should read topOwnedPokemon/favoriteTypes/nemesis from the *ByGen counters, not the lifetime ones', () => {
+    const summary = computeGenerationStatsSummary(withStats({
+      speciesOwnedCounts: { 4: 99 }, // lifetime — must NOT leak into the per-gen view
+      speciesOwnedCountsByGen: { 1: { 1: 2, 4: 5 }, 2: { 7: 1 } },
+      typeCountsByGen: { 1: { water: 3, fire: 1 } },
+      nemesisDefeatsByGen: { 1: { 'gym:gym.brock.name': 2 } },
+    }), 1);
+
+    expect(summary.topOwnedPokemon).toEqual([{ pokemonId: 4, count: 5 }, { pokemonId: 1, count: 2 }]);
+    expect(summary.favoriteTypes).toEqual([{ type: 'water', count: 3 }, { type: 'fire', count: 1 }]);
+    expect(summary.nemesis).toEqual({ key: 'gym:gym.brock.name', battleType: 'gym', name: 'gym.brock.name', count: 2 });
+  });
+
+  it('should show empty per-gen species/type/nemesis for a generation played only before the breakdown existed, while its run history still counts', () => {
+    const runHistory = [makeRun({ generationId: 5, victory: true })];
+    const summary = computeGenerationStatsSummary(withStats({ runHistory }), 5);
+
+    expect(summary.runsPlayed).toBe(1);
+    expect(summary.victories).toBe(1);
+    expect(summary.topOwnedPokemon).toEqual([]);
+    expect(summary.favoriteTypes).toEqual([]);
+    expect(summary.nemesis).toBeNull();
   });
 });

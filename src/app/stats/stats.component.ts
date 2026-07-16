@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy, ElementRef, TemplateRef, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import domtoimage from 'dom-to-image-more';
@@ -8,10 +8,13 @@ import { MainGameButtonComponent } from '../main-game-button/main-game-button.co
 import { CoffeeButtonComponent } from '../main-game/coffee-button/coffee-button.component';
 import { CreditsButtonComponent } from '../main-game/credits-button/credits-button.component';
 import { BattleType, StatsService } from '../services/stats-service/stats.service';
-import { PlayerStatsSummary, TopEntry, TypeEntry } from '../services/stats-service/stats-selectors';
+import { PlayerGenerationStatsSummary, PlayerStatsSummary, TopEntry, TypeEntry } from '../services/stats-service/stats-selectors';
 import { RunLogEntry } from '../interfaces/player-stats';
+import { ProfileBackupService } from '../services/profile-backup-service/profile-backup.service';
+import { ThemeService } from '../services/theme-service/theme.service';
 import { PokemonService } from '../services/pokemon-service/pokemon.service';
 import { GenerationService } from '../services/generation-service/generation.service';
+import { GenerationItem } from '../interfaces/generation-item';
 import { getTypeIconUrl, PokemonType } from '../interfaces/pokemon-type';
 
 export const BATTLE_TYPES: BattleType[] = ['gym', 'rival', 'eliteFour', 'champion'];
@@ -38,22 +41,51 @@ export class StatsComponent {
 
   summary$: Observable<PlayerStatsSummary>;
 
+  /** Per-generation filter (plan V3 §4) — the lifetime totals are already shown in the sections above, so this stays gen-scoped only, defaulting to the first generation. */
+  readonly generations: GenerationItem[];
+  private readonly selectedGenerationId$: BehaviorSubject<number>;
+  generationSummary$: Observable<PlayerGenerationStatsSummary>;
+
   @ViewChild('resetStatsModal', { static: true }) resetStatsModal!: TemplateRef<any>;
   @ViewChild('sectionResetModal', { static: true }) sectionResetModal!: TemplateRef<any>;
   @ViewChild('importFileInput') importFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('shareCard') shareCard?: ElementRef<HTMLElement>;
 
   pendingResetSection: ResettableSection | null = null;
-  importResult: 'success' | 'error' | null = null;
+  importResult: 'success' | 'invalid' | 'unsupported-version' | null = null;
 
   constructor(
     private statsService: StatsService,
+    private profileBackupService: ProfileBackupService,
     private pokemonService: PokemonService,
     private generationService: GenerationService,
     private modalService: NgbModal,
     private translate: TranslateService,
+    private themeService: ThemeService,
   ) {
     this.summary$ = this.statsService.getSummaryObservable();
+    this.generations = this.generationService.getGenerationList();
+    this.selectedGenerationId$ = new BehaviorSubject<number>(this.generations[0]?.id ?? 1);
+    this.generationSummary$ = this.selectedGenerationId$.pipe(
+      switchMap(id => this.statsService.getGenerationSummaryObservable(id))
+    );
+  }
+
+  onGenerationFilterChange(event: Event): void {
+    this.selectedGenerationId$.next(Number((event.target as HTMLSelectElement).value));
+  }
+
+  /**
+   * The shareable stats card uses the starters tiled image as a fill for the
+   * plain-light/plain-dark themes (where it reads as a distinct pattern), but
+   * a solid color for the starters theme itself (see stats.component.css) —
+   * otherwise the card would blend into the page's own identical tiled
+   * background.
+   */
+  get shareCardBackgroundImage(): string {
+    return this.themeService.currentTheme === 'starters'
+      ? 'none'
+      : `url('${this.themeService.startersBackgroundImageUrl}')`;
   }
 
   showResetConfirmModal(): void {
@@ -90,13 +122,13 @@ export class StatsComponent {
     this.modalService.dismissAll();
   }
 
-  exportStats(): void {
-    const json = this.statsService.exportStats();
+  exportProfile(): void {
+    const json = this.profileBackupService.exportProfile();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `pokemon-roulette-stats-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `pokemon-roulette-profile-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -116,10 +148,10 @@ export class StatsComponent {
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.importResult = this.statsService.importStats(reader.result as string) ? 'success' : 'error';
+      this.importResult = this.profileBackupService.importProfile(reader.result as string);
     };
     reader.onerror = () => {
-      this.importResult = 'error';
+      this.importResult = 'invalid';
     };
     reader.readAsText(file);
   }

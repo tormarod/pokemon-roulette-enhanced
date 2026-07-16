@@ -33,6 +33,80 @@ body.theme-plain-light {
   color: #2d3436;
 }
 
+/*
+ * Theme-scoped fill/border colors for the stats screen's shareable card and
+ * achievement tiles (base rules live in stats.component.css). These live
+ * here, unscoped, rather than in the component stylesheet: Angular's
+ * emulated view encapsulation appends a scoping attribute to every compound
+ * selector segment, including ancestor ones — a component-scoped
+ * "body.theme-x .share-card" rule silently never matches because <body>
+ * never carries that attribute. Plain global CSS has no such restriction.
+ */
+body.theme-plain-light .share-card,
+body.theme-plain-dark .share-card {
+  background-color: #2d3436;
+}
+
+body.theme-plain-light .share-card {
+  border-color: #2d3436;
+}
+
+body.theme-plain-dark .share-card {
+  border-color: #dfe6e9;
+}
+
+/* Starters theme's body background is already this same tiled image, so the
+   card instead gets a solid fill (component sets background-image: none)
+   plus a gold accent border to stay distinguishable from the page behind it. */
+body.theme-starters .share-card {
+  background-color: #1b2a4a;
+  border-color: #f9ca24;
+}
+
+body.theme-plain-light .achievement-tile {
+  border-color: #2d3436;
+  background-color: rgba(255, 255, 255, 0.55);
+}
+
+body.theme-plain-dark .achievement-tile {
+  border-color: #dfe6e9;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+body.theme-starters .achievement-tile {
+  border-color: #f9ca24;
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+/*
+ * Achievement-unlock toast (achievement-toast.component.*): ngb-toast renders
+ * its .toast-header/.toast-body with ViewEncapsulation.None, so they aren't
+ * part of AchievementToastComponent's own scoped template and its component
+ * CSS can't reliably reach them — same reasoning as the theme rules above.
+ * Bootstrap's default toast otherwise leaves color unset, so it inherited the
+ * page's near-white dark-theme text on a near-white toast background,
+ * making the achievement name/description unreadable.
+ */
+.achievement-toast-host .toast {
+  background-color: #2d3436;
+  border: 2px solid #f9ca24;
+}
+
+.achievement-toast-host .toast-header {
+  background-color: #1b2a4a;
+  color: #f9ca24;
+  border-bottom: 1px solid #f9ca24;
+}
+
+/* Bootstrap's default close-button glyph is dark and otherwise invisible against this dark header. */
+.achievement-toast-host .toast-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.achievement-toast-host .toast-body {
+  color: #fff;
+}
+
 .row {
   margin-left: 0px;
   margin-right: 0px;

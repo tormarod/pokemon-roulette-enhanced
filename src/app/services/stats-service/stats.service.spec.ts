@@ -203,6 +203,53 @@ describe('StatsService', () => {
     });
   });
 
+  describe('per-generation breakdown (V3 §4)', () => {
+    it('should fold species/type/nemesis into the *ByGen counters under the run\'s generation, alongside the lifetime ones', () => {
+      service.recordRunStart(3, 1);
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 25, type1: 'electric', type2: null }));
+      service.recordBattleLoss('gym', 'gym:Brock');
+      service.recordRunEnd(true, 7);
+
+      expect(service.current.speciesOwnedCountsByGen).toEqual({ 3: { 25: 1 } });
+      expect(service.current.typeCountsByGen).toEqual({ 3: { electric: 1 } });
+      expect(service.current.nemesisDefeatsByGen).toEqual({ 3: { 'gym:Brock': 1 } });
+      // Lifetime counters are still credited too, unchanged from before this feature.
+      expect(service.current.speciesOwnedCounts).toEqual({ 25: 1 });
+      expect(service.current.typeCounts).toEqual({ electric: 1 });
+      expect(service.current.nemesisDefeats).toEqual({ 'gym:Brock': 1 });
+    });
+
+    it('should keep separate generations\' *ByGen counters independent', () => {
+      service.recordRunStart(1, 1);
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, type1: 'grass', type2: null }));
+      service.recordRunEnd(true, 5);
+
+      service.recordRunStart(2, 4);
+      trainerService.resetTeam();
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 4, type1: 'fire', type2: null }));
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.speciesOwnedCountsByGen).toEqual({ 1: { 1: 1 }, 2: { 4: 1 } });
+      expect(service.current.typeCountsByGen).toEqual({ 1: { grass: 1 }, 2: { fire: 1 } });
+    });
+
+    it('should not touch nemesisDefeatsByGen for a rival loss (no opponentKey)', () => {
+      service.recordRunStart(1, 1);
+      service.recordBattleLoss('rival');
+      service.recordRunEnd(false, 3);
+
+      expect(service.current.nemesisDefeatsByGen).toEqual({});
+    });
+
+    it('should not attribute species/types to any generation when recordRunEnd fires without a preceding recordRunStart', () => {
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 1 }));
+      service.recordRunEnd(true, 5);
+
+      expect(service.current.speciesOwnedCountsByGen).toEqual({});
+      expect(service.current.typeCountsByGen).toEqual({});
+    });
+  });
+
   describe('recordRunEnd', () => {
     it('should fold species seen during the run into speciesOwnedCounts and team types into typeCounts', () => {
       service.recordRunStart(1, 1);
@@ -554,6 +601,42 @@ describe('StatsService', () => {
       expect(succeeded).toBeTrue();
       expect(service.current.runsPlayed).toBe(3);
       expect(service.current.victories).toBe(0);
+    });
+
+    it('should default the per-generation *ByGen fields to empty on a legacy blob predating V3', () => {
+      const succeeded = service.importStats(JSON.stringify({ version: 1, runsPlayed: 3 }));
+
+      expect(succeeded).toBeTrue();
+      expect(service.current.speciesOwnedCountsByGen).toEqual({});
+      expect(service.current.typeCountsByGen).toEqual({});
+      expect(service.current.nemesisDefeatsByGen).toEqual({});
+    });
+
+    it('should round-trip *ByGen fields through export/import', () => {
+      service.recordRunStart(3, 1);
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 25, type1: 'electric', type2: null }));
+      service.recordBattleLoss('gym', 'gym:Brock');
+      service.recordRunEnd(true, 7);
+
+      const exported = service.exportStats();
+      service.reset();
+
+      const succeeded = service.importStats(exported);
+
+      expect(succeeded).toBeTrue();
+      expect(service.current.speciesOwnedCountsByGen).toEqual({ 3: { 25: 1 } });
+      expect(service.current.typeCountsByGen).toEqual({ 3: { electric: 1 } });
+      expect(service.current.nemesisDefeatsByGen).toEqual({ 3: { 'gym:Brock': 1 } });
+    });
+
+    it('should fall back to an empty inner record for a malformed (non-object) *ByGen entry rather than crashing', () => {
+      const succeeded = service.importStats(JSON.stringify({
+        version: 1,
+        speciesOwnedCountsByGen: { 3: 'not-an-object' },
+      }));
+
+      expect(succeeded).toBeTrue();
+      expect(service.current.speciesOwnedCountsByGen).toEqual({ 3: {} });
     });
 
     it('should reject invalid JSON and leave current stats untouched', () => {

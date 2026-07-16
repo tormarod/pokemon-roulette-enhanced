@@ -201,6 +201,11 @@
       "defeat": "Defeat",
       "none": "No run history yet"
     },
+    "perGeneration": {
+      "title": "Per-Generation",
+      "none": "No runs yet in this generation",
+      "noBreakdownYet": "No Pokémon/type/nemesis breakdown yet for this generation — it starts tracking from your next run here."
+    },
     "achievements": {
       "title": "Achievements",
       "unlockedToastHeader": "Achievement Unlocked!",
@@ -222,12 +227,13 @@
       "text": "Check out my Pokémon Roulette stats!"
     },
     "export": {
-      "action": "Export Stats (JSON)"
+      "action": "Export Profile (JSON)"
     },
     "import": {
-      "action": "Import Stats (JSON)",
-      "success": "Stats imported successfully!",
-      "error": "That file couldn't be imported — check it's a valid stats export."
+      "action": "Import Profile (JSON)",
+      "success": "Profile imported successfully!",
+      "error": "That file couldn't be imported — check it's a valid profile export.",
+      "unsupportedVersion": "That profile was exported by a newer version of the app and can't be imported here."
     },
     "reset": {
       "action": "Reset Statistics",

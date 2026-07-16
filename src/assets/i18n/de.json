@@ -201,6 +201,11 @@
       "defeat": "Niederlage",
       "none": "Noch kein Spielverlauf"
     },
+    "perGeneration": {
+      "title": "Nach Generation",
+      "none": "Noch keine Durchgänge in dieser Generation",
+      "noBreakdownYet": "Noch keine Pokémon-/Typ-/Nemesis-Aufschlüsselung für diese Generation — die Erfassung beginnt mit deinem nächsten Durchgang hier."
+    },
     "achievements": {
       "title": "Erfolge",
       "unlockedToastHeader": "Erfolg freigeschaltet!",
@@ -222,12 +227,13 @@
       "text": "Schau dir meine Pokémon-Roulette-Statistiken an!"
     },
     "export": {
-      "action": "Statistiken exportieren (JSON)"
+      "action": "Profil exportieren (JSON)"
     },
     "import": {
-      "action": "Statistiken importieren (JSON)",
-      "success": "Statistiken erfolgreich importiert!",
-      "error": "Diese Datei konnte nicht importiert werden — stelle sicher, dass es sich um einen gültigen Statistik-Export handelt."
+      "action": "Profil importieren (JSON)",
+      "success": "Profil erfolgreich importiert!",
+      "error": "Diese Datei konnte nicht importiert werden — stelle sicher, dass es sich um einen gültigen Profil-Export handelt.",
+      "unsupportedVersion": "Dieses Profil wurde mit einer neueren App-Version exportiert und kann hier nicht importiert werden."
     },
     "reset": {
       "action": "Statistiken zurücksetzen",
