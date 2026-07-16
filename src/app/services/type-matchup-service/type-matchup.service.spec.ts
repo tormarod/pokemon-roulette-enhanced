@@ -165,4 +165,103 @@ describe('TypeMatchupService', () => {
     expect(disadvantageTypes).toContain('poison');
     expect(disadvantageTypes).toContain('electric');
   });
+
+  // ── getMemberTier: graded strong/neutral/weak/hard-countered buckets ───────
+
+  it('is "strong" for a plain offensive advantage with a safe defense', () => {
+    const water = makePokemon({ power: 4, type1: 'water' });
+    expect(service.getMemberTier(water, ['fire'])).toBe('strong'); // SE vs fire, and fire isn't SE vs water
+  });
+
+  it('is "weak" for a plain unresisted defensive disadvantage with no offensive answer', () => {
+    const grass = makePokemon({ power: 4, type1: 'grass' });
+    expect(service.getMemberTier(grass, ['fire'])).toBe('weak'); // fire is SE vs grass, grass isn't SE vs fire
+  });
+
+  it('is "neutral" when offense and defense cancel (existing cancel behavior)', () => {
+    const bug = makePokemon({ power: 5, type1: 'bug' });
+    expect(service.getMemberTier(bug, ['grass', 'fire'])).toBe('neutral'); // SE vs grass, weak vs fire
+  });
+
+  it('is "hard-countered" when both of a dual-typed member\'s types are hit by the same opponent type', () => {
+    const iceFlying = makePokemon({ power: 4, type1: 'ice', type2: 'flying' });
+    expect(service.getMemberTier(iceFlying, ['rock'])).toBe('hard-countered'); // rock is SE vs both ice and flying
+  });
+
+  it('is "hard-countered" when a member is unresistedly weak to two distinct opponent types', () => {
+    const grass = makePokemon({ power: 4, type1: 'grass' });
+    expect(service.getMemberTier(grass, ['fire', 'ice'])).toBe('hard-countered'); // both fire and ice are SE vs grass
+  });
+
+  it('is "strong" for an immune member even without an offensive answer (defensive wall)', () => {
+    const flying = makePokemon({ power: 4, type1: 'flying' });
+    expect(service.getMemberTier(flying, ['ground'])).toBe('strong'); // flying is immune to ground, not offensively SE vs it
+  });
+
+  it('immunity dominates even when the opponent has other types', () => {
+    const flying = makePokemon({ power: 4, type1: 'flying' });
+    expect(service.getMemberTier(flying, ['ground', 'rock'])).toBe('strong'); // rock is SE vs flying, but immunity wins
+  });
+
+  it('double-typing can cancel a weakness via a resist, landing at "neutral" instead of "weak" (coverage, not just cancellation)', () => {
+    const dragonWater = makePokemon({ power: 4, type1: 'dragon', type2: 'water' });
+    expect(service.getMemberTier(dragonWater, ['ice'])).toBe('neutral'); // dragon is weak vs ice, water resists ice — net cancels
+  });
+
+  it('is "neutral" for empty opponent types', () => {
+    const water = makePokemon({ power: 4, type1: 'water' });
+    expect(service.getMemberTier(water, [])).toBe('neutral');
+  });
+
+  // ── getTierDeltaMagnitude: power-based; hard-countered is double the weak unit ──
+
+  it('matches the plain power-based delta for "strong"', () => {
+    const mon = makePokemon({ power: 8 });
+    expect(service.getTierDeltaMagnitude(mon, 'strong')).toBe(service.getMemberDelta(mon));
+  });
+
+  it('matches the plain power-based delta for "weak"', () => {
+    const mon = makePokemon({ power: 4 });
+    expect(service.getTierDeltaMagnitude(mon, 'weak')).toBe(service.getMemberDelta(mon));
+  });
+
+  it('is double the plain weak delta for "hard-countered"', () => {
+    const mon = makePokemon({ power: 4 });
+    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(service.getMemberDelta(mon) * 2);
+  });
+
+  it('keeps scaling the "hard-countered" magnitude with power — uncapped, always above "weak"', () => {
+    const mon = makePokemon({ power: 8 }); // weak delta 4, hard-countered 8 — no plateau, no cap
+    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(8);
+    expect(service.getTierDeltaMagnitude(mon, 'hard-countered'))
+      .toBeGreaterThan(service.getTierDeltaMagnitude(mon, 'weak'));
+  });
+
+  it('makes hard-countered strictly harsher than weak even at the lowest power', () => {
+    const mon = makePokemon({ power: 1 }); // weak delta 1, hard-countered 2
+    expect(service.getTierDeltaMagnitude(mon, 'weak')).toBe(1);
+    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(2);
+    expect(service.getTierDeltaMagnitude(mon, 'hard-countered'))
+      .toBeGreaterThan(service.getTierDeltaMagnitude(mon, 'weak'));
+  });
+
+  // ── end-to-end: a hard-countered member routes double the red, keeps its green ──
+
+  it('routes double the weak penalty to noBonus for a hard-countered member, green stays at full power', () => {
+    // grass is weak to BOTH fire and ice (two distinct SE opponent types) → hard-countered
+    const team = [makePokemon({ power: 4, type1: 'grass' })];
+    const totals = service.calcTeamMatchupTotals(team, ['fire', 'ice']);
+    expect(totals.yesPower).toBe(4);          // full power kept in the Yes pool — bulk still shows
+    expect(totals.noBonus).toBe(4);           // 2 * ceil(4/2) — double a plain weakness
+    expect(totals.disadvantageDelta).toBe(4);
+    expect(totals.advantageDelta).toBe(0);
+  });
+
+  it('a hard-countered member always costs more No than the same member merely weak', () => {
+    const grass = makePokemon({ power: 6, type1: 'grass' });
+    const weak = service.calcTeamMatchupTotals([grass], ['fire']);          // weak vs fire only
+    const hardCountered = service.calcTeamMatchupTotals([grass], ['fire', 'ice']); // weak vs both
+    expect(hardCountered.noBonus).toBeGreaterThan(weak.noBonus);
+    expect(hardCountered.yesPower).toBe(weak.yesPower); // same green either way
+  });
 });
