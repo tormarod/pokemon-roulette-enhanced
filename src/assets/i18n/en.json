@@ -3013,5 +3013,21 @@
     "dragon": "Dragon",
     "dark": "Dark",
     "fairy": "Fairy"
+  },
+  "v2_1_0": "Version 2.1.0",
+  "whatsNew": {
+    "title": "What's New",
+    "dismiss": "Got it",
+    "settingsEntry": "What's New",
+    "v2_1_0": {
+      "0": "⚔️ Reworked battle matchups — now graded and rewarding defensive resistances, not just offense.",
+      "1": "📊 New Statistics page: wins, streaks, most-owned & signature Pokémon, your nemesis, and luck tracking.",
+      "2": "📈 Run history with win-rate trends, achievements, and per-generation stats.",
+      "3": "💾 Export/import your full profile, or share a stats card image.",
+      "4": "🔍 Full Pokédex with name search, plus power/type tooltips on your Pokémon.",
+      "5": "👀 Opponent preview shows the next gym or Elite Four type while you build your team.",
+      "6": "🎯 Type-bias items to steer your next catch, direct-pick trades, and smarter Team Rocket steals.",
+      "7": "💿 Runs auto-save across reloads, plus new settings: volume, Fast Spin, restart, and a 'Go Straight' button."
+    }
   }
 }

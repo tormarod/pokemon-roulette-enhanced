@@ -151,6 +151,11 @@
                         <app-language-selector></app-language-selector>
                     </div>
                     <div class="col-12">
+                        <button class="btn btn-outline-secondary w-100" (click)="openWhatsNew()">
+                            {{ 'whatsNew.settingsEntry' | translate }}
+                        </button>
+                    </div>
+                    <div class="col-12">
                         <app-restart-game-button (restartEvent)="onRestartGame()"></app-restart-game-button>
                     </div>
                 </div>

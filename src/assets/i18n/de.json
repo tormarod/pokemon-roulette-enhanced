@@ -3013,5 +3013,21 @@
     "dragon": "Drache",
     "dark": "Unlicht",
     "fairy": "Fee"
+  },
+  "v2_1_0": "Version 2.1.0",
+  "whatsNew": {
+    "title": "Neue Inhalte",
+    "dismiss": "Verstanden",
+    "settingsEntry": "Neue Inhalte",
+    "v2_1_0": {
+      "0": "⚔️ Typ-Matchups überarbeitet — jetzt abgestuft und belohnen defensive Resistenzen, nicht nur Offensive.",
+      "1": "📊 Neue Statistik-Seite: Siege, Siegesserien, meistgenutztes & Signatur-Pokémon, dein Angstgegner und Glück-Tracking.",
+      "2": "📈 Laufverlauf mit Gewinnraten-Trend, Erfolge und Statistiken pro Generation.",
+      "3": "💾 Exportiere/importiere dein ganzes Profil oder teile ein Statistik-Bild.",
+      "4": "🔍 Vollständiger Pokédex mit Namenssuche und Power/Typ-Tooltips auf deinen Pokémon.",
+      "5": "👀 Gegnervorschau zeigt den Typ des nächsten Arenaleiters oder Elite-Four-Mitglieds beim Team-Aufbau.",
+      "6": "🎯 Typ-Bias-Items um deinen nächsten Fang zu beeinflussen, direkte Trades und klügere Team-Rocket-Diebstähle.",
+      "7": "💿 Läufe speichern sich automatisch, plus neue Einstellungen: Lautstärke, Schnell-Dreh, Neustart und 'Go Straight'-Button."
+    }
   }
 }

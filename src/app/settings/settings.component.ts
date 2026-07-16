@@ -12,6 +12,7 @@ import { SettingsService, GameSettings } from '../services/settings-service/sett
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
+import { WhatsNewService } from '../services/whats-new-service/whats-new.service';
 
 @Component({
   selector: 'app-settings',
@@ -38,6 +39,7 @@ export class SettingsComponent implements OnInit {
     private gameStateService: GameStateService,
     private runPersistenceService: RunPersistenceService,
     private router: Router,
+    private whatsNew: WhatsNewService,
   ) {}
 
   ngOnInit(): void {
@@ -80,6 +82,10 @@ export class SettingsComponent implements OnInit {
     this.gameStateService.resetGameState();
     this.runPersistenceService.clearRun();
     this.router.navigate(['']);
+  }
+
+  openWhatsNew(): void {
+    this.whatsNew.showWhatsNew();
   }
 
 }
