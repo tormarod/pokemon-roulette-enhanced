@@ -127,12 +127,74 @@
       "by": "Aprimorado por"
     }
   },
+  "stats": {
+    "title": "Estatísticas",
+    "empty": "Jogue uma partida para ver suas estatísticas!",
+    "lifetime": {
+      "title": "Totais Gerais",
+      "runsPlayed": "Partidas Jogadas",
+      "victories": "Vitórias",
+      "defeats": "Derrotas",
+      "winRate": "Taxa de Vitórias",
+      "currentStreak": "Sequência Atual",
+      "bestWinStreak": "Melhor Sequência de Vitórias",
+      "gymLeadersDefeated": "Líderes de Ginásio Derrotados",
+      "eliteFourDefeated": "Elite Four Derrotada",
+      "championsDefeated": "Campeões Derrotados",
+      "pokemonCaught": "Pokémon Capturados",
+      "shiniesCaught": "Shinies Capturados"
+    },
+    "streak": {
+      "none": "Nenhuma sequência ainda",
+      "win": "{{count}} vitórias seguidas",
+      "loss": "{{count}} derrotas seguidas"
+    },
+    "records": {
+      "title": "Recordes",
+      "fastestVictory": "Vitória Mais Rápida",
+      "longestRun": "Partida Mais Longa",
+      "favoriteGeneration": "Geração Favorita",
+      "rounds": "{{count}} rodadas",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon Mais Possuídos",
+      "mostChosenStarter": "Inicial Mais Escolhido",
+      "signaturePokemon": "Pokémon Símbolo",
+      "favoriteTypes": "Tipos Favoritos",
+      "none": "Nenhum ainda"
+    },
+    "battles": {
+      "title": "Batalhas",
+      "nemesis": "Nêmesis",
+      "nemesisNone": "Você ainda não perdeu uma partida!",
+      "winRateByType": "Taxa de Vitórias por Tipo de Batalha",
+      "championHeartbreakRate": "Partidas Encerradas pelo Campeão"
+    },
+    "battleType": {
+      "gym": "Líderes de Ginásio",
+      "rival": "Rival",
+      "eliteFour": "Elite Four",
+      "champion": "Campeão"
+    },
+    "reset": {
+      "action": "Redefinir Estatísticas",
+      "title": "Redefinir Estatísticas?",
+      "warning": "Isso apagará permanentemente todas as suas estatísticas gerais. Sua partida atual e sua Pokédex não serão afetadas. Esta ação não pode ser desfeita.",
+      "confirm": "Redefinir",
+      "cancel": "Cancelar"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "Compra um café?"
     },
     "creditsButton": {
       "label": "Créditos"
+    },
+    "statsButton": {
+      "label": "Estatísticas"
     },
     "end": {
       "champion": "Campeão de",

@@ -127,12 +127,74 @@
       "by": "Erweitert von"
     }
   },
+  "stats": {
+    "title": "Statistiken",
+    "empty": "Spiele eine Runde, um deine Statistiken zu sehen!",
+    "lifetime": {
+      "title": "Gesamtwerte",
+      "runsPlayed": "Gespielte Runden",
+      "victories": "Siege",
+      "defeats": "Niederlagen",
+      "winRate": "Siegquote",
+      "currentStreak": "Aktuelle Serie",
+      "bestWinStreak": "Beste Siegesserie",
+      "gymLeadersDefeated": "Besiegte Arenaleiter",
+      "eliteFourDefeated": "Besiegte Top Vier",
+      "championsDefeated": "Besiegte Champions",
+      "pokemonCaught": "Gefangene Pokémon",
+      "shiniesCaught": "Gefangene Shinys"
+    },
+    "streak": {
+      "none": "Noch keine Serie",
+      "win": "{{count}} Siege in Folge",
+      "loss": "{{count}} Niederlagen in Folge"
+    },
+    "records": {
+      "title": "Rekorde",
+      "fastestVictory": "Schnellster Sieg",
+      "longestRun": "Längste Runde",
+      "favoriteGeneration": "Lieblingsgeneration",
+      "rounds": "{{count}} Runden",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Meistbesessene Pokémon",
+      "mostChosenStarter": "Meistgewählter Starter",
+      "signaturePokemon": "Signatur-Pokémon",
+      "favoriteTypes": "Lieblingstypen",
+      "none": "Noch keine"
+    },
+    "battles": {
+      "title": "Kämpfe",
+      "nemesis": "Erzfeind",
+      "nemesisNone": "Du hast noch keine Runde verloren!",
+      "winRateByType": "Siegquote nach Kampftyp",
+      "championHeartbreakRate": "Runden, die am Champion endeten"
+    },
+    "battleType": {
+      "gym": "Arenaleiter",
+      "rival": "Rivale",
+      "eliteFour": "Top Vier",
+      "champion": "Champion"
+    },
+    "reset": {
+      "action": "Statistiken zurücksetzen",
+      "title": "Statistiken zurücksetzen?",
+      "warning": "Dadurch werden alle deine Lebenszeit-Statistiken dauerhaft gelöscht. Deine aktuelle Runde und dein Pokédex sind davon nicht betroffen. Dies kann nicht rückgängig gemacht werden.",
+      "confirm": "Zurücksetzen",
+      "cancel": "Abbrechen"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "Du möchtest mir einen Kaffee ausgeben? "
     },
     "creditsButton": {
       "label": "Credits"
+    },
+    "statsButton": {
+      "label": "Statistiken"
     },
     "end": {
       "champion": "Champ von",

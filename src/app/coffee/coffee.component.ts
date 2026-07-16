@@ -4,6 +4,7 @@ import { MainGameButtonComponent } from "../main-game-button/main-game-button.co
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CreditsButtonComponent } from "../main-game/credits-button/credits-button.component";
+import { StatsButtonComponent } from "../main-game/stats-button/stats-button.component";
 
 @Component({
   selector: 'app-coffee',
@@ -12,7 +13,8 @@ import { CreditsButtonComponent } from "../main-game/credits-button/credits-butt
     NgIconsModule,
     MainGameButtonComponent,
     TranslatePipe,
-    CreditsButtonComponent
+    CreditsButtonComponent,
+    StatsButtonComponent
 ],
   templateUrl: './coffee.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

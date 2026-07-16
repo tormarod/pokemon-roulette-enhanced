@@ -127,12 +127,74 @@
       "by": "Enhanced by"
     }
   },
+  "stats": {
+    "title": "Statistics",
+    "empty": "Play a run to see your stats!",
+    "lifetime": {
+      "title": "Lifetime Totals",
+      "runsPlayed": "Runs Played",
+      "victories": "Victories",
+      "defeats": "Defeats",
+      "winRate": "Win Rate",
+      "currentStreak": "Current Streak",
+      "bestWinStreak": "Best Win Streak",
+      "gymLeadersDefeated": "Gym Leaders Defeated",
+      "eliteFourDefeated": "Elite Four Defeated",
+      "championsDefeated": "Champions Defeated",
+      "pokemonCaught": "Pokémon Caught",
+      "shiniesCaught": "Shinies Caught"
+    },
+    "streak": {
+      "none": "No streak yet",
+      "win": "{{count}} win streak",
+      "loss": "{{count}} loss streak"
+    },
+    "records": {
+      "title": "Records",
+      "fastestVictory": "Fastest Victory",
+      "longestRun": "Longest Run",
+      "favoriteGeneration": "Favorite Generation",
+      "rounds": "{{count}} rounds",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Most-Owned Pokémon",
+      "mostChosenStarter": "Most-Chosen Starter",
+      "signaturePokemon": "Signature Pokémon",
+      "favoriteTypes": "Favorite Types",
+      "none": "None yet"
+    },
+    "battles": {
+      "title": "Battles",
+      "nemesis": "Nemesis",
+      "nemesisNone": "You haven't lost a run yet!",
+      "winRateByType": "Win Rate by Battle Type",
+      "championHeartbreakRate": "Runs Ended by the Champion"
+    },
+    "battleType": {
+      "gym": "Gym Leaders",
+      "rival": "Rival",
+      "eliteFour": "Elite Four",
+      "champion": "Champion"
+    },
+    "reset": {
+      "action": "Reset Statistics",
+      "title": "Reset Statistics?",
+      "warning": "This will permanently erase all your lifetime statistics. Your current run and Pokédex are not affected. This cannot be undone.",
+      "confirm": "Reset",
+      "cancel": "Cancel"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "Buy me a Coffee? "
     },
     "creditsButton": {
       "label": "Credits"
+    },
+    "statsButton": {
+      "label": "Stats"
     },
     "end": {
       "champion": "Champion of",

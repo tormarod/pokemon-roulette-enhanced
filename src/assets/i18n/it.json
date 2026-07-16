@@ -127,12 +127,74 @@
       "by": "Migliorato da"
     }
   },
+  "stats": {
+    "title": "Statistiche",
+    "empty": "Gioca una partita per vedere le tue statistiche!",
+    "lifetime": {
+      "title": "Totali di sempre",
+      "runsPlayed": "Partite giocate",
+      "victories": "Vittorie",
+      "defeats": "Sconfitte",
+      "winRate": "Percentuale di vittorie",
+      "currentStreak": "Serie attuale",
+      "bestWinStreak": "Migliore serie di vittorie",
+      "gymLeadersDefeated": "Capipalestra sconfitti",
+      "eliteFourDefeated": "Membri della Lega sconfitti",
+      "championsDefeated": "Campioni sconfitti",
+      "pokemonCaught": "Pokémon catturati",
+      "shiniesCaught": "Shiny catturati"
+    },
+    "streak": {
+      "none": "Nessuna serie ancora",
+      "win": "{{count}} vittorie di fila",
+      "loss": "{{count}} sconfitte di fila"
+    },
+    "records": {
+      "title": "Record",
+      "fastestVictory": "Vittoria più veloce",
+      "longestRun": "Partita più lunga",
+      "favoriteGeneration": "Generazione preferita",
+      "rounds": "{{count}} round",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon più posseduti",
+      "mostChosenStarter": "Starter più scelto",
+      "signaturePokemon": "Pokémon simbolo",
+      "favoriteTypes": "Tipi preferiti",
+      "none": "Ancora nessuno"
+    },
+    "battles": {
+      "title": "Battaglie",
+      "nemesis": "Nemesi",
+      "nemesisNone": "Non hai ancora perso una partita!",
+      "winRateByType": "Percentuale di vittorie per tipo di battaglia",
+      "championHeartbreakRate": "Partite terminate dal Campione"
+    },
+    "battleType": {
+      "gym": "Capipalestra",
+      "rival": "Rivale",
+      "eliteFour": "Membri della Lega",
+      "champion": "Campione"
+    },
+    "reset": {
+      "action": "Reimposta statistiche",
+      "title": "Reimpostare le statistiche?",
+      "warning": "Questo cancellerà definitivamente tutte le tue statistiche di sempre. La partita attuale e il Pokédex non saranno interessati. Questa azione non può essere annullata.",
+      "confirm": "Reimposta",
+      "cancel": "Annulla"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "Comprami un caffè? "
     },
     "creditsButton": {
       "label": "Crediti"
+    },
+    "statsButton": {
+      "label": "Statistiche"
     },
     "end": {
       "champion": "Campione di",

@@ -127,12 +127,74 @@
       "by": "Amélioré par"
     }
   },
+  "stats": {
+    "title": "Statistiques",
+    "empty": "Jouez une partie pour voir vos statistiques !",
+    "lifetime": {
+      "title": "Totaux à vie",
+      "runsPlayed": "Parties jouées",
+      "victories": "Victoires",
+      "defeats": "Défaites",
+      "winRate": "Taux de victoire",
+      "currentStreak": "Série actuelle",
+      "bestWinStreak": "Meilleure série de victoires",
+      "gymLeadersDefeated": "Champions d'arène vaincus",
+      "eliteFourDefeated": "Conseil des 4 vaincu",
+      "championsDefeated": "Champions vaincus",
+      "pokemonCaught": "Pokémon capturés",
+      "shiniesCaught": "Chromatiques capturés"
+    },
+    "streak": {
+      "none": "Pas encore de série",
+      "win": "{{count}} victoires d'affilée",
+      "loss": "{{count}} défaites d'affilée"
+    },
+    "records": {
+      "title": "Records",
+      "fastestVictory": "Victoire la plus rapide",
+      "longestRun": "Partie la plus longue",
+      "favoriteGeneration": "Génération préférée",
+      "rounds": "{{count}} manches",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon les plus possédés",
+      "mostChosenStarter": "Starter le plus choisi",
+      "signaturePokemon": "Pokémon fétiche",
+      "favoriteTypes": "Types préférés",
+      "none": "Aucun pour l'instant"
+    },
+    "battles": {
+      "title": "Combats",
+      "nemesis": "Némésis",
+      "nemesisNone": "Vous n'avez encore perdu aucune partie !",
+      "winRateByType": "Taux de victoire par type de combat",
+      "championHeartbreakRate": "Parties terminées par le Champion"
+    },
+    "battleType": {
+      "gym": "Champions d'arène",
+      "rival": "Rival",
+      "eliteFour": "Conseil des 4",
+      "champion": "Champion"
+    },
+    "reset": {
+      "action": "Réinitialiser les statistiques",
+      "title": "Réinitialiser les statistiques ?",
+      "warning": "Cela effacera définitivement toutes vos statistiques à vie. Votre partie en cours et votre Pokédex ne seront pas affectés. Cette action est irréversible.",
+      "confirm": "Réinitialiser",
+      "cancel": "Annuler"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "M'offrir un café?"
     },
     "creditsButton": {
       "label": "Crédits"
+    },
+    "statsButton": {
+      "label": "Statistiques"
     },
     "end": {
       "champion": "Champion de",

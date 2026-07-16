@@ -127,12 +127,74 @@
       "by": "Mejorado por"
     }
   },
+  "stats": {
+    "title": "Estadísticas",
+    "empty": "¡Juega una partida para ver tus estadísticas!",
+    "lifetime": {
+      "title": "Totales de por vida",
+      "runsPlayed": "Partidas jugadas",
+      "victories": "Victorias",
+      "defeats": "Derrotas",
+      "winRate": "Tasa de victorias",
+      "currentStreak": "Racha actual",
+      "bestWinStreak": "Mejor racha de victorias",
+      "gymLeadersDefeated": "Líderes de gimnasio derrotados",
+      "eliteFourDefeated": "Alto Mando derrotado",
+      "championsDefeated": "Campeones derrotados",
+      "pokemonCaught": "Pokémon capturados",
+      "shiniesCaught": "Shinies capturados"
+    },
+    "streak": {
+      "none": "Sin racha todavía",
+      "win": "{{count}} victorias seguidas",
+      "loss": "{{count}} derrotas seguidas"
+    },
+    "records": {
+      "title": "Récords",
+      "fastestVictory": "Victoria más rápida",
+      "longestRun": "Partida más larga",
+      "favoriteGeneration": "Generación favorita",
+      "rounds": "{{count}} rondas",
+      "none": "—"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon más poseídos",
+      "mostChosenStarter": "Inicial más elegido",
+      "signaturePokemon": "Pokémon insignia",
+      "favoriteTypes": "Tipos favoritos",
+      "none": "Ninguno todavía"
+    },
+    "battles": {
+      "title": "Combates",
+      "nemesis": "Némesis",
+      "nemesisNone": "¡Aún no has perdido ninguna partida!",
+      "winRateByType": "Tasa de victorias por tipo de combate",
+      "championHeartbreakRate": "Partidas terminadas por el Campeón"
+    },
+    "battleType": {
+      "gym": "Líderes de gimnasio",
+      "rival": "Rival",
+      "eliteFour": "Alto Mando",
+      "champion": "Campeón"
+    },
+    "reset": {
+      "action": "Restablecer estadísticas",
+      "title": "¿Restablecer estadísticas?",
+      "warning": "Esto borrará permanentemente todas tus estadísticas de por vida. Tu partida actual y tu Pokédex no se verán afectadas. Esta acción no se puede deshacer.",
+      "confirm": "Restablecer",
+      "cancel": "Cancelar"
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "¿Me invitas a un café?"
     },
     "creditsButton": {
       "label": "Créditos"
+    },
+    "statsButton": {
+      "label": "Estadísticas"
     },
     "end": {
       "champion": "Campeón de",

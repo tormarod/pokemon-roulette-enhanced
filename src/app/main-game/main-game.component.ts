@@ -10,6 +10,7 @@ import { RestartGameButtonComponent } from "../restart-game-button/restart-game-
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { AnalyticsService } from '../services/analytics-service/analytics.service';
 import { CoffeeButtonComponent } from "./coffee-button/coffee-button.component";
+import { StatsButtonComponent } from "./stats-button/stats-button.component";
 import { NgIconsModule } from '@ng-icons/core';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
@@ -35,6 +36,7 @@ import { LinkCableService } from '../services/link-cable-service/link-cable.serv
     ItemsComponent,
     RestartGameButtonComponent,
     CoffeeButtonComponent,
+    StatsButtonComponent,
     NgIconsModule,
     NgbCollapseModule,
     LanguageSelectorComponent,

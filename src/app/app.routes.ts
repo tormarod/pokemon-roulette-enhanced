@@ -5,6 +5,7 @@ export const routes: Routes = [
     { path: '', component: MainGameComponent },
     { path: 'credits', loadComponent: () => import('./credits/credits.component').then(m => m.CreditsComponent) },
     { path: 'coffee', loadComponent: () => import('./coffee/coffee.component').then(m => m.CoffeeComponent) },
+    { path: 'stats', loadComponent: () => import('./stats/stats.component').then(m => m.StatsComponent) },
     { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) },
     { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) },
 ];
