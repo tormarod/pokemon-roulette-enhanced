@@ -27,10 +27,9 @@ export class AppComponent {
     // renders its first screen.
     _runPersistence: RunPersistenceService,
   ) {
-    const savedLanguage = localStorage.getItem('language') || 'en';
-    this.translate.addLangs(['en', 'es', 'fr', 'de', 'it', 'pt']);
-    this.translate.setDefaultLang('en');
-    this.translate.use(savedLanguage);
+    // Language setup (addLangs/setDefaultLang/use the saved language) now
+    // happens in app.config.ts's provideAppInitializer, so it's awaited
+    // before the app renders instead of firing from here as fire-and-forget.
 
     if (environment.production && environment.googleAnalyticsId) {
       this.loadGoogleAnalytics(environment.googleAnalyticsId);
