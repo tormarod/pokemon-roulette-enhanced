@@ -293,4 +293,69 @@ describe('PokedexService', () => {
       done();
     }, 0);
   });
+
+  // ── Shiny-family consistency pipeline tests ────────────────────────────────
+
+  // PIPELINE-01: Write-path reveals the whole family
+  it('should reveal whole evolution family when markSeen is called with shiny=true — PIPELINE-01', () => {
+    service.markSeen(6, true);
+
+    expect(service.currentPokedex.caught['4'].shiny).toBeTrue();
+    expect(service.currentPokedex.caught['5'].shiny).toBeTrue();
+    expect(service.currentPokedex.caught['6'].shiny).toBeTrue();
+  });
+
+  // PIPELINE-02: Non-shiny write does not propagate
+  it('should not propagate when markSeen is called with shiny=false — PIPELINE-02', () => {
+    service.markSeen(6, false);
+
+    expect(service.currentPokedex.caught['6']).toBeTruthy();
+    expect(service.currentPokedex.caught['6'].shiny).toBeUndefined();
+    expect(service.currentPokedex.caught['4']).toBeUndefined();
+    expect(service.currentPokedex.caught['5']).toBeUndefined();
+  });
+
+  // PIPELINE-03: Load enforcement flags existing family only
+  it('should flag existing family only on load, not create new entries — PIPELINE-03', () => {
+    const saved: PokedexData = {
+      version: 1,
+      caught: {
+        '6': { won: false, sprite: 'https://example.com/6.png', shiny: true },
+        '4': { won: false, sprite: 'https://example.com/4.png' },
+      },
+    };
+
+    localStorage.setItem('pokemon-roulette-pokedex', JSON.stringify(saved));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const newService = TestBed.inject(PokedexService);
+
+    expect(newService.currentPokedex.caught['4'].shiny).toBeTrue();
+    expect(newService.currentPokedex.caught['5']).toBeUndefined();
+    expect(newService.currentPokedex.caught['6'].shiny).toBeTrue();
+  });
+
+  // PIPELINE-04: Import enforcement
+  it('should enforce consistency on replacePokedex — PIPELINE-04', () => {
+    service.replacePokedex({
+      version: 1,
+      caught: {
+        '6': { won: false, sprite: null, shiny: true },
+        '4': { won: false, sprite: null },
+      },
+    });
+
+    expect(service.currentPokedex.caught['4'].shiny).toBeTrue();
+    expect(service.currentPokedex.caught['5']).toBeUndefined();
+    expect(service.currentPokedex.caught['6'].shiny).toBeTrue();
+  });
+
+  // PIPELINE-05: Unrelated family untouched
+  it('should not affect unrelated evolution families — PIPELINE-05', () => {
+    service.markSeen(6, true);
+
+    expect(service.currentPokedex.caught['1']).toBeUndefined();
+    expect(service.currentPokedex.caught['2']).toBeUndefined();
+    expect(service.currentPokedex.caught['3']).toBeUndefined();
+  });
 });

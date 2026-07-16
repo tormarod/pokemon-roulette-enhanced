@@ -1,8 +1,9 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
 import { WheelItem } from '../interfaces/wheel-item';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -51,6 +52,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
 
   private translatedItems: WheelItem[] = [];
   private readonly mobileBreakpoint = 768;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private darkModeService: DarkModeService,
@@ -78,7 +80,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     this.pointerCtx = this.pointerCanvas.getContext('2d')!;
 
     // Wait for translations to be ready
-    this.translateService.get('wheel.spin').subscribe(() => {
+    this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.preprocessTranslations();
       this.drawWheel();
       this.drawPointer();
@@ -121,7 +123,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] && !changes['items'].firstChange) {
-      this.translateService.get('wheel.spin').subscribe(() => {
+      this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.preprocessTranslations();
         this.drawWheel();
         this.drawPointer();

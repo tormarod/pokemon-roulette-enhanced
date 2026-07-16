@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, DestroyRef, inject } from '@angular/core';
 import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BattleTypeCounts, createDefaultPlayerStats, normalizePlayerStats, PlayerStats, RUN_HISTORY_CAP, RunLogEntry } from '../../interfaces/player-stats';
 import { Achievement } from '../../interfaces/achievement';
 import { PokemonItem } from '../../interfaces/pokemon-item';
@@ -28,6 +29,7 @@ export class StatsService {
   private readonly STATS_STORAGE_KEY = 'pokemon-roulette-stats';
 
   private readonly statsSubject: BehaviorSubject<PlayerStats>;
+  private destroyRef = inject(DestroyRef);
 
   /**
    * Species (team + storage) seen at any point during the run in progress —
@@ -57,7 +59,7 @@ export class StatsService {
   constructor(private trainerService: TrainerService) {
     this.statsSubject = new BehaviorSubject<PlayerStats>(this.loadStats());
 
-    this.trainerService.getTeamObservable().subscribe(() => {
+    this.trainerService.getTeamObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       for (const pokemon of this.trainerService.getTeam()) {
         this.currentRunSpeciesSeen.add(pokemon.pokemonId);
       }
