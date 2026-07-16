@@ -1,4 +1,4 @@
-import { Component, Renderer2, ChangeDetectionStrategy, afterNextRender } from '@angular/core';
+import { Component, Renderer2, ChangeDetectionStrategy, afterNextRender, inject, ViewContainerRef } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { environment } from '../environments/environment';
@@ -17,6 +17,7 @@ import { WhatsNewService } from './services/whats-new-service/whats-new.service'
 })
 export class AppComponent {
   title = 'pokemon-roulette';
+  private vcr = inject(ViewContainerRef);
 
   constructor(
     private translate: TranslateService,
@@ -35,6 +36,12 @@ export class AppComponent {
 
     if (environment.production && environment.googleAnalyticsId) {
       this.loadGoogleAnalytics(environment.googleAnalyticsId);
+    }
+
+    if (!environment.production) {
+      import('./dev/dev-panel.component').then(({ DevPanelComponent }) => {
+        this.vcr.createComponent(DevPanelComponent);
+      });
     }
 
     afterNextRender(() => this.whatsNew.maybeShowOnStartup());
