@@ -14,11 +14,16 @@ import { NgIconsModule } from '@ng-icons/core';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
+import { PendingTypeBiases, TypeBiasEntry } from '../services/trainer-service/trainer.service';
+import { getTypeIconUrl } from '../interfaces/pokemon-type';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { RouletteContainerComponent } from './roulette-container/roulette-container.component';
 import { SettingsButtonComponent } from '../settings-button/settings-button.component';
 import { RareCandyService } from '../services/rare-candy-service/rare-candy.service';
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
+import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
+import { LinkCableService } from '../services/link-cable-service/link-cable.service';
 
 @Component({
   selector: 'app-main-game',
@@ -32,7 +37,8 @@ import { MegaStoneService } from '../services/mega-stone-service/mega-stone.serv
     CoffeeButtonComponent,
     NgIconsModule,
     NgbCollapseModule,
-    LanguageSelectorComponent
+    LanguageSelectorComponent,
+    TranslatePipe
   ],
   templateUrl: './main-game.component.html',
   styleUrl: './main-game.component.css'
@@ -47,12 +53,16 @@ export class MainGameComponent implements OnInit {
     private modalService: NgbModal,
     private analyticsService: AnalyticsService,
     private rareCandyService: RareCandyService,
-    private megaStoneService: MegaStoneService) {
+    private megaStoneService: MegaStoneService,
+    private typeBiasItemService: TypeBiasItemService,
+    private linkCableService: LinkCableService) {
       this.darkMode = this.themeService.isDark$;
   }
 
   private destroyRef = inject(DestroyRef);
   wheelSpinning: boolean = false;
+  pendingTypeBiases: PendingTypeBiases = { toward: null, away: null };
+  itemsAvailable: boolean = false;
 
   ngOnInit(): void {
     this.analyticsService.trackEvent('main-game-loaded', 'Main Game Loaded', 'user acess');
@@ -60,6 +70,30 @@ export class MainGameComponent implements OnInit {
     this.gameStateService.wheelSpinningObserver.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
       this.wheelSpinning = state;
     });
+
+    this.trainerService.getPendingTypeBiasesObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(biases => {
+      this.pendingTypeBiases = biases;
+    });
+
+    // 'start-adventure' is pushed exactly once, at run setup, and never re-pushed — so as
+    // long as it's still sitting unpopped in the stack, the player hasn't reached the
+    // adventure yet. This (rather than a fixed set of state names) is what correctly tells
+    // apart the one-time pre-adventure "check-shininess" (right after picking a starter)
+    // from every other "check-shininess" triggered by a catch later in the run — the state
+    // name alone is reused throughout the game and can't disambiguate the two.
+    this.gameStateService.currentState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.itemsAvailable = !this.gameStateService.getStateStack().includes('start-adventure');
+    });
+  }
+
+  getBiasTypeIconUrl(entry: TypeBiasEntry): string {
+    return getTypeIconUrl(entry.type);
+  }
+
+  getBiasLabelKey(entry: TypeBiasEntry, direction: 'toward' | 'away'): string {
+    const modeKey = entry.mode === 'hard' ? 'hard' : 'soft';
+    const directionKey = direction === 'toward' ? 'Toward' : 'Away';
+    return `game.main.activeBias.${modeKey}${directionKey}`;
   }
   
   darkMode!: Observable<boolean>;
@@ -71,7 +105,7 @@ export class MainGameComponent implements OnInit {
   }
 
   rareCandyInterrupt(rareCandy: ItemItem): void {
-    if(this.wheelSpinning){
+    if(this.wheelSpinning || !this.itemsAvailable){
       return;
     }
 
@@ -79,11 +113,27 @@ export class MainGameComponent implements OnInit {
   }
 
   megaStoneInterrupt(megaStone: ItemItem): void {
-    if (this.wheelSpinning) {
+    if (this.wheelSpinning || !this.itemsAvailable) {
       return;
     }
 
     this.megaStoneService.triggerMegaStoneActivation(megaStone);
+  }
+
+  typeBiasItemInterrupt(item: ItemItem): void {
+    if (this.wheelSpinning || !this.itemsAvailable) {
+      return;
+    }
+
+    this.typeBiasItemService.triggerTypeBiasItem(item);
+  }
+
+  linkCableInterrupt(item: ItemItem): void {
+    if (this.wheelSpinning || !this.itemsAvailable) {
+      return;
+    }
+
+    this.linkCableService.triggerLinkCable(item);
   }
 
   resetGame(): void {

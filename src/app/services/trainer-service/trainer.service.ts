@@ -12,9 +12,28 @@ import { BadgesService } from '../badges-service/badges.service';
 import { GenerationService } from '../generation-service/generation.service';
 import { GameState } from '../game-state-service/game-state';
 import { GameStateService } from '../game-state-service/game-state.service';
+import { PokemonType } from '../../interfaces/pokemon-type';
 import { palafinForms } from './palafin-forms';
 import { stickyBattleForms } from './sticky-battle-forms';
 import { megaStoneNamesForBaseId, pokemonMegaForms } from './pokemon-mega-forms';
+
+export interface TypeBiasEntry {
+  type: PokemonType;
+  mode: 'soft' | 'hard';
+}
+
+/**
+ * "Toward" (Honey/Poké Radar) and "away" (Repel/Max Repel) are independent —
+ * using one doesn't consume or overwrite the other, so both can be active at
+ * once (e.g. boost toward Water while also steering away from Fire). Using a
+ * second item of the *same* direction replaces that direction's own slot.
+ */
+export interface PendingTypeBiases {
+  toward: TypeBiasEntry | null;
+  away: TypeBiasEntry | null;
+}
+
+const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: null, away: null };
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +47,24 @@ export class TrainerService implements OnDestroy {
     fillStyle: 'purple',
     weight: 1,
     description: 'items.potion.description'
+  };
+
+  private static readonly DEFAULT_HONEY: ItemItem = {
+    text: 'items.honey.name',
+    name: 'honey',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png',
+    fillStyle: 'goldenrod',
+    weight: 1,
+    description: 'items.honey.description'
+  };
+
+  private static readonly DEFAULT_REPEL: ItemItem = {
+    text: 'items.repel.name',
+    name: 'repel',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png',
+    fillStyle: 'teal',
+    weight: 1,
+    description: 'items.repel.description'
   };
 
   private readonly gameStateSubscription: Subscription;
@@ -60,9 +97,13 @@ export class TrainerService implements OnDestroy {
   private megaBattleBaseId: number | null = null;
   private megaBattleStoneName: MegaStoneItemName | null = null;
   private megaBattleOriginalPokemon: PokemonItem | null = null;
+  private pendingTypeBiases: PendingTypeBiases = { ...NO_PENDING_TYPE_BIASES };
+  private pendingTypeBiasesObservable = new BehaviorSubject<PendingTypeBiases>(this.pendingTypeBiases);
 
   trainerItems: ItemItem[] = [
-    structuredClone(TrainerService.DEFAULT_POTION)
+    structuredClone(TrainerService.DEFAULT_POTION),
+    structuredClone(TrainerService.DEFAULT_HONEY),
+    structuredClone(TrainerService.DEFAULT_REPEL)
   ];
   private trainerItemsObservable = new BehaviorSubject<ItemItem[]>(this.trainerItems);
 
@@ -165,10 +206,44 @@ export class TrainerService implements OnDestroy {
   private syncBattleForms(gameState: GameState): void {
     if (this.battleStates.has(gameState)) {
       this.applyBattleForms();
+      // Type biases only ever apply within the gym stretch they were used for —
+      // reaching a battle means that stretch is over, used or not.
+      this.clearPendingTypeBiases();
       return;
     }
 
     this.revertBattleForms();
+  }
+
+  get currentPendingTypeBiases(): PendingTypeBiases {
+    return this.pendingTypeBiases;
+  }
+
+  getPendingTypeBiasesObservable(): Observable<PendingTypeBiases> {
+    return this.pendingTypeBiasesObservable.asObservable();
+  }
+
+  /** Using a second item in the same direction replaces that direction's own slot only. */
+  setTowardBias(entry: TypeBiasEntry): void {
+    this.updatePendingTypeBiases({ ...this.pendingTypeBiases, toward: entry });
+  }
+
+  setAwayBias(entry: TypeBiasEntry): void {
+    this.updatePendingTypeBiases({ ...this.pendingTypeBiases, away: entry });
+  }
+
+  /** Bulk-overwrites both slots at once — used when restoring a saved run. */
+  restorePendingTypeBiases(biases: PendingTypeBiases): void {
+    this.updatePendingTypeBiases(biases);
+  }
+
+  clearPendingTypeBiases(): void {
+    this.updatePendingTypeBiases({ ...NO_PENDING_TYPE_BIASES });
+  }
+
+  private updatePendingTypeBiases(biases: PendingTypeBiases): void {
+    this.pendingTypeBiases = biases;
+    this.pendingTypeBiasesObservable.next(this.pendingTypeBiases);
   }
 
   replaceForEvolution(pokemonOut: PokemonItem, pokemonIn: PokemonItem): void {
@@ -362,7 +437,11 @@ export class TrainerService implements OnDestroy {
   }
 
   resetItems() {
-    this.trainerItems = [structuredClone(TrainerService.DEFAULT_POTION)];
+    this.trainerItems = [
+      structuredClone(TrainerService.DEFAULT_POTION),
+      structuredClone(TrainerService.DEFAULT_HONEY),
+      structuredClone(TrainerService.DEFAULT_REPEL)
+    ];
     this.trainerItemsObservable.next(this.trainerItems);
   }
 

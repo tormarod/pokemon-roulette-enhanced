@@ -189,6 +189,16 @@
           "stoneDesc": "Tippe das Mega-Stein-Symbol, um die Mega-Entwicklung im Kampf zu aktivieren!"
         }
       },
+      "activeBias": {
+        "softToward": "Verstärkt zu",
+        "hardToward": "Garantiert",
+        "softAway": "Gelenkt weg von",
+        "hardAway": "Ausgeschlossen"
+      },
+      "opponentPreview": {
+        "label": "Als Nächstes:",
+        "oneOf": "(einer dieser Typen)"
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -403,6 +413,9 @@
           "title": "Tausch gegen?",
           "which": "Welches Pokémon wird getauscht?"
         },
+        "typeBias": {
+          "which": "Welcher Typ?"
+        },
         "mega": {
           "who": "Wer erhält einen Mega-Stein?",
           "whichStone": "Welcher Mega-Stein wird vergeben?",
@@ -469,6 +482,26 @@
     "escape-rope": {
       "name": "Fluchtseil",
       "description": "Fluchtseile retten dich aus heiklen Situationen!"
+    },
+    "honey": {
+      "name": "Honig",
+      "description": "Nutze Honig, um deinen nächsten Fang oder Tausch bis zu deinem nächsten Arena-Kampf zu einem gewählten Typ hin zu verschieben!"
+    },
+    "repel": {
+      "name": "Repellent",
+      "description": "Nutze Repellent, um deinen nächsten Fang oder Tausch bis zu deinem nächsten Arena-Kampf von einem gewählten Typ fernzuhalten!"
+    },
+    "poke-radar": {
+      "name": "Pokéradar",
+      "description": "Der Pokéradar garantiert, dass dein nächster Fang oder Tausch bis zu deinem nächsten Arena-Kampf ein gewählter Typ ist!"
+    },
+    "max-repel": {
+      "name": "Hyperrepellent",
+      "description": "Der Hyperrepellent schließt einen gewählten Typ vollständig von deinem nächsten Fang oder Tausch aus, bis zu deinem nächsten Arena-Kampf!"
+    },
+    "link-cable": {
+      "name": "Linkkabel",
+      "description": "Nutze das Linkkabel, um sofort ein Tauschangebot auszulösen!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2859,25 @@
       "off": "Normal"
     },
     "mega": "⚡ Mega-Entwickelt"
+  },
+  "pokemonType": {
+    "normal": "Normal",
+    "fighting": "Kampf",
+    "flying": "Flug",
+    "poison": "Gift",
+    "ground": "Boden",
+    "rock": "Gestein",
+    "bug": "Käfer",
+    "ghost": "Geist",
+    "steel": "Stahl",
+    "fire": "Feuer",
+    "water": "Wasser",
+    "grass": "Pflanze",
+    "electric": "Elektro",
+    "psychic": "Psycho",
+    "ice": "Eis",
+    "dragon": "Drache",
+    "dark": "Unlicht",
+    "fairy": "Fee"
   }
 }

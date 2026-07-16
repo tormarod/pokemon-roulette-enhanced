@@ -9,3 +9,12 @@
 	/* Optional: Background for better visibility */
 	padding: 16px;
 }
+
+.active-bias-indicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	font-size: small;
+	margin-top: 0.5rem;
+}

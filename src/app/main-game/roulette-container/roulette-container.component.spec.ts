@@ -21,6 +21,8 @@ import { PokedexService } from '../../services/pokedex-service/pokedex.service';
 
 import { RouletteContainerComponent } from './roulette-container.component';
 import { ModalQueueService } from '../../services/modal-queue-service/modal-queue.service';
+import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
+import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
 describe('RouletteContainerComponent', () => {
   let component: RouletteContainerComponent;
@@ -67,6 +69,59 @@ describe('RouletteContainerComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Opponent preview
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('opponent preview', () => {
+    const reachStartAdventure = () => {
+      gameStateService.finishCurrentState(); // character-select
+      gameStateService.finishCurrentState(); // starter-pokemon
+      gameStateService.finishCurrentState(); // start-adventure
+      fixture.detectChanges();
+    };
+
+    it('is hidden before the adventure has started', () => {
+      expect(component.showOpponentPreview).toBeFalse();
+      expect(component.previewOpponent).toBeNull();
+    });
+
+    it('shows the upcoming gym leader once the adventure starts', () => {
+      reachStartAdventure();
+
+      expect(component.showOpponentPreview).toBeTrue();
+      expect(component.previewOpponent).toEqual(gymLeadersByGeneration[1][0]);
+    });
+
+    it('stays visible on a later check-shininess triggered by catching a Pokemon mid-run', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('check-shininess');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.showOpponentPreview).toBeTrue();
+    });
+
+    it('is hidden during an actual gym battle', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('gym-battle');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.showOpponentPreview).toBeFalse();
+      expect(component.previewOpponent).toBeNull();
+    });
+
+    it('shows the first Elite Four member during elite-four-preparation', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('elite-four-preparation');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.previewOpponent).toEqual(eliteFourByGeneration[1][0]);
+    });
   });
 
   it('should route to form selection when captured pokemon has multiple forms', () => {
@@ -279,6 +334,52 @@ describe('RouletteContainerComponent', () => {
       expect((component as any).auxPokemonList.length).toBe(2);
     });
 
+    it('with team >= 2 and no escape-rope → auxPokemonListPickMode stays false (still a wheel spin)', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(4));
+
+      component.stealPokemon();
+
+      expect(component.auxPokemonListPickMode).toBeFalse();
+    });
+
+    it('weights each candidate inversely to its power — a stronger Pokemon is harder to steal', () => {
+      const weak: any = { ...makePokemon(1), power: 1 };
+      const strong: any = { ...makePokemon(4), power: 4 };
+      trainerService.addToTeam(weak);
+      trainerService.addToTeam(strong);
+
+      component.stealPokemon();
+
+      const list = (component as any).auxPokemonList;
+      expect(list.find((p: any) => p.pokemonId === 1).weight).toBe(1);
+      expect(list.find((p: any) => p.pokemonId === 4).weight).toBe(0.25);
+    });
+
+    it('does not mutate the real team objects\' weight', () => {
+      const strong: any = { ...makePokemon(4), power: 4 };
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(strong);
+
+      component.stealPokemon();
+
+      expect(trainerService.getTeam().find(p => p.pokemonId === 4)!.weight).toBe(1);
+    });
+
+    it('picking a steal candidate removes the correct original team member, not a clone', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam({ ...makePokemon(4), power: 4 });
+      const storedTarget = trainerService.getTeam().find(p => p.pokemonId === 4)!;
+
+      component.stealPokemon();
+      const weightedClone = (component as any).auxPokemonList.find((p: any) => p.pokemonId === 4);
+      component.continueWithPokemon(weightedClone);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(trainerService.getTeam()[0].pokemonId).toBe(1);
+      expect((component as any).stolenPokemon).toBe(storedTarget);
+    });
+
     it('with team < 2 → opens teamRocketFailsModal', () => {
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
 
@@ -325,6 +426,15 @@ describe('RouletteContainerComponent', () => {
 
       expect((component as any).auxPokemonList.length).toBe(2);
     });
+
+    it('with multi-member team → auxPokemonListPickMode is true (direct pick, not a wheel)', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(4));
+
+      component.tradePokemon();
+
+      expect(component.auxPokemonListPickMode).toBeTrue();
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -365,6 +475,97 @@ describe('RouletteContainerComponent', () => {
 
       expect(component.chooseWhoWillEvolve).not.toHaveBeenCalled();
       expect(trainerService.removeItem).not.toHaveBeenCalled();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-03: handleTypeBiasItemUse / continueWithType
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleTypeBiasItemUse / continueWithType', () => {
+    const HONEY: any = { name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const REPEL: any = { name: 'repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const POKE_RADAR: any = { name: 'poke-radar', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const MAX_REPEL: any = { name: 'max-repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    it('re-queues the current state, removes the item, and opens the type picker', () => {
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      spyOn(trainerService, 'removeItem');
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+
+      expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
+      expect(trainerService.removeItem).toHaveBeenCalledWith(HONEY);
+      expect(component.getGameState()).toBe('select-from-type-list');
+    });
+
+    it('sets a soft toward bias for Honey', () => {
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('water');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+
+    it('sets a soft away bias for Repel', () => {
+      (component as any).handleTypeBiasItemUse(REPEL);
+      component.continueWithType('fire');
+
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'fire', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+    });
+
+    it('sets a hard toward bias for Poké Radar', () => {
+      (component as any).handleTypeBiasItemUse(POKE_RADAR);
+      component.continueWithType('grass');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'grass', mode: 'hard' });
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+
+    it('sets a hard away bias for Max Repel', () => {
+      (component as any).handleTypeBiasItemUse(MAX_REPEL);
+      component.continueWithType('electric');
+
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+    });
+
+    it('keeps both a toward and an away bias active at the same time when both items are used', () => {
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('water');
+      (component as any).handleTypeBiasItemUse(MAX_REPEL);
+      component.continueWithType('electric');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
+      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
+    });
+
+    it('does nothing if continueWithType is called with no pending item', () => {
+      component.continueWithType('psychic');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-04: handleLinkCable
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleLinkCable', () => {
+    const LINK_CABLE: any = { name: 'link-cable', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    it('re-queues the current state, removes the item, and triggers a trade', () => {
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      spyOn(trainerService, 'removeItem');
+      spyOn(component, 'tradePokemon').and.callThrough();
+
+      (component as any).handleLinkCable(LINK_CABLE);
+
+      expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
+      expect(trainerService.removeItem).toHaveBeenCalledWith(LINK_CABLE);
+      expect(component.tradePokemon).toHaveBeenCalled();
     });
   });
 });

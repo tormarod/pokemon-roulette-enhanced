@@ -17,7 +17,12 @@ export class ItemSpriteService {
     "x-attack": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png' },
     "exp-share": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png' },
     "hyper-potion": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hyper-potion.png' },
-    "escape-rope": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png' }
+    "escape-rope": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png' },
+    "honey": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png' },
+    "repel": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png' },
+    "poke-radar": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-radar.png' },
+    "max-repel": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png' },
+    "link-cable": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/link-cable.png' }
   };
 
   getItemSprite(itemName: ItemName): Observable<{ sprite: string } | undefined> {

@@ -189,6 +189,16 @@
           "stoneDesc": "Tap a Mega Stone icon to activate Mega Evolution during battle!"
         }
       },
+      "activeBias": {
+        "softToward": "Boosted toward",
+        "hardToward": "Guaranteed",
+        "softAway": "Steered away from",
+        "hardAway": "Excluded"
+      },
+      "opponentPreview": {
+        "label": "Next up:",
+        "oneOf": "(one of these types)"
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -403,6 +413,9 @@
           "title": "Trade for?",
           "which": "Which Pokemon to trade?"
         },
+        "typeBias": {
+          "which": "Which type?"
+        },
         "mega": {
           "who": "Who will receive a Mega Stone?",
           "whichStone": "Which Mega Stone will be awarded?",
@@ -469,6 +482,26 @@
     "escape-rope": {
       "name": "Escape Rope",
       "description": "Escape Rope saves you from bad situations !"
+    },
+    "honey": {
+      "name": "Honey",
+      "description": "Use Honey to bias your next catch or trade toward a type you choose, until your next Gym battle !"
+    },
+    "repel": {
+      "name": "Repel",
+      "description": "Use Repel to steer your next catch or trade away from a type you choose, until your next Gym battle !"
+    },
+    "poke-radar": {
+      "name": "Poké Radar",
+      "description": "Poké Radar guarantees your next catch or trade is a type you choose, until your next Gym battle !"
+    },
+    "max-repel": {
+      "name": "Max Repel",
+      "description": "Max Repel fully excludes a type you choose from your next catch or trade, until your next Gym battle !"
+    },
+    "link-cable": {
+      "name": "Link Cable",
+      "description": "Use Link Cable to trigger a trade offer right away !"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2859,25 @@
       "off": "Normal"
     },
     "mega": "⚡ Mega Evolved"
+  },
+  "pokemonType": {
+    "normal": "Normal",
+    "fighting": "Fighting",
+    "flying": "Flying",
+    "poison": "Poison",
+    "ground": "Ground",
+    "rock": "Rock",
+    "bug": "Bug",
+    "ghost": "Ghost",
+    "steel": "Steel",
+    "fire": "Fire",
+    "water": "Water",
+    "grass": "Grass",
+    "electric": "Electric",
+    "psychic": "Psychic",
+    "ice": "Ice",
+    "dragon": "Dragon",
+    "dark": "Dark",
+    "fairy": "Fairy"
   }
 }

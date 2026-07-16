@@ -189,6 +189,16 @@
           "stoneDesc": "¡Toca el icono de Mega Piedra para activar la Mega Evolución en combate!"
         }
       },
+      "activeBias": {
+        "softToward": "Orientado hacia",
+        "hardToward": "Garantizado",
+        "softAway": "Alejado de",
+        "hardAway": "Excluido"
+      },
+      "opponentPreview": {
+        "label": "A continuación:",
+        "oneOf": "(uno de estos tipos)"
+      },
       "roulette": {
         "generation": {
           "title": "¿Generación?",
@@ -403,6 +413,9 @@
           "title": "¿Intercambiar por?",
           "which": "¿Qué Pokémon cambiar?"
         },
+        "typeBias": {
+          "which": "¿Qué tipo?"
+        },
         "mega": {
           "who": "¿Quién recibirá una Mega Piedra?",
           "whichStone": "¿Qué Mega Piedra se entregará?",
@@ -469,6 +482,26 @@
     "escape-rope": {
       "name": "Cuerda Huida",
       "description": "¡La Cuerda Huida te salva de las situaciones difíciles!"
+    },
+    "honey": {
+      "name": "Miel",
+      "description": "Usa Miel para orientar tu próxima captura o intercambio hacia un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+    },
+    "repel": {
+      "name": "Repelente",
+      "description": "Usa Repelente para alejar tu próxima captura o intercambio de un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+    },
+    "poke-radar": {
+      "name": "PokéRadar",
+      "description": "¡El PokéRadar garantiza que tu próxima captura o intercambio sea del tipo elegido, hasta tu próximo combate de Gimnasio!"
+    },
+    "max-repel": {
+      "name": "Repelente Max",
+      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próxima captura o intercambio, hasta tu próximo combate de Gimnasio!"
+    },
+    "link-cable": {
+      "name": "Cable Link",
+      "description": "¡Usa el Cable Link para provocar una oferta de intercambio al instante!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -2826,5 +2859,25 @@
       "off": "Normal"
     },
     "mega": "⚡ Mega Evolucionado"
+  },
+  "pokemonType": {
+    "normal": "Normal",
+    "fighting": "Lucha",
+    "flying": "Volador",
+    "poison": "Veneno",
+    "ground": "Tierra",
+    "rock": "Roca",
+    "bug": "Bicho",
+    "ghost": "Fantasma",
+    "steel": "Acero",
+    "fire": "Fuego",
+    "water": "Agua",
+    "grass": "Planta",
+    "electric": "Eléctrico",
+    "psychic": "Psíquico",
+    "ice": "Hielo",
+    "dragon": "Dragón",
+    "dark": "Siniestro",
+    "fairy": "Hada"
   }
 }

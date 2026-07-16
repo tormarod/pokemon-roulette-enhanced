@@ -13,7 +13,7 @@ import { GameState } from '../../services/game-state-service/game-state';
 import {TranslatePipe} from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { Subscription } from 'rxjs';
-import { PokemonType, pokemonTypeDataByKey } from '../../interfaces/pokemon-type';
+import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 
 @Component({
   selector: 'app-storage-pc',
@@ -55,8 +55,6 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     infoModalMessage = '';
     private readonly subscriptions = new Subscription();
     private removePcTurningOnEndedListener: (() => void) | null = null;
-
-    private readonly typeIconBaseUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-viii/brilliant-diamond-shining-pearl';
 
     ngOnInit(): void {
       this.darkMode = this.themeService.isDark$;
@@ -125,8 +123,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     }
 
     getTypeIconUrl(type: PokemonType): string {
-      const typeData = pokemonTypeDataByKey[type];
-      return `${this.typeIconBaseUrl}/${typeData.id}.png`;
+      return getTypeIconUrl(type);
     }
 
     drop(event: CdkDragDrop<PokemonItem[]>) {

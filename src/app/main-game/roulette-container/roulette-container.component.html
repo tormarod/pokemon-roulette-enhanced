@@ -1,3 +1,17 @@
+@if (showOpponentPreview && previewOpponent) {
+  <div class="opponent-preview">
+    <span class="opponent-preview-label">{{ 'game.main.opponentPreview.label' | translate }}</span>
+    <span class="opponent-preview-name">{{ previewOpponent.name | translate }}</span>
+    <div class="opponent-preview-types">
+      @for (type of previewOpponent.types; track type) {
+        <img [src]="getTypeIconUrl(type)" [alt]="type" height="24">
+      }
+    </div>
+    @if ((previewOpponent.types ?? []).length > 1) {
+      <span class="opponent-preview-note">{{ 'game.main.opponentPreview.oneOf' | translate }}</span>
+    }
+  </div>
+}
 @switch (getGameState()) {
   @case ('game-start') {
     <app-generation-roulette
@@ -38,6 +52,7 @@
         #auxListRoulette
         [wheelTitle]="customWheelTitle"
         [trainerTeam]="auxPokemonList"
+        [pickMode]="auxPokemonListPickMode"
         (selectedMemberEvent)="continueWithPokemon($event)">
     </app-pokemon-from-aux-list-roulette>
   }
@@ -47,6 +62,11 @@
         [items]="auxItemList"
         (selectedItemEvent)="continueWithItem($event)">
     </app-select-from-item-list-roulette>
+  }
+  @case ('select-from-type-list') {
+    <app-select-from-type-list-roulette
+        (selectedTypeEvent)="continueWithType($event)">
+    </app-select-from-type-list-roulette>
   }
   @case ('select-form') {
     <app-select-form-roulette

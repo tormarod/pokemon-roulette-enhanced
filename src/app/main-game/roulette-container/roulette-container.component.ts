@@ -55,6 +55,15 @@ import { MegaStoneService } from '../../services/mega-stone-service/mega-stone.s
 import { megaStoneNamesForBaseId, pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-forms';
 import { MegaEvolutionAnimationModalComponent } from './roulettes/mega-evolution-animation-modal/mega-evolution-animation-modal.component';
 import { SelectFromItemListRouletteComponent } from './roulettes/select-from-item-list-roulette/select-from-item-list-roulette.component';
+import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-type-list-roulette/select-from-type-list-roulette.component';
+import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
+import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
+import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
+import { GenerationService } from '../../services/generation-service/generation.service';
+import { GenerationItem } from '../../interfaces/generation-item';
+import { GymLeader } from '../../interfaces/gym-leader';
+import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
+import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
 @Component({
   selector: 'app-roulette-container',
@@ -69,6 +78,7 @@ import { SelectFromItemListRouletteComponent } from './roulettes/select-from-ite
     PokemonFromGenerationRouletteComponent,
     PokemonFromAuxListRouletteComponent,
     SelectFromItemListRouletteComponent,
+    SelectFromTypeListRouletteComponent,
     SelectFormRouletteComponent,
     GymBattleRouletteComponent,
     CheckEvolutionRouletteComponent,
@@ -103,6 +113,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     private destroyRef = inject(DestroyRef);
     private rareCandySubscription?: Subscription;
     private megaStoneSubscription?: Subscription;
+    private typeBiasItemSubscription?: Subscription;
+    private linkCableSubscription?: Subscription;
+    private pendingTypeBiasItem: ItemItem | null = null;
 
     constructor(
       private evolutionService: EvolutionService,
@@ -118,7 +131,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private settingsService: SettingsService,
       private pokemonFormsService: PokemonFormsService,
       private rareCandyService: RareCandyService,
-      private megaStoneService: MegaStoneService) {
+      private megaStoneService: MegaStoneService,
+      private typeBiasItemService: TypeBiasItemService,
+      private linkCableService: LinkCableService,
+      private generationService: GenerationService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -142,6 +158,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.leadersDefeatedAmount = round;
     });
 
+    this.generationService.getGeneration().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(generation => {
+      this.generation = generation;
+    });
+
     this.gameStateService.wheelSpinningObserver.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
       this.wheelSpinning = state;
     });
@@ -154,11 +174,21 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaStoneSubscription = this.megaStoneService.megaStoneTrigger$.subscribe((megaStone) => {
       this.handleMegaStoneActivation(megaStone);
     });
+
+    this.typeBiasItemSubscription = this.typeBiasItemService.typeBiasItemTrigger$.subscribe((item) => {
+      this.handleTypeBiasItemUse(item);
+    });
+
+    this.linkCableSubscription = this.linkCableService.linkCableTrigger$.subscribe((item) => {
+      this.handleLinkCable(item);
+    });
   }
 
   ngOnDestroy(): void {
     this.rareCandySubscription?.unsubscribe();
     this.megaStoneSubscription?.unsubscribe();
+    this.typeBiasItemSubscription?.unsubscribe();
+    this.linkCableSubscription?.unsubscribe();
   }
 
   handleRareCandyEvolution(rareCandy: ItemItem): void {
@@ -183,6 +213,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   altPrizeText = '';
   auxItemList: ItemItem[] = [];
   auxPokemonList: PokemonItem[] = [];
+  /** True only for trade-out: picking which owned Pokémon to offer is a direct pick, not a wheel spin. */
+  auxPokemonListPickMode = false;
+  /** Original (unweighted) team references behind auxPokemonList's steal-pokemon clones, same order. */
+  private stealCandidates: PokemonItem[] = [];
   pokemonForms: PokemonForm[] = [];
   currentContextItem!: ItemItem;
   currentContextPokemon!: PokemonItem;
@@ -198,6 +232,38 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   megaStoneTapAudio!: SoundFxHandle;
   megaEvolutionAudio!: SoundFxHandle;
   leadersDefeatedAmount: number = 0;
+  generation!: GenerationItem;
+
+  private readonly gymLeadersByGeneration = gymLeadersByGeneration;
+  private readonly eliteFourByGeneration = eliteFourByGeneration;
+  private readonly opponentPreviewHiddenStates = new Set<GameState>([
+    'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival'
+  ]);
+
+  /**
+   * Hidden during actual battles (which reveal their own opponent) and before the
+   * adventure has started (no roster to plan around yet). 'start-adventure' is
+   * pushed exactly once at run setup and never re-pushed, so — same trick as
+   * MainGameComponent's itemsAvailable — checking whether it's still sitting
+   * unpopped in the stack correctly tells apart the pre-adventure stretch from
+   * every later state, reused state names included.
+   */
+  get showOpponentPreview(): boolean {
+    if (!this.generation || this.opponentPreviewHiddenStates.has(this.currentGameState)) {
+      return false;
+    }
+    return !this.gameStateService.getStateStack().includes('start-adventure');
+  }
+
+  get previewOpponent(): GymLeader | null {
+    if (!this.showOpponentPreview) {
+      return null;
+    }
+    if (this.currentGameState === 'elite-four-preparation') {
+      return this.eliteFourByGeneration[this.generation.id]?.[0] ?? null;
+    }
+    return this.gymLeadersByGeneration[this.generation.id]?.[this.leadersDefeatedAmount] ?? null;
+  }
   multitaskCounter: number = 0;
   pkmnEvoTitle = '';
   pkmnIn!: PokemonItem;
@@ -324,6 +390,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
 
     this.customWheelTitle = 'game.main.roulette.evolve.who';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('evolve-pokemon');
     this.gameStateService.setNextState('select-from-pokemon-list');
 
@@ -373,11 +440,17 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         this.replaceForEvolution(this.currentContextPokemon, pokemon);
         this.showpkmnEvoModal();
         break;
-      case 'steal-pokemon':
-        this.stolenPokemon = pokemon;
-        this.removeFromTeam(pokemon);
+      case 'steal-pokemon': {
+        // auxPokemonList holds power-weighted clones (see weightByInversePower), not the
+        // real team objects — resolve back to the original by shared position so
+        // TrainerService.removeFromTeam's reference-based indexOf still finds it.
+        const index = this.auxPokemonList.indexOf(pokemon);
+        const original = index !== -1 ? this.stealCandidates[index] : pokemon;
+        this.stolenPokemon = original;
+        this.removeFromTeam(original);
         this.finishCurrentState();
         break;
+      }
       case 'trade-pokemon':
         this.currentContextPokemon = pokemon;
         break;
@@ -420,6 +493,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
 
     this.customWheelTitle = 'game.main.roulette.evolve.whoExpShare';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('evolve-pokemon');
     this.gameStateService.setNextState('select-from-pokemon-list');
   }
@@ -475,10 +549,60 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     } else {
       this.auxPokemonList = trainerTeam;
       this.customWheelTitle = 'game.main.roulette.trade.which';
+      this.auxPokemonListPickMode = true;
       this.gameStateService.setNextState('select-from-pokemon-list');
     }
 
     this.finishCurrentState();
+  }
+
+  /**
+   * Honey/Poké Radar/Repel/Max Repel: pick a type now, apply it to whichever
+   * catch or trade comes next. repeatCurrentState() re-queues the screen the
+   * player was already on, so picking a type is a bonus action, not a
+   * substitute for their normal turn.
+   */
+  private handleTypeBiasItemUse(item: ItemItem): void {
+    this.gameStateService.repeatCurrentState();
+    this.trainerService.removeItem(item);
+    this.pendingTypeBiasItem = item;
+    this.gameStateService.setNextState('select-from-type-list');
+    this.finishCurrentState();
+  }
+
+  getTypeIconUrl(type: PokemonType): string {
+    return getTypeIconUrl(type);
+  }
+
+  continueWithType(type: PokemonType): void {
+    this.finishCurrentState();
+
+    const item = this.pendingTypeBiasItem;
+    this.pendingTypeBiasItem = null;
+    if (!item) {
+      return;
+    }
+
+    // Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
+    // from it. The two directions are independent slots (see PendingTypeBiases)
+    // so using one never clears or overwrites the other.
+    const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
+    if (item.name === 'honey' || item.name === 'poke-radar') {
+      this.trainerService.setTowardBias({ type, mode });
+    } else {
+      this.trainerService.setAwayBias({ type, mode });
+    }
+  }
+
+  /**
+   * Link Cable: trigger a trade encounter on demand instead of waiting for the
+   * adventure wheel to offer one. repeatCurrentState() first, for the same
+   * reason as handleTypeBiasItemUse — this is a bonus action.
+   */
+  private handleLinkCable(item: ItemItem): void {
+    this.gameStateService.repeatCurrentState();
+    this.trainerService.removeItem(item);
+    this.tradePokemon();
   }
 
   exploreCave(): void {
@@ -554,12 +678,23 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     } else if (this.trainerService.hasItem('escape-rope')) {
       this.useEscapeRope();
     } else {
-      this.auxPokemonList = trainerTeam;
+      this.stealCandidates = trainerTeam;
+      this.auxPokemonList = this.weightByInversePower(trainerTeam);
       this.customWheelTitle = 'game.main.roulette.teamrocket.steal.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('steal-pokemon');
       this.gameStateService.setNextState('select-from-pokemon-list');
       this.finishCurrentState();
     }
+  }
+
+  /**
+   * A stronger Pokémon puts up more of a fight, so it's harder for Team Rocket
+   * to steal — clones with an adjusted weight rather than mutating the real
+   * team objects, since .weight is read by every other wheel too.
+   */
+  private weightByInversePower(pokemon: PokemonItem[]): PokemonItem[] {
+    return pokemon.map(p => ({ ...p, weight: 1 / p.power }));
   }
 
   teamRocketDefeated(): void {
@@ -710,6 +845,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaSelectionMode = 'battle-award-pokemon';
     this.auxPokemonList = candidates;
     this.customWheelTitle = 'game.main.roulette.mega.who';
+    this.auxPokemonListPickMode = false;
     this.gameStateService.setNextState('select-from-pokemon-list');
   }
 
@@ -907,6 +1043,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.auxPokemonList = pokemonEvolutions;
       this.currentContextPokemon = pokemon;
       this.customWheelTitle = 'game.main.roulette.evolve.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('select-evolution');
       this.gameStateService.setNextState('select-from-pokemon-list');
       this.finishCurrentState();
@@ -992,6 +1129,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.auxPokemonList = pokemonEvolutions;
       this.currentContextPokemon = pokemon;
       this.customWheelTitle = 'game.main.roulette.evolve.which';
+      this.auxPokemonListPickMode = false;
       this.gameStateService.setNextState('select-evolution');
       this.gameStateService.setNextState('select-from-pokemon-list');
     }

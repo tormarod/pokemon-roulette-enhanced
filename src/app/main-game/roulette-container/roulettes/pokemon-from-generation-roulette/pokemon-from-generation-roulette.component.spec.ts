@@ -27,7 +27,7 @@ describe('PokemonFromGenerationRouletteComponent', () => {
     generationService.getGeneration.and.returnValue(generationSubject.asObservable());
     generationService.getCurrentGeneration.and.returnValue(generationSubject.getValue());
 
-    pokemonService = jasmine.createSpyObj('PokemonService', ['getPokemonByIdArray']);
+    pokemonService = jasmine.createSpyObj('PokemonService', ['getPokemonByIdArray', 'getAllPokemon']);
     pokemonService.getPokemonByIdArray.and.callFake((ids: number[]) => {
       const mockPokemon: Record<number, PokemonItem> = {
         1: { pokemonId: 1, text: 'pokemon.bulbasaur', fillStyle: 'green', sprite: null, shiny: false, power: 1, weight: 1 },
@@ -36,6 +36,9 @@ describe('PokemonFromGenerationRouletteComponent', () => {
       };
       return ids.map(id => mockPokemon[id]).filter(p => p !== undefined);
     });
+    // TrainerService (now injected for type-bias application) transitively constructs
+    // EvolutionService, which calls getAllPokemon() in its own constructor.
+    pokemonService.getAllPokemon.and.returnValue([]);
 
     await TestBed.configureTestingModule({
       imports: [PokemonFromGenerationRouletteComponent, TranslateModule.forRoot()],

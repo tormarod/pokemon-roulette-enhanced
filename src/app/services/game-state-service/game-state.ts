@@ -9,6 +9,7 @@ export type GameState =
   | 'evolve-pokemon'
   | 'select-from-pokemon-list'
   | 'select-from-item-list'
+  | 'select-from-type-list'
   | 'select-evolution'
   | 'gym-battle'
   | 'check-evolution'

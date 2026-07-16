@@ -36,12 +36,28 @@
                     (megaStoneInterrupt)="megaStoneInterrupt($event)">
                 </app-trainer-team>
             </div>
-            <div class="items">
-                <app-items
-                    (rareCandyInterrupt)="rareCandyInterrupt($event)"
-                    (megaStoneInterrupt)="megaStoneInterrupt($event)">
-                </app-items>
-            </div>
+            @if (itemsAvailable) {
+                <div class="items">
+                    <app-items
+                        (rareCandyInterrupt)="rareCandyInterrupt($event)"
+                        (megaStoneInterrupt)="megaStoneInterrupt($event)"
+                        (typeBiasItemInterrupt)="typeBiasItemInterrupt($event)"
+                        (linkCableInterrupt)="linkCableInterrupt($event)">
+                    </app-items>
+                    @if (pendingTypeBiases.toward) {
+                        <div class="active-bias-indicator">
+                            <img [src]="getBiasTypeIconUrl(pendingTypeBiases.toward)" [alt]="pendingTypeBiases.toward.type" height="20">
+                            <span>{{ getBiasLabelKey(pendingTypeBiases.toward, 'toward') | translate }} {{ 'pokemonType.' + pendingTypeBiases.toward.type | translate }}</span>
+                        </div>
+                    }
+                    @if (pendingTypeBiases.away) {
+                        <div class="active-bias-indicator">
+                            <img [src]="getBiasTypeIconUrl(pendingTypeBiases.away)" [alt]="pendingTypeBiases.away.type" height="20">
+                            <span>{{ getBiasLabelKey(pendingTypeBiases.away, 'away') | translate }} {{ 'pokemonType.' + pendingTypeBiases.away.type | translate }}</span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>
