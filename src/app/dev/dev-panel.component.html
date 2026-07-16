@@ -1,0 +1,150 @@
+<div class="dev-panel-container">
+  <button class="dev-toggle-btn" (click)="togglePanel()" title="Toggle dev panel">🔧</button>
+
+  <div class="dev-panel" [class.open]="panelOpen">
+    <div class="dev-panel-header">
+      <h3>Dev Admin Panel</h3>
+      <button class="close-btn" (click)="togglePanel()">×</button>
+    </div>
+
+    <div class="dev-panel-content">
+      <!-- Add Pokémon to Team -->
+      <section class="dev-section">
+        <h4>Add Pokémon to Team</h4>
+        <input
+          [(ngModel)]="addPokemonName"
+          type="text"
+          placeholder="Name or ID"
+          class="dev-input"
+        />
+        <label>
+          Power:
+          <input
+            [(ngModel)]="addPokemonPower"
+            type="number"
+            min="1"
+            max="8"
+            class="dev-input-small"
+          />
+        </label>
+        <label>
+          <input [(ngModel)]="addPokemonShiny" type="checkbox" />
+          Shiny
+        </label>
+        <button (click)="addPokemonToTeam()" class="dev-btn">Add to Team</button>
+      </section>
+
+      <!-- Remove Pokémon from Team -->
+      <section class="dev-section" *ngIf="team.length > 0">
+        <h4>Remove from Team</h4>
+        <div class="dev-list">
+          <div *ngFor="let pokemon of team" class="dev-list-item">
+            <span>{{ pokemon.text }} (Power: {{ pokemon.power }})</span>
+            <button (click)="removeFromTeam(pokemon)" class="dev-btn-small">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add Pokémon to PC -->
+      <section class="dev-section">
+        <h4>Add Pokémon to PC</h4>
+        <input
+          [(ngModel)]="addPokemonName"
+          type="text"
+          placeholder="Name or ID"
+          class="dev-input"
+        />
+        <label>
+          Power:
+          <input
+            [(ngModel)]="addPokemonPower"
+            type="number"
+            min="1"
+            max="8"
+            class="dev-input-small"
+          />
+        </label>
+        <label>
+          <input [(ngModel)]="addPokemonShiny" type="checkbox" />
+          Shiny
+        </label>
+        <button (click)="addPokemonToPC()" class="dev-btn">Add to PC</button>
+      </section>
+
+      <!-- Remove Pokémon from PC -->
+      <section class="dev-section" *ngIf="stored.length > 0">
+        <h4>Remove from PC</h4>
+        <div class="dev-list">
+          <div *ngFor="let pokemon of stored" class="dev-list-item">
+            <span>{{ pokemon.text }} (Power: {{ pokemon.power }})</span>
+            <button (click)="removeFromPC(pokemon)" class="dev-btn-small">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add Item -->
+      <section class="dev-section">
+        <h4>Add Item</h4>
+        <select [(ngModel)]="selectedItem" class="dev-input">
+          <optgroup label="Regular Items">
+            <option *ngFor="let item of regularItems" [value]="item">{{ item }}</option>
+          </optgroup>
+          <optgroup label="Mega Stones">
+            <option *ngFor="let stone of megaStones" [value]="stone">{{ stone }}</option>
+          </optgroup>
+        </select>
+        <button (click)="addItem()" class="dev-btn">Add Item</button>
+      </section>
+
+      <!-- Remove Item -->
+      <section class="dev-section" *ngIf="items.length > 0">
+        <h4>Remove Item</h4>
+        <div class="dev-list">
+          <div *ngFor="let item of items" class="dev-list-item">
+            <span>{{ item.name }}</span>
+            <button (click)="removeItem(item)" class="dev-btn-small">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Force Wheel Outcome -->
+      <section class="dev-section">
+        <h4>Force Wheel Outcome</h4>
+        <div class="dev-button-group">
+          <button (click)="setWheelWin()" class="dev-btn">Win</button>
+          <button (click)="setWheelLose()" class="dev-btn">Lose</button>
+          <button (click)="setWheelOff()" class="dev-btn">Off</button>
+        </div>
+        <div>
+          <label>
+            Force slice:
+            <input
+              [(ngModel)]="pickedSliceIndex"
+              type="number"
+              min="0"
+              placeholder="Index"
+              class="dev-input-small"
+            />
+          </label>
+          <button (click)="forceSlice()" class="dev-btn-small">Force</button>
+        </div>
+      </section>
+
+      <!-- Jump to State -->
+      <section class="dev-section">
+        <h4>Jump to State</h4>
+        <select [(ngModel)]="selectedState" class="dev-input">
+          <option *ngFor="let state of gameStates" [value]="state">{{ state }}</option>
+        </select>
+        <button (click)="jumpToState()" class="dev-btn">Jump</button>
+      </section>
+
+      <!-- Advance Round -->
+      <section class="dev-section">
+        <h4>Round & Badges</h4>
+        <button (click)="advanceRound()" class="dev-btn">Advance Round</button>
+        <button (click)="addBadge()" class="dev-btn">Add Badge</button>
+      </section>
+    </div>
+  </div>
+</div>

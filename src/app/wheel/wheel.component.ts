@@ -11,6 +11,7 @@ import { SoundFxHandle, SoundFxService } from '../services/sound-fx-service/soun
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PendingSpinService } from '../services/pending-spin-service/pending-spin.service';
 import { SettingsService } from '../services/settings-service/settings.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-wheel',
@@ -320,6 +321,13 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     const arcSize = (2 * Math.PI) / (totalWeight);
 
     this.winningNumber = this.getRandomWeightedIndex();
+    if (!environment.production) {
+      const forced = (window as unknown as { __devForceWheelIndex?: (items: WheelItem[]) => number | null })
+        .__devForceWheelIndex?.(this.items);
+      if (typeof forced === 'number' && forced >= 0 && forced < this.items.length) {
+        this.winningNumber = forced;
+      }
+    }
     // Lock the outcome in immediately, before the reveal animation plays — a reload
     // mid-animation must resolve to this same result, not offer a fresh roll.
     this.pendingSpinService.commitPendingSpin(this.items[this.winningNumber].text);
