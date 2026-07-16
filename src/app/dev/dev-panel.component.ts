@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { PokemonService } from '../services/pokemon-service/pokemon.service';
+import { ItemsService } from '../services/items-service/items.service';
 import { nationalDexPokemon } from '../services/pokemon-service/national-dex-pokemon';
 import { setWheelForceMode, setPickedIndex } from './dev-override';
 import { PokemonItem } from '../interfaces/pokemon-item';
@@ -24,6 +25,7 @@ export class DevPanelComponent {
   private readonly trainerService = inject(TrainerService);
   private readonly gameStateService = inject(GameStateService);
   private readonly pokemonService = inject(PokemonService);
+  private readonly itemsService = inject(ItemsService);
 
   panelOpen = false;
   addPokemonName = '';
@@ -158,22 +160,15 @@ export class DevPanelComponent {
   }
 
   addItem(): void {
-    const itemName = this.selectedItem;
-    const itemData = this.getItemData(itemName);
-    if (!itemData) {
-      console.error('Item not found:', itemName);
+    const item = this.itemsService.getItem(this.selectedItem);
+    if (!item) {
+      console.error('Item not found:', this.selectedItem);
       return;
     }
-
-    const itemItem: ItemItem = {
-      text: itemData.text,
-      name: itemName,
-      fillStyle: itemData.fillStyle,
-      weight: 1,
-      sprite: itemData.sprite,
-      description: itemData.description
-    };
-    this.trainerService.addToItems(itemItem);
+    // Pass the canonical item data straight to the trainer service; when its
+    // sprite is empty (e.g. link-cable), addToItems() resolves it via
+    // ItemSpriteService — the same single source of truth the real game uses.
+    this.trainerService.addToItems(item);
   }
 
   removeItem(item: ItemItem): void {
@@ -222,88 +217,4 @@ export class DevPanelComponent {
     ) || null;
   }
 
-  private getItemData(name: RegularItemName | MegaStoneItemName): { text: string; fillStyle: string; sprite: string; description: string } | null {
-    const itemMap: Record<string, { text: string; fillStyle: string; sprite: string; description: string }> = {
-      potion: {
-        text: 'items.potion.name',
-        fillStyle: 'purple',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png',
-        description: 'items.potion.description'
-      },
-      'rare-candy': {
-        text: 'items.rare-candy.name',
-        fillStyle: 'orange',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-        description: 'items.rare-candy.description'
-      },
-      'running-shoes': {
-        text: 'items.running-shoes.name',
-        fillStyle: 'red',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/running-shoes.png',
-        description: 'items.running-shoes.description'
-      },
-      'super-potion': {
-        text: 'items.super-potion.name',
-        fillStyle: 'darkviolet',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png',
-        description: 'items.super-potion.description'
-      },
-      'x-attack': {
-        text: 'items.x-attack.name',
-        fillStyle: 'darkred',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png',
-        description: 'items.x-attack.description'
-      },
-      'exp-share': {
-        text: 'items.exp-share.name',
-        fillStyle: 'gold',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png',
-        description: 'items.exp-share.description'
-      },
-      'hyper-potion': {
-        text: 'items.hyper-potion.name',
-        fillStyle: 'indigo',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hyper-potion.png',
-        description: 'items.hyper-potion.description'
-      },
-      'escape-rope': {
-        text: 'items.escape-rope.name',
-        fillStyle: 'brown',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png',
-        description: 'items.escape-rope.description'
-      },
-      honey: {
-        text: 'items.honey.name',
-        fillStyle: 'goldenrod',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png',
-        description: 'items.honey.description'
-      },
-      repel: {
-        text: 'items.repel.name',
-        fillStyle: 'teal',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png',
-        description: 'items.repel.description'
-      },
-      'poke-radar': {
-        text: 'items.poke-radar.name',
-        fillStyle: 'darkblue',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-radar.png',
-        description: 'items.poke-radar.description'
-      },
-      'max-repel': {
-        text: 'items.max-repel.name',
-        fillStyle: 'darkslategray',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png',
-        description: 'items.max-repel.description'
-      },
-      'link-cable': {
-        text: 'items.link-cable.name',
-        fillStyle: 'gray',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
-        description: 'items.link-cable.description'
-      }
-    };
-
-    return itemMap[name] || null;
-  }
 }
