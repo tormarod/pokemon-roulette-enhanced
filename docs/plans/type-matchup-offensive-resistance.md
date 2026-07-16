@@ -1,6 +1,6 @@
 # Plan: Type matchup — cancel phantom advantage from offensive resistance
 
-Status: **Ready to implement. All decisions baked in — no open questions.**
+Status: **DONE** — shipped in commit bae2f9d
 Owner: tormarod
 Last updated: 2026-07-16
 File to edit: `src/app/services/type-matchup-service/type-matchup.service.ts`

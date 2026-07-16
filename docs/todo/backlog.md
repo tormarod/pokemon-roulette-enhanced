@@ -157,9 +157,3 @@ Split bugs (Issues/template, structured) from ideas (Discussions/board, voting).
 Favor no-PII + moderated options given the audience. Enabling Issues/Discussions
 is a repo-settings change the owner must make.
 
-### [BUG] Type matchup ignores offensive resistance — mirror matchups show a phantom advantage
-
-Promoted to a plan → `docs/plans/type-matchup-offensive-resistance.md`. (Poison
-vs Poison shows +1 but should net 0; root cause is the offense read in
-`getMemberTier` being super-effective-only while defense is graded. Remove this
-entry once the plan ships.)
