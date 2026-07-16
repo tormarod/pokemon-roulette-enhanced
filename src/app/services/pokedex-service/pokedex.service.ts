@@ -33,12 +33,8 @@ export class PokedexService {
 
     let changed = this.upsertSeenEntry(updatedCaught, pokemonId, shiny);
 
-    // TODO(next-task cleanup): remove this temporary shiny propagation bridge once the
-    // dedicated shiny consistency pipeline lands in the next task.
     if (shiny) {
-      for (const relatedId of this.getRelatedPokemonIds(pokemonId)) {
-        changed = this.upsertSeenEntry(updatedCaught, relatedId, true) || changed;
-      }
+      changed = this.propagateShinyToFamily(updatedCaught, pokemonId, true) || changed;
     }
 
     if (!changed) {
@@ -66,7 +62,7 @@ export class PokedexService {
    */
   replacePokedex(data: unknown): void {
     const normalized = normalizePokedexData(data);
-    const { data: fixedUp } = this.normalizeShinyOnLoad(normalized);
+    const { data: fixedUp } = this.enforceShinyFamilyConsistency(normalized);
     this.savePokedexToStorage(fixedUp);
     this.pokedexSubject$.next(fixedUp);
   }
@@ -113,12 +109,25 @@ export class PokedexService {
       return this.defaultPokedex;
     }
 
-    const { data, changed } = this.normalizeShinyOnLoad(fromStorage);
+    const { data, changed } = this.enforceShinyFamilyConsistency(fromStorage);
     if (changed) {
       this.savePokedexToStorage(data);
     }
 
     return data;
+  }
+
+  private propagateShinyToFamily(
+    caught: Record<string, PokedexEntry>,
+    sourceId: number,
+    createMissing: boolean,
+  ): boolean {
+    let changed = false;
+    for (const relatedId of this.getRelatedPokemonIds(sourceId)) {
+      if (!createMissing && !caught[String(relatedId)]) continue;
+      changed = this.upsertSeenEntry(caught, relatedId, true) || changed;
+    }
+    return changed;
   }
 
   private upsertSeenEntry(caught: Record<string, PokedexEntry>, pokemonId: number, shiny: boolean): boolean {
@@ -142,33 +151,20 @@ export class PokedexService {
     return changed;
   }
 
-  private normalizeShinyOnLoad(data: PokedexData): { data: PokedexData; changed: boolean } {
-    const normalizedCaught: Record<string, PokedexEntry> = { ...data.caught };
+  /**
+   * Enforces the shiny-family invariant across the whole Pokédex — permanent,
+   * not a migration: runs on load and on profile import (replacePokedex), where
+   * an imported blob may carry a shiny without its family flagged. Only updates
+   * entries already present (does not reveal new family members).
+   */
+  private enforceShinyFamilyConsistency(data: PokedexData): { data: PokedexData; changed: boolean } {
+    const caught: Record<string, PokedexEntry> = { ...data.caught };
     let changed = false;
-
-    // TODO(next-task cleanup): remove this temporary migration once legacy shiny records
-    // are no longer in circulation and propagation is guaranteed upstream.
     for (const [pokemonId, entry] of Object.entries(data.caught)) {
-      if (!entry?.shiny) {
-        continue;
-      }
-
-      for (const relatedId of this.getRelatedPokemonIds(Number(pokemonId))) {
-        const relatedKey = String(relatedId);
-
-        // Load-time migration scope: update only entries that already exist in storage.
-        if (!normalizedCaught[relatedKey]) {
-          continue;
-        }
-
-        changed = this.upsertSeenEntry(normalizedCaught, relatedId, true) || changed;
-      }
+      if (!entry?.shiny) continue;
+      changed = this.propagateShinyToFamily(caught, Number(pokemonId), false) || changed;
     }
-
-    return {
-      data: { version: data.version, caught: normalizedCaught },
-      changed,
-    };
+    return { data: { version: data.version, caught }, changed };
   }
 
   private getRelatedPokemonIds(pokemonId: number): Set<number> {
