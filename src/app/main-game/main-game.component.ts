@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbCollapseModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TrainerTeamComponent } from "../trainer-team/trainer-team.component";
@@ -41,6 +41,7 @@ import { LinkCableService } from '../services/link-cable-service/link-cable.serv
     TranslatePipe
   ],
   templateUrl: './main-game.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-game.component.css'
 })
 export class MainGameComponent implements OnInit {

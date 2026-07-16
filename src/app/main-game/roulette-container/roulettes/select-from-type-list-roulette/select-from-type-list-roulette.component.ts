@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PokemonType, PokemonTypeData, pokemonTypeData, getTypeIconUrl } from '../../../../interfaces/pokemon-type';
 
@@ -35,6 +35,7 @@ const TYPE_FILL_STYLES: Record<PokemonType, string> = {
   selector: 'app-select-from-type-list-roulette',
   imports: [TranslatePipe],
   templateUrl: './select-from-type-list-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './select-from-type-list-roulette.component.css'
 })
 export class SelectFromTypeListRouletteComponent {

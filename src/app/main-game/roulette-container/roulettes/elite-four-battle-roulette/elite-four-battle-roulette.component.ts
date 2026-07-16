@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { eliteFourByGeneration } from './elite-four-by-generation';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { take } from 'rxjs';
@@ -21,6 +21,7 @@ import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle
     TranslatePipe
   ],
   templateUrl: './elite-four-battle-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './elite-four-battle-roulette.component.css'
 })
 export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponent {

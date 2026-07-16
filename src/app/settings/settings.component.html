@@ -74,7 +74,7 @@
                             <input 
                                 class="form-check-input" 
                                 type="checkbox" 
-                                [checked]="(settings$ | async)?.lessExplanations" 
+                                [checked]="$safeNavigationMigration((settings$ | async)?.lessExplanations)" 
                                 (change)="onToggleVerbosity()"
                                 id="explanationsSwitch">
                         </div>
@@ -87,7 +87,7 @@
                             <input
                                 class="form-check-input"
                                 type="checkbox"
-                                [checked]="(settings$ | async)?.muteAudio"
+                                [checked]="$safeNavigationMigration((settings$ | async)?.muteAudio)"
                                 (change)="onToggleMuteAudio()"
                                 id="muteAudioSwitch">
                         </div>
@@ -103,7 +103,7 @@
                                 min="0"
                                 max="1"
                                 step="0.05"
-                                [value]="(settings$ | async)?.volume"
+                                [value]="$safeNavigationMigration((settings$ | async)?.volume)"
                                 (input)="onVolumeChange($any($event.target).value)"
                                 id="volumeSlider">
                         </div>
@@ -116,7 +116,7 @@
                             <input 
                                 class="form-check-input" 
                                 type="checkbox" 
-                                [checked]="(settings$ | async)?.skipShinyRolls" 
+                                [checked]="$safeNavigationMigration((settings$ | async)?.skipShinyRolls)" 
                                 (change)="onToggleSkipShinyRolls()"
                                 id="skipShinySwitch">
                         </div>
@@ -129,7 +129,7 @@
                             <input
                                 class="form-check-input"
                                 type="checkbox"
-                                [checked]="(settings$ | async)?.skipMegaEvolutionAnimation"
+                                [checked]="$safeNavigationMigration((settings$ | async)?.skipMegaEvolutionAnimation)"
                                 (change)="onToggleSkipMegaEvolutionAnimation()"
                                 id="skipMegaAnimationSwitch">
                         </div>
@@ -142,7 +142,7 @@
                             <input
                                 class="form-check-input"
                                 type="checkbox"
-                                [checked]="(settings$ | async)?.fastSpin"
+                                [checked]="$safeNavigationMigration((settings$ | async)?.fastSpin)"
                                 (change)="onToggleFastSpin()"
                                 id="fastSpinSwitch">
                         </div>

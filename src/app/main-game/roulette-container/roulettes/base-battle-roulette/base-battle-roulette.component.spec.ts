@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
@@ -19,7 +19,8 @@ import { GameStateService } from '../../../../services/game-state-service/game-s
  * The actual odds math lives here, tested once, so tuning a magnitude constant
  * doesn't require touching four separate spec files.
  */
-@Component({ selector: 'app-test-battle-roulette', template: '' })
+@Component({ selector: 'app-test-battle-roulette', changeDetection: ChangeDetectionStrategy.Eager,
+ template: '' })
 class TestBattleRouletteComponent extends BaseBattleRouletteComponent {
   testOpponentTypes: PokemonType[] | undefined = undefined;
   testBaseNoCount = 1;

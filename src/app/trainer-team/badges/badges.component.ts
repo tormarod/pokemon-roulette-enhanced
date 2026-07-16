@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Badge } from '../../interfaces/badge';
 import { Observable } from 'rxjs';
 import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
@@ -15,6 +15,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     TranslatePipe
   ],
   templateUrl: './badges.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './badges.component.css'
 })
 export class BadgesComponent {

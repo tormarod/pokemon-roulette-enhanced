@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { GenerationService } from '../../services/generation-service/generation.service';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { Subscription } from 'rxjs';
@@ -20,6 +20,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
     TranslatePipe
   ],
   templateUrl: './end-game.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './end-game.component.css'
 })
 export class EndGameComponent implements OnInit, AfterViewInit, OnDestroy {

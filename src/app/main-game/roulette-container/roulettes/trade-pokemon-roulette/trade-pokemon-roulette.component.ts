@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { PokemonService } from '../../../../services/pokemon-service/pokemon.service';
@@ -13,6 +13,7 @@ const AWAY_SOFT_WEIGHT_MULTIPLIER = 0.25;
   selector: 'app-trade-pokemon-roulette',
   imports: [WheelComponent, TranslatePipe],
   templateUrl: './trade-pokemon-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './trade-pokemon-roulette.component.css'
 })
 export class TradePokemonRouletteComponent {
