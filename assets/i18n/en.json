@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Honey",
-      "description": "Use Honey to bias your next catch or trade toward a type you choose, until your next Gym battle !"
+      "description": "Use Honey to bias your next wild Pokémon toward a type you choose, until your next Gym battle !"
     },
     "repel": {
       "name": "Repel",
-      "description": "Use Repel to steer your next catch or trade away from a type you choose, until your next Gym battle !"
+      "description": "Use Repel to steer your next wild Pokémon away from a type you choose, until your next Gym battle !"
     },
     "poke-radar": {
       "name": "Poké Radar",
-      "description": "Poké Radar guarantees your next catch or trade is a type you choose, until your next Gym battle !"
+      "description": "Poké Radar guarantees your next wild Pokémon is a type you choose, until your next Gym battle !"
     },
     "max-repel": {
       "name": "Max Repel",
-      "description": "Max Repel fully excludes a type you choose from your next catch or trade, until your next Gym battle !"
+      "description": "Max Repel fully excludes a type you choose from your next wild Pokémon, until your next Gym battle !"
     },
     "link-cable": {
       "name": "Link Cable",

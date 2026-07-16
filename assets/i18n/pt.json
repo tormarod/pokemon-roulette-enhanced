@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Mel",
-      "description": "Use Mel para direcionar sua próxima captura ou troca para um tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "Use Mel para direcionar seu próximo Pokémon selvagem para um tipo escolhido, até sua próxima batalha de Ginásio!"
     },
     "repel": {
       "name": "Repelente",
-      "description": "Use Repelente para afastar sua próxima captura ou troca de um tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "Use Repelente para afastar seu próximo Pokémon selvagem de um tipo escolhido, até sua próxima batalha de Ginásio!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "O PokéRadar garante que sua próxima captura ou troca seja do tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "O PokéRadar garante que seu próximo Pokémon selvagem seja do tipo escolhido, até sua próxima batalha de Ginásio!"
     },
     "max-repel": {
       "name": "Repelente Máx",
-      "description": "O Repelente Máx exclui completamente um tipo escolhido da sua próxima captura ou troca, até sua próxima batalha de Ginásio!"
+      "description": "O Repelente Máx exclui completamente um tipo escolhido do seu próximo Pokémon selvagem, até sua próxima batalha de Ginásio!"
     },
     "link-cable": {
       "name": "Cabo Link",

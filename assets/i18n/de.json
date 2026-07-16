@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Honig",
-      "description": "Nutze Honig, um deinen nächsten Fang oder Tausch bis zu deinem nächsten Arena-Kampf zu einem gewählten Typ hin zu verschieben!"
+      "description": "Nutze Honig, um dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf zu einem gewählten Typ hin zu verschieben!"
     },
     "repel": {
       "name": "Repellent",
-      "description": "Nutze Repellent, um deinen nächsten Fang oder Tausch bis zu deinem nächsten Arena-Kampf von einem gewählten Typ fernzuhalten!"
+      "description": "Nutze Repellent, um dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf von einem gewählten Typ fernzuhalten!"
     },
     "poke-radar": {
       "name": "Pokéradar",
-      "description": "Der Pokéradar garantiert, dass dein nächster Fang oder Tausch bis zu deinem nächsten Arena-Kampf ein gewählter Typ ist!"
+      "description": "Der Pokéradar garantiert, dass dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf ein gewählter Typ ist!"
     },
     "max-repel": {
       "name": "Hyperrepellent",
-      "description": "Der Hyperrepellent schließt einen gewählten Typ vollständig von deinem nächsten Fang oder Tausch aus, bis zu deinem nächsten Arena-Kampf!"
+      "description": "Der Hyperrepellent schließt einen gewählten Typ vollständig von deinem nächsten wilden Pokémon aus, bis zu deinem nächsten Arena-Kampf!"
     },
     "link-cable": {
       "name": "Linkkabel",
