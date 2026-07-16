@@ -1,0 +1,13 @@
+@if (current; as achievement) {
+  <div class="achievement-toast-host" aria-live="polite" aria-atomic="true">
+    <ngb-toast
+      [autohide]="true"
+      [delay]="toastDelayMs"
+      [header]="'stats.achievements.unlockedToastHeader' | translate"
+      (hidden)="dismiss()"
+    >
+      <strong>{{ achievement.nameKey | translate }}</strong>
+      <div>{{ achievement.descriptionKey | translate }}</div>
+    </ngb-toast>
+  </div>
+}

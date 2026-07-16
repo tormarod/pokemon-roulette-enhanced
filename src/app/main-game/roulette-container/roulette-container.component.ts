@@ -64,6 +64,8 @@ import { GenerationItem } from '../../interfaces/generation-item';
 import { GymLeader } from '../../interfaces/gym-leader';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
+import { championByGeneration } from './roulettes/champion-battle-roulette/champion-by-generation';
+import { StatsService } from '../../services/stats-service/stats.service';
 
 @Component({
   selector: 'app-roulette-container',
@@ -135,7 +137,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private megaStoneService: MegaStoneService,
       private typeBiasItemService: TypeBiasItemService,
       private linkCableService: LinkCableService,
-      private generationService: GenerationService) {
+      private generationService: GenerationService,
+      private statsService: StatsService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -237,6 +240,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   private readonly gymLeadersByGeneration = gymLeadersByGeneration;
   private readonly eliteFourByGeneration = eliteFourByGeneration;
+  private readonly championByGeneration = championByGeneration;
   private readonly opponentPreviewHiddenStates = new Set<GameState>([
     'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival'
   ]);
@@ -302,6 +306,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   capturePokemon(pokemon: PokemonItem): void {
+    if (this.currentGameState === 'starter-pokemon') {
+      this.statsService.recordRunStart(this.generation.id, pokemon.pokemonId);
+    }
     this.preparePokemonCapture(pokemon);
   }
 
@@ -309,6 +316,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     if (shiny) {
       this.trainerService.makeShiny();
       this.registerInPokedex({ ...this.currentContextPokemon, shiny: true });
+      this.statsService.recordShiny();
     }
     this.finishCurrentState();
   }
@@ -448,6 +456,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         const index = this.auxPokemonList.indexOf(pokemon);
         const original = index !== -1 ? this.stealCandidates[index] : pokemon;
         this.stolenPokemon = original;
+        this.statsService.recordStealSuffered();
         this.removeFromTeam(original);
         this.finishCurrentState();
         break;
@@ -504,6 +513,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.respinReason = '';
 
     if (result) {
+      this.statsService.recordBattleWin('gym');
       this.playItemFoundAudio();
       this.trainerService.addBadge(this.leadersDefeatedAmount, this.fromLeader);
       this.gameStateService.advanceRound();
@@ -512,9 +522,24 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.finishCurrentState();
 
     } else {
+      this.statsService.recordBattleLoss('gym', this.opponentNemesisKey('gym'));
+      this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
       this.gameStateService.setNextState('game-over');
       this.finishCurrentState();
     }
+  }
+
+  /** Stable key for "which opponent ended a run" — see StatsService.recordBattleLoss. */
+  private opponentNemesisKey(battleType: 'gym' | 'eliteFour' | 'champion'): string {
+    let name: string | undefined;
+    if (battleType === 'gym') {
+      name = this.gymLeadersByGeneration[this.generation.id]?.[this.leadersDefeatedAmount]?.name;
+    } else if (battleType === 'eliteFour') {
+      name = this.eliteFourByGeneration[this.generation.id]?.[this.leadersDefeatedAmount % 4]?.name;
+    } else {
+      name = this.championByGeneration[this.generation.id]?.[0]?.name;
+    }
+    return `${battleType}:${name ?? 'unknown'}`;
   }
 
   catchTwoPokemon(): void {
@@ -646,6 +671,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   paradoxCaptureSuccess(): void {
+    this.statsService.recordLegendaryCaught();
     this.preparePokemonCapture(this.currentContextPokemon);
   }
 
@@ -656,8 +682,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   rivalBattleResult(result: boolean): void {
     if (result) {
+      this.statsService.recordBattleWin('rival');
       this.chooseWhoWillEvolve('battle-rival');
     } else {
+      // A rival loss never ends the run, so it's never a "nemesis" — omit the opponent key.
+      this.statsService.recordBattleLoss('rival');
       this.doNothing();
     }
   }
@@ -723,6 +752,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
   
   legendaryCaptureSuccess(): void {
+    this.statsService.recordLegendaryCaught();
     this.preparePokemonCapture(this.currentContextPokemon);
   }
 
@@ -791,11 +821,14 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.respinReason = '';
 
     if (result) {
+      this.statsService.recordBattleWin('eliteFour');
       this.gameStateService.advanceRound();
       this.queueCheckEvolutionAfterImportantBattle();
       this.awardMegaStoneAfterImportantBattle();
       this.finishCurrentState();
     } else {
+      this.statsService.recordBattleLoss('eliteFour', this.opponentNemesisKey('eliteFour'));
+      this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
       this.gameStateService.setNextState('game-over');
       this.finishCurrentState();
     }
@@ -815,9 +848,13 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         return baseId !== null && baseId !== id ? [id, baseId] : [id];
       }))];
       this.pokedexService.markWon(wonIds);
+      this.statsService.recordBattleWin('champion', this.generation.id);
       this.gameStateService.advanceRound();
+      this.statsService.recordRunEnd(true, this.leadersDefeatedAmount);
       this.finishCurrentState();
     } else {
+      this.statsService.recordBattleLoss('champion', this.opponentNemesisKey('champion'));
+      this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
       this.gameStateService.setNextState('game-over');
       this.finishCurrentState();
     }
@@ -1072,6 +1109,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.currentContextPokemon = pokemon; // ensures setShininess can reference captured pokemon
     this.trainerService.addToTeam(pokemon);
     this.registerInPokedex(pokemon);
+    this.statsService.recordCapture();
 
     if (this.settingsService.currentSettings.skipShinyRolls) {
       const isShiny = Math.random() < (1 / 64);
@@ -1100,6 +1138,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.registerInPokedex(pokemonIn);
     this.pkmnEvoTitle = "game.main.roulette.evolve.modal.title"
     this.trainerService.replaceForEvolution(this.pkmnOut, this.pkmnIn);
+    this.statsService.recordEvolutionPerformed();
 
     if (this.evolutionService.isNincadaSpecialEvolution(pokemonOut)) {
       const nincadaEvolutions = this.evolutionService.getEvolutions(pokemonOut);

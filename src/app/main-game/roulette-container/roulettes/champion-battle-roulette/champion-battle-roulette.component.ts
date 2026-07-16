@@ -12,6 +12,7 @@ import { GymLeader } from '../../../../interfaces/gym-leader';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
+import { StatsService } from '../../../../services/stats-service/stats.service';
 
 @Component({
   selector: 'app-champion-battle-roulette',
@@ -44,12 +45,14 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
     generationService: GenerationService,
     trainerService: TrainerService,
     translate: TranslateService,
-    typeMatchupService: TypeMatchupService
+    typeMatchupService: TypeMatchupService,
+    statsService: StatsService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
   }
 
   onItemSelected(index: number): void {
+    this.recordSpin(index);
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.champion.yes') {
       this.battleResultEvent.emit(true);

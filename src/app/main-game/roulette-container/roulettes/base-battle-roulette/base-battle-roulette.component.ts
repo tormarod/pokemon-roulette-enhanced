@@ -6,6 +6,7 @@ import { GameStateService } from '../../../../services/game-state-service/game-s
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
+import { StatsService } from '../../../../services/stats-service/stats.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
@@ -38,7 +39,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     protected readonly generationService: GenerationService,
     protected readonly trainerService: TrainerService,
     protected readonly translate: TranslateService,
-    protected readonly typeMatchupService: TypeMatchupService
+    protected readonly typeMatchupService: TypeMatchupService,
+    protected readonly statsService: StatsService
   ) {}
 
   ngOnInit(): void {
@@ -130,6 +132,22 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     return interleaveOdds(yesOdds, noOdds);
   }
 
+  /**
+   * Records a wheel spin's outcome against its pre-spin yes-share, for the
+   * luck index (plan §3 Group A). Call with the selected wheel index before
+   * any retry/potion bookkeeping mutates state — `victoryOdds` at that point
+   * is exactly what the player saw when the wheel stopped.
+   */
+  protected recordSpin(index: number): void {
+    const total = this.victoryOdds.length;
+    if (total === 0) {
+      return;
+    }
+    const yesCount = this.victoryOdds.filter(item => item.text.endsWith('.yes')).length;
+    const landedYes = this.victoryOdds[index].text.endsWith('.yes');
+    this.statsService.recordSpin(landedYes, yesCount / total);
+  }
+
   /** Weakest to strongest, so weaker potions get used up before stronger ones. */
   private static readonly potionRanking = ['potion', 'super-potion', 'hyper-potion'];
 
@@ -158,6 +176,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       case 'super-potion': this.retries = 2; break;
       case 'hyper-potion': this.retries = 3; break;
     }
+    this.statsService.recordPotionUsed();
     openItemUsedModal();
   }
 

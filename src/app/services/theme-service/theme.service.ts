@@ -61,6 +61,11 @@ export class ThemeService {
     return this._theme$.value;
   }
 
+  /** Base-href-aware URL for the "starters" theme's tiled background image — see setTheme(). */
+  get startersBackgroundImageUrl(): string {
+    return `${this.baseHref}dark-background.png`;
+  }
+
   /**
    * Apply a theme:
    * 1. Removes ALL old theme + legacy dark-mode/light-mode classes from body

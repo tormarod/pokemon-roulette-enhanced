@@ -3,6 +3,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MainGameButtonComponent } from "../main-game-button/main-game-button.component";
 import {TranslatePipe} from '@ngx-translate/core';
 import { CoffeeButtonComponent } from "../main-game/coffee-button/coffee-button.component";
+import { StatsButtonComponent } from "../main-game/stats-button/stats-button.component";
 
 @Component({
   selector: 'app-credits',
@@ -10,7 +11,8 @@ import { CoffeeButtonComponent } from "../main-game/coffee-button/coffee-button.
     CommonModule,
     MainGameButtonComponent,
     TranslatePipe,
-    CoffeeButtonComponent
+    CoffeeButtonComponent,
+    StatsButtonComponent
 ],
   templateUrl: './credits.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

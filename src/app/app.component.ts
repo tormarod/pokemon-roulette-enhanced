@@ -4,11 +4,12 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { environment } from '../environments/environment';
 import { ThemeService } from './services/theme-service/theme.service';
 import { RunPersistenceService } from './services/run-persistence-service/run-persistence.service';
+import { AchievementToastComponent } from './achievement-toast/achievement-toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, TranslateModule],
+  imports: [RouterOutlet, TranslateModule, AchievementToastComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.css',

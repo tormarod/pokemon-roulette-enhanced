@@ -127,12 +127,146 @@
       "by": "Migliorato da"
     }
   },
+  "stats": {
+    "title": "Statistiche",
+    "empty": "Gioca una partita per vedere le tue statistiche!",
+    "lifetime": {
+      "title": "Totali di sempre",
+      "runsPlayed": "Partite giocate",
+      "victories": "Vittorie",
+      "defeats": "Sconfitte",
+      "winRate": "Percentuale di vittorie",
+      "currentStreak": "Serie attuale",
+      "bestWinStreak": "Migliore serie di vittorie",
+      "gymLeadersDefeated": "Capipalestra sconfitti",
+      "eliteFourDefeated": "Membri della Lega sconfitti",
+      "championsDefeated": "Campioni sconfitti",
+      "pokemonCaught": "Pokémon catturati",
+      "shiniesCaught": "Shiny catturati"
+    },
+    "streak": {
+      "none": "Nessuna serie ancora",
+      "win": "{{count}} vittorie di fila",
+      "loss": "{{count}} sconfitte di fila"
+    },
+    "records": {
+      "title": "Record",
+      "fastestVictory": "Vittoria più veloce",
+      "longestRun": "Partita più lunga",
+      "favoriteGeneration": "Generazione preferita",
+      "rounds": "{{count}} round",
+      "none": "—",
+      "perfectRuns": "Partite perfette (nessuna sconfitta in battaglia)"
+    },
+    "pokemon": {
+      "title": "Pokémon",
+      "topOwned": "Pokémon più posseduti",
+      "mostChosenStarter": "Starter più scelto",
+      "signaturePokemon": "Pokémon simbolo",
+      "favoriteTypes": "Tipi preferiti",
+      "none": "Ancora nessuno",
+      "legendariesCaught": "Leggendari catturati",
+      "evolutionsPerformed": "Evoluzioni effettuate"
+    },
+    "battles": {
+      "title": "Battaglie",
+      "nemesis": "Nemesi",
+      "nemesisNone": "Non hai ancora perso una partita!",
+      "winRateByType": "Percentuale di vittorie per tipo di battaglia",
+      "championHeartbreakRate": "Partite terminate dal Campione"
+    },
+    "battleType": {
+      "gym": "Capipalestra",
+      "rival": "Rivale",
+      "eliteFour": "Membri della Lega",
+      "champion": "Campione"
+    },
+    "luck": {
+      "title": "Fortuna & Ruota",
+      "totalSpins": "Giri totali",
+      "actualYesRate": "Tasso di Sì reale",
+      "expectedYesRate": "Tasso di Sì atteso",
+      "luckIndex": "Indice di fortuna",
+      "luckIndexHint": "Tasso di Sì reale meno quello implicito nelle probabilità — positivo significa che sei fortunato.",
+      "potionsUsed": "Pozioni usate",
+      "teamRocketStealsSuffered": "Pokémon rubati dal Team Rocket"
+    },
+    "history": {
+      "title": "Cronologia Partite",
+      "winRateTrend": "Andamento del Tasso di Vittorie",
+      "recentForm": "Forma Recente (ultime 10)",
+      "recentFormNone": "Ancora nessuna partita",
+      "playTime": "Tempo di Gioco Totale",
+      "victory": "Vittoria",
+      "defeat": "Sconfitta",
+      "none": "Ancora nessuna cronologia partite"
+    },
+    "perGeneration": {
+      "title": "Per Generazione",
+      "none": "Ancora nessuna partita in questa generazione",
+      "noBreakdownYet": "Ancora nessuna suddivisione Pokémon/tipo/nemesi per questa generazione — il tracciamento inizia dalla tua prossima partita qui."
+    },
+    "achievements": {
+      "title": "Obiettivi",
+      "unlockedToastHeader": "Obiettivo sbloccato!",
+      "locked": "Bloccato",
+      "firstVictory": { "name": "Prima Vittoria", "description": "Vinci una partita." },
+      "wins10": { "name": "Campione Esperto", "description": "Vinci 10 partite." },
+      "wins50": { "name": "Campione Leggendario", "description": "Vinci 50 partite." },
+      "winStreak5": { "name": "In Forma", "description": "Raggiungi una serie di 5 vittorie." },
+      "winStreak10": { "name": "Inarrestabile", "description": "Raggiungi una serie di 10 vittorie." },
+      "firstShiny": { "name": "Cacciatore di Shiny", "description": "Cattura il tuo primo Pokémon shiny." },
+      "firstLegendary": { "name": "Cacciatore di Miti", "description": "Cattura un Pokémon leggendario o Paradosso." },
+      "perfectRun": { "name": "Vittoria Perfetta", "description": "Vinci una partita senza subire alcuna sconfitta in battaglia." },
+      "championEveryGeneration": { "name": "Maestro di Tutte le Regioni", "description": "Sconfiggi il Campione in ogni generazione." }
+    },
+    "share": {
+      "title": "Condividi le Mie Statistiche",
+      "cardTitle": "Le Mie Statistiche di Pokémon Roulette",
+      "action": "Condividi / Scarica Immagine",
+      "text": "Guarda le mie statistiche di Pokémon Roulette!"
+    },
+    "export": {
+      "action": "Esporta Profilo (JSON)"
+    },
+    "import": {
+      "action": "Importa Profilo (JSON)",
+      "success": "Profilo importato con successo!",
+      "error": "Impossibile importare questo file — verifica che sia un'esportazione di profilo valida.",
+      "unsupportedVersion": "Questo profilo è stato esportato con una versione più recente dell'app e non può essere importato qui."
+    },
+    "reset": {
+      "action": "Reimposta statistiche",
+      "title": "Reimpostare le statistiche?",
+      "warning": "Questo cancellerà definitivamente tutte le tue statistiche di sempre. La partita attuale e il Pokédex non saranno interessati. Questa azione non può essere annullata.",
+      "confirm": "Reimposta",
+      "cancel": "Annulla",
+      "section": {
+        "action": "Reimposta Sezione",
+        "luck": {
+          "title": "Reimpostare le statistiche di Fortuna & Ruota?",
+          "warning": "Questo cancellerà definitivamente le tue statistiche di fortuna e ruota (giri, pozioni usate, furti del Team Rocket). Le altre statistiche non sono interessate. Questa azione non può essere annullata."
+        },
+        "runHistory": {
+          "title": "Reimpostare la cronologia partite?",
+          "warning": "Questo cancellerà definitivamente il tuo registro cronologia partite. Le altre statistiche non sono interessate. Questa azione non può essere annullata."
+        },
+        "achievements": {
+          "title": "Reimpostare gli obiettivi?",
+          "warning": "Questo segnerà nuovamente tutti gli obiettivi come bloccati. Se le statistiche sottostanti li soddisfano già, potrebbero sbloccarsi di nuovo immediatamente. Questa azione non può essere annullata."
+        }
+      }
+    }
+  },
   "game": {
     "coffeeButton": {
       "label": "Comprami un caffè? "
     },
     "creditsButton": {
       "label": "Crediti"
+    },
+    "statsButton": {
+      "label": "Statistiche"
     },
     "end": {
       "champion": "Campione di",
