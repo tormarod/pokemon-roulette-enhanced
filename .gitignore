@@ -44,6 +44,9 @@ Thumbs.db
 # GitHub config
 .planning/
 
+# Claude planning docs (not part of the shipped repo)
+docs/plans/
+
 # ── GSD baseline (auto-generated) ──
 .gsd
 .gsd-id
