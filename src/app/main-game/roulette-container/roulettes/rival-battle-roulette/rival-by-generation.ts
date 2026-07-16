@@ -53,7 +53,7 @@ export const rivalByGeneration: Record<number, GymLeader> = {
       "rival.calem-serena.quote1",
       "rival.calem-serena.quote2"
     ],
-    types: ['normal', 'normal']
+    types: ['normal']
   },
   7: {
     name: 'rival.gladion.name',

@@ -1,7 +1,7 @@
 # Plan: Type Advantage/Disadvantage Rework
 
-Status: **Phases 1-4 implemented, tested, and committed (Phase 4 revised — see
-below); Phase 5 (docs) pending; Phase 6 (dual-type depth) approved, not started**
+Status: **Phases 1-5 implemented and tested (Phase 4 revised, Phase 5 not yet
+committed — see below); Phase 6 (docs) pending**
 Owner: tormarod
 Last updated: 2026-07-16
 
@@ -199,8 +199,9 @@ weak-vs-hard ordering. (An alternative Yes-subtraction model that preserves
 strict "6 always ≥ 5" monotonicity was considered and rejected: it cannot show
 red slices and collapsed high-power hard counters toward a single Yes ticket.)
 
-**Phase 5 — Dual-type depth: reward resistance, dedupe opponent types, sync the
-display.** *Not yet started — approved 2026-07-16.* Motivated by a review of the
+**Phase 5 — Dual-type depth: reward resistance, make repeated opponent types an
+intentional emphasis lever, sync the display. ✅ DONE — implemented and tested
+2026-07-16, not yet committed.** Motivated by a review of the
 canonical dual-type defensive chart (https://pokemondb.net/type/dual). Key
 finding: that chart is nothing we need to hardcode — every cell is the *product*
 of the single-type relationships we already store (`strongAgainst` / `resists` /
@@ -228,22 +229,43 @@ changes, all integer/tier-based:
      decision §7.1. We're adding the missing buckets, not switching to `4×/0.25×`
      scaling.
 
-2. **Fix the duplicate-opponent-type bug.** `getDefenseTier` counts
-   `weakOpponentTypeCount` per *array entry*, not per *distinct type*, so a
-   trainer whose `types` list repeats a type — Lance is `['dragon','dragon']` —
-   makes a dragon-weak member read as weak to "two opponent types" ⇒ falsely
-   `doubleWeak` ⇒ now *doubled* penalty. Dedupe `opponentTypes` before the
-   count-based logic (robust against any future dup), and clean the obviously
-   accidental data entries (`['dragon','dragon']`, `['normal','normal']` — the
-   latter is harmless since Normal is SE against nothing, but still wrong). Add a
-   regression test asserting a dragon-typed member vs `['dragon','dragon']`
-   classifies as `weak`, not `hard-countered`.
+2. **Adopt repeated opponent types as an intentional "emphasis" lever**
+   (previously filed as a dedupe bug — reversed 2026-07-16, see decision §7.5).
+   `getDefenseTier` counts weakness per *array entry*, not per distinct type, so
+   a trainer whose `types` repeats a type — Lance is `['dragon','dragon']` —
+   pushes a dragon-weak member from `weak` up to `doubleWeak` ⇒ `hard-countered`
+   ⇒ doubled red. Rather than "fix" that, **keep it**: a repeated type reads as
+   *"this trainer leans hard into it — a weakness here is punished as a hard
+   counter."* It's thematically right (being dragon-weak against the Dragon
+   champion Lance *should* be scarier than against a random dragon gym) and needs
+   no new field. The work is to make it deliberate instead of accidental:
+   - **Document the convention** in the opponent-data files and in
+     `getDefenseTier`: distinct types in a `types` list = the *breadth* of a
+     trainer's team; a *repeated* type = *depth*/emphasis on it (weakness to it
+     punished harder, and — see the resist bullet — walling it rewarded harder).
+   - **Audit the existing dups.** Keep `['dragon','dragon']` (Lance) as intended
+     emphasis. `['normal','normal']`: Normal has no super-effective matchups, so
+     doubling it amplifies nothing — the lever is a no-op there and the entry
+     reads as a typo. *(Open sub-decision: leave it or drop the repeat.)*
+   - **Test it as a feature, not a regression:** a dragon-typed member vs
+     `['dragon','dragon']` classifies as `hard-countered` **by design**; a member
+     weak to a type that appears only once is still `weak`; a member weak to a
+     type the trainer *doesn't* emphasize is unaffected.
+   - **Decide the resist-tier interaction** (depends on point 1). By the same
+     counting, a member that *resists* an emphasized type reads as `doubleResist`
+     (extra advantage). Under the emphasis framing that's arguably correct — you
+     hard-wall the trainer's whole gimmick — but confirm it on purpose.
+     *(Open sub-decision.)*
+   - **Note the limits.** The lever is coarse (one repeat = ×2; a triple does
+     nothing more than a double) and only bites for types that actually *have* SE
+     relationships. If graded intensity is ever wanted, a real `weight` /
+     `intensity` field is the expressive route — out of scope here.
    > Reminder on the data's meaning: an opponent `types` list is a *trainer's
-   > team theme* (2–3 types, sometimes dup'd), **not** one dual-type Pokémon. So
-   > we never multiply the opponent's own types together (a 3-type leader isn't a
-   > `4×`-anything). The dual-type product only ever applies to *our* member's
-   > two types taking a hit from *each* opponent type — exactly `getDefenseTier`'s
-   > existing domain.
+   > team theme* (2–3 types, sometimes an intentional repeat), **not** one
+   > dual-type Pokémon. So we never multiply the opponent's own types together (a
+   > 3-type leader isn't a `4×`-anything). The dual-type product only ever applies
+   > to *our* member's two types taking a hit from *each* opponent type — exactly
+   > `getDefenseTier`'s existing domain.
 
 3. **Sync the matchup-strip display with the graded model.** The advantage/
    disadvantage *delta numbers* are already correct (they come from the graded
@@ -267,13 +289,47 @@ changes, all integer/tier-based:
      appears already resolved; this phase just adds a test confirming the full
      list renders, and closes it out.
 
+Checkpoint after each of the three, per CLAUDE.md. Suggested order: (2) the
+emphasis-lever documentation + audit first (smallest, mostly docs/tests, and it
+locks the meaning the other two build on), then (1) resist tier, then (3)
+display sync (depends on 1's new tiers).
+
+**Implementation notes (2026-07-16):**
+- `getDefenseTier` gained `'resist'` / `'doubleResist'` alongside the existing
+  `'weak'`/`'doubleWeak'`, computed from the same exponent already tracked
+  (`exponent <= -1` / `<= -2`, or resisting ≥2 distinct opponent types) —
+  weakness checks still short-circuit first, so a resist never rescues a
+  member that's weak to another opponent type (confirmed by test).
+- `getMemberTier` gained `'resistant'` / `'hard-resistant'`, mirroring the
+  `'weak'`/`'hard-countered'` split. `getTierDeltaMagnitude` gives them
+  `ceil(power/4)` / `2 * ceil(power/4)` — deliberately half the weak/strong
+  scale, never zero. Both feed `advantageDelta`/`yesPower` in
+  `calcTeamMatchupTotals`, same bucket as `'strong'`.
+- **Open sub-decision resolved: `['normal','normal']`** — dropped to `['normal']`
+  in `rival-by-generation.ts`. Normal has no SE relationships in either
+  direction, so the repeat was inert (a no-op lever) and read as a data typo,
+  unlike Lance's `['dragon','dragon']` which was kept as intentional emphasis.
+- **Open sub-decision resolved: resist-tier interaction with emphasis** — kept
+  as-is. Resisting a repeated/emphasized opponent type lands on
+  `'hard-resistant'` via the same counting as the weak side, and this was
+  judged correct under the emphasis framing (walling a trainer's whole gimmick
+  deserves the bigger bonus). Covered by a regression test.
+- `getMatchupTypes` reworked to key off `getMemberTier` per member (both of a
+  member's types move together as a unit) instead of raw per-type SE checks,
+  so the icon rows now match the graded deltas: a covered weakness
+  (Dragon/Water vs Ice) shows no icon, and immune/resistant/hard-resistant
+  members show a green icon instead of nothing.
+- `GymLeader.types` got a doc comment codifying the emphasis convention (a
+  repeated type is deliberate difficulty, not a typo) so future opponent-data
+  edits don't reintroduce the "dedupe bug" framing.
+- Full suite: 397/397 passing (`npm run test:local`), including new coverage
+  for the emphasis lever (both weak-side and resist-side), the resist/
+  doubleResist tiers, and the display sync. **Not yet committed** — pausing
+  for review per CLAUDE.md checkpoint convention.
+
 **Phase 6 — Docs.** Update `README.md` balancing section to describe the new
 approach; note the change in the fork changelog. Update this plan's status.
 *Not yet started — pausing for review before touching README.*
-
-Checkpoint after each of the three, per CLAUDE.md. Suggested order: (2) dedupe
-bugfix first (smallest, pure correctness, independent), then (1) resist tier,
-then (3) display sync (depends on 1's new tiers).
 
 ## 6. Testing / validation
 
@@ -283,17 +339,18 @@ then (3) display sync (depends on 1's new tiers).
   mid-game team, full late team, immunity case, double-resist case.
 - Manual play-test of the first gym with a deliberately bad starter to confirm
   it lands near a coin flip, not a wall.
-- **Phase 6:** regression test for the duplicate-opponent-type case (dragon vs
-  `['dragon','dragon']` ⇒ `weak`, not `hard-countered`); `resist`/`doubleResist`
-  tier classification tests (incl. a resist that is *not* rescued when the member
-  is also weak to another opponent type); `getMatchupTypes` display tests showing
+- **Phase 5 (dual-type depth):** feature test for the emphasis lever (dragon
+  member vs `['dragon','dragon']` ⇒ `hard-countered` **by design**; the same
+  member vs a single `['dragon']` ⇒ `weak`); `resist`/`doubleResist` tier
+  classification tests (incl. a resist that is *not* rescued when the member is
+  also weak to another opponent type); `getMatchupTypes` display tests showing
   covered weaknesses drop out and immune/resistant members surface as advantages;
   a test confirming the opponent-type icon row renders every entry in `.types`.
 
 ## 7. Open decisions — RESOLVED 2026-07-16
 
 1. **Double-type stance** — **coverage-based tiers**, per §3.2 recommendation.
-   No raw multipliers. **Extended in Phase 6 (2026-07-16):** after reviewing the
+   No raw multipliers. **Extended in Phase 5 (2026-07-16):** after reviewing the
    canonical dual-type chart we confirmed the stance holds — the chart is
    derivable from data we already store and we already compute it in exponent
    space, so "implementing dual types" means *adding the missing resist buckets*,
@@ -312,5 +369,14 @@ then (3) display sync (depends on 1's new tiers).
    magnitude split that came out of the same review.
 4. **Immunities** — a 0× (immune) member counts as a **hard advantage**
    (treated like a strong defensive tier, contributes to `advantageDelta`).
+5. **Repeated opponent types = emphasis, not a bug** *(added 2026-07-16).*
+   Initially flagged as a dedupe bug; reversed after discussion. A type repeated
+   in a trainer's `types` list is a deliberate difficulty lever — the trainer
+   "leans into" it, so a weakness to it is punished as a `hard-countered` rather
+   than a plain `weak` (Lance = `['dragon','dragon']`). We keep the counting
+   behavior and make it an explicit, documented convention instead of deduping it
+   away. See Phase 5, point 2 for the implementation + the two open sub-decisions
+   (the inert `['normal','normal']` entry, and whether resisting an emphasized
+   type should read as `doubleResist`).
 
 Status: **decisions locked — proceeding to Phase 1.**
