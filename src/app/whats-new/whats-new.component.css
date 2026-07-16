@@ -1,0 +1,18 @@
+.release-entry {
+  border-left: 3px solid var(--bs-primary);
+  padding-left: 1rem;
+}
+
+.release-header h6 {
+  font-weight: 600;
+}
+
+.release-header small {
+  display: block;
+  font-size: 0.85em;
+}
+
+.modal-body ul li {
+  line-height: 1.5;
+  margin-bottom: 0.6rem;
+}

@@ -3013,5 +3013,21 @@
     "dragon": "Dragon",
     "dark": "Ténèbres",
     "fairy": "Fée"
+  },
+  "v2_1_0": "Version 2.1.0",
+  "whatsNew": {
+    "title": "Quoi de Neuf",
+    "dismiss": "Compris",
+    "settingsEntry": "Quoi de Neuf",
+    "v2_1_0": {
+      "0": "⚔️ Correspondances de type retravaillées — désormais graduelles et récompensant les résistances défensives, pas juste l'attaque.",
+      "1": "📊 Nouvelle page Statistiques : victoires, séries, Pokémon le plus utilisé & emblématique, votre némésis, et suivi de chance.",
+      "2": "📈 Historique des parties avec tendance de taux de victoire, succès et statistiques par génération.",
+      "3": "💾 Exportez/importez votre profil complet ou partagez une image de statistiques.",
+      "4": "🔍 Pokédex complet avec recherche par nom et infobulles puissance/type sur vos Pokémon.",
+      "5": "👀 Aperçu de l'adversaire montre le type du prochain champion d'arène ou du Conseil 4 pendant la composition de l'équipe.",
+      "6": "🎯 Objets d'orientation de type pour contrôler votre prochaine capture, échanges directs et Team Rocket plus intelligente.",
+      "7": "💿 Les parties se sauvegardent automatiquement, plus nouveaux paramètres : volume, Rotation Rapide, redémarrage, et bouton 'Go Straight'."
+    }
   }
 }

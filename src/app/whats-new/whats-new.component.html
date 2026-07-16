@@ -1,0 +1,32 @@
+<div class="modal-header" [ngClass]="(darkMode | async) ? 'bg-dark text-white' : ''">
+  <h5 class="modal-title">{{ 'whatsNew.title' | translate }}</h5>
+  <button
+    type="button"
+    class="btn-close"
+    [ngClass]="(darkMode | async) ? 'btn-close-white' : ''"
+    (click)="close()"
+    aria-label="Close">
+  </button>
+</div>
+<div class="modal-body" [ngClass]="(darkMode | async) ? 'bg-dark text-white' : ''">
+  @for (r of entries; track r.version) {
+    <div class="release-entry mb-4">
+      <div class="release-header mb-2">
+        <h6 class="mb-0">{{ 'v' + r.version.replace(/\./g, '_') | translate }}</h6>
+        @if (r.date) {
+          <small class="text-muted">{{ r.date }}</small>
+        }
+      </div>
+      <ul class="list-unstyled ms-3">
+        @for (key of r.noteKeys; track key) {
+          <li class="mb-2">{{ key | translate }}</li>
+        }
+      </ul>
+    </div>
+  }
+</div>
+<div class="modal-footer" [ngClass]="(darkMode | async) ? 'bg-dark text-white border-secondary' : ''">
+  <button type="button" class="btn btn-primary" (click)="close()">
+    {{ 'whatsNew.dismiss' | translate }}
+  </button>
+</div>

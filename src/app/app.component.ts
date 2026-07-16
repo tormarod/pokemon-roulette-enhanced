@@ -1,10 +1,11 @@
-import { Component, Renderer2, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Renderer2, ChangeDetectionStrategy, afterNextRender } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { environment } from '../environments/environment';
 import { ThemeService } from './services/theme-service/theme.service';
 import { RunPersistenceService } from './services/run-persistence-service/run-persistence.service';
 import { AchievementToastComponent } from './achievement-toast/achievement-toast.component';
+import { WhatsNewService } from './services/whats-new-service/whats-new.service';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,7 @@ export class AppComponent {
     // Eagerly instantiate so a saved run (if any) is restored before the game
     // renders its first screen.
     _runPersistence: RunPersistenceService,
+    private whatsNew: WhatsNewService,
   ) {
     // Language setup (addLangs/setDefaultLang/use the saved language) now
     // happens in app.config.ts's provideAppInitializer, so it's awaited
@@ -34,6 +36,8 @@ export class AppComponent {
     if (environment.production && environment.googleAnalyticsId) {
       this.loadGoogleAnalytics(environment.googleAnalyticsId);
     }
+
+    afterNextRender(() => this.whatsNew.maybeShowOnStartup());
   }
 
   changeLang(lang: string) {

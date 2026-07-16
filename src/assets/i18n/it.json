@@ -3013,5 +3013,21 @@
     "dragon": "Drago",
     "dark": "Buio",
     "fairy": "Folletto"
+  },
+  "v2_1_0": "Versione 2.1.0",
+  "whatsNew": {
+    "title": "Novità",
+    "dismiss": "Ho capito",
+    "settingsEntry": "Novità",
+    "v2_1_0": {
+      "0": "⚔️ Abbinamenti di tipo rivisti — ora graduali e premiano le resistenze difensive, non solo l'attacco.",
+      "1": "📊 Nuova pagina Statistiche: vittorie, serie, Pokémon più usato & simbolo, tua nemesi, e tracciamento della fortuna.",
+      "2": "📈 Registro delle partite con andamento delle vittorie, obiettivi e statistiche per generazione.",
+      "3": "💾 Esporta/importa il profilo completo o condividi un'immagine di statistiche.",
+      "4": "🔍 Pokédex completo con ricerca per nome e suggerimenti potenza/tipo sui tuoi Pokémon.",
+      "5": "👀 Anteprima dell'avversario mostra il tipo del prossimo capopalestra o dei Superquattro durante la composizione della squadra.",
+      "6": "🎯 Oggetti di preferenza di tipo per controllare il prossimo Pokémon catturato, scambi diretti e Team Rocket più intelligente.",
+      "7": "💿 Le partite si salvano automaticamente, più nuove impostazioni: volume, Giro Rapido, riavvio, e pulsante 'Go Straight'."
+    }
   }
 }
