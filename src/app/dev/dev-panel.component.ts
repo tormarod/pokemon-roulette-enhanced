@@ -299,7 +299,7 @@ export class DevPanelComponent {
       'link-cable': {
         text: 'items.link-cable.name',
         fillStyle: 'gray',
-        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/link-cable.png',
+        sprite: './place-holder-pixel.png',
         description: 'items.link-cable.description'
       }
     };
