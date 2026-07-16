@@ -1,7 +1,7 @@
 # Plan: Type Advantage/Disadvantage Rework
 
-Status: **Phases 1-5 implemented and tested (Phase 4 revised, Phase 5 not yet
-committed — see below); Phase 6 (docs) pending**
+Status: **Phases 1-6 complete (Phase 4 revised). Plan fully implemented,
+pending final commit/review.**
 Owner: tormarod
 Last updated: 2026-07-16
 
@@ -324,12 +324,14 @@ display sync (depends on 1's new tiers).
   edits don't reintroduce the "dedupe bug" framing.
 - Full suite: 397/397 passing (`npm run test:local`), including new coverage
   for the emphasis lever (both weak-side and resist-side), the resist/
-  doubleResist tiers, and the display sync. **Not yet committed** — pausing
-  for review per CLAUDE.md checkpoint convention.
+  doubleResist tiers, and the display sync. **Committed** (`ad15982`,
+  "Reward defensive resists and formalize repeated-type emphasis (Phase 5)").
 
-**Phase 6 — Docs.** Update `README.md` balancing section to describe the new
-approach; note the change in the fork changelog. Update this plan's status.
-*Not yet started — pausing for review before touching README.*
+**Phase 6 — Docs. ✅ DONE.** Rewrote the `README.md` "Battle balancing" section
+to describe the graded tier model (strong/resistant/hard-resistant/neutral/
+weak/hard-countered, immunity precedence, no raw multipliers) and the
+repeated-type emphasis convention; updated the changelog bullet in the fork's
+feature list. Not yet committed — pausing for review.
 
 ## 6. Testing / validation
 
