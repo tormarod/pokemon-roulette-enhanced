@@ -700,7 +700,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         size: 'md'
       }).then(modalRef => {
         const onDone = () => this.doNothing();
-        modalRef.result.then(onDone).catch(() => {});
+        modalRef.result.then(onDone, onDone);
       });
     } else if (this.trainerService.hasItem('escape-rope')) {
       this.useEscapeRope();
