@@ -13,6 +13,76 @@ Last updated: 2026-07-16
 
 ## Open items
 
+### **[CRITICAL] Memory leak in WheelComponent subscriptions**
+
+Two unmanaged subscriptions to `translateService.get('wheel.spin')` in `ngAfterViewInit()` (line 81) and `ngOnChanges()` (line 124) lack cleanup in `ngOnDestroy()`. Component destruction leaks memory over repeated navigation. 
+
+**Fix**: Add `takeUntilDestroyed()` or implement `ngOnDestroy()` to unsubscribe.
+
+---
+
+### **[CRITICAL] Copy-paste bug in items.component.html**
+
+Line 38 calls `getItemSprite(5)` but should call `getItemSprite(6)` — the 7th item slot shows the same sprite as the 6th instead of its own.
+
+**Fix**: Change `getItemSprite(5)` → `getItemSprite(6)`.
+
+---
+
+### **[CRITICAL] Memory leak in StatsService constructor**
+
+Subscription to `trainerService.getTeamObservable()` (lines 60–67) in constructor lacks cleanup. While services persist for the app lifetime, subscriptions should still be managed.
+
+**Fix**: Use `takeUntilDestroyed()` with a DestroyRef or manual cleanup.
+
+---
+
+### **[HIGH] Incomplete error handling in roulette-container modal chains**
+
+Modal promise chains (lines 701–706, 771–775, 1193–1197, etc.) in `roulette-container.component.ts` lack `.catch()` handlers. Unhandled modal dismissals could throw silently.
+
+**Fix**: Add `.catch()` handlers or wrap in try-catch blocks.
+
+---
+
+### **[HIGH] Type safety: `any` type in ModalQueueService**
+
+`modal-queue.service.ts` uses `any` for content (line 13) and optional reason (line 45), weakening type safety.
+
+**Fix**: Replace with proper typed parameters (e.g., `Type<any> | TemplateRef<any>`).
+
+---
+
+### **[MEDIUM] Performance: 13× subscriptions to darkMode in items.component**
+
+Template lines 2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57, 62 all have `(darkMode | async)`, creating 13 separate subscriptions to the same observable.
+
+**Fix**: Subscribe once in component and bind a property, or use `shareReplay()`.
+
+---
+
+### **[MEDIUM] Inconsistent subscription cleanup patterns across components**
+
+Components use mixed patterns: `takeUntilDestroyed()`, manual unsubscribe, and `Subscription.add()`. `WheelComponent` has **no cleanup at all**. Hard to maintain and error-prone.
+
+**Fix**: Standardize on `takeUntilDestroyed()` for all new subscriptions; audit existing components for consistency.
+
+---
+
+### **[MEDIUM] Production console.logging**
+
+`console.log()`, `console.error()`, `console.warn()` statements in production code (`coffee.component.ts`, `pokedex.service.ts`, `stats.service.ts`, etc.) should use a proper logging service or be removed.
+
+**Fix**: Remove or route to debug logger conditionally.
+
+---
+
+### **[LOW] Pending technical debt TODOs**
+
+`pokedex.service.ts` lines 36 and 149 mention temporary shiny propagation bridge and migration logic needing cleanup in the next task.
+
+---
+
 ### "What's new" update modal on deploy of player-facing changes
 
 Show a modal to the player after a deploy that introduces **gameplay changes,
@@ -86,3 +156,4 @@ is acceptable; **C or E** if reaching casual players (no account) matters more.
 Split bugs (Issues/template, structured) from ideas (Discussions/board, voting).
 Favor no-PII + moderated options given the audience. Enabling Issues/Discussions
 is a repo-settings change the owner must make.
+
