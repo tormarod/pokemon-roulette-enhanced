@@ -37,7 +37,7 @@ export class TeamRocketRouletteComponent implements OnInit {
 
   ngOnInit(): void {
     this.outcomes = [
-      { text: 'game.main.roulette.teamrocket.outcomes.steal', fillStyle: 'crimson', weight: 2 },
+      { text: 'game.main.roulette.teamrocket.outcomes.steal', fillStyle: 'crimson', weight: 3 },
       { text: 'game.main.roulette.teamrocket.outcomes.runAway', fillStyle: 'darkorange', weight: 2 },
     ];
 

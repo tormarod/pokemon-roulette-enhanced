@@ -7,7 +7,7 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     name: 'potion',
     sprite: '',
     fillStyle: 'purple',
-    weight: 1,
+    weight: 0.5,
     description: 'items.potion.description'
   },
   'rare-candy': {
@@ -31,7 +31,7 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     name: 'super-potion',
     sprite: '',
     fillStyle: 'darkorange',
-    weight: 1,
+    weight: 0.35,
     description: 'items.super-potion.description'
   },
   'x-attack': {
@@ -55,7 +55,7 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     name: 'hyper-potion',
     sprite: '',
     fillStyle: 'deeppink',
-    weight: 1,
+    weight: 0.25,
     description: 'items.hyper-potion.description'
   },
   'escape-rope': {
