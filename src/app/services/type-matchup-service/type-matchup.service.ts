@@ -219,18 +219,19 @@ export class TypeMatchupService {
    *   'strong', 'resistant', or 'hard-resistant' (offense, immunity, or a net
    *   defensive resist that isn't cancelled out).
    *
-   * disadvantageTypes: both of a member's types, if that member's tier is
-   *   'weak' or 'hard-countered'.
+   * disadvantageTypes: a member's types that are actually weak against some
+   *   opponent type, if that member's tier is 'weak' or 'hard-countered'.
    *
    * A 'neutral' member (offense/weakness cancel, or a covered weakness like
    * Dragon/Water vs Ice) contributes to neither — a weakness the team's own
    * typing already covers no longer shows a red icon with no matching delta,
    * and an immune/resistant wall now shows green instead of nothing. The
-   * granularity is per-member, not per-type: a dual-type member's two types
-   * are treated as a unit (the tier they jointly earned), since a tier is a
-   * property of the member, not of either type alone. Order: type1 before
-   * type2, team order preserved, deduplicated across the whole team. A type
-   * can still appear in both arrays if two different members land on
+   * tier (per member) decides which pool a member feeds, but within that
+   * member only the type(s) that actually earned the tier are listed — a
+   * neutral second type (e.g. Poison on a Grass/Poison member vs Electric)
+   * doesn't ride along just because its sibling type resists. Order: type1
+   * before type2, team order preserved, deduplicated across the whole team.
+   * A type can still appear in both arrays if two different members land on
    * opposite tiers with it. Returns empty arrays when team or opponentTypes
    * is empty.
    */
@@ -251,11 +252,17 @@ export class TypeMatchupService {
       const tier = this.getMemberTier(member, opponentTypes);
       if (tier === 'neutral') continue;
 
-      const target = (tier === 'strong' || tier === 'resistant' || tier === 'hard-resistant')
+      const isAdvantage = tier === 'strong' || tier === 'resistant' || tier === 'hard-resistant';
+      const target = isAdvantage
         ? { list: advantageTypes, seen: seenAdvantage }
         : { list: disadvantageTypes, seen: seenDisadvantage };
 
       for (const mt of this.getMemberTypes(member)) {
+        const responsible = isAdvantage
+          ? opponentTypes.some(ot => this.isStrongAgainst(mt, ot) || this.isImmuneTo(mt, ot) || this.resists(mt, ot))
+          : opponentTypes.some(ot => this.isWeakAgainst(mt, ot));
+        if (!responsible) continue;
+
         if (!target.seen.has(mt)) {
           target.list.push(mt);
           target.seen.add(mt);

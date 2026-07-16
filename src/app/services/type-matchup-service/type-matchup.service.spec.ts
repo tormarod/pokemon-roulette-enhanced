@@ -175,10 +175,22 @@ describe('TypeMatchupService', () => {
     expect(disadvantageTypes).toEqual([]);
   });
 
-  it('surfaces both of a dual-typed member\'s types together, as a unit, for its earned tier', () => {
-    const team = [makePokemon({ power: 4, type1: 'ground', type2: 'rock' })]; // strong vs electric via ground
+  it('only lists the type(s) that actually earned the tier, not a neutral sibling type', () => {
+    const team = [makePokemon({ power: 4, type1: 'ground', type2: 'rock' })]; // immune to electric via ground; rock is neutral vs electric
     const { advantageTypes } = service.getMatchupTypes(team, ['electric']);
-    expect(advantageTypes).toEqual(['ground', 'rock']);
+    expect(advantageTypes).toEqual(['ground']);
+  });
+
+  it('does not list a member\'s neutral second type in both advantage and disadvantage rows', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'grass', type2: 'poison' }),  // resistant vs electric (grass resists it); poison is neutral
+      makePokemon({ power: 3, type1: 'poison', type2: 'flying' }), // weak vs electric (flying is weak to it); poison is neutral
+    ];
+    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['electric']);
+    expect(advantageTypes).toEqual(['grass']);
+    expect(disadvantageTypes).toEqual(['flying']);
+    expect(advantageTypes).not.toContain('poison');
+    expect(disadvantageTypes).not.toContain('poison');
   });
 
   it('collects multiple distinct disadvantage types from different team members', () => {
