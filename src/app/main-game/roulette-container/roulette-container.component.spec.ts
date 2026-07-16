@@ -21,6 +21,8 @@ import { PokedexService } from '../../services/pokedex-service/pokedex.service';
 
 import { RouletteContainerComponent } from './roulette-container.component';
 import { ModalQueueService } from '../../services/modal-queue-service/modal-queue.service';
+import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
+import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
 describe('RouletteContainerComponent', () => {
   let component: RouletteContainerComponent;
@@ -67,6 +69,59 @@ describe('RouletteContainerComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Opponent preview
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('opponent preview', () => {
+    const reachStartAdventure = () => {
+      gameStateService.finishCurrentState(); // character-select
+      gameStateService.finishCurrentState(); // starter-pokemon
+      gameStateService.finishCurrentState(); // start-adventure
+      fixture.detectChanges();
+    };
+
+    it('is hidden before the adventure has started', () => {
+      expect(component.showOpponentPreview).toBeFalse();
+      expect(component.previewOpponent).toBeNull();
+    });
+
+    it('shows the upcoming gym leader once the adventure starts', () => {
+      reachStartAdventure();
+
+      expect(component.showOpponentPreview).toBeTrue();
+      expect(component.previewOpponent).toEqual(gymLeadersByGeneration[1][0]);
+    });
+
+    it('stays visible on a later check-shininess triggered by catching a Pokemon mid-run', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('check-shininess');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.showOpponentPreview).toBeTrue();
+    });
+
+    it('is hidden during an actual gym battle', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('gym-battle');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.showOpponentPreview).toBeFalse();
+      expect(component.previewOpponent).toBeNull();
+    });
+
+    it('shows the first Elite Four member during elite-four-preparation', () => {
+      reachStartAdventure();
+      gameStateService.setNextState('elite-four-preparation');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.previewOpponent).toEqual(eliteFourByGeneration[1][0]);
+    });
   });
 
   it('should route to form selection when captured pokemon has multiple forms', () => {

@@ -58,7 +58,12 @@ import { SelectFromItemListRouletteComponent } from './roulettes/select-from-ite
 import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-type-list-roulette/select-from-type-list-roulette.component';
 import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
-import { PokemonType } from '../../interfaces/pokemon-type';
+import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
+import { GenerationService } from '../../services/generation-service/generation.service';
+import { GenerationItem } from '../../interfaces/generation-item';
+import { GymLeader } from '../../interfaces/gym-leader';
+import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
+import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
 @Component({
   selector: 'app-roulette-container',
@@ -128,7 +133,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private rareCandyService: RareCandyService,
       private megaStoneService: MegaStoneService,
       private typeBiasItemService: TypeBiasItemService,
-      private linkCableService: LinkCableService) {
+      private linkCableService: LinkCableService,
+      private generationService: GenerationService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -150,6 +156,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
     this.gameStateService.currentRoundObserver.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(round => {
       this.leadersDefeatedAmount = round;
+    });
+
+    this.generationService.getGeneration().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(generation => {
+      this.generation = generation;
     });
 
     this.gameStateService.wheelSpinningObserver.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
@@ -220,6 +230,38 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   megaStoneTapAudio!: SoundFxHandle;
   megaEvolutionAudio!: SoundFxHandle;
   leadersDefeatedAmount: number = 0;
+  generation!: GenerationItem;
+
+  private readonly gymLeadersByGeneration = gymLeadersByGeneration;
+  private readonly eliteFourByGeneration = eliteFourByGeneration;
+  private readonly opponentPreviewHiddenStates = new Set<GameState>([
+    'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival'
+  ]);
+
+  /**
+   * Hidden during actual battles (which reveal their own opponent) and before the
+   * adventure has started (no roster to plan around yet). 'start-adventure' is
+   * pushed exactly once at run setup and never re-pushed, so — same trick as
+   * MainGameComponent's itemsAvailable — checking whether it's still sitting
+   * unpopped in the stack correctly tells apart the pre-adventure stretch from
+   * every later state, reused state names included.
+   */
+  get showOpponentPreview(): boolean {
+    if (!this.generation || this.opponentPreviewHiddenStates.has(this.currentGameState)) {
+      return false;
+    }
+    return !this.gameStateService.getStateStack().includes('start-adventure');
+  }
+
+  get previewOpponent(): GymLeader | null {
+    if (!this.showOpponentPreview) {
+      return null;
+    }
+    if (this.currentGameState === 'elite-four-preparation') {
+      return this.eliteFourByGeneration[this.generation.id]?.[0] ?? null;
+    }
+    return this.gymLeadersByGeneration[this.generation.id]?.[this.leadersDefeatedAmount] ?? null;
+  }
   multitaskCounter: number = 0;
   pkmnEvoTitle = '';
   pkmnIn!: PokemonItem;
@@ -518,6 +560,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.pendingTypeBiasItem = item;
     this.gameStateService.setNextState('select-from-type-list');
     this.finishCurrentState();
+  }
+
+  getTypeIconUrl(type: PokemonType): string {
+    return getTypeIconUrl(type);
   }
 
   continueWithType(type: PokemonType): void {

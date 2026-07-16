@@ -195,6 +195,10 @@
         "softAway": "Alejado de",
         "hardAway": "Excluido"
       },
+      "opponentPreview": {
+        "label": "A continuación:",
+        "oneOf": "(uno de estos tipos)"
+      },
       "roulette": {
         "generation": {
           "title": "¿Generación?",
