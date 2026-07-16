@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIconsModule } from '@ng-icons/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -20,6 +20,7 @@ import { pokedexByGeneration } from '../../pokedex/pokedex-by-generation';
   selector: 'app-pokedex',
   imports: [CommonModule, FormsModule, NgIconsModule, TranslatePipe, PokedexEntryComponent],
   templateUrl: './pokedex.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pokedex.component.css'
 })
 export class PokedexComponent implements OnInit, OnDestroy {

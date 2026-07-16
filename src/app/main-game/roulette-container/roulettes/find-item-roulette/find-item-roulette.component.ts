@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,7 @@ import { ModalQueueService } from '../../../../services/modal-queue-service/moda
     TranslatePipe
   ],
   templateUrl: './find-item-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './find-item-roulette.component.css'
 })
 export class FindItemRouletteComponent {

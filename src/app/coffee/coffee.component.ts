@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconsModule } from '@ng-icons/core';
 import { MainGameButtonComponent } from "../main-game-button/main-game-button.component";
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,7 @@ import { CreditsButtonComponent } from "../main-game/credits-button/credits-butt
     CreditsButtonComponent
 ],
   templateUrl: './coffee.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './coffee.component.css'
 })
 export class CoffeeComponent {

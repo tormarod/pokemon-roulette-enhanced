@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,6 +18,7 @@ export interface PokedexEntryClickEvent {
   standalone: true,
   imports: [CommonModule, NgbTooltipModule, TranslatePipe],
   templateUrl: './pokedex-entry.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pokedex-entry.component.css'
 })
 export class PokedexEntryComponent implements OnInit {

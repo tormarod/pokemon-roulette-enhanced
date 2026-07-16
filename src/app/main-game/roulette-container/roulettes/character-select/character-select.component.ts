@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -16,6 +16,7 @@ import { GenerationItem } from '../../../../interfaces/generation-item';
     TranslatePipe
   ],
   templateUrl: './character-select.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-select.component.css'
 })
 export class CharacterSelectComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconsModule } from '@ng-icons/core';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
@@ -25,6 +25,7 @@ import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
     TranslatePipe
   ],
   templateUrl: './storage-pc.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './storage-pc.component.css'
 })
 export class StoragePcComponent implements OnInit, OnDestroy {

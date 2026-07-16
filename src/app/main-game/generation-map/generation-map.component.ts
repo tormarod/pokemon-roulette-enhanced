@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
@@ -7,6 +7,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     TranslatePipe
   ],
   templateUrl: './generation-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './generation-map.component.css'
 })
 export class GenerationMapComponent implements AfterViewInit, OnChanges {

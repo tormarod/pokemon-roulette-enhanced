@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { LanguageSelectorComponent } from "../main-game/language-selector/language-selector.component";
 import { TranslatePipe } from '@ngx-translate/core';
@@ -25,6 +25,7 @@ import { RunPersistenceService } from '../services/run-persistence-service/run-p
     CommonModule
 ],
   templateUrl: './settings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings.component.css'
 })
 export class SettingsComponent implements OnInit {

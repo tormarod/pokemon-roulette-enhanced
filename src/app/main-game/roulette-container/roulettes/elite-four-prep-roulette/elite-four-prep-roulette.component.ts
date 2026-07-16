@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {TranslatePipe} from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
@@ -10,6 +10,7 @@ import { ModalQueueService } from '../../../../services/modal-queue-service/moda
   selector: 'app-elite-four-prep-roulette',
   imports: [WheelComponent, TranslatePipe],
   templateUrl: './elite-four-prep-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './elite-four-prep-roulette.component.css'
 })
 export class EliteFourPrepRouletteComponent implements OnInit {

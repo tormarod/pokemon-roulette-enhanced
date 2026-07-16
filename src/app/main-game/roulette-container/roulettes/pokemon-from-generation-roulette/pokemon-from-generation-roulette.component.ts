@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { pokemonByGeneration } from './pokemon-by-generation';
 import { Subscription } from 'rxjs';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -17,6 +17,7 @@ const AWAY_SOFT_WEIGHT_MULTIPLIER = 0.25;
   selector: 'app-pokemon-from-generation-roulette',
   imports: [WheelComponent, TranslatePipe],
   templateUrl: './pokemon-from-generation-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pokemon-from-generation-roulette.component.css'
 })
 export class PokemonFromGenerationRouletteComponent implements OnInit, OnDestroy {

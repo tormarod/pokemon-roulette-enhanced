@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconsModule } from '@ng-icons/core';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
@@ -25,6 +25,7 @@ import {TranslatePipe} from '@ngx-translate/core';
     TranslatePipe
   ],
   templateUrl: './game-over.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './game-over.component.css'
 })
 export class GameOverComponent implements OnInit, OnDestroy {

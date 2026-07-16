@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { fishByGeneration } from './fish-by-generation';
 import { Subscription } from 'rxjs';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
   selector: 'app-fishing-roulette',
   imports: [WheelComponent, TranslatePipe],
   templateUrl: './fishing-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './fishing-roulette.component.css'
 })
 export class FishingRouletteComponent {

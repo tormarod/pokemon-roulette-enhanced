@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { PokemonItem } from '../interfaces/pokemon-item';
 import { Observable, Subscription } from 'rxjs';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
@@ -21,6 +21,7 @@ import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
     BadgesComponent,
     StoragePcComponent, TranslatePipe, PokedexComponent],
   templateUrl: './trainer-team.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./trainer-team.component.css']
 })
 export class TrainerTeamComponent implements OnInit, OnDestroy {

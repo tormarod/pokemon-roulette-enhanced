@@ -37,7 +37,7 @@
       @for (id of filteredIds; track id) {
         <app-pokedex-entry
           [pokemonId]="id"
-          [entry]="pokedexData?.caught?.[id.toString()]"
+          [entry]="$safeNavigationMigration(pokedexData?.caught?.[id.toString()])"
           (entryClicked)="onEntryClicked($event)">
         </app-pokedex-entry>
       }

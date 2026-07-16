@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { cavePokemonByGeneration } from './cave-pokemon-by-generation';
 import { Subscription } from 'rxjs';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
   selector: 'app-cave-pokemon-roulette',
   imports: [WheelComponent, TranslatePipe],
   templateUrl: './cave-pokemon-roulette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cave-pokemon-roulette.component.css'
 })
 export class CavePokemonRouletteComponent implements OnInit, OnDestroy {
