@@ -1,117 +1,18 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
 > worth fixing right now, or that need a decision before they become a plan.
 > Add an entry whenever something comes up; move it to `docs/plans/` if it
-> grows into an actual multi-phase plan, and delete the entry here once done.
+> grows into an actual multi-phase plan, and **delete the entry here once the
+> change ships** (keep this list current — never leave done items listed).
 
 ---
 
 ## Open items
-
-### **[CRITICAL] Memory leak in WheelComponent subscriptions**
-
-Two unmanaged subscriptions to `translateService.get('wheel.spin')` in `ngAfterViewInit()` (line 81) and `ngOnChanges()` (line 124) lack cleanup in `ngOnDestroy()`. Component destruction leaks memory over repeated navigation. 
-
-**Fix**: Add `takeUntilDestroyed()` or implement `ngOnDestroy()` to unsubscribe.
-
----
-
-### **[CRITICAL] Copy-paste bug in items.component.html**
-
-Line 38 calls `getItemSprite(5)` but should call `getItemSprite(6)` — the 7th item slot shows the same sprite as the 6th instead of its own.
-
-**Fix**: Change `getItemSprite(5)` → `getItemSprite(6)`.
-
----
-
-### **[CRITICAL] Memory leak in StatsService constructor**
-
-Subscription to `trainerService.getTeamObservable()` (lines 60–67) in constructor lacks cleanup. While services persist for the app lifetime, subscriptions should still be managed.
-
-**Fix**: Use `takeUntilDestroyed()` with a DestroyRef or manual cleanup.
-
----
-
-### **[HIGH] Incomplete error handling in roulette-container modal chains**
-
-Modal promise chains (lines 701–706, 771–775, 1193–1197, etc.) in `roulette-container.component.ts` lack `.catch()` handlers. Unhandled modal dismissals could throw silently.
-
-**Fix**: Add `.catch()` handlers or wrap in try-catch blocks.
-
----
-
-### **[HIGH] Type safety: `any` type in ModalQueueService**
-
-`modal-queue.service.ts` uses `any` for content (line 13) and optional reason (line 45), weakening type safety.
-
-**Fix**: Replace with proper typed parameters (e.g., `Type<any> | TemplateRef<any>`).
-
----
-
-### **[MEDIUM] Performance: 13× subscriptions to darkMode in items.component**
-
-Template lines 2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57, 62 all have `(darkMode | async)`, creating 13 separate subscriptions to the same observable.
-
-**Fix**: Subscribe once in component and bind a property, or use `shareReplay()`.
-
----
-
-### **[MEDIUM] Inconsistent subscription cleanup patterns across components**
-
-Components use mixed patterns: `takeUntilDestroyed()`, manual unsubscribe, and `Subscription.add()`. `WheelComponent` has **no cleanup at all**. Hard to maintain and error-prone.
-
-**Fix**: Standardize on `takeUntilDestroyed()` for all new subscriptions; audit existing components for consistency.
-
----
-
-### **[MEDIUM] Production console.logging**
-
-`console.log()`, `console.error()`, `console.warn()` statements in production code (`coffee.component.ts`, `pokedex.service.ts`, `stats.service.ts`, etc.) should use a proper logging service or be removed.
-
-**Fix**: Remove or route to debug logger conditionally.
-
----
-
-### **[LOW] Pending technical debt TODOs**
-
-`pokedex.service.ts` lines 36 and 149 mention temporary shiny propagation bridge and migration logic needing cleanup in the next task.
-
----
-
-### "What's new" update modal on deploy of player-facing changes
-
-Show a modal to the player after a deploy that introduces **gameplay changes,
-new features, new items, balance tweaks, etc.** — summarizing what changed.
-**Must NOT pop up for silent releases** (performance, efficiency, refactors,
-build/CI, dependency bumps, docs) — those ship without bothering the player.
-
-Why: players should notice new content/mechanics; they should not be interrupted
-by a modal for invisible under-the-hood work.
-
-Sketch (decide when this becomes a plan):
-- **Version-gated, show-once.** Compare the app's current version against a
-  `last-seen-version` in `localStorage` (own `pokemon-roulette-*` key, or fold
-  into `SettingsService`). Only show when it advanced *and* the new release is
-  flagged player-facing.
-- **Explicit player-facing flag per release** is what encodes the "not for perf
-  changes" rule — a release is silent unless it carries notes. Options to weigh:
-  a curated release-notes data file (list of `{ version, notes[] }`, player-facing
-  entries only), vs. deriving from Conventional-Commit types (`feat`/balance →
-  show, `perf`/`refactor`/`chore` → silent). The data file is simpler and gives
-  control over wording; the commit-derived route automates but needs discipline.
-- On dismiss, write the current version to `last-seen-version` so it won't
-  reappear. First-ever visit (no stored version) should NOT dump full history —
-  treat as already-seen.
-- i18n the notes (all 6 locales) like other user-facing strings.
-
-Open questions: where release notes live (data file vs generated); manual "view
-changelog again" entry point (e.g. near Credits); how the deployed build learns
-its version + player-facing flag (build-time inject vs committed data file).
 
 ### In-game player suggestions / bug-report + "most wanted" feedback
 
@@ -156,4 +57,3 @@ is acceptable; **C or E** if reaching casual players (no account) matters more.
 Split bugs (Issues/template, structured) from ideas (Discussions/board, voting).
 Favor no-PII + moderated options given the audience. Enabling Issues/Discussions
 is a repo-settings change the owner must make.
-

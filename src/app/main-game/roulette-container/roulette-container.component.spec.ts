@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EventEmitter } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   bootstrapArrowRepeat,
@@ -503,32 +504,32 @@ describe('RouletteContainerComponent', () => {
       (component as any).handleTypeBiasItemUse(HONEY);
       component.continueWithType('water');
 
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
-      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
     });
 
     it('sets a soft away bias for Repel', () => {
       (component as any).handleTypeBiasItemUse(REPEL);
       component.continueWithType('fire');
 
-      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'fire', mode: 'soft' });
-      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'fire', mode: 'soft' }]);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
 
     it('sets a hard toward bias for Poké Radar', () => {
       (component as any).handleTypeBiasItemUse(POKE_RADAR);
       component.continueWithType('grass');
 
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'grass', mode: 'hard' });
-      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'grass', mode: 'hard' }]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
     });
 
     it('sets a hard away bias for Max Repel', () => {
       (component as any).handleTypeBiasItemUse(MAX_REPEL);
       component.continueWithType('electric');
 
-      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
-      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'electric', mode: 'hard' }]);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
 
     it('keeps both a toward and an away bias active at the same time when both items are used', () => {
@@ -537,15 +538,170 @@ describe('RouletteContainerComponent', () => {
       (component as any).handleTypeBiasItemUse(MAX_REPEL);
       component.continueWithType('electric');
 
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
-      expect(trainerService.currentPendingTypeBiases.away).toEqual({ type: 'electric', mode: 'hard' });
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'electric', mode: 'hard' }]);
+    });
+
+    it('stacks a second Honey use as an additional toward entry instead of overwriting the first', () => {
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('water');
+      (component as any).handleTypeBiasItemUse(HONEY);
+      component.continueWithType('electric');
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([
+        { type: 'water', mode: 'soft' },
+        { type: 'electric', mode: 'soft' }
+      ]);
     });
 
     it('does nothing if continueWithType is called with no pending item', () => {
       component.continueWithType('psychic');
 
-      expect(trainerService.currentPendingTypeBiases.toward).toBeNull();
-      expect(trainerService.currentPendingTypeBiases.away).toBeNull();
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-03b: handleTypeBiasItemUse — in-place application on obtain wheels
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleTypeBiasItemUse on an obtain wheel (in-place)', () => {
+    const HONEY: any = { name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    const openFakeModal = () => {
+      const selectedTypeEvent = new EventEmitter<any>();
+      let closeCalled = false;
+      const modalRef: any = {
+        componentInstance: { selectedTypeEvent },
+        result: Promise.resolve(),
+        close: () => { closeCalled = true; }
+      };
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve(modalRef));
+      return { selectedTypeEvent, isClosed: () => closeCalled };
+    };
+
+    it('opens a modal picker instead of leaving the screen when on catch-pokemon', async () => {
+      (component as any).currentGameState = 'catch-pokemon';
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      const { selectedTypeEvent } = openFakeModal();
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+      await Promise.resolve();
+
+      expect(modalQueueService.open).toHaveBeenCalled();
+      expect(gameStateService.repeatCurrentState).not.toHaveBeenCalled();
+      selectedTypeEvent.unsubscribe();
+    });
+
+    it('applies the bias, removes the item, and closes the modal on type selection', async () => {
+      (component as any).currentGameState = 'trade-pokemon';
+      spyOn(trainerService, 'removeItem');
+      const { selectedTypeEvent, isClosed } = openFakeModal();
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+      await Promise.resolve();
+      selectedTypeEvent.emit('water');
+
+      expect(trainerService.removeItem).toHaveBeenCalledWith(HONEY);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+      expect(isClosed()).toBeTrue();
+    });
+
+    it('does not change GameState when applying a bias in place', async () => {
+      (component as any).currentGameState = 'find-fossil';
+      const { selectedTypeEvent } = openFakeModal();
+      const stateBefore = component.getGameState();
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+      await Promise.resolve();
+      selectedTypeEvent.emit('fire');
+
+      expect(component.getGameState()).toBe(stateBefore);
+    });
+
+    it('still uses the deferred flow when not on an obtain wheel', () => {
+      (component as any).currentGameState = 'main-adventure' as any;
+      spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
+      spyOn(modalQueueService, 'open');
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+
+      expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
+      expect(modalQueueService.open).not.toHaveBeenCalled();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-03c: single-wheel-use bias consumption
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('pending type bias is consumed by the wheel resolution it weighted', () => {
+    it('capturePokemon() clears any pending bias', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      trainerService.setTowardBias({ type: 'grass', mode: 'soft' });
+
+      component.capturePokemon(bulbasaur);
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+    });
+
+    it('legendaryCaptureChance() clears any pending bias', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      trainerService.setTowardBias({ type: 'grass', mode: 'soft' });
+
+      component.legendaryCaptureChance(bulbasaur);
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+    });
+
+    it('paradoxCaptureChance() clears any pending bias', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
+
+      component.paradoxCaptureChance(bulbasaur);
+
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+    });
+
+    it('performTrade() clears any pending bias', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      const squirtle = pokemonService.getPokemonById(7)!;
+      (component as any).currentContextPokemon = bulbasaur;
+      trainerService.setTowardBias({ type: 'water', mode: 'soft' });
+
+      component.performTrade(squirtle);
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+    });
+
+    it('clears a hard-mode bias (Poké Radar / Max Repel) exactly the same as a soft one', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      trainerService.setTowardBias({ type: 'grass', mode: 'hard' });
+      trainerService.setAwayBias({ type: 'fire', mode: 'hard' });
+
+      component.capturePokemon(bulbasaur);
+
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+    });
+
+    it('does not let a bias used on one wheel carry over to a second wheel later in the same stretch', () => {
+      const bulbasaur = pokemonService.getPokemonById(1)!;
+      const charmander = pokemonService.getPokemonById(4)!;
+      trainerService.setTowardBias({ type: 'grass', mode: 'soft' });
+
+      // First catch consumes the bias.
+      component.capturePokemon(bulbasaur);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
+
+      // A second catch later in the same gym stretch (no new item used) must
+      // see an unbiased pool — nothing left over from the first use.
+      const poolBeforeSecondCatch = trainerService.currentPendingTypeBiases;
+      component.capturePokemon(charmander);
+      expect(poolBeforeSecondCatch.toward).toEqual([]);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
   });
 

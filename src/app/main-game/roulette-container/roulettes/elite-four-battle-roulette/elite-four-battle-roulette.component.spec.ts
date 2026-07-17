@@ -90,9 +90,9 @@ describe('EliteFourBattleRouletteComponent', () => {
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // base(1) + power(3) = 4 yes;  round(1) + base(2) = 3 no
+    // base(1) + power(3) = 4 yes;  ceil(round(1)*1.5) + base(2) = 4 no
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(4);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(3);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(4);
   });
 
   // ── Type-matchup wiring: the formula itself is tested once in

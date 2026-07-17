@@ -40,11 +40,11 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
 
   private readonly baseActions: WheelItem[] = [
     { text: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 3 },
-    { text: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.buyPotions', fillStyle: 'darkgoldenrod', weight: 1 },
+    { text: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 0.5 },
+    { text: 'game.main.roulette.adventure.actions.buyPotions', fillStyle: 'darkgoldenrod', weight: 0.5 },
     { text: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 1 },
+    { text: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2 },
     { text: 'game.main.roulette.adventure.actions.mysteriousEgg', fillStyle: 'deeppink', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.legendaryEncounter', fillStyle: 'crimson', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.tradePokemon', fillStyle: 'darkorange', weight: 1 },
@@ -54,7 +54,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     { text: 'game.main.roulette.adventure.actions.multitask', fillStyle: 'blue', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.goFishing', fillStyle: 'purple', weight: 1 },
     { text: 'game.main.roulette.adventure.actions.findFossil', fillStyle: 'deeppink', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.battleRival', fillStyle: 'black', weight: 1 },
+    { text: 'game.main.roulette.adventure.actions.battleRival', fillStyle: 'black', weight: 0.5 },
   ];
 
   private readonly areaZeroAction: WheelItem = {

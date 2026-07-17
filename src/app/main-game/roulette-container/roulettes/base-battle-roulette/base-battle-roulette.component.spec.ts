@@ -90,12 +90,12 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(component).toBeTruthy();
   });
 
-  it('produces 1 yes and baseNoCount+round no slices for an empty, untyped team', () => {
+  it('produces 1 yes and baseNoCount+round*threatMult no slices for an empty, untyped team', () => {
     component.testBaseNoCount = 2;
     component.testCurrentRound = 3;
     component.recalc();
     expect(yesCount()).toBe(1);
-    expect(noCount()).toBe(5);
+    expect(noCount()).toBe(7); // 2 + ceil(3*1.5)
   });
 
   it('adds raw power to yes when the opponent has no configured types', () => {

@@ -17,7 +17,8 @@ import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PendingTypeBiases, TypeBiasEntry } from '../services/trainer-service/trainer.service';
-import { getTypeIconUrl } from '../interfaces/pokemon-type';
+import { cancelOpposingSoftCounts, countByType } from '../services/trainer-service/apply-type-bias';
+import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { RouletteContainerComponent } from './roulette-container/roulette-container.component';
 import { SettingsButtonComponent } from '../settings-button/settings-button.component';
@@ -25,6 +26,12 @@ import { RareCandyService } from '../services/rare-candy-service/rare-candy.serv
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
+
+interface GroupedBias {
+  type: PokemonType;
+  mode: 'soft' | 'hard';
+  count: number;
+}
 
 @Component({
   selector: 'app-main-game',
@@ -64,7 +71,8 @@ export class MainGameComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   wheelSpinning: boolean = false;
-  pendingTypeBiases: PendingTypeBiases = { toward: null, away: null };
+  groupedTowardBiases: GroupedBias[] = [];
+  groupedAwayBiases: GroupedBias[] = [];
   itemsAvailable: boolean = false;
 
   ngOnInit(): void {
@@ -75,7 +83,9 @@ export class MainGameComponent implements OnInit {
     });
 
     this.trainerService.getPendingTypeBiasesObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(biases => {
-      this.pendingTypeBiases = biases;
+      const display = this.computeDisplayBiases(biases);
+      this.groupedTowardBiases = display.toward;
+      this.groupedAwayBiases = display.away;
     });
 
     // 'start-adventure' is pushed exactly once, at run setup, and never re-pushed — so as
@@ -89,14 +99,57 @@ export class MainGameComponent implements OnInit {
     });
   }
 
-  getBiasTypeIconUrl(entry: TypeBiasEntry): string {
-    return getTypeIconUrl(entry.type);
+  getBiasTypeIconUrl(bias: GroupedBias): string {
+    return getTypeIconUrl(bias.type);
   }
 
-  getBiasLabelKey(entry: TypeBiasEntry, direction: 'toward' | 'away'): string {
-    const modeKey = entry.mode === 'hard' ? 'hard' : 'soft';
+  getBiasLabelKey(bias: GroupedBias, direction: 'toward' | 'away'): string {
+    const modeKey = bias.mode === 'hard' ? 'hard' : 'soft';
     const directionKey = direction === 'toward' ? 'Toward' : 'Away';
     return `game.main.activeBias.${modeKey}${directionKey}`;
+  }
+
+  /**
+   * Mirrors the cancellation applyTypeBias() actually performs (see
+   * apply-type-bias.ts) so the badges never show a "boosted toward Fire" and
+   * a "steered away from Fire" at the same time when they'd net to nothing.
+   * Hard-mode entries don't stack/cancel (a guarantee is already absolute),
+   * so only soft entries go through cancelOpposingSoftCounts().
+   */
+  private computeDisplayBiases(biases: PendingTypeBiases): { toward: GroupedBias[]; away: GroupedBias[] } {
+    const { toward: netTowardSoftCounts, away: netAwaySoftCounts } = cancelOpposingSoftCounts(
+      countByType(biases.toward.filter(e => e.mode === 'soft')),
+      countByType(biases.away.filter(e => e.mode === 'soft'))
+    );
+
+    return {
+      toward: [
+        ...this.groupByType(biases.toward.filter(e => e.mode === 'hard')),
+        ...this.countsToGroupedBias(netTowardSoftCounts)
+      ],
+      away: [
+        ...this.groupByType(biases.away.filter(e => e.mode === 'hard')),
+        ...this.countsToGroupedBias(netAwaySoftCounts)
+      ]
+    };
+  }
+
+  private groupByType(entries: TypeBiasEntry[]): GroupedBias[] {
+    const grouped = new Map<string, GroupedBias>();
+    for (const entry of entries) {
+      const key = `${entry.type}-${entry.mode}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count++;
+      } else {
+        grouped.set(key, { type: entry.type, mode: entry.mode, count: 1 });
+      }
+    }
+    return [...grouped.values()];
+  }
+
+  private countsToGroupedBias(counts: Map<PokemonType, number>): GroupedBias[] {
+    return [...counts.entries()].map(([type, count]) => ({ type, mode: 'soft' as const, count }));
   }
   
   darkMode!: Observable<boolean>;

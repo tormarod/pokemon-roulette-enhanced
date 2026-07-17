@@ -32,21 +32,30 @@ export class CavePokemonRouletteComponent implements OnInit, OnDestroy {
   generation!: GenerationItem;
   cavePokemon: PokemonItem[] = [];
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
+  private sourcePokemon: PokemonItem[] = [];
   private generationSubscription: Subscription | null = null;
+  private biasSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const cavePokemonIds = this.cavePokemonByGeneration[this.generation.id] ?? [];
-      this.cavePokemon = applyTypeBias(
-        this.pokemonService.getPokemonByIdArray(cavePokemonIds),
-        this.trainerService.currentPendingTypeBiases
-      );
+      this.sourcePokemon = this.pokemonService.getPokemonByIdArray(cavePokemonIds);
+      this.refreshCavePokemon();
+    });
+
+    this.biasSubscription = this.trainerService.getPendingTypeBiasesObservable().subscribe(() => {
+      this.refreshCavePokemon();
     });
   }
 
   ngOnDestroy(): void {
       this.generationSubscription?.unsubscribe();
+      this.biasSubscription?.unsubscribe();
+  }
+
+  private refreshCavePokemon(): void {
+    this.cavePokemon = applyTypeBias(this.sourcePokemon, this.trainerService.currentPendingTypeBiases);
   }
 
   onItemSelected(index: number): void {

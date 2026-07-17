@@ -29,6 +29,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   matchupAdvantageDelta = 0;
   matchupDisadvantageDelta = 0;
 
+  private static readonly ROUND_THREAT_MULT = 1.5;
+
   private gameSubscription: Subscription | null = null;
   private generationSubscription: Subscription | null = null;
   private teamSubscription: Subscription | null = null;
@@ -125,7 +127,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     }
 
     const noOdds: WheelItem[] = [];
-    for (let i = 0; i < baseNoCount + currentRound + noBonus; i++) {
+    const roundThreat = Math.ceil(currentRound * BaseBattleRouletteComponent.ROUND_THREAT_MULT);
+    for (let i = 0; i < baseNoCount + roundThreat + noBonus; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

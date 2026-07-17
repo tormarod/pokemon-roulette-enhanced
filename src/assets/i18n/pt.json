@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Mel",
-      "description": "Use Mel para direcionar seu próximo Pokémon selvagem para um tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "Use Mel para direcionar seu próximo Pokémon selvagem para um tipo escolhido — acumula se usado novamente, e funciona numa roda já em tela!"
     },
     "repel": {
       "name": "Repelente",
-      "description": "Use Repelente para afastar seu próximo Pokémon selvagem de um tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "Use Repelente para afastar seu próximo Pokémon selvagem de um tipo escolhido — acumula se usado novamente, e funciona numa roda já em tela!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "O PokéRadar garante que seu próximo Pokémon selvagem seja do tipo escolhido, até sua próxima batalha de Ginásio!"
+      "description": "O PokéRadar garante que seu próximo Pokémon selvagem seja do tipo escolhido, e funciona numa roda já em tela!"
     },
     "max-repel": {
       "name": "Repelente Máx",
-      "description": "O Repelente Máx exclui completamente um tipo escolhido do seu próximo Pokémon selvagem, até sua próxima batalha de Ginásio!"
+      "description": "O Repelente Máx exclui completamente um tipo escolhido do seu próximo Pokémon selvagem, e funciona numa roda já em tela!"
     },
     "link-cable": {
       "name": "Cabo Link",
@@ -3015,10 +3015,16 @@
     "fairy": "Fada"
   },
   "v2_1_0": "Versão 2.1.0",
+  "v2_2_0": "Versão 2.2.0",
   "whatsNew": {
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v2_2_0": {
+      "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo.",
+      "1": "⚖️ Chances reequilibradas: capturar Pokémon domina as rodas iniciais, poções são mais raras, a Team Rocket é uma ameaça real, e as batalhas ficam mais difíceis conforme você avança.",
+      "2": "🍯 Mel/Repelente agora têm um efeito muito mais forte por uso — e um Mel e um Repelente usados no mesmo tipo agora se cancelam em vez de quase não afetar as chances."
+    },
     "v2_1_0": {
       "0": "⚔️ Confrontos de tipo reformulados — agora graduais e recompensando resistências defensivas, não apenas ataque.",
       "1": "📊 Nova página de Estatísticas: vitórias, sequências, Pokémon mais usado & símbolo, seu rival, e rastreamento de sorte.",

@@ -106,7 +106,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'female',
       generationId: 3,
-      pendingTypeBiases: { toward: { type: 'water', mode: 'soft' }, away: null },
+      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -131,7 +131,7 @@ describe('RunPersistenceService', () => {
     trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
 
     const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
-    expect(stored.pendingTypeBiases).toEqual({ toward: { type: 'fire', mode: 'hard' }, away: null });
+    expect(stored.pendingTypeBiases).toEqual({ toward: [{ type: 'fire', mode: 'hard' }], away: [] });
   });
 
   it('should restore both pending type biases from a saved run on construction', () => {
@@ -145,7 +145,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: { type: 'water', mode: 'soft' }, away: { type: 'grass', mode: 'hard' } },
+      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [{ type: 'grass', mode: 'hard' }] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -154,8 +154,8 @@ describe('RunPersistenceService', () => {
     TestBed.inject(RunPersistenceService);
 
     const restoredTrainerService = TestBed.inject(TrainerService);
-    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
-    expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual({ type: 'grass', mode: 'hard' });
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+    expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual([{ type: 'grass', mode: 'hard' }]);
   });
 
   it('should treat an older saved run with no pendingTypeBiases field as having none, without throwing', () => {
@@ -180,8 +180,34 @@ describe('RunPersistenceService', () => {
     }).not.toThrow();
 
     const restoredTrainerService = TestBed.inject(TrainerService);
-    expect(restoredTrainerService.currentPendingTypeBiases.toward).toBeNull();
-    expect(restoredTrainerService.currentPendingTypeBiases.away).toBeNull();
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([]);
+    expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual([]);
+  });
+
+  it('should migrate a pre-stacking saved run with the old single-entry bias shape into the array shape', () => {
+    const legacyRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 0,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: { type: 'fire', mode: 'soft' }, away: null },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(() => {
+      TestBed.resetTestingModule();
+      configureFreshTestBed();
+      TestBed.inject(RunPersistenceService);
+    }).not.toThrow();
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'fire', mode: 'soft' }]);
+    expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual([]);
   });
 
   it('should discard a corrupt saved run and fall back to a fresh run without throwing', () => {

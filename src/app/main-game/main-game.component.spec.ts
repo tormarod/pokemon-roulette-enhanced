@@ -17,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AnalyticsService } from '../services/analytics-service/analytics.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
+import { TrainerService } from '../services/trainer-service/trainer.service';
 
 describe('MainGameComponent', () => {
   let component: MainGameComponent;
@@ -24,6 +25,7 @@ describe('MainGameComponent', () => {
   let httpSpy: jasmine.SpyObj<HttpClient>;
   let analyticsServiceSpy: jasmine.SpyObj<AnalyticsService>;
   let gameStateService: GameStateService;
+  let trainerService: TrainerService;
 
   beforeEach(async () => {
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
@@ -55,6 +57,7 @@ describe('MainGameComponent', () => {
     httpSpy = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
     analyticsServiceSpy = TestBed.inject(AnalyticsService) as jasmine.SpyObj<AnalyticsService>;
     gameStateService = TestBed.inject(GameStateService);
+    trainerService = TestBed.inject(TrainerService);
     fixture = TestBed.createComponent(MainGameComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -107,5 +110,54 @@ describe('MainGameComponent', () => {
     component.typeBiasItemInterrupt(honey);
 
     expect(typeBiasItemService.triggerTypeBiasItem).not.toHaveBeenCalled();
+  });
+
+  // ── Bias badges reflect the same cancellation as the wheel math ─────────
+
+  describe('active bias badges', () => {
+    it('shows a single badge for a plain soft-toward bias', () => {
+      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
+      expect(component.groupedAwayBiases).toEqual([]);
+    });
+
+    it('shows no badge at all when an equal Honey and Repel on the same type fully cancel', () => {
+      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
+      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([]);
+      expect(component.groupedAwayBiases).toEqual([]);
+    });
+
+    it('shows only the uncancelled excess when Honey/Repel counts differ on the same type', () => {
+      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
+      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
+      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
+      expect(component.groupedAwayBiases).toEqual([]);
+    });
+
+    it('does not cancel a toward and an away bias on different types', () => {
+      trainerService.setTowardBias({ type: 'water', mode: 'soft' });
+      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([{ type: 'water', mode: 'soft', count: 1 }]);
+      expect(component.groupedAwayBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
+    });
+
+    it('does not cancel hard-mode entries on the same type', () => {
+      trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
+      trainerService.setAwayBias({ type: 'fire', mode: 'hard' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
+      expect(component.groupedAwayBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
+    });
   });
 });

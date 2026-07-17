@@ -17,7 +17,7 @@ import { applyTypeBias } from '../../../../services/trainer-service/apply-type-b
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './fishing-roulette.component.css'
 })
-export class FishingRouletteComponent {
+export class FishingRouletteComponent implements OnInit, OnDestroy {
 
   constructor(
     private generationService: GenerationService,
@@ -31,21 +31,30 @@ export class FishingRouletteComponent {
   generation!: GenerationItem;
   fish: PokemonItem[] = [];
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
+  private sourcePokemon: PokemonItem[] = [];
   private generationSubscription: Subscription | null = null;
+  private biasSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const fishIds = this.fishByGeneration[this.generation.id] ?? [];
-      this.fish = applyTypeBias(
-        this.pokemonService.getPokemonByIdArray(fishIds),
-        this.trainerService.currentPendingTypeBiases
-      );
+      this.sourcePokemon = this.pokemonService.getPokemonByIdArray(fishIds);
+      this.refreshFish();
+    });
+
+    this.biasSubscription = this.trainerService.getPendingTypeBiasesObservable().subscribe(() => {
+      this.refreshFish();
     });
   }
 
   ngOnDestroy(): void {
       this.generationSubscription?.unsubscribe();
+      this.biasSubscription?.unsubscribe();
+  }
+
+  private refreshFish(): void {
+    this.fish = applyTypeBias(this.sourcePokemon, this.trainerService.currentPendingTypeBiases);
   }
 
   onItemSelected(index: number): void {

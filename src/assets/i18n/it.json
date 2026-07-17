@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miele",
-      "description": "Usa il Miele per orientare il tuo prossimo Pokémon selvatico verso un tipo scelto, fino alla tua prossima palestra!"
+      "description": "Usa il Miele per orientare il tuo prossimo Pokémon selvatico verso un tipo scelto — si accumula se riutilizzato, e funziona anche su una ruota già a schermo!"
     },
     "repel": {
       "name": "Repellente",
-      "description": "Usa il Repellente per allontanare il tuo prossimo Pokémon selvatico da un tipo scelto, fino alla tua prossima palestra!"
+      "description": "Usa il Repellente per allontanare il tuo prossimo Pokémon selvatico da un tipo scelto — si accumula se riutilizzato, e funziona anche su una ruota già a schermo!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "Il PokéRadar garantisce che il tuo prossimo Pokémon selvatico sia del tipo scelto, fino alla tua prossima palestra!"
+      "description": "Il PokéRadar garantisce che il tuo prossimo Pokémon selvatico sia del tipo scelto, e funziona anche su una ruota già a schermo!"
     },
     "max-repel": {
       "name": "Repellente Max",
-      "description": "Il Repellente Max esclude completamente un tipo scelto dal tuo prossimo Pokémon selvatico, fino alla tua prossima palestra!"
+      "description": "Il Repellente Max esclude completamente un tipo scelto dal tuo prossimo Pokémon selvatico, e funziona anche su una ruota già a schermo!"
     },
     "link-cable": {
       "name": "Cavo Link",
@@ -3015,10 +3015,16 @@
     "fairy": "Folletto"
   },
   "v2_1_0": "Versione 2.1.0",
+  "v2_2_0": "Versione 2.2.0",
   "whatsNew": {
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v2_2_0": {
+      "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale.",
+      "1": "⚖️ Probabilità riequilibrate: catturare Pokémon domina le prime ruote, le pozioni sono più rare, il Team Rocket è una minaccia reale, e le battaglie diventano più difficili man mano che avanzi.",
+      "2": "🍯 Miele/Repellente hanno un effetto molto più forte per utilizzo — e un Miele e un Repellente usati sullo stesso tipo ora si annullano a vicenda invece di influenzare a malapena le probabilità."
+    },
     "v2_1_0": {
       "0": "⚔️ Abbinamenti di tipo rivisti — ora graduali e premiano le resistenze difensive, non solo l'attacco.",
       "1": "📊 Nuova pagina Statistiche: vittorie, serie, Pokémon più usato & simbolo, tua nemesi, e tracciamento della fortuna.",

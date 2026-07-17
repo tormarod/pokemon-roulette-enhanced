@@ -31,21 +31,30 @@ export class FossilRouletteComponent implements OnInit, OnDestroy {
   generation!: GenerationItem;
   fossils: PokemonItem[] = [];
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
+  private sourcePokemon: PokemonItem[] = [];
   private generationSubscription: Subscription | null = null;
+  private biasSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const fossilIds = this.fossilByGeneration[this.generation.id] ?? [];
-      this.fossils = applyTypeBias(
-        this.pokemonService.getPokemonByIdArray(fossilIds),
-        this.trainerService.currentPendingTypeBiases
-      );
+      this.sourcePokemon = this.pokemonService.getPokemonByIdArray(fossilIds);
+      this.refreshFossils();
+    });
+
+    this.biasSubscription = this.trainerService.getPendingTypeBiasesObservable().subscribe(() => {
+      this.refreshFossils();
     });
   }
 
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
+    this.biasSubscription?.unsubscribe();
+  }
+
+  private refreshFossils(): void {
+    this.fossils = applyTypeBias(this.sourcePokemon, this.trainerService.currentPendingTypeBiases);
   }
 
   onItemSelected(index: number): void {

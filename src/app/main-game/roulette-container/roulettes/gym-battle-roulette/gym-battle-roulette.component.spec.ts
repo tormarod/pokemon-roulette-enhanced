@@ -96,15 +96,15 @@ describe('GymBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1);
   });
 
-  it('should add extra no slices proportional to current round — round 2 gives 3 no', () => {
+  it('should add extra no slices proportional to current round — round 2 gives 4 no', () => {
     component.currentLeader = { name: 'Brock', sprite: '', quotes: [] } as GymLeader;
     component.currentRound = 2;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    // empty team → 1 yes;  round(2) + base(1) = 3 no
+    // empty team → 1 yes;  ceil(round(2)*1.5) + base(1) = 4 no
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(1);
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(3);
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(4);
   });
 
   // ── Type-matchup wiring: the formula itself is tested once in
