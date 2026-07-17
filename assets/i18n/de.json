@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Honig",
-      "description": "Nutze Honig, um dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf zu einem gewählten Typ hin zu verschieben!"
+      "description": "Nutze Honig, um dein nächstes wildes Pokémon zu einem gewählten Typ hin zu verschieben — stapelt sich bei erneuter Nutzung und wirkt auch auf ein bereits angezeigtes Rad!"
     },
     "repel": {
       "name": "Repellent",
-      "description": "Nutze Repellent, um dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf von einem gewählten Typ fernzuhalten!"
+      "description": "Nutze Repellent, um dein nächstes wildes Pokémon von einem gewählten Typ fernzuhalten — stapelt sich bei erneuter Nutzung und wirkt auch auf ein bereits angezeigtes Rad!"
     },
     "poke-radar": {
       "name": "Pokéradar",
-      "description": "Der Pokéradar garantiert, dass dein nächstes wildes Pokémon bis zu deinem nächsten Arena-Kampf ein gewählter Typ ist!"
+      "description": "Der Pokéradar garantiert, dass dein nächstes wildes Pokémon ein gewählter Typ ist — wirkt auch auf ein bereits angezeigtes Rad!"
     },
     "max-repel": {
       "name": "Hyperrepellent",
-      "description": "Der Hyperrepellent schließt einen gewählten Typ vollständig von deinem nächsten wilden Pokémon aus, bis zu deinem nächsten Arena-Kampf!"
+      "description": "Der Hyperrepellent schließt einen gewählten Typ vollständig von deinem nächsten wilden Pokémon aus — wirkt auch auf ein bereits angezeigtes Rad!"
     },
     "link-cable": {
       "name": "Linkkabel",
@@ -3015,10 +3015,16 @@
     "fairy": "Fee"
   },
   "v2_1_0": "Version 2.1.0",
+  "v2_2_0": "Version 2.2.0",
   "whatsNew": {
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v2_2_0": {
+      "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",
+      "1": "⚖️ Chancen neu ausbalanciert: Pokémon fangen dominiert die frühen Räder, Tränke sind seltener, Team Rocket ist eine echte Bedrohung, und Kämpfe werden mit fortschreitendem Spiel härter.",
+      "2": "🍯 Honig/Repellent wirken pro Nutzung jetzt viel stärker — und ein Honig und ein Repellent auf denselben Typ heben sich jetzt gegenseitig auf, statt die Chancen kaum zu beeinflussen."
+    },
     "v2_1_0": {
       "0": "⚔️ Typ-Matchups überarbeitet — jetzt abgestuft und belohnen defensive Resistenzen, nicht nur Offensive.",
       "1": "📊 Neue Statistik-Seite: Siege, Siegesserien, meistgenutztes & Signatur-Pokémon, dein Angstgegner und Glück-Tracking.",
