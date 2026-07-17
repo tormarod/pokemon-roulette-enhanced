@@ -13,13 +13,15 @@ import { ModalQueueService } from '../../../../services/modal-queue-service/moda
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
+import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 
 @Component({
   selector: 'app-elite-four-battle-roulette',
   imports: [
     CommonModule,
     WheelComponent,
-    TranslatePipe
+    TranslatePipe,
+    MatchupStripComponent
   ],
   templateUrl: './elite-four-battle-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

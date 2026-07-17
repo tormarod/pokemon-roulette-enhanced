@@ -427,12 +427,7 @@
           "use": "Usó un(a)",
           "victory": "¿Victoria?",
           "yes": "Sí",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Ventaja Abrumadora",
-            "advantage": "Ventaja",
-            "disadvantage": "Desventaja"
-          }
+          "no": "No"
         },
         "egg": {
           "title": "¿Qué Pokémon?"
@@ -460,11 +455,6 @@
             }
           },
           "title": "¿Victoria?",
-          "typeAdvantage": {
-            "overwhelming": "Ventaja Abrumadora",
-            "advantage": "Ventaja",
-            "disadvantage": "Desventaja"
-          },
           "use": "Usó un(a)",
           "yes": "Sí",
           "no": "No"
@@ -486,12 +476,7 @@
           "go": "¡Vamos!",
           "used": "Usó un(a)",
           "yes": "Sí",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Ventaja Abrumadora",
-            "advantage": "Ventaja",
-            "disadvantage": "Desventaja"
-          }
+          "no": "No"
         },
         "item": {
           "found": "Encontró un(a)",
@@ -503,17 +488,17 @@
           "yes": "Sí",
           "no": "No"
         },
+        "matchup": {
+          "superEffective": "Supereficaz",
+          "resists": "Resiste",
+          "weak": "Débil"
+        },
         "rival": {
           "against": "Combate contra",
           "go": "¡Vamos!",
           "victory": "¿Victoria?",
           "yes": "Sí",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Ventaja Abrumadora",
-            "advantage": "Ventaja",
-            "disadvantage": "Desventaja"
-          }
+          "no": "No"
         },
         "snorlax": {
           "outcome": "Resultado",

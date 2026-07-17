@@ -70,14 +70,14 @@ describe('RivalBattleRouletteComponent', () => {
   // base-battle-roulette.component.spec.ts. This just confirms rival wires
   // its own baseNoCount(1) into it correctly.
 
-  it('should wire a strong matchup into rival\'s own yes/no baseline', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
+  it('should wire a mutual-advantage matchup into rival\'s own yes/no baseline', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // SE + resists fire, netScore=2
     component.currentRival = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(4); // base(1) + power(2) + delta(1)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(5); // base(1) + power(2) + delta(2)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.no').length).toBe(1); // rival's base(1) + round(0)
   });
 });

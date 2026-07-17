@@ -12,13 +12,15 @@ import { GymLeader } from '../../../../interfaces/gym-leader';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { StatsService } from '../../../../services/stats-service/stats.service';
+import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 
 @Component({
   selector: 'app-rival-battle-roulette',
   imports: [
     CommonModule,
     WheelComponent,
-    TranslatePipe
+    TranslatePipe,
+    MatchupStripComponent
   ],
   templateUrl: './rival-battle-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

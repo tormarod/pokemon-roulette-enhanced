@@ -14,6 +14,31 @@ Last updated: 2026-07-17
 
 ## Open items
 
+### Playtest the new symmetric type-matchup scoring for balance/feel
+
+`TypeMatchupService` was reworked (see `docs/plans/done/type-matchup-symmetric-scoring.md`)
+from best-case-offense/worst-case-defense tiers to a fully symmetric per-type net score.
+This is a real difficulty rebalance: ~30 of the game's 51 super-effective type pairs are
+"mutual" (also resisted-by/immune-to on the counter-hit), and those matchups are now
+meaningfully harsher/stronger than before on both sides. Worth a few playthrough rounds
+across different starters/generations to check the feel isn't too swingy before considering
+it fully settled.
+
+### [BUG] Empty/stuck wheel states not recovering on reload (rival battle + "Go Straight")
+
+Promoted to a plan → `docs/plans/bug-stuck-empty-wheels.md`. Two triggers — the
+**rival battle** and the **Go Straight** button — both land on an empty page/wheel
+that a reload can't recover (the broken state is persisted). Same class; plan
+covers per-cause fixes plus a universal self-heal so an unrenderable state can't
+hard-lock the run.
+
+### [BUG] Honey/Repel affecting Team Rocket steal
+
+Promoted to a plan → `docs/plans/bug-team-rocket-bias.md`. **Note:** a code trace
+found the steal is purely inverse-power weighted with no bias applied — so the plan
+is confirm-first (likely an indirect team-composition correlation, not a real
+leak).
+
 ### In-game player suggestions / bug-report + "most wanted" feedback
 
 Let players submit feature suggestions and bug reports from the page, and give
