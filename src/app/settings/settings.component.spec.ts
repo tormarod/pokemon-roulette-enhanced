@@ -66,6 +66,7 @@ describe('SettingsComponent', () => {
     spyOn(trainerService, 'resetTeam');
     spyOn(trainerService, 'resetItems');
     spyOn(trainerService, 'resetBadges');
+    spyOn(trainerService, 'clearPendingTypeBiases');
     spyOn(gameStateService, 'resetGameState');
     spyOn(runPersistenceService, 'clearRun');
     spyOn(router, 'navigate');
@@ -76,6 +77,7 @@ describe('SettingsComponent', () => {
     expect(trainerService.resetTeam).toHaveBeenCalled();
     expect(trainerService.resetItems).toHaveBeenCalled();
     expect(trainerService.resetBadges).toHaveBeenCalled();
+    expect(trainerService.clearPendingTypeBiases).toHaveBeenCalled();
     expect(gameStateService.resetGameState).toHaveBeenCalled();
     expect(runPersistenceService.clearRun).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['']);

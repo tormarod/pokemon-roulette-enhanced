@@ -79,6 +79,7 @@ export class SettingsComponent implements OnInit {
     this.trainerService.resetTeam();
     this.trainerService.resetItems();
     this.trainerService.resetBadges();
+    this.trainerService.clearPendingTypeBiases();
     this.gameStateService.resetGameState();
     this.runPersistenceService.clearRun();
     this.router.navigate(['']);
