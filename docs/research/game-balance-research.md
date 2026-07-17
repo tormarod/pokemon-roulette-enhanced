@@ -7,6 +7,30 @@ rebalance → see `docs/plans/game-balance-v1.md`. This doc is kept as rationale
 Owner: tormarod
 Author: research pass, 2026-07-16
 
+## Version roadmap (settled 2026-07-16)
+
+- **V1 — threat & economy tuning.** Wheel weights, healing scarcity, rising fixed
+  battle-threat curve. Plan: `docs/plans/game-balance-v1.md`.
+- **V2 — Steering.** (a) Bias-item rework: stacking (2 Honey = 2×), use-in-wheel,
+  visual feedback. (b) N-choice **reward** wheel + N-choice **threat** wheel
+  ("pick your poison"), gated by a **meta-roll** (reward-step vs threat-step) so
+  threat frequency is one tunable knob. (c) **New threats added** to stock the
+  threat wheel. No pre-spin battle changes (moved to V3).
+- **V3 — Pre-spin battle mechanics.** "Choose your lead" (doubles that Pokémon's
+  matchup delta — advantage if the read is right, disadvantage if wrong) + a
+  formal pre-spin item step. **Committed & persisted on confirm** (reload-proof,
+  mirroring `PendingSpinService`).
+- **V4 — Depth & stakes.** Abilities (curated set) + defeat mechanic (Pokémon
+  faint → heal to revive; between-gym battles only, never gyms; the lever for how
+  impactful potions are). The V3 lead becomes the mon at risk on a loss.
+  - **Expect V2 wheels to need re-tuning / re-pooling at V4.** Once a battle loss
+    can faint a Pokémon, encounters that are *reward-only* today become genuine
+    threats — e.g. the **rival** (and **trainer**) battles, which V2 leaves in the
+    reward pool, would become dual-nature (win = evolution, lose = a faint) and may
+    need to move into the **threat** pool or become TR-style dual entries. The V2
+    reward/threat pools and the Danger-meter tuning will need a revisit when V4
+    lands. (Think about specifics then, not now.)
+
 ## 0. Scope
 
 Holistic look at the game's reward/threat economy, difficulty curve, item
