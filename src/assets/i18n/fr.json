@@ -427,12 +427,7 @@
           "use": "A utilisé un(e)",
           "victory": "Victoire?",
           "yes": "Oui",
-          "no": "Non",
-          "typeAdvantage": {
-            "overwhelming": "Avantage Écrasant",
-            "advantage": "Avantage",
-            "disadvantage": "Désavantage"
-          }
+          "no": "Non"
         },
         "egg": {
           "title": "Quel Pokémon?"
@@ -460,11 +455,6 @@
             }
           },
           "title": "Victoire?",
-          "typeAdvantage": {
-            "overwhelming": "Avantage Écrasant",
-            "advantage": "Avantage",
-            "disadvantage": "Désavantage"
-          },
           "use": "A utilisé un(e)",
           "yes": "Oui",
           "no": "Non"
@@ -486,12 +476,7 @@
           "go": "C'est parti!",
           "used": "A utilisé un(e)",
           "yes": "Oui",
-          "no": "Non",
-          "typeAdvantage": {
-            "overwhelming": "Avantage Écrasant",
-            "advantage": "Avantage",
-            "disadvantage": "Désavantage"
-          }
+          "no": "Non"
         },
         "item": {
           "found": "A trouvé un(e)",
@@ -503,17 +488,17 @@
           "yes": "Oui",
           "no": "Non"
         },
+        "matchup": {
+          "superEffective": "Super efficace",
+          "resists": "Résiste",
+          "weak": "Faible"
+        },
         "rival": {
           "against": "Combat contre",
           "go": "C'est parti!",
           "victory": "Victoire?",
           "yes": "Oui",
-          "no": "Non",
-          "typeAdvantage": {
-            "overwhelming": "Avantage Écrasant",
-            "advantage": "Avantage",
-            "disadvantage": "Désavantage"
-          }
+          "no": "Non"
         },
         "snorlax": {
           "outcome": "Résultat",

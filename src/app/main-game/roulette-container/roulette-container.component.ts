@@ -147,6 +147,21 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
       this.gameStateService.currentState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
         this.currentGameState = state;
+        // 'game-start' is the very first state of every run (virgin load and every
+        // "Restart"), never re-entered later — a reliable "a new run just began"
+        // signal. RouletteContainerComponent survives a restart (only the
+        // underlying services get reset, not this component), so any of its own
+        // per-run fields that are trusted unconditionally (unlike e.g.
+        // expSharePokemon, which is only ever used behind an indexOf/index>-1
+        // guard against a freshly-built list) must be reset here or they leak a
+        // stale reference into the new run. stolenPokemon is exactly that case:
+        // teamRocketDefeated() adds it to the team on trust alone, so a leftover
+        // Pokémon from a previous run's successful steal would get silently
+        // handed back the first time this run's Team Rocket wheel lands on
+        // "defeat" — even before any steal happened this run.
+        if (state === 'game-start') {
+          this.stolenPokemon = null;
+        }
         if (this.currentGameState === 'adventure-continues') {
           if (this.multitaskCounter > 0) {
             this.respinReason = 'Multitask x' + this.multitaskCounter;
@@ -771,6 +786,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
    * A stronger Pokémon puts up more of a fight, so it's harder for Team Rocket
    * to steal — clones with an adjusted weight rather than mutating the real
    * team objects, since .weight is read by every other wheel too.
+   * Deliberately bias-independent: 'select-from-pokemon-list' is not in
+   * obtainWheelStates, so a pending type bias never touches this weighting —
+   * don't wire one in here.
    */
   private weightByInversePower(pokemon: PokemonItem[]): PokemonItem[] {
     return pokemon.map(p => ({ ...p, weight: 1 / p.power }));

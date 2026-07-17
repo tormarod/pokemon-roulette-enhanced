@@ -23,7 +23,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected retries = 0;
   protected victoryOdds: WheelItem[] = [];
 
-  matchupAdvantageTypes: PokemonType[] = [];
+  matchupSuperEffectiveTypes: PokemonType[] = [];
+  matchupResistTypes: PokemonType[] = [];
   matchupDisadvantageTypes: PokemonType[] = [];
   /** Total power gained/lost across the whole team from the matchup, for display. */
   matchupAdvantageDelta = 0;
@@ -114,13 +115,15 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     }
 
     if (types.length) {
-      const { advantageTypes, disadvantageTypes } = this.typeMatchupService.getMatchupTypes(this.trainerTeam, types);
-      this.matchupAdvantageTypes = advantageTypes;
-      this.matchupDisadvantageTypes = disadvantageTypes;
+      const { superEffectiveTypes, resistTypes, weakTypes } = this.typeMatchupService.getMatchupTypes(this.trainerTeam, types);
+      this.matchupSuperEffectiveTypes = superEffectiveTypes;
+      this.matchupResistTypes = resistTypes;
+      this.matchupDisadvantageTypes = weakTypes;
       this.matchupAdvantageDelta = advantageDelta;
       this.matchupDisadvantageDelta = disadvantageDelta;
     } else {
-      this.matchupAdvantageTypes = [];
+      this.matchupSuperEffectiveTypes = [];
+      this.matchupResistTypes = [];
       this.matchupDisadvantageTypes = [];
       this.matchupAdvantageDelta = 0;
       this.matchupDisadvantageDelta = 0;

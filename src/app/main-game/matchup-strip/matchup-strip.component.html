@@ -1,0 +1,39 @@
+<div class="matchup-strip">
+    <div class="matchup-icons-row">
+        @for (type of opponentTypes; track $index) {
+            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+        }
+    </div>
+    @if (advantageDelta > 0) {
+        <div class="matchup-section">
+            @if (superEffectiveTypes.length) {
+                <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.matchup.superEffective' | translate }}</span>
+                <div class="matchup-icons-row">
+                    @for (type of superEffectiveTypes; track $index) {
+                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                    }
+                </div>
+            }
+            @if (resistTypes.length) {
+                <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.matchup.resists' | translate }}</span>
+                <div class="matchup-icons-row">
+                    @for (type of resistTypes; track $index) {
+                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                    }
+                </div>
+            }
+            <span class="matchup-delta matchup-delta-positive">+{{ advantageDelta }}</span>
+        </div>
+    }
+    @if (disadvantageDelta > 0) {
+        <div class="matchup-section">
+            <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.matchup.weak' | translate }}</span>
+            <div class="matchup-icons-row">
+                @for (type of weakTypes; track $index) {
+                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                }
+                <span class="matchup-delta matchup-delta-negative">-{{ disadvantageDelta }}</span>
+            </div>
+        </div>
+    }
+</div>

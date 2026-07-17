@@ -71,14 +71,14 @@ describe('ChampionBattleRouletteComponent', () => {
   // base-battle-roulette.component.spec.ts. This just confirms champion wires
   // its own baseNoCount(3) into it correctly.
 
-  it('should wire a weak matchup into champion\'s own No count (not a Yes reduction)', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
+  it('should wire a mutual-disadvantage matchup into champion\'s own No count (not a Yes reduction)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak + fire resists grass's counter, netScore=-2
     component.currentChampion = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(3); // base(1) + power(2)
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(4);  // champion's base(3) + delta(1)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.no').length).toBe(5);  // champion's base(3) + delta(2)
   });
 });

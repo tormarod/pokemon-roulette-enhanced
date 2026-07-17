@@ -37,25 +37,29 @@ describe('TypeMatchupService', () => {
     expect(service.isWeakAgainst('water', 'fire')).toBeFalse();
   });
 
-  // ── getMemberDelta: half power rounded up, uncapped, never zero ───────────
+  // ── getMemberDelta: a quarter power rounded up, uncapped, never zero ──────
+  // This is now the per-net-score-point unit (see calcTeamMatchupTotals):
+  // a plain mutual-advantage pair like Water vs Fire scores netScore=2, so
+  // 2 * getMemberDelta reproduces the old flat "strong" magnitude for even powers.
 
-  it('is half the Pokémon\'s power, rounded up', () => {
+  it('is a quarter of the Pokémon\'s power, rounded up', () => {
     expect(service.getMemberDelta(makePokemon({ power: 1 }))).toBe(1);
     expect(service.getMemberDelta(makePokemon({ power: 2 }))).toBe(1);
-    expect(service.getMemberDelta(makePokemon({ power: 3 }))).toBe(2);
-    expect(service.getMemberDelta(makePokemon({ power: 4 }))).toBe(2);
-    expect(service.getMemberDelta(makePokemon({ power: 5 }))).toBe(3);
-    expect(service.getMemberDelta(makePokemon({ power: 6 }))).toBe(3);
-    expect(service.getMemberDelta(makePokemon({ power: 7 }))).toBe(4);
-    expect(service.getMemberDelta(makePokemon({ power: 8 }))).toBe(4);
+    expect(service.getMemberDelta(makePokemon({ power: 3 }))).toBe(1);
+    expect(service.getMemberDelta(makePokemon({ power: 4 }))).toBe(1);
+    expect(service.getMemberDelta(makePokemon({ power: 5 }))).toBe(2);
+    expect(service.getMemberDelta(makePokemon({ power: 6 }))).toBe(2);
+    expect(service.getMemberDelta(makePokemon({ power: 7 }))).toBe(2);
+    expect(service.getMemberDelta(makePokemon({ power: 8 }))).toBe(2);
   });
 
   it('is never zero, even for the lowest power', () => {
     expect(service.getMemberDelta(makePokemon({ power: 1 }))).toBeGreaterThan(0);
   });
 
-  it('has no hardcoded ceiling — keeps growing past the old cap of 3', () => {
-    expect(service.getMemberDelta(makePokemon({ power: 8 }))).toBeGreaterThan(3);
+  it('keeps scaling with power — no plateau', () => {
+    expect(service.getMemberDelta(makePokemon({ power: 8 })))
+      .toBeGreaterThan(service.getMemberDelta(makePokemon({ power: 4 })));
   });
 
   it('never depends on team size — only on the Pokémon\'s own power', () => {
@@ -65,29 +69,29 @@ describe('TypeMatchupService', () => {
 
   // ── calcTeamMatchupTotals: yesPower / noBonus / per-side deltas ────────────
 
-  it('adds the delta to yesPower for a strong-only member, no noBonus', () => {
-    const team = [makePokemon({ power: 5, type1: 'water' })]; // strong vs fire
+  it('adds the delta to yesPower for a mutual-advantage member, no noBonus', () => {
+    const team = [makePokemon({ power: 5, type1: 'water' })]; // SE vs fire AND resists fire: netScore=2
     const totals = service.calcTeamMatchupTotals(team, ['fire']);
-    expect(totals.yesPower).toBe(8);        // 5 + ceil(5/2)=3
-    expect(totals.advantageDelta).toBe(3);
+    expect(totals.yesPower).toBe(9);        // 5 + (netScore 2 * unit ceil(5/4)=2) = 5+4
+    expect(totals.advantageDelta).toBe(4);
     expect(totals.noBonus).toBe(0);
     expect(totals.disadvantageDelta).toBe(0);
   });
 
-  it('adds the delta to noBonus for a weak-only member, yesPower stays at raw power', () => {
-    const team = [makePokemon({ power: 5, type1: 'grass' })]; // weak vs fire
+  it('adds the delta to noBonus for a mutual-disadvantage member, yesPower stays at raw power', () => {
+    const team = [makePokemon({ power: 5, type1: 'grass' })]; // weak to fire AND fire resists our grass counter: netScore=-2
     const totals = service.calcTeamMatchupTotals(team, ['fire']);
     expect(totals.yesPower).toBe(5);        // unmodified — the penalty goes to No, not off Yes
     expect(totals.advantageDelta).toBe(0);
-    expect(totals.noBonus).toBe(3);         // ceil(5/2)=3
-    expect(totals.disadvantageDelta).toBe(3);
+    expect(totals.noBonus).toBe(4);         // netScore 2 * unit ceil(5/4)=2
+    expect(totals.disadvantageDelta).toBe(4);
   });
 
   it('still gives a low-power weak member a real, non-zero noBonus', () => {
     const team = [makePokemon({ power: 1, type1: 'grass' })]; // weak vs fire, power 1
     const totals = service.calcTeamMatchupTotals(team, ['fire']);
     expect(totals.yesPower).toBe(1);
-    expect(totals.noBonus).toBe(1); // ceil(1/2)=1, never 0
+    expect(totals.noBonus).toBe(2); // netScore 2 * unit ceil(1/4)=1, never 0
   });
 
   it('cancels out to neutral when a member is simultaneously strong and weak', () => {
@@ -101,29 +105,29 @@ describe('TypeMatchupService', () => {
 
   it('sums contributions across the whole team independently of team size', () => {
     const team = [
-      makePokemon({ power: 3, type1: 'poison' }),  // strong vs grass: +ceil(3/2)=2
-      makePokemon({ power: 4, type1: 'water' }),   // weak vs grass: noBonus +ceil(4/2)=2
-      makePokemon({ power: 1, type1: 'ground' }),  // weak vs grass: noBonus +ceil(1/2)=1
+      makePokemon({ power: 3, type1: 'poison' }),  // SE vs grass AND resists grass: netScore=2, delta=2
+      makePokemon({ power: 4, type1: 'water' }),   // weak vs grass AND grass resists water: netScore=-2, delta=-2
+      makePokemon({ power: 1, type1: 'ground' }),  // weak vs grass AND grass resists ground: netScore=-2, delta=-2
       makePokemon({ power: 2, type1: 'normal' }),  // neutral
     ];
     const totals = service.calcTeamMatchupTotals(team, ['grass']);
-    expect(totals.yesPower).toBe(3 + 4 + 1 + 2 + 2); // raw sum (10) + advantage bonus (2)
+    expect(totals.yesPower).toBe(3 + 4 + 1 + 2 + 2); // raw sum (10) + poison's advantage bonus (2)
     expect(totals.advantageDelta).toBe(2);
-    expect(totals.noBonus).toBe(3); // 2 (water) + 1 (ground)
-    expect(totals.disadvantageDelta).toBe(3);
+    expect(totals.noBonus).toBe(4); // 2 (water) + 2 (ground)
+    expect(totals.disadvantageDelta).toBe(4);
   });
 
   it('a member\'s own contribution is unaffected by adding or removing an unrelated teammate', () => {
-    const sandyShocks = makePokemon({ power: 4, type1: 'electric', type2: 'ground' }); // weak vs grass
+    const sandyShocks = makePokemon({ power: 4, type1: 'electric', type2: 'ground' }); // netScore=-3 vs grass
     const withoutOthers = service.calcTeamMatchupTotals([sandyShocks], ['grass']);
     const withOthers = service.calcTeamMatchupTotals(
       [sandyShocks, makePokemon({ power: 1, type1: 'poison' }), makePokemon({ power: 2, type1: 'ghost', type2: 'poison' })],
       ['grass']
     );
-    // Sandy Shocks alone contributes noBonus 2 either way — the presence of teammates never changes it
-    expect(withoutOthers.noBonus).toBe(2);
+    // Sandy Shocks alone contributes noBonus 3 either way — the presence of teammates never changes it
+    expect(withoutOthers.noBonus).toBe(3);
     const sandyShocksOnlyContribution = withOthers.noBonus; // no other weak members in this team
-    expect(sandyShocksOnlyContribution).toBe(2);
+    expect(sandyShocksOnlyContribution).toBe(3);
   });
 
   it('returns zero totals when opponentTypes is empty', () => {
@@ -137,312 +141,231 @@ describe('TypeMatchupService', () => {
 
   it('considers a member strong/weak if EITHER of its two types matches', () => {
     const dualType = makePokemon({ power: 4, type1: 'normal', type2: 'water' });
-    const totals = service.calcTeamMatchupTotals([dualType], ['fire']); // water is strong vs fire
-    expect(totals.yesPower).toBe(6); // 4 + ceil(4/2)=2
+    const totals = service.calcTeamMatchupTotals([dualType], ['fire']); // water is SE vs fire AND resists fire: netScore=2
+    expect(totals.yesPower).toBe(6); // 4 + (netScore 2 * unit ceil(4/4)=1) = 4+2
   });
 
-  // ── getMatchupTypes: both advantage AND disadvantage must surface together ──
+  // ── calcTeamMatchupTotals: symmetric scoring no longer lets a defensive ────
+  // ── shortcut (immunity, resist) unconditionally dominate a separate bad ────
+  // ── matchup — a real consequence of dropping the old best-case-offense/ ────
+  // ── worst-case-defense asymmetry, not a bug. ────────────────────────────────
 
-  it('returns every distinct advantage AND disadvantage type at once for a mixed team', () => {
-    const team = [
-      makePokemon({ power: 3, type1: 'ground' }),  // strong vs electric
-      makePokemon({ power: 3, type1: 'grass' }),   // resistant vs electric (grass resists electric)
-      makePokemon({ power: 3, type1: 'flying' }),  // weak vs electric
-    ];
-    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['electric']);
-    expect(advantageTypes).toEqual(['ground', 'grass']);
-    expect(disadvantageTypes).toEqual(['flying']);
-  });
-
-  it('drops a covered weakness instead of showing a red icon with no matching delta', () => {
-    // dragon is weak to ice but water resists it — nets to 'neutral' per getMemberTier
-    const team = [makePokemon({ power: 4, type1: 'dragon', type2: 'water' })];
-    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['ice']);
-    expect(advantageTypes).toEqual([]);
-    expect(disadvantageTypes).toEqual([]);
-  });
-
-  it('surfaces an immune wall as an advantage icon, not nothing', () => {
-    const team = [makePokemon({ power: 4, type1: 'flying' })]; // immune to ground
-    const { advantageTypes } = service.getMatchupTypes(team, ['ground']);
-    expect(advantageTypes).toEqual(['flying']);
-  });
-
-  it('surfaces a resistant member as an advantage icon', () => {
-    const team = [makePokemon({ power: 4, type1: 'dragon' })]; // resists water, no offensive answer
-    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['water']);
-    expect(advantageTypes).toEqual(['dragon']);
-    expect(disadvantageTypes).toEqual([]);
-  });
-
-  it('only lists the type(s) that actually earned the tier, not a neutral sibling type', () => {
-    const team = [makePokemon({ power: 4, type1: 'ground', type2: 'rock' })]; // immune to electric via ground; rock is neutral vs electric
-    const { advantageTypes } = service.getMatchupTypes(team, ['electric']);
-    expect(advantageTypes).toEqual(['ground']);
-  });
-
-  it('does not list a member\'s neutral second type in both advantage and disadvantage rows', () => {
-    const team = [
-      makePokemon({ power: 3, type1: 'grass', type2: 'poison' }),  // resistant vs electric (grass resists it); poison is neutral
-      makePokemon({ power: 3, type1: 'poison', type2: 'flying' }), // weak vs electric (flying is weak to it); poison is neutral
-    ];
-    const { advantageTypes, disadvantageTypes } = service.getMatchupTypes(team, ['electric']);
-    expect(advantageTypes).toEqual(['grass']);
-    expect(disadvantageTypes).toEqual(['flying']);
-    expect(advantageTypes).not.toContain('poison');
-    expect(disadvantageTypes).not.toContain('poison');
-  });
-
-  it('collects multiple distinct disadvantage types from different team members', () => {
-    const team = [
-      makePokemon({ power: 3, type1: 'poison' }),  // weak vs ground
-      makePokemon({ power: 3, type1: 'electric' }), // weak vs ground
-      makePokemon({ power: 3, type1: 'normal' }),  // neutral vs ground
-    ];
-    const { disadvantageTypes } = service.getMatchupTypes(team, ['ground']);
-    expect(disadvantageTypes.length).toBe(2);
-    expect(disadvantageTypes).toContain('poison');
-    expect(disadvantageTypes).toContain('electric');
-  });
-
-  // ── getMemberTier: graded strong/neutral/weak/hard-countered buckets ───────
-
-  it('is "strong" for a plain offensive advantage with a safe defense', () => {
-    const water = makePokemon({ power: 4, type1: 'water' });
-    expect(service.getMemberTier(water, ['fire'])).toBe('strong'); // SE vs fire, and fire isn't SE vs water
-  });
-
-  it('is "weak" for a plain unresisted defensive disadvantage with no offensive answer', () => {
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['fire'])).toBe('weak'); // fire is SE vs grass, grass isn't SE vs fire
-  });
-
-  it('is "neutral" when offense and defense cancel (existing cancel behavior)', () => {
-    const bug = makePokemon({ power: 5, type1: 'bug' });
-    expect(service.getMemberTier(bug, ['grass', 'fire'])).toBe('neutral'); // SE vs grass, weak vs fire
-  });
-
-  it('is "hard-countered" when both of a dual-typed member\'s types are hit by the same opponent type', () => {
-    const iceFlying = makePokemon({ power: 4, type1: 'ice', type2: 'flying' });
-    expect(service.getMemberTier(iceFlying, ['rock'])).toBe('hard-countered'); // rock is SE vs both ice and flying
-  });
-
-  it('is "hard-countered" when a member is unresistedly weak to two distinct opponent types', () => {
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['fire', 'ice'])).toBe('hard-countered'); // both fire and ice are SE vs grass
-  });
-
-  it('is "strong" for an immune member even without an offensive answer (defensive wall)', () => {
-    const flying = makePokemon({ power: 4, type1: 'flying' });
-    expect(service.getMemberTier(flying, ['ground'])).toBe('strong'); // flying is immune to ground, not offensively SE vs it
-  });
-
-  it('immunity dominates even when the opponent has other types', () => {
-    const flying = makePokemon({ power: 4, type1: 'flying' });
-    expect(service.getMemberTier(flying, ['ground', 'rock'])).toBe('strong'); // rock is SE vs flying, but immunity wins
-  });
-
-  it('double-typing can cancel a weakness via a resist, landing at "neutral" instead of "weak" (coverage, not just cancellation)', () => {
-    const dragonWater = makePokemon({ power: 4, type1: 'dragon', type2: 'water' });
-    expect(service.getMemberTier(dragonWater, ['ice'])).toBe('neutral'); // dragon is weak vs ice, water resists ice — net cancels
-  });
-
-  it('is "neutral" for empty opponent types', () => {
-    const water = makePokemon({ power: 4, type1: 'water' });
-    expect(service.getMemberTier(water, [])).toBe('neutral');
-  });
-
-  // ── Repeated opponent types are an intentional emphasis lever, not a dedupe bug ──
-  // (see GymLeader.types doc comment and plan §7.5): a trainer whose `types` list
-  // repeats a type is deliberately leaning into it, so a weakness to that type is
-  // punished as hard-countered instead of plain weak.
-
-  it('is "hard-countered" (not "weak") against a trainer that repeats the type it\'s weak to — the emphasis lever', () => {
-    // grass is weak to fire (fire is SE vs grass) but not offensively SE vs fire itself
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['fire', 'fire'])).toBe('hard-countered'); // Lance-style emphasis
-  });
-
-  it('is "weak" (not "hard-countered") against the same type appearing only once', () => {
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['fire'])).toBe('weak');
-  });
-
-  it('is unaffected by a repeated type the member has no relationship with', () => {
-    const water = makePokemon({ power: 4, type1: 'water' });
-    expect(service.getMemberTier(water, ['normal', 'normal'])).toBe('neutral');
-  });
-
-  // ── getMemberTier: 'resistant' / 'hard-resistant' — the missing defensive-resist tiers ──
-
-  it('is "resistant" for a net resist with no offensive answer', () => {
-    const dragon = makePokemon({ power: 4, type1: 'dragon' });
-    expect(service.getMemberTier(dragon, ['water'])).toBe('resistant'); // dragon resists water, isn't SE vs it
-  });
-
-  it('is "hard-resistant" when both of a dual-typed member\'s types resist the same opponent type', () => {
-    // water and ice both resist ice, and neither is offensively SE nor weak vs ice
-    const waterIce = makePokemon({ power: 4, type1: 'water', type2: 'ice' });
-    expect(service.getMemberTier(waterIce, ['ice'])).toBe('hard-resistant');
-  });
-
-  it('is "hard-resistant" when a member resists two distinct opponent types', () => {
-    const dragon = makePokemon({ power: 4, type1: 'dragon' });
-    expect(service.getMemberTier(dragon, ['fire', 'water'])).toBe('hard-resistant'); // dragon resists both
-  });
-
-  it('a resist never rescues a member that is also weak to another opponent type (weak still wins)', () => {
-    const dragon = makePokemon({ power: 4, type1: 'dragon' });
-    expect(service.getMemberTier(dragon, ['ice', 'fire'])).toBe('weak'); // weak to ice, resists fire — weak dominates
-  });
-
-  it('resisting an emphasized (repeated) opponent type lands on "hard-resistant" — the resist-side emphasis lever', () => {
-    const dragon = makePokemon({ power: 4, type1: 'dragon' });
-    expect(service.getMemberTier(dragon, ['water', 'water'])).toBe('hard-resistant');
-  });
-
-  // ── getTierDeltaMagnitude: power-based; hard-countered is double the weak unit ──
-
-  it('matches the plain power-based delta for "strong"', () => {
-    const mon = makePokemon({ power: 8 });
-    expect(service.getTierDeltaMagnitude(mon, 'strong')).toBe(service.getMemberDelta(mon));
-  });
-
-  it('matches the plain power-based delta for "weak"', () => {
-    const mon = makePokemon({ power: 4 });
-    expect(service.getTierDeltaMagnitude(mon, 'weak')).toBe(service.getMemberDelta(mon));
-  });
-
-  it('is double the plain weak delta for "hard-countered"', () => {
-    const mon = makePokemon({ power: 4 });
-    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(service.getMemberDelta(mon) * 2);
-  });
-
-  it('keeps scaling the "hard-countered" magnitude with power — uncapped, always above "weak"', () => {
-    const mon = makePokemon({ power: 8 }); // weak delta 4, hard-countered 8 — no plateau, no cap
-    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(8);
-    expect(service.getTierDeltaMagnitude(mon, 'hard-countered'))
-      .toBeGreaterThan(service.getTierDeltaMagnitude(mon, 'weak'));
-  });
-
-  it('makes hard-countered strictly harsher than weak even at the lowest power', () => {
-    const mon = makePokemon({ power: 1 }); // weak delta 1, hard-countered 2
-    expect(service.getTierDeltaMagnitude(mon, 'weak')).toBe(1);
-    expect(service.getTierDeltaMagnitude(mon, 'hard-countered')).toBe(2);
-    expect(service.getTierDeltaMagnitude(mon, 'hard-countered'))
-      .toBeGreaterThan(service.getTierDeltaMagnitude(mon, 'weak'));
-  });
-
-  it('is half the weak/strong unit for "resistant" (ceil(power/4))', () => {
-    const mon = makePokemon({ power: 8 }); // weak/strong delta 4, resistant ceil(8/4)=2
-    expect(service.getTierDeltaMagnitude(mon, 'resistant')).toBe(2);
-  });
-
-  it('is double the "resistant" magnitude for "hard-resistant"', () => {
-    const mon = makePokemon({ power: 8 });
-    expect(service.getTierDeltaMagnitude(mon, 'hard-resistant')).toBe(4);
-    expect(service.getTierDeltaMagnitude(mon, 'hard-resistant'))
-      .toBeGreaterThan(service.getTierDeltaMagnitude(mon, 'resistant'));
-  });
-
-  it('is never zero for "resistant", even at the lowest power', () => {
-    const mon = makePokemon({ power: 1 });
-    expect(service.getTierDeltaMagnitude(mon, 'resistant')).toBe(1);
-  });
-
-  it('stays deliberately smaller than a plain "strong" at every power', () => {
-    const mon = makePokemon({ power: 8 });
-    expect(service.getTierDeltaMagnitude(mon, 'resistant'))
-      .toBeLessThan(service.getTierDeltaMagnitude(mon, 'strong'));
-  });
-
-  // ── end-to-end: resistant/hard-resistant members add a smaller bonus to Yes, keep noBonus untouched ──
-
-  it('routes a smaller bonus to advantageDelta/yesPower for a "resistant" member', () => {
-    const team = [makePokemon({ power: 4, type1: 'dragon' })]; // resists water, not SE vs it
-    const totals = service.calcTeamMatchupTotals(team, ['water']);
-    expect(totals.advantageDelta).toBe(1); // ceil(4/4)
-    expect(totals.yesPower).toBe(5);       // 4 power + 1 resistant bonus
+  it('immunity no longer unconditionally wins: a separate bad matchup against another opponent type can cancel it', () => {
+    // Flying is immune to Ground (netScore contribution +2) but Rock hits Flying
+    // hard AND resists Flying's counter-hit (netScore contribution -2) — nets to 0.
+    const team = [makePokemon({ power: 4, type1: 'flying' })];
+    const totals = service.calcTeamMatchupTotals(team, ['ground', 'rock']);
+    expect(totals.advantageDelta).toBe(0);
     expect(totals.disadvantageDelta).toBe(0);
-    expect(totals.noBonus).toBe(0);
   });
 
-  it('routes double the resistant bonus for a "hard-resistant" member', () => {
+  it('a resist no longer unconditionally survives a separate weakness: mutual advantage/disadvantage can cancel', () => {
+    // Dragon resists Water (+1) but is weak to Ice while Fire also resists Dragon's
+    // counter — Ice's -1 and Fire's -1 exactly offset Water's +1... actually nets via
+    // Ice (-1 weak, no mutual resist) and Fire (0, no relation) around Water's +1: verify via totals.
     const team = [makePokemon({ power: 4, type1: 'dragon' })];
-    const totals = service.calcTeamMatchupTotals(team, ['fire', 'water']); // dragon resists both
-    expect(totals.advantageDelta).toBe(2); // 2 * ceil(4/4)
-    expect(totals.yesPower).toBe(6);
+    const totals = service.calcTeamMatchupTotals(team, ['ice', 'fire']);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
-  // ── end-to-end: a hard-countered member routes double the red, keeps its green ──
-
-  it('routes double the weak penalty to noBonus for a hard-countered member, green stays at full power', () => {
-    // grass is weak to BOTH fire and ice (two distinct SE opponent types) → hard-countered
-    const team = [makePokemon({ power: 4, type1: 'grass' })];
-    const totals = service.calcTeamMatchupTotals(team, ['fire', 'ice']);
-    expect(totals.yesPower).toBe(4);          // full power kept in the Yes pool — bulk still shows
-    expect(totals.noBonus).toBe(4);           // 2 * ceil(4/2) — double a plain weakness
-    expect(totals.disadvantageDelta).toBe(4);
+  it('the repeated-type emphasis lever still applies: hard-countered vs a doubled weakness type', () => {
+    const team = [makePokemon({ power: 4, type1: 'grass' })]; // weak to fire, and fire resists grass's counter — doubled by repetition
+    const totals = service.calcTeamMatchupTotals(team, ['fire', 'fire']);
+    expect(totals.disadvantageDelta).toBe(4); // netScore -4 * unit(1)
     expect(totals.advantageDelta).toBe(0);
   });
 
-  it('a hard-countered member always costs more No than the same member merely weak', () => {
+  it('the repeated-type emphasis lever applies symmetrically on the resist side', () => {
+    const team = [makePokemon({ power: 4, type1: 'dragon' })]; // resists water, repeated
+    const totals = service.calcTeamMatchupTotals(team, ['water', 'water']);
+    expect(totals.advantageDelta).toBe(2); // netScore 2 * unit(1)
+    expect(totals.disadvantageDelta).toBe(0);
+  });
+
+  it('resisting two distinct opponent types scores the same as resisting one repeated type', () => {
+    const team = [makePokemon({ power: 4, type1: 'dragon' })]; // resists both fire and water
+    const totals = service.calcTeamMatchupTotals(team, ['fire', 'water']);
+    expect(totals.advantageDelta).toBe(2);
+  });
+
+  it('a dual-typed member being hit through both types by the same opponent type is a bigger penalty than a single hit', () => {
+    const team = [makePokemon({ power: 4, type1: 'ice', type2: 'flying' })]; // rock is SE vs both, and resists flying's counter
+    const totals = service.calcTeamMatchupTotals(team, ['rock']);
+    expect(totals.disadvantageDelta).toBe(3);
+    expect(totals.advantageDelta).toBe(0);
+  });
+
+  it('a hard-countered-equivalent member always costs more No than the same member merely weak', () => {
     const grass = makePokemon({ power: 6, type1: 'grass' });
     const weak = service.calcTeamMatchupTotals([grass], ['fire']);          // weak vs fire only
-    const hardCountered = service.calcTeamMatchupTotals([grass], ['fire', 'ice']); // weak vs both
+    const hardCountered = service.calcTeamMatchupTotals([grass], ['fire', 'ice']); // weak vs both, ice adds no mutual resist
     expect(hardCountered.noBonus).toBeGreaterThan(weak.noBonus);
     expect(hardCountered.yesPower).toBe(weak.yesPower); // same green either way
   });
 
-  // ── Offensive resistance: cancel phantom advantages ────────────────────────
+  // ── calcTeamMatchupTotals: offensive-resistance cancellation still holds ───
 
-  it('is "neutral" for Poison vs Poison (offensively resisted — the reported bug)', () => {
-    const poison = makePokemon({ power: 4, type1: 'poison' });
-    expect(service.getMemberTier(poison, ['poison'])).toBe('neutral');
+  it('is neutral for Poison vs Poison (same-type pair always cancels)', () => {
+    const team = [makePokemon({ power: 4, type1: 'poison' })];
+    const totals = service.calcTeamMatchupTotals(team, ['poison']);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
-  it('is "neutral" for Steel vs Steel (mirror offensive resistance)', () => {
-    const steel = makePokemon({ power: 4, type1: 'steel' });
-    expect(service.getMemberTier(steel, ['steel'])).toBe('neutral');
+  it('is neutral for Steel vs Steel (same-type pair always cancels)', () => {
+    const team = [makePokemon({ power: 4, type1: 'steel' })];
+    const totals = service.calcTeamMatchupTotals(team, ['steel']);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
-  it('is "neutral" for Normal vs Ghost (immune both ways — offensive immunity)', () => {
-    const normal = makePokemon({ power: 4, type1: 'normal' });
-    expect(service.getMemberTier(normal, ['ghost'])).toBe('neutral');
+  it('is neutral for Normal vs Ghost (immune both ways — mutual immunity cancels)', () => {
+    const team = [makePokemon({ power: 4, type1: 'normal' })];
+    const totals = service.calcTeamMatchupTotals(team, ['ghost']);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
-  it('is "neutral" for Steel vs Steel, Steel (doubleResist walled by repeated emphasized type)', () => {
-    const steel = makePokemon({ power: 4, type1: 'steel' });
-    expect(service.getMemberTier(steel, ['steel', 'steel'])).toBe('neutral');
+  it('is neutral for Steel vs Steel, Steel (repeated same-type pair still cancels)', () => {
+    const team = [makePokemon({ power: 4, type1: 'steel' })];
+    const totals = service.calcTeamMatchupTotals(team, ['steel', 'steel']);
+    expect(totals.advantageDelta).toBe(0);
+    expect(totals.disadvantageDelta).toBe(0);
   });
 
-  it('remains "strong" for Poison/Steel vs Poison (steel can poke, not fully walled)', () => {
-    const poisonSteel = makePokemon({ power: 4, type1: 'poison', type2: 'steel' });
-    expect(service.getMemberTier(poisonSteel, ['poison'])).toBe('strong');
+  it('remains a mutual advantage for Poison/Steel vs Poison (steel is not a same-type pair, still resists)', () => {
+    const team = [makePokemon({ power: 4, type1: 'poison', type2: 'steel' })];
+    const totals = service.calcTeamMatchupTotals(team, ['poison']);
+    expect(totals.advantageDelta).toBe(2);
   });
 
-  it('remains "strong" for Water vs Fire (SE + resist, unchanged)', () => {
-    const water = makePokemon({ power: 4, type1: 'water' });
-    expect(service.getMemberTier(water, ['fire'])).toBe('strong');
+  it('remains a mutual disadvantage for Fire vs Water (offensively resisted AND defensively weak)', () => {
+    const team = [makePokemon({ power: 4, type1: 'fire' })];
+    const totals = service.calcTeamMatchupTotals(team, ['water']);
+    expect(totals.disadvantageDelta).toBe(2);
   });
 
-  it('remains "weak" for Grass vs Fire (unchanged)', () => {
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['fire'])).toBe('weak');
+  it('remains a mutual disadvantage for Electric vs Ground (offensively nullified AND defensively weak)', () => {
+    const team = [makePokemon({ power: 4, type1: 'electric' })];
+    const totals = service.calcTeamMatchupTotals(team, ['ground']);
+    expect(totals.disadvantageDelta).toBe(3);
   });
 
-  it('remains "weak" for Fire vs Water (offensively resisted but defensively weak stays weak)', () => {
-    const fire = makePokemon({ power: 4, type1: 'fire' });
-    expect(service.getMemberTier(fire, ['water'])).toBe('weak');
+  it('remains a mutual advantage for Grass vs Water (SE vs water + resists water)', () => {
+    const team = [makePokemon({ power: 4, type1: 'grass' })];
+    const totals = service.calcTeamMatchupTotals(team, ['water']);
+    expect(totals.advantageDelta).toBe(2);
   });
 
-  it('remains "weak" for Electric vs Ground (offensively nullified but defensively weak stays weak)', () => {
-    const electric = makePokemon({ power: 4, type1: 'electric' });
-    expect(service.getMemberTier(electric, ['ground'])).toBe('weak');
+  // ── getMatchupTypes: superEffective (offense) vs resist (defense) split, plus weak ──
+
+  it('returns every distinct superEffective AND resist AND weak type at once for a mixed team', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'ground' }),  // SE vs electric, and immune to it
+      makePokemon({ power: 3, type1: 'grass' }),   // resists electric, no offensive relation
+      makePokemon({ power: 3, type1: 'flying' }),  // weak vs electric, and electric resists flying's counter
+    ];
+    const { superEffectiveTypes, resistTypes, weakTypes } = service.getMatchupTypes(team, ['electric']);
+    expect(superEffectiveTypes).toEqual(['ground']);
+    expect(resistTypes).toEqual(['ground', 'grass']);
+    expect(weakTypes).toEqual(['flying']);
   });
 
-  it('remains "strong" for Grass vs Water (SE vs water + resists water, unchanged)', () => {
-    const grass = makePokemon({ power: 4, type1: 'grass' });
-    expect(service.getMemberTier(grass, ['water'])).toBe('strong');
+  it('drops a covered weakness instead of showing a red icon with no matching delta', () => {
+    // dragon is weak to ice but water resists it — nets to 0
+    const team = [makePokemon({ power: 4, type1: 'dragon', type2: 'water' })];
+    const { superEffectiveTypes, resistTypes, weakTypes } = service.getMatchupTypes(team, ['ice']);
+    expect(superEffectiveTypes).toEqual([]);
+    expect(resistTypes).toEqual([]);
+    expect(weakTypes).toEqual([]);
+  });
+
+  it('surfaces an immune wall as a resist icon, not nothing', () => {
+    const team = [makePokemon({ power: 4, type1: 'flying' })]; // immune to ground
+    const { superEffectiveTypes, resistTypes } = service.getMatchupTypes(team, ['ground']);
+    expect(superEffectiveTypes).toEqual([]);
+    expect(resistTypes).toEqual(['flying']);
+  });
+
+  it('surfaces a resistant member as a resist icon, not superEffective', () => {
+    const team = [makePokemon({ power: 4, type1: 'dragon' })]; // resists water, no offensive answer
+    const { superEffectiveTypes, resistTypes, weakTypes } = service.getMatchupTypes(team, ['water']);
+    expect(superEffectiveTypes).toEqual([]);
+    expect(resistTypes).toEqual(['dragon']);
+    expect(weakTypes).toEqual([]);
+  });
+
+  it('only lists the type(s) that actually earned a positive sub-score, not a neutral sibling type', () => {
+    const team = [makePokemon({ power: 4, type1: 'ground', type2: 'rock' })]; // immune to electric via ground; rock is neutral vs electric
+    const { resistTypes } = service.getMatchupTypes(team, ['electric']);
+    expect(resistTypes).toEqual(['ground']);
+  });
+
+  it('does not list a member\'s neutral second type in resist or weak rows', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'grass', type2: 'poison' }),  // resists electric; poison is neutral
+      makePokemon({ power: 3, type1: 'poison', type2: 'flying' }), // weak vs electric via flying; poison is neutral
+    ];
+    const { resistTypes, weakTypes } = service.getMatchupTypes(team, ['electric']);
+    expect(resistTypes).toEqual(['grass']);
+    expect(weakTypes).toEqual(['flying']);
+    expect(resistTypes).not.toContain('poison');
+    expect(weakTypes).not.toContain('poison');
+  });
+
+  it('collects multiple distinct weak types from different team members', () => {
+    const team = [
+      makePokemon({ power: 3, type1: 'poison' }),  // weak vs ground, ground resists poison's counter
+      makePokemon({ power: 3, type1: 'electric' }), // weak vs ground, ground immune to electric's counter
+      makePokemon({ power: 3, type1: 'normal' }),  // neutral vs ground
+    ];
+    const { weakTypes } = service.getMatchupTypes(team, ['ground']);
+    expect(weakTypes.length).toBe(2);
+    expect(weakTypes).toContain('poison');
+    expect(weakTypes).toContain('electric');
+  });
+
+  it('a type can appear in both superEffectiveTypes and resistTypes (Water vs Fire: SE and resists)', () => {
+    const team = [makePokemon({ power: 4, type1: 'water' })];
+    const { superEffectiveTypes, resistTypes } = service.getMatchupTypes(team, ['fire']);
+    expect(superEffectiveTypes).toEqual(['water']);
+    expect(resistTypes).toEqual(['water']);
+  });
+
+  it('excludes a same-type pair from its own type\'s icons, even when the member is an overall advantage', () => {
+    // Grass/Poison vs Grass: poison is SE vs grass and resists it (netScore +2 on its own).
+    // Grass-vs-Grass is a same-type pair and always nets to 0 — it's excluded entirely,
+    // so grass does NOT show up as "resists" just because its own defensive half is
+    // individually positive (that's exactly offset by its own offensive half being resisted).
+    const team = [makePokemon({ power: 3, type1: 'grass', type2: 'poison' })];
+    const { superEffectiveTypes, resistTypes } = service.getMatchupTypes(team, ['grass']);
+    expect(superEffectiveTypes).toEqual(['poison']);
+    expect(resistTypes).toEqual(['poison']);
+    expect(resistTypes).not.toContain('grass');
+  });
+
+  it('excludes a same-type pair even when it is the ONLY opponent type, leaving nothing to show', () => {
+    // Water/Ice vs Ice: Water resists Ice (a genuine cross-type relationship). Ice-vs-Ice
+    // is a same-type pair, excluded — it contributes nothing to its own icon eligibility,
+    // even though the member's overall netScore is positive (from Water alone).
+    const team = [makePokemon({ power: 4, type1: 'water', type2: 'ice' })];
+    const { resistTypes } = service.getMatchupTypes(team, ['ice']);
+    expect(resistTypes).toEqual(['water']);
+    expect(resistTypes).not.toContain('ice');
+  });
+
+  it('is "weak" (not resist/SE) for Fire vs Water', () => {
+    const team = [makePokemon({ power: 3, type1: 'fire' })];
+    const { superEffectiveTypes, resistTypes, weakTypes } = service.getMatchupTypes(team, ['water']);
+    expect(superEffectiveTypes).toEqual([]);
+    expect(resistTypes).toEqual([]);
+    expect(weakTypes).toEqual(['fire']);
+  });
+
+  it('returns empty arrays when team or opponentTypes is empty', () => {
+    const team = [makePokemon({ power: 4, type1: 'water' })];
+    expect(service.getMatchupTypes([], ['fire'])).toEqual({ superEffectiveTypes: [], resistTypes: [], weakTypes: [] });
+    expect(service.getMatchupTypes(team, [])).toEqual({ superEffectiveTypes: [], resistTypes: [], weakTypes: [] });
   });
 });

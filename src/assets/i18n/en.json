@@ -427,12 +427,7 @@
           "use": "Used a",
           "victory": "Victory?",
           "yes": "Yes",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Overwhelming Advantage",
-            "advantage": "Advantage",
-            "disadvantage": "Disadvantage"
-          }
+          "no": "No"
         },
         "egg": {
           "title": "Which Pokemon ?"
@@ -460,11 +455,6 @@
             }
           },
           "title": "Victory?",
-          "typeAdvantage": {
-            "overwhelming": "Overwhelming Advantage",
-            "advantage": "Advantage",
-            "disadvantage": "Disadvantage"
-          },
           "use": "Used a",
           "yes": "Yes",
           "no": "No"
@@ -486,12 +476,7 @@
           "go": "Let's Go!",
           "used": "Used a",
           "yes": "Yes",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Overwhelming Advantage",
-            "advantage": "Advantage",
-            "disadvantage": "Disadvantage"
-          }
+          "no": "No"
         },
         "item": {
           "found": "Found a",
@@ -503,17 +488,17 @@
           "yes": "Yes",
           "no": "No"
         },
+        "matchup": {
+          "superEffective": "Super effective",
+          "resists": "Resists",
+          "weak": "Weak"
+        },
         "rival": {
           "against": "Battle against",
           "go": "Let's Go!",
           "victory": "Victory?",
           "yes": "Yes",
-          "no": "No",
-          "typeAdvantage": {
-            "overwhelming": "Overwhelming Advantage",
-            "advantage": "Advantage",
-            "disadvantage": "Disadvantage"
-          }
+          "no": "No"
         },
         "snorlax": {
           "outcome": "Outcome",

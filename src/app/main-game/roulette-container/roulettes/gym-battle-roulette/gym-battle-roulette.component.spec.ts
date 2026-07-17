@@ -111,14 +111,14 @@ describe('GymBattleRouletteComponent', () => {
   // base-battle-roulette.component.spec.ts. These just confirm gym wires its
   // own baseNoCount(1) into it correctly, plus gym's own template rendering. ──
 
-  it('should wire a strong matchup into gym\'s own yes/no baseline', () => {
-    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // strong vs fire
+  it('should wire a mutual-advantage matchup into gym\'s own yes/no baseline', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // SE + resists fire, netScore=2
     component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
 
     const odds: WheelItem[] = (component as any).victoryOdds;
-    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(4); // base(1) + power(2) + delta(1)
+    expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(5); // base(1) + power(2) + delta(2)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.no').length).toBe(1); // gym's base(1) + round(0)
   });
 
@@ -138,22 +138,24 @@ describe('GymBattleRouletteComponent', () => {
     // Poison is strong against grass; water AND ground are BOTH weak against
     // grass (grass beats ground, rock, water) — two distinct disadvantage types
     // from two different Pokémon, which must both show, with a combined total.
-    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'poison' })); // strong vs grass
-    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'water' }));  // weak vs grass
-    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'ground' })); // weak vs grass
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'poison' })); // SE + resists grass, netScore=2
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'water' }));  // weak + grass resists water, netScore=-2
+    trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'ground' })); // weak + grass resists ground, netScore=-2
     trainerService.addToTeam(makeTestPokemon({ power: 3, type1: 'normal' })); // neutral
     component.currentLeader = { name: 'Erika', sprite: '', quotes: [], types: ['grass'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
     fixture.detectChanges();
 
-    expect(component.matchupAdvantageTypes).toEqual(['poison']);
+    expect(component.matchupSuperEffectiveTypes).toEqual(['poison']);
+    expect(component.matchupResistTypes).toEqual(['poison']);
     expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
-    expect(component.matchupAdvantageDelta).toBe(2);      // 1 strong-only member * ceil(3/2)
-    expect(component.matchupDisadvantageDelta).toBe(4);   // 2 weak-only members * ceil(3/2) = 4, not a flat 2
+    expect(component.matchupAdvantageDelta).toBe(2);      // 1 mutual-advantage member * (netScore(2) * unit(1))
+    expect(component.matchupDisadvantageDelta).toBe(4);   // 2 mutual-disadvantage members * (netScore(2) * unit(1)) = 4
 
     const sectionLabels = fixture.nativeElement.querySelectorAll('.matchup-label-positive, .matchup-label-negative');
-    expect(sectionLabels.length).toBe(2); // both an "Advantage" AND a "Disadvantage" heading render
+    // poison is both super-effective AND resists grass, plus the weak heading: 3 labels total
+    expect(sectionLabels.length).toBe(3);
 
     const deltaEls = fixture.nativeElement.querySelectorAll('.matchup-delta');
     const deltaTexts = Array.from(deltaEls).map((el: any) => el.textContent.trim());
@@ -162,21 +164,21 @@ describe('GymBattleRouletteComponent', () => {
   });
 
   it('should still show a small, non-zero Disadvantage for a low-power weak Pokémon (no more "-0")', () => {
-    // A power-1 Pokémon's penalty is now capped at its own power (1), never 0 —
-    // eliminating the old "-0" display bug entirely, by construction.
-    trainerService.addToTeam(makeTestPokemon({ power: 1, type1: 'fire' })); // weak vs rock
+    // A power-1 Pokémon's penalty is never 0 — eliminating the old "-0" display
+    // bug entirely, by construction (getMemberDelta's unit is never 0).
+    trainerService.addToTeam(makeTestPokemon({ power: 1, type1: 'fire' })); // weak to rock, and rock resists fire's counter: netScore=-2
     component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['rock'] } as GymLeader;
     component.currentRound = 0;
     (component as any).calcVictoryOdds();
     fixture.detectChanges();
 
     expect(component.matchupDisadvantageTypes).toEqual(['fire']);
-    expect(component.matchupDisadvantageDelta).toBe(1);
+    expect(component.matchupDisadvantageDelta).toBe(2); // netScore(2) * unit(ceil(1/4)=1)
 
     const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
     const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
     expect(negLabel).not.toBeNull();
-    expect(negDelta.textContent.trim()).toBe('-1');
+    expect(negDelta.textContent.trim()).toBe('-2');
   });
 
   it('renders every entry in the leader\'s types list, including a repeated emphasis type', () => {

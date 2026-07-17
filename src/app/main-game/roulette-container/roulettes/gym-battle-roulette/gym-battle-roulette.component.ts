@@ -13,13 +13,15 @@ import { TypeMatchupService } from '../../../../services/type-matchup-service/ty
 import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { gymLeadersByGeneration } from './gym-leaders-by-generation';
+import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 
 @Component({
   selector: 'app-gym-battle-roulette',
   imports: [
     CommonModule,
     WheelComponent,
-    TranslatePipe
+    TranslatePipe,
+    MatchupStripComponent
   ],
   templateUrl: './gym-battle-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

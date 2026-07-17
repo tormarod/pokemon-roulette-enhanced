@@ -427,12 +427,7 @@
           "use": "Verwendet",
           "victory": "Sieg?",
           "yes": "Ja",
-          "no": "Nein",
-          "typeAdvantage": {
-            "overwhelming": "Überwältigender Vorteil",
-            "advantage": "Vorteil",
-            "disadvantage": "Nachteil"
-          }
+          "no": "Nein"
         },
         "egg": {
           "title": "Welches Pokémon?"
@@ -460,11 +455,6 @@
             }
           },
           "title": "Erfolg?",
-          "typeAdvantage": {
-            "overwhelming": "Überwältigender Vorteil",
-            "advantage": "Vorteil",
-            "disadvantage": "Nachteil"
-          },
           "use": "Benutzt",
           "yes": "Ja",
           "no": "Nein"
@@ -486,12 +476,7 @@
           "go": "Los geht's!",
           "used": "Benutzt",
           "yes": "Ja",
-          "no": "Nein",
-          "typeAdvantage": {
-            "overwhelming": "Überwältigender Vorteil",
-            "advantage": "Vorteil",
-            "disadvantage": "Nachteil"
-          }
+          "no": "Nein"
         },
         "item": {
           "found": "Fand ein",
@@ -503,17 +488,17 @@
           "yes": "Ja",
           "no": "Nein"
         },
+        "matchup": {
+          "superEffective": "Sehr effektiv",
+          "resists": "Resistent",
+          "weak": "Schwach"
+        },
         "rival": {
           "against": "Kampf gegen",
           "go": "Los geht's!",
           "victory": "Erfolg?",
           "yes": "Ja",
-          "no": "Nein",
-          "typeAdvantage": {
-            "overwhelming": "Überwältigender Vorteil",
-            "advantage": "Vorteil",
-            "disadvantage": "Nachteil"
-          }
+          "no": "Nein"
         },
         "snorlax": {
           "outcome": "Ergebnis",

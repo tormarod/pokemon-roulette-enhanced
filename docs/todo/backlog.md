@@ -14,6 +14,27 @@ Last updated: 2026-07-17
 
 ## Open items
 
+### Playtest the new symmetric type-matchup scoring for balance/feel
+
+`TypeMatchupService` was reworked (see `docs/plans/done/type-matchup-symmetric-scoring.md`)
+from best-case-offense/worst-case-defense tiers to a fully symmetric per-type net score.
+This is a real difficulty rebalance: ~30 of the game's 51 super-effective type pairs are
+"mutual" (also resisted-by/immune-to on the counter-hit), and those matchups are now
+meaningfully harsher/stronger than before on both sides. Worth a few playthrough rounds
+across different starters/generations to check the feel isn't too swingy before considering
+it fully settled.
+
+### Minor: NG0100 dev-mode warning on the gym-trio/duo async path
+
+Found while investigating the item above, not fixed (doesn't affect production
+or cause a blank screen — it's a dev-only Angular diagnostic). In
+`gym-battle-roulette.component.ts`'s `getCurrentLeader()`, the async
+`translate.get(...)` rebuild for trio/duo gym leaders (gen 5/7/8 special
+rounds) calls `this.fromLeaderChange.emit(randomIndex)`, mutating a two-way-bound
+`@Input` after the current change-detection cycle has already checked it —
+`ExpressionChangedAfterItHasBeenCheckedError`. Fix would be deferring the
+emit/reassignment (e.g. a microtask) so it lands in a fresh CD cycle.
+
 ### In-game player suggestions / bug-report + "most wanted" feedback
 
 Let players submit feature suggestions and bug reports from the page, and give

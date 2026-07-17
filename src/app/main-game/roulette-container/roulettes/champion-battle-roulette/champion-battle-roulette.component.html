@@ -1,36 +1,14 @@
 <div class="roulette-header">
     <h1 class="title">{{ 'game.main.roulette.champion.victory' | translate }}</h1>
     <p class="respin-reason">{{ (retries > 0) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
-    @if (currentChampion && currentChampion.types?.length) {
-        <div class="matchup-strip">
-            <div class="matchup-icons-row">
-                @for (type of currentChampion.types; track $index) {
-                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                }
-            </div>
-            @if (matchupAdvantageDelta > 0) {
-                <div class="matchup-section">
-                    <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.champion.typeAdvantage.advantage' | translate }}</span>
-                    <div class="matchup-icons-row">
-                        @for (type of matchupAdvantageTypes; track $index) {
-                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                        }
-                        <span class="matchup-delta matchup-delta-positive">+{{ matchupAdvantageDelta }}</span>
-                    </div>
-                </div>
-            }
-            @if (matchupDisadvantageDelta > 0) {
-                <div class="matchup-section">
-                    <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.champion.typeAdvantage.disadvantage' | translate }}</span>
-                    <div class="matchup-icons-row">
-                        @for (type of matchupDisadvantageTypes; track $index) {
-                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                        }
-                        <span class="matchup-delta matchup-delta-negative">-{{ matchupDisadvantageDelta }}</span>
-                    </div>
-                </div>
-            }
-        </div>
+    @if (currentChampion?.types?.length) {
+        <app-matchup-strip
+            [opponentTypes]="currentChampion.types"
+            [superEffectiveTypes]="matchupSuperEffectiveTypes"
+            [resistTypes]="matchupResistTypes"
+            [weakTypes]="matchupDisadvantageTypes"
+            [advantageDelta]="matchupAdvantageDelta"
+            [disadvantageDelta]="matchupDisadvantageDelta" />
     }
 </div>
 <app-wheel

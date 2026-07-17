@@ -1,35 +1,13 @@
 <div class="roulette-header">
     <h1 class="title">{{ 'game.main.roulette.rival.victory' | translate }}</h1>
-    @if (currentRival && currentRival.types?.length) {
-        <div class="matchup-strip">
-            <div class="matchup-icons-row">
-                @for (type of currentRival.types; track $index) {
-                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                }
-            </div>
-            @if (matchupAdvantageDelta > 0) {
-                <div class="matchup-section">
-                    <span class="matchup-label matchup-label-positive">{{ 'game.main.roulette.rival.typeAdvantage.advantage' | translate }}</span>
-                    <div class="matchup-icons-row">
-                        @for (type of matchupAdvantageTypes; track $index) {
-                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                        }
-                        <span class="matchup-delta matchup-delta-positive">+{{ matchupAdvantageDelta }}</span>
-                    </div>
-                </div>
-            }
-            @if (matchupDisadvantageDelta > 0) {
-                <div class="matchup-section">
-                    <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.rival.typeAdvantage.disadvantage' | translate }}</span>
-                    <div class="matchup-icons-row">
-                        @for (type of matchupDisadvantageTypes; track $index) {
-                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-                        }
-                        <span class="matchup-delta matchup-delta-negative">-{{ matchupDisadvantageDelta }}</span>
-                    </div>
-                </div>
-            }
-        </div>
+    @if (currentRival?.types?.length) {
+        <app-matchup-strip
+            [opponentTypes]="currentRival.types"
+            [superEffectiveTypes]="matchupSuperEffectiveTypes"
+            [resistTypes]="matchupResistTypes"
+            [weakTypes]="matchupDisadvantageTypes"
+            [advantageDelta]="matchupAdvantageDelta"
+            [disadvantageDelta]="matchupDisadvantageDelta" />
     }
 </div>
 <app-wheel
