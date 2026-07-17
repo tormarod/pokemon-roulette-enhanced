@@ -4,6 +4,7 @@ import { TradePokemonRouletteComponent } from './trade-pokemon-roulette.componen
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
+import { TOWARD_SOFT_BASE_MULTIPLIER } from '../../../../services/trainer-service/apply-type-bias';
 
 describe('TradePokemonRouletteComponent', () => {
   let component: TradePokemonRouletteComponent;
@@ -39,6 +40,6 @@ describe('TradePokemonRouletteComponent', () => {
     trainerService.setTowardBias({ type: 'water', mode: 'soft' });
 
     const after = component.nationalDexPokemon.find(p => p.pokemonId === before.pokemonId)!;
-    expect(after.weight).toBe(4);
+    expect(after.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
   });
 });

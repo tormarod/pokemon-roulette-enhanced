@@ -3021,7 +3021,9 @@
     "dismiss": "Got it",
     "settingsEntry": "What's New",
     "v2_2_0": {
-      "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live."
+      "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live.",
+      "1": "⚖️ Rebalanced the odds: catching Pokémon dominates the early wheels, potions are scarcer, Team Rocket is a real threat, and battles get tougher the further you go.",
+      "2": "🍯 Honey/Repel pack a much stronger punch per use — and a Honey and a Repel used on the same type now cancel each other out instead of barely affecting the odds."
     },
     "v2_1_0": {
       "0": "⚔️ Reworked battle matchups — now graded and rewarding defensive resistances, not just offense.",

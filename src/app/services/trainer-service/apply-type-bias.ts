@@ -2,14 +2,16 @@ import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PokemonType } from '../../interfaces/pokemon-type';
 import { PendingTypeBiases, TypeBiasEntry } from './trainer.service';
 
-const TOWARD_SOFT_BASE_MULTIPLIER = 4;
-const AWAY_SOFT_BASE_MULTIPLIER = 0.25;
+export const TOWARD_SOFT_BASE_MULTIPLIER = 10;
+export const AWAY_SOFT_BASE_MULTIPLIER = 0.1;
 
 /**
  * A hard filter that would empty the pool is skipped (falls back to the
  * unfiltered pool) rather than ever soft-locking the wheel. Multiple hard
  * entries for different types OR together (widen the guarantee); multiple
- * soft entries for the same type multiply together (stack the boost).
+ * soft entries for the same type multiply together (stack the boost) — except
+ * a toward and an away soft entry on the *same* type cancel each other out
+ * first, see cancelOpposingSoftCounts().
  */
 export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases): PokemonItem[] {
   const { toward, away } = biases;
@@ -31,8 +33,10 @@ export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases)
     }
   }
 
-  const towardSoftCounts = countByType(toward.filter(e => e.mode === 'soft'));
-  const awaySoftCounts = countByType(away.filter(e => e.mode === 'soft'));
+  const { toward: towardSoftCounts, away: awaySoftCounts } = cancelOpposingSoftCounts(
+    countByType(toward.filter(e => e.mode === 'soft')),
+    countByType(away.filter(e => e.mode === 'soft'))
+  );
 
   if (towardSoftCounts.size > 0 || awaySoftCounts.size > 0) {
     result = result.map(p => applySoftWeight(p, towardSoftCounts, awaySoftCounts));
@@ -41,12 +45,49 @@ export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases)
   return result;
 }
 
-function countByType(entries: TypeBiasEntry[]): Map<PokemonType, number> {
+export function countByType(entries: TypeBiasEntry[]): Map<PokemonType, number> {
   const counts = new Map<PokemonType, number>();
   for (const entry of entries) {
     counts.set(entry.type, (counts.get(entry.type) ?? 0) + 1);
   }
   return counts;
+}
+
+/**
+ * A Honey and a Repel used on the *same* type are a direct contradiction —
+ * they cancel out entirely rather than being left to the weight math (which
+ * would only net to neutral if the toward/away multipliers happened to be
+ * exact reciprocals, and silently drifts out of sync whenever either
+ * constant gets retuned). For each type present on both sides, an equal
+ * number of toward/away uses fully cancels; any uncancelled excess on the
+ * stronger side is what actually reaches the weight formula.
+ */
+export function cancelOpposingSoftCounts(
+  towardCounts: Map<PokemonType, number>,
+  awayCounts: Map<PokemonType, number>
+): { toward: Map<PokemonType, number>; away: Map<PokemonType, number> } {
+  const toward = new Map(towardCounts);
+  const away = new Map(awayCounts);
+
+  for (const type of toward.keys()) {
+    const awayCount = away.get(type);
+    if (awayCount === undefined) continue;
+
+    const towardCount = toward.get(type)!;
+    const cancelled = Math.min(towardCount, awayCount);
+    setOrDelete(toward, type, towardCount - cancelled);
+    setOrDelete(away, type, awayCount - cancelled);
+  }
+
+  return { toward, away };
+}
+
+function setOrDelete(counts: Map<PokemonType, number>, type: PokemonType, value: number): void {
+  if (value > 0) {
+    counts.set(type, value);
+  } else {
+    counts.delete(type);
+  }
 }
 
 function applySoftWeight(

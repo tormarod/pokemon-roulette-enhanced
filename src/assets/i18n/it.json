@@ -3021,7 +3021,9 @@
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
     "v2_2_0": {
-      "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale."
+      "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale.",
+      "1": "⚖️ Probabilità riequilibrate: catturare Pokémon domina le prime ruote, le pozioni sono più rare, il Team Rocket è una minaccia reale, e le battaglie diventano più difficili man mano che avanzi.",
+      "2": "🍯 Miele/Repellente hanno un effetto molto più forte per utilizzo — e un Miele e un Repellente usati sullo stesso tipo ora si annullano a vicenda invece di influenzare a malapena le probabilità."
     },
     "v2_1_0": {
       "0": "⚔️ Abbinamenti di tipo rivisti — ora graduali e premiano le resistenze difensive, non solo l'attacco.",

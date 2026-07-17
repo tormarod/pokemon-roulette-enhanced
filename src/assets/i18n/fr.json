@@ -3021,7 +3021,9 @@
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
     "v2_2_0": {
-      "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct."
+      "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct.",
+      "1": "⚖️ Rééquilibrage des probabilités : capturer des Pokémon domine les premières roues, les potions sont plus rares, la Team Rocket est une vraie menace, et les combats deviennent plus difficiles à mesure que vous progressez.",
+      "2": "🍯 La Miellée/Repousse ont un effet bien plus fort par utilisation — et une Miellée et une Repousse utilisées sur le même type s'annulent désormais au lieu d'à peine affecter les chances."
     },
     "v2_1_0": {
       "0": "⚔️ Correspondances de type retravaillées — désormais graduelles et récompensant les résistances défensives, pas juste l'attaque.",

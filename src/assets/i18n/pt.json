@@ -3021,7 +3021,9 @@
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
     "v2_2_0": {
-      "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo."
+      "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo.",
+      "1": "⚖️ Chances reequilibradas: capturar Pokémon domina as rodas iniciais, poções são mais raras, a Team Rocket é uma ameaça real, e as batalhas ficam mais difíceis conforme você avança.",
+      "2": "🍯 Mel/Repelente agora têm um efeito muito mais forte por uso — e um Mel e um Repelente usados no mesmo tipo agora se cancelam em vez de quase não afetar as chances."
     },
     "v2_1_0": {
       "0": "⚔️ Confrontos de tipo reformulados — agora graduais e recompensando resistências defensivas, não apenas ataque.",

@@ -3021,7 +3021,9 @@
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
     "v2_2_0": {
-      "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo."
+      "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo.",
+      "1": "⚖️ Probabilidades reequilibradas: capturar Pokémon domina las ruletas iniciales, las pociones son más escasas, el Team Rocket es una amenaza real, y las batallas se vuelven más difíciles conforme avanzas.",
+      "2": "🍯 Miel/Repelente son ahora mucho más fuertes por uso — y una Miel y un Repelente usados en el mismo tipo ahora se cancelan mutuamente en vez de apenas afectar las probabilidades."
     },
     "v2_1_0": {
       "0": "⚔️ Enfrentamientos por tipo rediseñados — ahora graduales y recompensando resistencias defensivas, no solo ofensa.",

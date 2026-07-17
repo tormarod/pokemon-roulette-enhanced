@@ -3021,7 +3021,9 @@
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
     "v2_2_0": {
-      "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live."
+      "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",
+      "1": "⚖️ Chancen neu ausbalanciert: Pokémon fangen dominiert die frühen Räder, Tränke sind seltener, Team Rocket ist eine echte Bedrohung, und Kämpfe werden mit fortschreitendem Spiel härter.",
+      "2": "🍯 Honig/Repellent wirken pro Nutzung jetzt viel stärker — und ein Honig und ein Repellent auf denselben Typ heben sich jetzt gegenseitig auf, statt die Chancen kaum zu beeinflussen."
     },
     "v2_1_0": {
       "0": "⚔️ Typ-Matchups überarbeitet — jetzt abgestuft und belohnen defensive Resistenzen, nicht nur Offensive.",
