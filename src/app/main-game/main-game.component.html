@@ -47,16 +47,22 @@
                         (typeBiasItemInterrupt)="typeBiasItemInterrupt($event)"
                         (linkCableInterrupt)="linkCableInterrupt($event)">
                     </app-items>
-                    @if (pendingTypeBiases.toward) {
+                    @for (bias of groupedTowardBiases; track bias.type + bias.mode) {
                         <div class="active-bias-indicator">
-                            <img [src]="getBiasTypeIconUrl(pendingTypeBiases.toward)" [alt]="pendingTypeBiases.toward.type" height="20">
-                            <span>{{ getBiasLabelKey(pendingTypeBiases.toward, 'toward') | translate }} {{ 'pokemonType.' + pendingTypeBiases.toward.type | translate }}</span>
+                            <img [src]="getBiasTypeIconUrl(bias)" [alt]="bias.type" height="20">
+                            <span>
+                                {{ getBiasLabelKey(bias, 'toward') | translate }} {{ 'pokemonType.' + bias.type | translate }}
+                                @if (bias.mode === 'soft' && bias.count > 1) { ×{{ bias.count }} }
+                            </span>
                         </div>
                     }
-                    @if (pendingTypeBiases.away) {
+                    @for (bias of groupedAwayBiases; track bias.type + bias.mode) {
                         <div class="active-bias-indicator">
-                            <img [src]="getBiasTypeIconUrl(pendingTypeBiases.away)" [alt]="pendingTypeBiases.away.type" height="20">
-                            <span>{{ getBiasLabelKey(pendingTypeBiases.away, 'away') | translate }} {{ 'pokemonType.' + pendingTypeBiases.away.type | translate }}</span>
+                            <img [src]="getBiasTypeIconUrl(bias)" [alt]="bias.type" height="20">
+                            <span>
+                                {{ getBiasLabelKey(bias, 'away') | translate }} {{ 'pokemonType.' + bias.type | translate }}
+                                @if (bias.mode === 'soft' && bias.count > 1) { ×{{ bias.count }} }
+                            </span>
                         </div>
                     }
                 </div>

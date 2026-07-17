@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { GameState } from '../game-state-service/game-state';
 import { GameStateService } from '../game-state-service/game-state.service';
-import { PendingTypeBiases, TrainerService } from '../trainer-service/trainer.service';
+import { PendingTypeBiases, TrainerService, TypeBiasEntry } from '../trainer-service/trainer.service';
 import { GenerationService } from '../generation-service/generation.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
@@ -101,9 +101,29 @@ export class RunPersistenceService {
     this.trainerService.restoreItems(run.trainerItems);
     this.trainerService.restoreBadges(run.trainerBadges);
     this.trainerService.setTrainer(run.generationId, run.gender);
-    // Older saves (pre-dating this field) won't have pendingTypeBiases at all — treat as none.
-    this.trainerService.restorePendingTypeBiases(run.pendingTypeBiases ?? { toward: null, away: null });
+    // Older saves may have no pendingTypeBiases field, or the pre-stacking
+    // single-entry shape ({ toward: {type,mode}|null, away: ... }) instead of
+    // today's array shape — normalize both into the current array format.
+    this.trainerService.restorePendingTypeBiases(this.normalizePendingTypeBiases(run.pendingTypeBiases));
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
+  }
+
+  private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
+    const record = (value ?? {}) as { toward?: unknown; away?: unknown };
+    return {
+      toward: this.normalizeBiasDirection(record.toward),
+      away: this.normalizeBiasDirection(record.away)
+    };
+  }
+
+  private normalizeBiasDirection(value: unknown): TypeBiasEntry[] {
+    if (Array.isArray(value)) {
+      return value as TypeBiasEntry[];
+    }
+    if (value && typeof value === 'object') {
+      return [value as TypeBiasEntry];
+    }
+    return [];
   }
 
   private persistRun(run: SavedRun): void {

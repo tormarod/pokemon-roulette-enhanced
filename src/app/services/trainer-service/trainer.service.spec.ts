@@ -91,44 +91,54 @@ describe('TrainerService', () => {
   // ── pendingTypeBiases ────────────────────────────────────────────────────
 
   it('should have no pending type biases by default', () => {
-    expect(service.currentPendingTypeBiases.toward).toBeNull();
-    expect(service.currentPendingTypeBiases.away).toBeNull();
+    expect(service.currentPendingTypeBiases.toward).toEqual([]);
+    expect(service.currentPendingTypeBiases.away).toEqual([]);
   });
 
   it('should set and clear the toward and away biases independently', () => {
     service.setTowardBias({ type: 'water', mode: 'soft' });
-    expect(service.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
-    expect(service.currentPendingTypeBiases.away).toBeNull();
+    expect(service.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+    expect(service.currentPendingTypeBiases.away).toEqual([]);
 
     service.setAwayBias({ type: 'fire', mode: 'hard' });
-    expect(service.currentPendingTypeBiases.toward).toEqual({ type: 'water', mode: 'soft' });
-    expect(service.currentPendingTypeBiases.away).toEqual({ type: 'fire', mode: 'hard' });
+    expect(service.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+    expect(service.currentPendingTypeBiases.away).toEqual([{ type: 'fire', mode: 'hard' }]);
 
     service.clearPendingTypeBiases();
-    expect(service.currentPendingTypeBiases.toward).toBeNull();
-    expect(service.currentPendingTypeBiases.away).toBeNull();
+    expect(service.currentPendingTypeBiases.toward).toEqual([]);
+    expect(service.currentPendingTypeBiases.away).toEqual([]);
+  });
+
+  it('should append a second toward bias instead of overwriting the first', () => {
+    service.setTowardBias({ type: 'water', mode: 'soft' });
+    service.setTowardBias({ type: 'electric', mode: 'soft' });
+
+    expect(service.currentPendingTypeBiases.toward).toEqual([
+      { type: 'water', mode: 'soft' },
+      { type: 'electric', mode: 'soft' }
+    ]);
   });
 
   it('should clear both pending type biases automatically once a battle state is reached', () => {
     service.setTowardBias({ type: 'grass', mode: 'soft' });
     service.setAwayBias({ type: 'fire', mode: 'hard' });
-    expect(service.currentPendingTypeBiases.toward).not.toBeNull();
-    expect(service.currentPendingTypeBiases.away).not.toBeNull();
+    expect(service.currentPendingTypeBiases.toward.length).toBeGreaterThan(0);
+    expect(service.currentPendingTypeBiases.away.length).toBeGreaterThan(0);
 
     emitGameState('gym-battle');
 
-    expect(service.currentPendingTypeBiases.toward).toBeNull();
-    expect(service.currentPendingTypeBiases.away).toBeNull();
+    expect(service.currentPendingTypeBiases.toward).toEqual([]);
+    expect(service.currentPendingTypeBiases.away).toEqual([]);
   });
 
   it('should keep pending type biases across non-battle states within the same stretch', () => {
     service.setTowardBias({ type: 'grass', mode: 'soft' });
 
     emitGameState('catch-pokemon');
-    expect(service.currentPendingTypeBiases.toward).not.toBeNull();
+    expect(service.currentPendingTypeBiases.toward.length).toBeGreaterThan(0);
 
     emitGameState('adventure-continues');
-    expect(service.currentPendingTypeBiases.toward).not.toBeNull();
+    expect(service.currentPendingTypeBiases.toward.length).toBeGreaterThan(0);
   });
 
   it('should temporarily transform palafin into hero during battle states and revert after', () => {

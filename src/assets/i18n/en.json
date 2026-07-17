@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Honey",
-      "description": "Use Honey to bias your next wild Pokémon toward a type you choose, until your next Gym battle !"
+      "description": "Use Honey to bias your next wild Pokémon toward a type you choose — stacks if used again, and works on a wheel already on screen !"
     },
     "repel": {
       "name": "Repel",
-      "description": "Use Repel to steer your next wild Pokémon away from a type you choose, until your next Gym battle !"
+      "description": "Use Repel to steer your next wild Pokémon away from a type you choose — stacks if used again, and works on a wheel already on screen !"
     },
     "poke-radar": {
       "name": "Poké Radar",
-      "description": "Poké Radar guarantees your next wild Pokémon is a type you choose, until your next Gym battle !"
+      "description": "Poké Radar guarantees your next wild Pokémon is a type you choose — works on a wheel already on screen !"
     },
     "max-repel": {
       "name": "Max Repel",
-      "description": "Max Repel fully excludes a type you choose from your next wild Pokémon, until your next Gym battle !"
+      "description": "Max Repel fully excludes a type you choose from your next wild Pokémon — works on a wheel already on screen !"
     },
     "link-cable": {
       "name": "Link Cable",
@@ -3015,10 +3015,14 @@
     "fairy": "Fairy"
   },
   "v2_1_0": "Version 2.1.0",
+  "v2_2_0": "Version 2.2.0",
   "whatsNew": {
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v2_2_0": {
+      "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live."
+    },
     "v2_1_0": {
       "0": "⚔️ Reworked battle matchups — now graded and rewarding defensive resistances, not just offense.",
       "1": "📊 New Statistics page: wins, streaks, most-owned & signature Pokémon, your nemesis, and luck tracking.",

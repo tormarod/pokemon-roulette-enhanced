@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miellée",
-      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers un type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers un type choisi — se cumule en cas de réutilisation, et fonctionne sur une roue déjà affichée!"
     },
     "repel": {
       "name": "Repousse",
-      "description": "Utilise Repousse pour éloigner ton prochain Pokémon sauvage d'un type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Utilise Repousse pour éloigner ton prochain Pokémon sauvage d'un type choisi — se cumule en cas de réutilisation, et fonctionne sur une roue déjà affichée!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "Le PokéRadar garantit que ton prochain Pokémon sauvage sera du type choisi, jusqu'à ton prochain combat d'Arène!"
+      "description": "Le PokéRadar garantit que ton prochain Pokémon sauvage sera du type choisi, et fonctionne sur une roue déjà affichée!"
     },
     "max-repel": {
       "name": "Max Repousse",
-      "description": "Max Repousse exclut totalement un type choisi de ton prochain Pokémon sauvage, jusqu'à ton prochain combat d'Arène!"
+      "description": "Max Repousse exclut totalement un type choisi de ton prochain Pokémon sauvage, et fonctionne sur une roue déjà affichée!"
     },
     "link-cable": {
       "name": "Câble Link",
@@ -3015,10 +3015,14 @@
     "fairy": "Fée"
   },
   "v2_1_0": "Version 2.1.0",
+  "v2_2_0": "Version 2.2.0",
   "whatsNew": {
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v2_2_0": {
+      "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct."
+    },
     "v2_1_0": {
       "0": "⚔️ Correspondances de type retravaillées — désormais graduelles et récompensant les résistances défensives, pas juste l'attaque.",
       "1": "📊 Nouvelle page Statistiques : victoires, séries, Pokémon le plus utilisé & emblématique, votre némésis, et suivi de chance.",

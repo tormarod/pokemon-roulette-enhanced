@@ -24,16 +24,23 @@ export interface TypeBiasEntry {
 
 /**
  * "Toward" (Honey/Poké Radar) and "away" (Repel/Max Repel) are independent —
- * using one doesn't consume or overwrite the other, so both can be active at
- * once (e.g. boost toward Water while also steering away from Fire). Using a
- * second item of the *same* direction replaces that direction's own slot.
+ * using one doesn't consume or overwrite the other. Each direction is a list:
+ * every item use appends an entry rather than replacing one, so multiple
+ * uses (same type or different types) all stay active and stack — see
+ * applyTypeBias() for how the list turns into a weight multiplier.
+ *
+ * Lifetime: single-wheel-use. A pending bias weights exactly one obtain
+ * wheel's resolution (whichever comes next, or the one already on screen —
+ * see RouletteContainerComponent.applyTypeBiasInPlace()), then is cleared
+ * right after that wheel resolves. It's also cleared as a safety net on
+ * reaching a battle state, in case it was set but never actually used.
  */
 export interface PendingTypeBiases {
-  toward: TypeBiasEntry | null;
-  away: TypeBiasEntry | null;
+  toward: TypeBiasEntry[];
+  away: TypeBiasEntry[];
 }
 
-const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: null, away: null };
+const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: [], away: [] };
 
 @Injectable({
   providedIn: 'root'
@@ -206,8 +213,12 @@ export class TrainerService implements OnDestroy {
   private syncBattleForms(gameState: GameState): void {
     if (this.battleStates.has(gameState)) {
       this.applyBattleForms();
-      // Type biases only ever apply within the gym stretch they were used for —
-      // reaching a battle means that stretch is over, used or not.
+      // Safety net: a pending bias is normally consumed the moment it weights
+      // an obtain wheel's resolution (see RouletteContainerComponent's
+      // capturePokemon/legendaryCaptureChance/performTrade/paradoxCaptureChance).
+      // If the player used an item but never actually reached an obtain wheel
+      // before a battle, this clears the stale bias so it can't leak into a
+      // later, unrelated stretch.
       this.clearPendingTypeBiases();
       return;
     }
@@ -223,13 +234,19 @@ export class TrainerService implements OnDestroy {
     return this.pendingTypeBiasesObservable.asObservable();
   }
 
-  /** Using a second item in the same direction replaces that direction's own slot only. */
+  /** Each use appends an entry — same-type reuse stacks, different-type uses add independently. */
   setTowardBias(entry: TypeBiasEntry): void {
-    this.updatePendingTypeBiases({ ...this.pendingTypeBiases, toward: entry });
+    this.updatePendingTypeBiases({
+      ...this.pendingTypeBiases,
+      toward: [...this.pendingTypeBiases.toward, entry]
+    });
   }
 
   setAwayBias(entry: TypeBiasEntry): void {
-    this.updatePendingTypeBiases({ ...this.pendingTypeBiases, away: entry });
+    this.updatePendingTypeBiases({
+      ...this.pendingTypeBiases,
+      away: [...this.pendingTypeBiases.away, entry]
+    });
   }
 
   /** Bulk-overwrites both slots at once — used when restoring a saved run. */

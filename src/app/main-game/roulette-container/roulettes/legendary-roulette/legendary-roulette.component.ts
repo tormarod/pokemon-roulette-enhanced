@@ -32,21 +32,30 @@ export class LegendaryRouletteComponent implements OnInit, OnDestroy {
   legendaries: PokemonItem[] = [];
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
 
+  private sourcePokemon: PokemonItem[] = [];
   private generationSubscription: Subscription | null = null;
+  private biasSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const legendaryIds = this.legendaryByGeneration[this.generation.id] ?? [];
-      this.legendaries = applyTypeBias(
-        this.pokemonService.getPokemonByIdArray(legendaryIds),
-        this.trainerService.currentPendingTypeBiases
-      );
+      this.sourcePokemon = this.pokemonService.getPokemonByIdArray(legendaryIds);
+      this.refreshLegendaries();
+    });
+
+    this.biasSubscription = this.trainerService.getPendingTypeBiasesObservable().subscribe(() => {
+      this.refreshLegendaries();
     });
   }
 
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
+    this.biasSubscription?.unsubscribe();
+  }
+
+  private refreshLegendaries(): void {
+    this.legendaries = applyTypeBias(this.sourcePokemon, this.trainerService.currentPendingTypeBiases);
   }
 
   onItemSelected(index: number): void {

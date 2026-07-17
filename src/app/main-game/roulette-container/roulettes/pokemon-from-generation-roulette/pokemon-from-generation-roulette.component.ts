@@ -32,19 +32,31 @@ export class PokemonFromGenerationRouletteComponent implements OnInit, OnDestroy
   @Input() currentRound: number = 0;
   @Output() selectedPokemonEvent = new EventEmitter<PokemonItem>();
 
+  private sourcePokemon: PokemonItem[] = [];
   private generationSubscription: Subscription | null = null;
+  private biasSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
       this.generation = gen;
       const pokemonIds = this.pokemonByGeneration[this.generation.id] ?? [];
       const allPokemon = this.pokemonService.getPokemonByIdArray(pokemonIds);
-      this.pokemon = applyTypeBias(this.filterByPower(allPokemon), this.trainerService.currentPendingTypeBiases);
+      this.sourcePokemon = this.filterByPower(allPokemon);
+      this.refreshPokemon();
+    });
+
+    this.biasSubscription = this.trainerService.getPendingTypeBiasesObservable().subscribe(() => {
+      this.refreshPokemon();
     });
   }
 
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
+    this.biasSubscription?.unsubscribe();
+  }
+
+  private refreshPokemon(): void {
+    this.pokemon = applyTypeBias(this.sourcePokemon, this.trainerService.currentPendingTypeBiases);
   }
 
   onItemSelected(index: number): void {

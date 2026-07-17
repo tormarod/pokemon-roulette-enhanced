@@ -1,7 +1,7 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
@@ -13,46 +13,6 @@ Last updated: 2026-07-16
 ---
 
 ## Open items
-
-### Type-bias items should stack when multiple are used
-
-Using multiple soft-bias items of the same kind should **compound** the effect
-rather than be redundant. E.g. **2 Honey used → 2× the bias** toward the chosen
-type; **2 Repel → 2× the bias** away from it. Today a used bias effectively just
-sets a pending toward/away entry, so a second use of the same kind is redundant
-(or overwrites) instead of stacking.
-
-Scope / open questions (decide before it becomes a plan):
-- Applies to the **soft-bias** items (Honey = toward, Repel = away), which feed
-  the type-weighting on the catch/trade/obtain wheels. The **hard-guarantee**
-  items (Poké Radar, Max Repel) probably should NOT stack — a guarantee is
-  already absolute.
-- Define what "2×" means concretely against the current bias math (examine how
-  `setTowardBias` / `setAwayBias` weight the wheels in `TrainerService` +
-  `select-from-type-list` / catch flow). Linear per stack (n items → n× weight)?
-  Capped?
-- UI: the bias indicator(s) next to the Items panel should show the stacked
-  strength (e.g. "×2").
-
-### Use bias items inside the obtain wheels, with visual feedback
-
-Today Honey/Repel (and the hard-bias items) are used from the **Items panel** to
-set a *pending* bias that applies to the **next** Pokémon-obtaining wheel. Let the
-player also use a bias item **while an obtain wheel is already on screen** (catch,
-trade, fossil, legendary, cave, starter, fishing, mysterious egg, Area Zero) and
-have it take effect on **that** spin.
-
-And **reflect the applied bias on the wheel visually** — e.g. the biased-*toward*
-type's slices grow / are highlighted (and the biased-*away* type's slices shrink),
-so the player can see the effect they spent an item on before spinning.
-
-Open questions (decide before it becomes a plan):
-- In-wheel affordance to use an item (a small item button/panel on the obtain-wheel
-  screen, without leaving it).
-- The wheel must **re-render live** when a bias is applied mid-screen (rebuild the
-  weighted slices, then redraw).
-- Interaction with the stacking feature above (using a 2nd Honey in-wheel should
-  compound and re-render).
 
 ### In-game player suggestions / bug-report + "most wanted" feedback
 

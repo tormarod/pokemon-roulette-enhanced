@@ -619,19 +619,19 @@
     },
     "honey": {
       "name": "Miel",
-      "description": "Usa Miel para orientar tu próximo Pokémon salvaje hacia un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+      "description": "Usa Miel para orientar tu próximo Pokémon salvaje hacia un tipo elegido — se acumula si se usa de nuevo, ¡y funciona en una ruleta que ya está en pantalla!"
     },
     "repel": {
       "name": "Repelente",
-      "description": "Usa Repelente para alejar tu próximo Pokémon salvaje de un tipo elegido, ¡hasta tu próximo combate de Gimnasio!"
+      "description": "Usa Repelente para alejar tu próximo Pokémon salvaje de un tipo elegido — se acumula si se usa de nuevo, ¡y funciona en una ruleta que ya está en pantalla!"
     },
     "poke-radar": {
       "name": "PokéRadar",
-      "description": "¡El PokéRadar garantiza que tu próximo Pokémon salvaje sea del tipo elegido, hasta tu próximo combate de Gimnasio!"
+      "description": "¡El PokéRadar garantiza que tu próximo Pokémon salvaje sea del tipo elegido, y funciona en una ruleta que ya está en pantalla!"
     },
     "max-repel": {
       "name": "Repelente Max",
-      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próximo Pokémon salvaje, hasta tu próximo combate de Gimnasio!"
+      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próximo Pokémon salvaje, y funciona en una ruleta que ya está en pantalla!"
     },
     "link-cable": {
       "name": "Cable Link",
@@ -3015,10 +3015,14 @@
     "fairy": "Hada"
   },
   "v2_1_0": "Versión 2.1.0",
+  "v2_2_0": "Versión 2.2.0",
   "whatsNew": {
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v2_2_0": {
+      "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo."
+    },
     "v2_1_0": {
       "0": "⚔️ Enfrentamientos por tipo rediseñados — ahora graduales y recompensando resistencias defensivas, no solo ofensa.",
       "1": "📊 Nueva página de Estadísticas: victorias, rachas, Pokémon más usado & insignia, tu némesis, y seguimiento de suerte.",

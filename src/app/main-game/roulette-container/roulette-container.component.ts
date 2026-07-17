@@ -244,6 +244,18 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   private readonly opponentPreviewHiddenStates = new Set<GameState>([
     'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival'
   ]);
+  /**
+   * States that show an obtain wheel already-onscreen. A bias item used
+   * while one of these is current applies in place via a modal picker
+   * (see applyTypeBiasInPlace()) instead of the deferred repeatCurrentState()
+   * flow. 'starter-pokemon' is intentionally excluded — the Items panel
+   * isn't rendered while it's showing (see MainGameComponent.itemsAvailable),
+   * so a bias item can never be clicked during it anyway.
+   */
+  private readonly obtainWheelStates = new Set<GameState>([
+    'catch-pokemon', 'trade-pokemon', 'find-fossil', 'legendary-encounter',
+    'catch-cave-pokemon', 'go-fishing', 'mysterious-egg', 'area-zero'
+  ]);
 
   /**
    * Hidden during actual battles (which reveal their own opponent) and before the
@@ -309,6 +321,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     if (this.currentGameState === 'starter-pokemon') {
       this.statsService.recordRunStart(this.generation.id, pokemon.pokemonId);
     }
+    // A pending type bias is single-wheel-use: it already did its job weighting
+    // this spin's candidate pool, so it doesn't carry over to the next catch.
+    this.trainerService.clearPendingTypeBiases();
     this.preparePokemonCapture(pokemon);
   }
 
@@ -583,17 +598,46 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Honey/Poké Radar/Repel/Max Repel: pick a type now, apply it to whichever
-   * catch or trade comes next. repeatCurrentState() re-queues the screen the
-   * player was already on, so picking a type is a bonus action, not a
-   * substitute for their normal turn.
+   * Honey/Poké Radar/Repel/Max Repel. If an obtain wheel is already on
+   * screen, apply the bias in place via a modal picker (no GameState
+   * change) so the player never leaves the wheel they're looking at.
+   * Otherwise, defer to whichever wheel comes next: repeatCurrentState()
+   * re-queues the screen the player was already on, so picking a type is a
+   * bonus action, not a substitute for their normal turn.
    */
   private handleTypeBiasItemUse(item: ItemItem): void {
+    if (this.obtainWheelStates.has(this.currentGameState)) {
+      this.applyTypeBiasInPlace(item);
+      return;
+    }
+
     this.gameStateService.repeatCurrentState();
     this.trainerService.removeItem(item);
     this.pendingTypeBiasItem = item;
     this.gameStateService.setNextState('select-from-type-list');
     this.finishCurrentState();
+  }
+
+  /**
+   * Applies a bias item to the obtain wheel already on screen via a modal
+   * type-picker overlay. Removing the item and calling applyBiasForItem()
+   * updates TrainerService, which every obtain-wheel component is
+   * subscribed to — they recompute and reassign their candidate pool, which
+   * makes the wheel underneath redraw live (WheelComponent.ngOnChanges).
+   */
+  private async applyTypeBiasInPlace(item: ItemItem): Promise<void> {
+    const modalRef = await this.modalQueueService.open(SelectFromTypeListRouletteComponent, {
+      centered: true,
+      backdrop: 'static'
+    });
+
+    const subscription = modalRef.componentInstance.selectedTypeEvent.subscribe((type: PokemonType) => {
+      this.trainerService.removeItem(item);
+      this.applyBiasForItem(item, type);
+      modalRef.close();
+    });
+
+    modalRef.result.finally(() => subscription.unsubscribe());
   }
 
   getTypeIconUrl(type: PokemonType): string {
@@ -609,9 +653,15 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
-    // from it. The two directions are independent slots (see PendingTypeBiases)
-    // so using one never clears or overwrites the other.
+    this.applyBiasForItem(item, type);
+  }
+
+  /**
+   * Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
+   * from it. Each use appends an entry (see TrainerService) rather than
+   * overwriting, so repeated uses stack instead of replacing each other.
+   */
+  private applyBiasForItem(item: ItemItem, type: PokemonType): void {
     const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
     if (item.name === 'honey' || item.name === 'poke-radar') {
       this.trainerService.setTowardBias({ type, mode });
@@ -666,6 +716,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   paradoxCaptureChance(pokemon: PokemonItem): void {
     this.currentContextPokemon = structuredClone(pokemon);
+    // Single-wheel-use: the bias already weighted this Area Zero spin.
+    this.trainerService.clearPendingTypeBiases();
     this.gameStateService.setNextState('catch-paradox');
     this.finishCurrentState();
   }
@@ -744,6 +796,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   legendaryCaptureChance(pokemon: PokemonItem): void {
     this.currentContextPokemon = structuredClone(pokemon);
+    // Single-wheel-use: the bias already weighted this legendary spin.
+    this.trainerService.clearPendingTypeBiases();
     this.gameStateService.setNextState('catch-legendary');
     this.finishCurrentState();
   }
@@ -757,6 +811,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.pkmnIn = structuredClone(pokemon);
     this.pkmnOut = this.currentContextPokemon;
     this.pkmnTradeTitle = "game.main.trade.title";
+    // Single-wheel-use: the bias already weighted this trade spin.
+    this.trainerService.clearPendingTypeBiases();
     this.trainerService.performTrade(this.currentContextPokemon, this.pkmnIn);
     this.registerInPokedex(this.pkmnIn);
     this.auxPokemonList = [];
