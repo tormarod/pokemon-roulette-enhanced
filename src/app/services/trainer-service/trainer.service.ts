@@ -138,6 +138,8 @@ export class TrainerService implements OnDestroy {
   addToTeam(pokemon: PokemonItem): void {
 
     pokemon = structuredClone(pokemon);
+    const originalPokemon = this.pokemonService.getPokemonById(pokemon.pokemonId);
+    pokemon.weight = originalPokemon ? originalPokemon.weight : 1;
     this.loadPokemonSpriteIfMissing(pokemon);
 
     if(this.trainerTeam.length < 6) {
@@ -282,6 +284,8 @@ export class TrainerService implements OnDestroy {
   }
 
   performTrade(pokemonOut: PokemonItem, pokemonIn: PokemonItem): void {
+    const originalPokemon = this.pokemonService.getPokemonById(pokemonIn.pokemonId);
+    pokemonIn.weight = originalPokemon ? originalPokemon.weight : 1;
     this.loadPokemonSpriteIfMissing(pokemonIn);
 
     let index = this.trainerTeam.indexOf(pokemonOut);
