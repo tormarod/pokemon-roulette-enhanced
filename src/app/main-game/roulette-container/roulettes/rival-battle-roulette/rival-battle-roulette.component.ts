@@ -91,7 +91,13 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
           name: rivalNames[selectedIndex],
           sprite: rivalSprites[selectedIndex],
           quotes: [rivalQuotes[selectedIndex]],
-          types: rivalTypes ? [rivalTypes[selectedIndex]] : undefined
+          // types is NOT gender-indexed like sprite/name/quotes — Calem and Serena
+          // share the same single-element type theme (e.g. ['normal']), so it's
+          // carried over as-is. Indexing it by selectedIndex (as if it had one
+          // entry per gender variant) went out of bounds for the male index and
+          // produced types: [undefined], which crashed the matchup-strip icon
+          // render and left the rival battle screen permanently blank.
+          types: rivalTypes
         } as GymLeader;
 
         this.calcVictoryOdds();

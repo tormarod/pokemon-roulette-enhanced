@@ -24,20 +24,16 @@ meaningfully harsher/stronger than before on both sides. Worth a few playthrough
 across different starters/generations to check the feel isn't too swingy before considering
 it fully settled.
 
-### [BUG] Empty/stuck wheel states not recovering on reload (rival battle + "Go Straight")
+### Minor: NG0100 dev-mode warning on the gym-trio/duo async path
 
-Promoted to a plan → `docs/plans/bug-stuck-empty-wheels.md`. Two triggers — the
-**rival battle** and the **Go Straight** button — both land on an empty page/wheel
-that a reload can't recover (the broken state is persisted). Same class; plan
-covers per-cause fixes plus a universal self-heal so an unrenderable state can't
-hard-lock the run.
-
-### [BUG] Honey/Repel affecting Team Rocket steal
-
-Promoted to a plan → `docs/plans/bug-team-rocket-bias.md`. **Note:** a code trace
-found the steal is purely inverse-power weighted with no bias applied — so the plan
-is confirm-first (likely an indirect team-composition correlation, not a real
-leak).
+Found while investigating the item above, not fixed (doesn't affect production
+or cause a blank screen — it's a dev-only Angular diagnostic). In
+`gym-battle-roulette.component.ts`'s `getCurrentLeader()`, the async
+`translate.get(...)` rebuild for trio/duo gym leaders (gen 5/7/8 special
+rounds) calls `this.fromLeaderChange.emit(randomIndex)`, mutating a two-way-bound
+`@Input` after the current change-detection cycle has already checked it —
+`ExpressionChangedAfterItHasBeenCheckedError`. Fix would be deferring the
+emit/reassignment (e.g. a microtask) so it lands in a fresh CD cycle.
 
 ### In-game player suggestions / bug-report + "most wanted" feedback
 

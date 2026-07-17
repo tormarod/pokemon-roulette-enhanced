@@ -8,12 +8,14 @@ import { WheelItem } from '../../../../interfaces/wheel-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { GenerationService } from '../../../../services/generation-service/generation.service';
 
 describe('RivalBattleRouletteComponent', () => {
   let component: RivalBattleRouletteComponent;
   let fixture: ComponentFixture<RivalBattleRouletteComponent>;
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
+  let generationService: GenerationService;
   let httpSpy: jasmine.SpyObj<HttpClient>;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
@@ -42,6 +44,7 @@ describe('RivalBattleRouletteComponent', () => {
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
     gameStateService = TestBed.inject(GameStateService);
+    generationService = TestBed.inject(GenerationService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
@@ -79,5 +82,44 @@ describe('RivalBattleRouletteComponent', () => {
     const odds: WheelItem[] = (component as any).victoryOdds;
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(5); // base(1) + power(2) + delta(2)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.no').length).toBe(1); // rival's base(1) + round(0)
+  });
+
+  // ── Regression: gen6 (Calem/Serena) rival — the "rival wheel disappears" bug ──
+  // (docs/plans/done/bug-rival-wheel-disappears.md / bug-stuck-empty-wheels.md).
+  // Root cause: gen6's rivalByGeneration entry has ONE shared `types` array
+  // (Calem and Serena battle with the same type theme) but TWO sprite/quote
+  // variants (one per gender). The old code indexed `types` by the same
+  // gender-derived selectedIndex as sprite/quotes, going out of bounds for the
+  // male index and producing `types: [undefined]` — which crashed
+  // MatchupStripComponent's icon render and left the battle screen permanently
+  // blank, on every reload (deterministic, not a race).
+
+  it('never produces an out-of-bounds (undefined) rival type for gen6 + male, where the old code broke', (done) => {
+    generationService.setGenerationById(6);
+    trainerService.gender = 'male';
+
+    (component as any).onGameStateChange('battle-rival');
+
+    // getCurrentRival's gen6 branch resolves via an async translate.get(...) subscribe.
+    setTimeout(() => {
+      const types = component.currentRival?.types;
+      expect(types).toEqual(['normal']);
+      expect(types).not.toContain(undefined);
+      done();
+    }, 0);
+  });
+
+  it('never produces an out-of-bounds (undefined) rival type for gen6 + female either', (done) => {
+    generationService.setGenerationById(6);
+    trainerService.gender = 'female';
+
+    (component as any).onGameStateChange('battle-rival');
+
+    setTimeout(() => {
+      const types = component.currentRival?.types;
+      expect(types).toEqual(['normal']);
+      expect(types).not.toContain(undefined);
+      done();
+    }, 0);
   });
 });

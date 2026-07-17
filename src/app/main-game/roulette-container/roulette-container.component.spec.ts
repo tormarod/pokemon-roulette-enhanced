@@ -388,6 +388,47 @@ describe('RouletteContainerComponent', () => {
 
       expect(modalQueueService.open).toHaveBeenCalled();
     });
+
+    it('steal weighting is bias-independent — a pending type bias never skews which Pokemon is easier to steal', () => {
+      // Regression guard for the "Honey/Repel affecting Team Rocket steal" report
+      // (docs/plans/bug-team-rocket-bias.md): traced and confirmed the steal wheel
+      // has no bias wiring at all — 'select-from-pokemon-list' isn't in
+      // obtainWheelStates, and pokemon-from-aux-list-roulette never reads
+      // TrainerService's pending bias. This pins that contract down so it can't
+      // silently regress. Two same-power Pokemon of different types must always
+      // get equal steal weight, whatever bias is pending.
+      trainerService.restorePendingTypeBiases({
+        toward: [{ type: 'water', mode: 'soft' }],
+        away: [],
+      });
+      trainerService.addToTeam({ ...makePokemon(1), power: 3, type1: 'water' });
+      trainerService.addToTeam({ ...makePokemon(2), power: 3, type1: 'fire' });
+
+      component.stealPokemon();
+
+      const list = (component as any).auxPokemonList;
+      const waterWeight = list.find((p: any) => p.pokemonId === 1).weight;
+      const fireWeight = list.find((p: any) => p.pokemonId === 2).weight;
+      expect(waterWeight).toBe(fireWeight);
+      expect(waterWeight).toBe(1 / 3);
+    });
+
+    it('a Restart clears a leftover stolenPokemon — it never leaks into the new run', () => {
+      // Regression: RouletteContainerComponent survives a Restart (only the
+      // underlying services get reset), so a Pokemon stolen-then-recovered in a
+      // PREVIOUS run stayed in this.stolenPokemon. TeamRocketRouletteComponent's
+      // wheel always includes a "defeat" outcome (even before any steal has
+      // happened this run — see its ngOnInit weighting), and
+      // teamRocketDefeated() trusts stolenPokemon unconditionally. So the very
+      // first Team Rocket encounter of a new run could hand back a Pokemon the
+      // player never had this run, the moment the wheel landed on "defeat".
+      const leftoverFromPreviousRun: any = { ...makePokemon(999), power: 3 };
+      (component as any).stolenPokemon = leftoverFromPreviousRun;
+
+      gameStateService.resetGameState(); // what the in-app "Restart" button triggers
+
+      expect((component as any).stolenPokemon).toBeNull();
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════════════
