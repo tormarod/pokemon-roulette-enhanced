@@ -2,15 +2,21 @@ import { Injectable } from '@angular/core';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PokemonType } from '../../interfaces/pokemon-type';
 import { TypeMatchupService } from '../type-matchup-service/type-matchup.service';
-import { AbilityDefinition, abilitiesData } from './abilities-data';
+import { AbilityDefinition, AbilityId, abilitiesById } from './abilities-data';
 
 @Injectable({ providedIn: 'root' })
 export class AbilityService {
 
   constructor(private typeMatchupService: TypeMatchupService) {}
 
-  getAbility(pokemonId: number): AbilityDefinition | undefined {
-    return abilitiesData[pokemonId];
+  /** Resolve an ability definition from its stable id. */
+  getAbilityById(id: AbilityId | undefined): AbilityDefinition | undefined {
+    return id ? abilitiesById[id] : undefined;
+  }
+
+  /** The ability the player assigned to this member, if any. */
+  getMemberAbility(member: PokemonItem): AbilityDefinition | undefined {
+    return this.getAbilityById(member.ability);
   }
 
   private memberTypes(member: PokemonItem): PokemonType[] {
@@ -24,10 +30,10 @@ export class AbilityService {
   }
 
   /**
-   * Folds every team member's ability effect into a single yes/no odds
+   * Folds every team member's assigned-ability effect into a single yes/no odds
    * adjustment plus a free-retry flag. Only "Sturdy" (faint-immune-lead, see
-   * `abilitiesData`) is lead-specific and handled separately by the faint
-   * mechanic (Part B) via `getAbility` — every other effect applies per
+   * `abilitiesById`) is lead-specific and handled separately by the faint
+   * mechanic (Part B) via `getMemberAbility` — every other effect applies per
    * member same as the base matchup math, regardless of `leadIndex`.
    */
   applyTeamAbilities(
@@ -39,7 +45,7 @@ export class AbilityService {
     let extraRetry = false;
 
     for (const member of team) {
-      const ability = this.getAbility(member.pokemonId);
+      const ability = this.getMemberAbility(member);
       if (!ability) continue;
 
       const delta = opponentTypes.length
@@ -72,6 +78,46 @@ export class AbilityService {
           break;
         case 'faint-immune-lead':
           // Handled by the faint mechanic (Part B), not the odds computation.
+          break;
+        // ── New mechanics (§4b + §4c) ─────────────────────────────────────
+        case 'double-edged':
+          // +value Yes and +value No — pure variance, net-neutral in expectation.
+          yesBonus += ability.value;
+          noBonus += ability.value;
+          break;
+        case 'defensive-synergy': {
+          // -value No per team member sharing a type (defensive mirror of team-synergy).
+          const synergyCount = team.filter(other => this.sharesType(other, member)).length;
+          noBonus += -ability.value * synergyCount;
+          break;
+        }
+        case 'punish-disadvantage':
+          // +value Yes when this member is at a type disadvantage.
+          if (opponentTypes.length && delta < 0) yesBonus += ability.value;
+          break;
+        case 'low-team-offense':
+          // +value Yes while the team has <= 2 members (desperation buff).
+          if (team.length <= 2) yesBonus += ability.value;
+          break;
+        case 'neutral-bonus':
+          // +value Yes on an exactly-neutral matchup (opponent types present).
+          if (opponentTypes.length && delta === 0) yesBonus += ability.value;
+          break;
+        case 'dual-type-offense':
+          // +value Yes if this member is dual-typed.
+          if (member.type2) yesBonus += ability.value;
+          break;
+        case 'mono-type-offense':
+          // +value Yes if this member is single-typed.
+          if (!member.type2) yesBonus += ability.value;
+          break;
+        case 'scale-with-advantage':
+          // +Yes equal to the advantage, capped at value.
+          if (opponentTypes.length && delta > 0) yesBonus += Math.min(delta, ability.value);
+          break;
+        case 'scale-with-disadvantage':
+          // +Yes equal to |disadvantage|, capped at value.
+          if (opponentTypes.length && delta < 0) yesBonus += Math.min(-delta, ability.value);
           break;
       }
     }

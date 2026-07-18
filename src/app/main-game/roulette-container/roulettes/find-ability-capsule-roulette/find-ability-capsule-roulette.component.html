@@ -1,0 +1,20 @@
+<div class="roulette-header"><h1 class="title">{{ 'game.main.roulette.abilityCapsule.title' | translate }}</h1></div>
+<app-wheel #wheel [items]="capsules" (selectedItemEvent)="onCapsuleSelected($event)">
+</app-wheel>
+<div class="roulette-action-row"></div>
+
+<ng-template #capsuleExplainerModal let-modal>
+    <div class="modal-body">
+        <h1>{{ 'game.main.roulette.abilityCapsule.found' | translate }} {{ selectedCapsule!.text | translate }}</h1>
+        <div class="explain-panel">
+            <img [src]="selectedCapsule?.sprite" height="64" alt="">
+            <div class="message">
+                <p>{{ selectedCapsule!.description | translate }}</p>
+                <p class="assign-hint">{{ 'game.main.roulette.abilityCapsule.assignHint' | translate }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" (click)="closeCapsuleExplainerModal()">Ok</button>
+    </div>
+</ng-template>

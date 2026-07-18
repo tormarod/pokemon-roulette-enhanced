@@ -1,6 +1,7 @@
 import { PokemonType } from '../../interfaces/pokemon-type';
 
 export type AbilityEffectType =
+  // Original 8 effects (§4a base roster).
   | 'flat-yes'
   | 'flat-no'
   | 'offense-if-positive'
@@ -8,42 +9,122 @@ export type AbilityEffectType =
   | 'zero-own-negative'
   | 'team-synergy'
   | 'extra-retry'
-  | 'faint-immune-lead';
+  | 'faint-immune-lead'
+  // 9 new mechanics added for the player-assignable roster (§4b + §4c).
+  | 'double-edged'
+  | 'defensive-synergy'
+  | 'punish-disadvantage'
+  | 'low-team-offense'
+  | 'neutral-bonus'
+  | 'dual-type-offense'
+  | 'mono-type-offense'
+  | 'scale-with-advantage'
+  | 'scale-with-disadvantage';
+
+/**
+ * Stable id for every assignable ability. Persisted on `PokemonItem.ability`
+ * and carried by ability capsules; never a species/National-Dex number.
+ */
+export type AbilityId =
+  // §4a — base 18, all on the original 8 effects.
+  | 'blaze'
+  | 'torrent'
+  | 'overgrow'
+  | 'guts'
+  | 'static'
+  | 'poison-point'
+  | 'intimidate'
+  | 'thick-fat'
+  | 'clear-body'
+  | 'keen-eye'
+  | 'snow-cloak'
+  | 'multiscale'
+  | 'levitate'
+  | 'swarm'
+  | 'rough-skin'
+  | 'synchronize'
+  | 'sturdy'
+  | 'serene-grace'
+  // §4b — 5 new mechanics.
+  | 'reckless'
+  | 'battle-armor'
+  | 'justified'
+  | 'last-stand'
+  | 'adaptability'
+  // §4c — 7 more (4 new mechanics + 3 on existing effects).
+  | 'versatile'
+  | 'pure-power'
+  | 'sheer-force'
+  | 'comeback'
+  | 'marvel-scale'
+  | 'sand-rush'
+  | 'cursed-body';
 
 export interface AbilityDefinition {
-  /** Display/translation name, e.g. "Blaze". */
+  /** Stable id (also the localStorage/capsule value). */
+  id: AbilityId;
+  /** i18n key for the display name, e.g. "abilities.blaze.name". */
   name: string;
+  /** i18n key for the one-line description, e.g. "abilities.blaze.description". */
+  descriptionKey: string;
   /** The type this ability is iconic for — display/grouping only, not used in the numeric effect. */
   type: PokemonType;
   effect: AbilityEffectType;
-  /** Magnitude of the effect. Unused (0) for zero-own-negative, extra-retry, and faint-immune-lead. */
+  /**
+   * Magnitude of the effect. Unused (0) for zero-own-negative, extra-retry, and
+   * faint-immune-lead. For scale-with-advantage / scale-with-disadvantage it is
+   * the cap on the (dis)advantage magnitude added.
+   */
   value: number;
 }
 
+function ability(
+  id: AbilityId,
+  type: PokemonType,
+  effect: AbilityEffectType,
+  value: number
+): AbilityDefinition {
+  return { id, type, effect, value, name: `abilities.${id}.name`, descriptionKey: `abilities.${id}.description` };
+}
+
 /**
- * New Experience-only curated ability roster: one hand-picked species per
- * Pokémon type (`src/app/interfaces/pokemon-type.ts`), keyed by `pokemonId`
- * (National Dex number, see `national-dex-pokemon.ts`). Not a per-type
- * blanket table — only these 18 species have an ability; everything else is
- * unaffected. Classic mode never reads this table (see `AbilityService`).
+ * The 30 player-assignable abilities, keyed by stable `AbilityId`. Abilities are
+ * no longer tied to a species — a Pokémon has one only when the player assigns a
+ * capsule (New Experience only, see `AbilityService` / `PokemonItem.ability`).
+ * Classic mode never reads this table.
  */
-export const abilitiesData: Record<number, AbilityDefinition> = {
-  143: { name: 'Thick Fat', type: 'normal', effect: 'flat-no', value: -1 },
-  68: { name: 'No Guard', type: 'fighting', effect: 'flat-yes', value: 1 },
-  398: { name: 'Keen Eye', type: 'flying', effect: 'flat-no', value: -1 },
-  34: { name: 'Poison Point', type: 'poison', effect: 'flat-yes', value: 1 },
-  445: { name: 'Rough Skin', type: 'ground', effect: 'offense-if-positive', value: 1 },
-  76: { name: 'Sturdy', type: 'rock', effect: 'faint-immune-lead', value: 0 },
-  212: { name: 'Swarm', type: 'bug', effect: 'offense-if-positive', value: 1 },
-  94: { name: 'Levitate', type: 'ghost', effect: 'zero-own-negative', value: 0 },
-  376: { name: 'Clear Body', type: 'steel', effect: 'flat-no', value: -1 },
-  6: { name: 'Blaze', type: 'fire', effect: 'offense-if-positive', value: 2 },
-  9: { name: 'Torrent', type: 'water', effect: 'soak-if-negative', value: -2 },
-  3: { name: 'Overgrow', type: 'grass', effect: 'offense-if-positive', value: 2 },
-  145: { name: 'Static', type: 'electric', effect: 'flat-yes', value: 1 },
-  282: { name: 'Synchronize', type: 'psychic', effect: 'team-synergy', value: 1 },
-  471: { name: 'Snow Cloak', type: 'ice', effect: 'flat-no', value: -1 },
-  149: { name: 'Multiscale', type: 'dragon', effect: 'soak-if-negative', value: -2 },
-  262: { name: 'Intimidate', type: 'dark', effect: 'flat-yes', value: 1 },
-  468: { name: 'Serene Grace', type: 'fairy', effect: 'extra-retry', value: 0 }
+export const abilitiesById: Record<AbilityId, AbilityDefinition> = {
+  // §4a — base 18.
+  'blaze': ability('blaze', 'fire', 'offense-if-positive', 2),
+  'torrent': ability('torrent', 'water', 'soak-if-negative', -2),
+  'overgrow': ability('overgrow', 'grass', 'offense-if-positive', 2),
+  'guts': ability('guts', 'fighting', 'flat-yes', 2),
+  'static': ability('static', 'electric', 'flat-yes', 1),
+  'poison-point': ability('poison-point', 'poison', 'flat-yes', 1),
+  'intimidate': ability('intimidate', 'dark', 'flat-no', -1),
+  'thick-fat': ability('thick-fat', 'normal', 'flat-no', -1),
+  'clear-body': ability('clear-body', 'steel', 'flat-no', -1),
+  'keen-eye': ability('keen-eye', 'flying', 'flat-no', -1),
+  'snow-cloak': ability('snow-cloak', 'ice', 'flat-no', -1),
+  'multiscale': ability('multiscale', 'dragon', 'soak-if-negative', -2),
+  'levitate': ability('levitate', 'ghost', 'zero-own-negative', 0),
+  'swarm': ability('swarm', 'bug', 'offense-if-positive', 1),
+  'rough-skin': ability('rough-skin', 'ground', 'offense-if-positive', 1),
+  'synchronize': ability('synchronize', 'psychic', 'team-synergy', 1),
+  'sturdy': ability('sturdy', 'rock', 'faint-immune-lead', 0),
+  'serene-grace': ability('serene-grace', 'fairy', 'extra-retry', 0),
+  // §4b — 5 new mechanics.
+  'reckless': ability('reckless', 'fire', 'double-edged', 1),
+  'battle-armor': ability('battle-armor', 'steel', 'defensive-synergy', 1),
+  'justified': ability('justified', 'fighting', 'punish-disadvantage', 2),
+  'last-stand': ability('last-stand', 'dragon', 'low-team-offense', 2),
+  'adaptability': ability('adaptability', 'normal', 'neutral-bonus', 1),
+  // §4c — 7 more.
+  'versatile': ability('versatile', 'dragon', 'dual-type-offense', 1),
+  'pure-power': ability('pure-power', 'fighting', 'mono-type-offense', 1),
+  'sheer-force': ability('sheer-force', 'ground', 'scale-with-advantage', 3),
+  'comeback': ability('comeback', 'dark', 'scale-with-disadvantage', 3),
+  'marvel-scale': ability('marvel-scale', 'water', 'soak-if-negative', -1),
+  'sand-rush': ability('sand-rush', 'rock', 'flat-yes', 1),
+  'cursed-body': ability('cursed-body', 'ghost', 'flat-no', -1)
 };

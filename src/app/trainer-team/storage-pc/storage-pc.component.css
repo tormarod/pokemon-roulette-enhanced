@@ -76,3 +76,58 @@
   font-size: 11px;
   padding: 1px 6px;
 }
+
+/* Ability UI sits on the PC card's fixed light background (#dfe6e9), like the
+   fainted badge, so it stays legible in all three app themes. */
+.ability-badge {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #2d3436;
+  background: #ffffff;
+  border: 1px solid #333;
+  border-radius: 3px;
+  padding: 1px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assign-ability-button {
+  margin-top: 4px;
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+/* Capsule picker (stacked modal) */
+.ability-picker-current {
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.ability-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.ability-picker-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+}
+
+.ability-picker-name {
+  font-weight: bold;
+}
+
+.ability-picker-desc {
+  font-size: 11px;
+  opacity: 0.85;
+}

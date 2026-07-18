@@ -26,4 +26,23 @@ describe('ItemsService', () => {
     gameStateService.restoreNewExperienceMode(true);
     expect(service.getRegularItems().some(item => item.name === 'revive')).toBeTrue();
   });
+
+  it('exposes one ability capsule per assignable ability (30), each carrying an abilityId', () => {
+    const capsules = service.getAbilityCapsules();
+    expect(capsules.length).toBe(30);
+    expect(capsules.every(c => !!c.abilityId)).toBeTrue();
+    expect(capsules.some(c => c.name === 'capsule-blaze' && c.abilityId === 'blaze')).toBeTrue();
+  });
+
+  it('keeps ability capsules OUT of the regular item drop pool (both modes)', () => {
+    gameStateService.restoreNewExperienceMode(true);
+    expect(service.getRegularItems().some(item => !!item.abilityId)).toBeFalse();
+    gameStateService.restoreNewExperienceMode(false);
+    expect(service.getRegularItems().some(item => !!item.abilityId)).toBeFalse();
+  });
+
+  it('resolves a capsule via getItem / getAbilityCapsule', () => {
+    expect(service.getItem('capsule-sturdy').abilityId).toBe('sturdy');
+    expect(service.getAbilityCapsule('capsule-sturdy').name).toBe('capsule-sturdy');
+  });
 });
