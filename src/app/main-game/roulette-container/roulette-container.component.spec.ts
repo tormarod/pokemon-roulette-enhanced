@@ -74,6 +74,28 @@ describe('RouletteContainerComponent', () => {
   });
 
   // ══════════════════════════════════════════════════════════════════════════
+  // multitask — queues exactly two adventure-continues rounds
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('multitask', () => {
+    it('queues exactly two adventure-continues rounds before returning to the pre-built flow', () => {
+      gameStateService.resetGameState(true);
+      const states: string[] = [];
+      gameStateService.currentState.subscribe(s => states.push(s));
+      states.length = 0; // drop the initial replay emission from subscribing
+
+      component.multitask(); // shows the first bonus round
+      expect(states[states.length - 1]).toBe('adventure-continues');
+
+      component.doNothing(); // resolve round 1 with a bare pop (like "Go Straight")
+      expect(states[states.length - 1]).toBe('adventure-continues');
+
+      component.doNothing(); // resolve round 2 with a bare pop
+      expect(states[states.length - 1]).not.toBe('adventure-continues');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
   // Opponent preview
   // ══════════════════════════════════════════════════════════════════════════
 
