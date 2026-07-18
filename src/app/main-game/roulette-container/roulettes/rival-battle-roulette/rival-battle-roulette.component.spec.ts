@@ -149,7 +149,7 @@ describe('RivalBattleRouletteComponent', () => {
       component.currentRival = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false });
 
       expect(component.prepPhase).toBeFalse();
       expect(component.matchupAdvantageDelta).toBe(4);
@@ -163,25 +163,13 @@ describe('RivalBattleRouletteComponent', () => {
       component.currentRival = { name: 'Blue', sprite: '', quotes: [] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true });
 
       const odds: WheelItem[] = (component as any).victoryOdds;
       // base(1) + power(4) + xAttackBonus(meanPower=4) = 9
       expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.rival.yes').length).toBe(9);
     });
 
-    it('should bank a retry when a potion is chosen during prep', () => {
-      (component as any).trainerItems = [
-        { name: 'potion', text: 'items.potion.name', fillStyle: 'purple', weight: 1, description: '', sprite: '' }
-      ];
-      component.currentRival = { name: 'Blue', sprite: '', quotes: [] } as GymLeader;
-      component.currentRound = 0;
-
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: 'potion' });
-
-      expect((component as any).retries).toBe(1);
-      expect((component as any).trainerItems.length).toBe(0);
-    });
 
     it('should use the banked retry on a losing spin instead of emitting a loss immediately', () => {
       (component as any).trainerItems = [];
@@ -198,7 +186,7 @@ describe('RivalBattleRouletteComponent', () => {
     });
 
     it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
-      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false });
       component.currentRound = 0;
 
       gameStateService.setNextState('battle-rival');
@@ -208,7 +196,7 @@ describe('RivalBattleRouletteComponent', () => {
     });
 
     it('should clear the prep once the battle resolves (win)', () => {
-      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false });
       (component as any).victoryOdds = [
         { text: 'game.main.roulette.rival.yes', fillStyle: 'green', weight: 1 },
       ];
@@ -226,7 +214,7 @@ describe('RivalBattleRouletteComponent', () => {
       const other = makeTestPokemon({ pokemonId: 2, power: 3 });
       trainerService.addToTeam(lead);
       trainerService.addToTeam(other);
-      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false });
       (component as any).trainerItems = [];
       (component as any).retries = 1;
       (component as any).victoryOdds = [
@@ -249,7 +237,7 @@ describe('RivalBattleRouletteComponent', () => {
     it('should not faint a lead with the Sturdy ability (faint-immune-lead)', () => {
       const lead = makeTestPokemon({ pokemonId: 76, power: 3, ability: 'sturdy' });
       trainerService.addToTeam(lead);
-      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false });
       (component as any).trainerItems = [];
       (component as any).retries = 1;
       (component as any).victoryOdds = [

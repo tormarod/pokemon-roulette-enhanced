@@ -108,7 +108,7 @@ describe('ChampionBattleRouletteComponent', () => {
       component.currentChampion = { name: 'Blue', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false });
 
       expect(component.prepPhase).toBeFalse();
       expect(component.matchupAdvantageDelta).toBe(4);
@@ -122,28 +122,16 @@ describe('ChampionBattleRouletteComponent', () => {
       component.currentChampion = { name: 'Blue', sprite: '', quotes: [] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true });
 
       const odds: WheelItem[] = (component as any).victoryOdds;
       // base(1) + power(4) + xAttackBonus(meanPower=4) = 9
       expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.champion.yes').length).toBe(9);
     });
 
-    it('should bank a retry when a potion is chosen during prep', () => {
-      (component as any).trainerItems = [
-        { name: 'super-potion', text: 'items.super-potion.name', fillStyle: 'blue', weight: 1, description: '', sprite: '' }
-      ];
-      component.currentChampion = { name: 'Blue', sprite: '', quotes: [] } as GymLeader;
-      component.currentRound = 0;
-
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: 'super-potion' });
-
-      expect((component as any).retries).toBe(2);
-      expect((component as any).trainerItems.length).toBe(0);
-    });
 
     it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
-      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false });
       component.currentRound = 0;
 
       gameStateService.setNextState('champion-battle');
@@ -153,7 +141,7 @@ describe('ChampionBattleRouletteComponent', () => {
     });
 
     it('should clear the prep once the battle resolves (win)', () => {
-      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false });
       (component as any).victoryOdds = [
         { text: 'game.main.roulette.champion.yes', fillStyle: 'green', weight: 1 },
       ];
@@ -165,7 +153,7 @@ describe('ChampionBattleRouletteComponent', () => {
     });
 
     it('should clear the prep once the battle resolves (final loss, no potions left)', () => {
-      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'champion-battle', leadIndex: 0, xAttackUsed: false });
       (component as any).trainerItems = [];
       (component as any).victoryOdds = [
         { text: 'game.main.roulette.champion.no', fillStyle: 'crimson', weight: 1 },

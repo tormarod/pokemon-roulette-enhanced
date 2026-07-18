@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TrainerService } from '../trainer-service/trainer.service';
-import { RegularItemName } from '../items-service/regular-item-names';
 
 export interface PendingBattlePrep {
   battleKey: string;       // e.g. 'gym-battle', 'battle-rival', 'elite-four-battle', 'champion-battle'
   leadIndex: number;       // index into trainerTeam at the moment of commit
   xAttackUsed: boolean;
-  potionUsed: RegularItemName | null; // 'potion' | 'super-potion' | 'hyper-potion' | null
 }
 
 /**
