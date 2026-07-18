@@ -404,6 +404,7 @@
             "legendaryEncounter": "Encuentro Legendario",
             "tradePokemon": "Intercambiar Pokémon",
             "findItem": "Encontrar un objeto",
+            "findAbilityCapsule": "Find an Ability Capsule",
             "exploreCave": "Explorar una cueva",
             "snorlaxEncounter": "Snorlax bloqueando el camino",
             "multitask": "Multitarea (Girar 2x)",
@@ -519,6 +520,11 @@
           "found": "Encontró un(a)",
           "title": "¿Qué objeto?"
         },
+        "abilityCapsule": {
+          "found": "Found a capsule:",
+          "title": "Which Ability Capsule?",
+          "assignHint": "Assign it to a Pokémon from your team or PC."
+        },
         "legendary": {
           "catch": "¿Captura Legendario?",
           "which": "¿Qué Legendario?",
@@ -607,6 +613,38 @@
       "title": "¿Reiniciar el juego?",
       "warning": "Empezarás desde cero."
     }
+  },
+  "abilities": {
+    "blaze": { "name": "Blaze", "description": "+2 Yes when this Pokémon has a type advantage." },
+    "torrent": { "name": "Torrent", "description": "-2 No when this Pokémon is at a type disadvantage." },
+    "overgrow": { "name": "Overgrow", "description": "+2 Yes when this Pokémon has a type advantage." },
+    "guts": { "name": "Guts", "description": "+2 Yes, always." },
+    "static": { "name": "Static", "description": "+1 Yes, always." },
+    "poison-point": { "name": "Poison Point", "description": "+1 Yes, always." },
+    "intimidate": { "name": "Intimidate", "description": "-1 No, always." },
+    "thick-fat": { "name": "Thick Fat", "description": "-1 No, always." },
+    "clear-body": { "name": "Clear Body", "description": "-1 No, always." },
+    "keen-eye": { "name": "Keen Eye", "description": "-1 No, always." },
+    "snow-cloak": { "name": "Snow Cloak", "description": "-1 No, always." },
+    "multiscale": { "name": "Multiscale", "description": "-2 No when this Pokémon is at a type disadvantage." },
+    "levitate": { "name": "Levitate", "description": "Cancels this Pokémon's own type disadvantage." },
+    "swarm": { "name": "Swarm", "description": "+1 Yes when this Pokémon has a type advantage." },
+    "rough-skin": { "name": "Rough Skin", "description": "+1 Yes when this Pokémon has a type advantage." },
+    "synchronize": { "name": "Synchronize", "description": "+1 Yes per team member sharing a type." },
+    "sturdy": { "name": "Sturdy", "description": "This lead survives a would-be rival faint once per battle." },
+    "serene-grace": { "name": "Serene Grace", "description": "Grants one extra battle retry." },
+    "reckless": { "name": "Reckless", "description": "+1 Yes and +1 No — high risk, high reward." },
+    "battle-armor": { "name": "Battle Armor", "description": "-1 No per team member sharing a type." },
+    "justified": { "name": "Justified", "description": "+2 Yes when this Pokémon is at a type disadvantage." },
+    "last-stand": { "name": "Last Stand", "description": "+2 Yes while your team has 2 or fewer Pokémon." },
+    "adaptability": { "name": "Adaptability", "description": "+1 Yes when this Pokémon's matchup is exactly neutral." },
+    "versatile": { "name": "Versatile", "description": "+1 Yes if this Pokémon is dual-typed." },
+    "pure-power": { "name": "Pure Power", "description": "+1 Yes if this Pokémon is single-typed." },
+    "sheer-force": { "name": "Sheer Force", "description": "Adds your type advantage again as Yes, up to +3." },
+    "comeback": { "name": "Comeback", "description": "Turns your type disadvantage into Yes, up to +3." },
+    "marvel-scale": { "name": "Marvel Scale", "description": "-1 No when this Pokémon is at a type disadvantage." },
+    "sand-rush": { "name": "Sand Rush", "description": "+1 Yes, always." },
+    "cursed-body": { "name": "Cursed Body", "description": "-1 No, always." }
   },
   "items": {
     "title": "Objetos",
@@ -1056,7 +1094,11 @@
       "unavailable": "La PC no está disponible",
       "unavailableMessage": "El equipo Rocket está bloqueando las comunicaciones con el PC",
       "fainted": "Debilitado",
-      "revive": "Revivir"
+      "revive": "Revivir",
+      "assignAbility": "Ability",
+      "assignAbilityTitle": "Assign an ability to",
+      "currentAbility": "Current:",
+      "cancel": "Cancel"
     }
   },
   "wheel": {
