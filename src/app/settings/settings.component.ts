@@ -74,13 +74,17 @@ export class SettingsComponent implements OnInit {
     this.settingsService.setDefaultGender(gender);
   }
 
+  onToggleNewExperienceMode(): void {
+    this.settingsService.toggleNewExperienceMode();
+  }
+
   onRestartGame(): void {
     this.trainerService.resetTrainer();
     this.trainerService.resetTeam();
     this.trainerService.resetItems();
     this.trainerService.resetBadges();
     this.trainerService.clearPendingTypeBiases();
-    this.gameStateService.resetGameState();
+    this.gameStateService.resetGameState(this.settingsService.currentSettings.newExperienceMode);
     this.runPersistenceService.clearRun();
     this.router.navigate(['']);
   }

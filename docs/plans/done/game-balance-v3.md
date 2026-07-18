@@ -1,7 +1,9 @@
 # Plan: Game balance V3 — Pre-spin battle mechanics
 
-Status: **Ready to implement (Sonnet).** All open decisions from the roadmap are
-settled below. 5 phases, checkpoint after each.
+Status: **Done.** All 5 phases implemented and checkpointed; feature renamed
+from "New Balance Mode" to "New Experience Mode" post-implementation (mid-plan
+rename, all code/docs/i18n updated accordingly). Full test suite green
+(626 specs). README updated with a "New Experience Mode" section.
 Owner: tormarod
 Last updated: 2026-07-18
 Rationale + roadmap: `docs/research/game-balance-research.md` (§ "V3 — Pre-spin
@@ -28,25 +30,25 @@ landing first; it only touches the battle screens.
    they hit a single final "Confirm" that commits everything atomically. Only
    the confirm commits to `SavedRun`.
 
-## New in this session: the New-Balance feature flag
+## New in this session: the New-Experience feature flag
 
 The user asked (mid-plan) for V3+V4 to be **opt-in**, bundled into one game
-setting, so players can choose "New Balance" vs. the current experience. This
+setting, so players can choose "New Experience" vs. the current experience. This
 flag is introduced here in V3 (V4 reuses it — see `game-balance-v4.md`).
 
 ### Settings — `src/app/services/settings-service/settings.service.ts`
-- Add `newBalanceMode: boolean` to the `GameSettings` interface, default
+- Add `newExperienceMode: boolean` to the `GameSettings` interface, default
   `false` in `defaultSettings` (existing players keep today's behavior with no
   action needed).
-- Add `toggleNewBalanceMode(): void`, following the exact shape of
+- Add `toggleNewExperienceMode(): void`, following the exact shape of
   `toggleSkipShinyRolls()` (read `currentSettings`, spread + flip the field,
   call `updateSettings`).
 
 ### Settings UI — `src/app/settings/settings.component.ts` / `.html`
-- Add `onToggleNewBalanceMode(): void { this.settingsService.toggleNewBalanceMode(); }`.
-- Add a toggle row in the template bound to `(settings$ | async)?.newBalanceMode`,
+- Add `onToggleNewExperienceMode(): void { this.settingsService.toggleNewExperienceMode(); }`.
+- Add a toggle row in the template bound to `(settings$ | async)?.newExperienceMode`,
   with i18n copy that explicitly warns it's a major difficulty/mechanics change
-  (new key `settings.newBalanceMode.description`, e.g. "Adds pre-battle
+  (new key `settings.newExperienceMode.description`, e.g. "Adds pre-battle
   choices and higher stakes. Changes take effect on your next run.").
 
 ### Locking the flag for the duration of a run
@@ -57,34 +59,34 @@ player with a new mechanic they didn't opt into. Snapshot it once, at run
 start, the same way `generationId` is snapshotted today.
 
 - `GameStateService` (`src/app/services/game-state-service/game-state.service.ts`):
-  add `private newBalanceMode = new BehaviorSubject<boolean>(false);` and
-  `newBalanceModeObserver = this.newBalanceMode.asObservable();`.
-  - Change `resetGameState()` to `resetGameState(newBalanceMode: boolean): void`,
-    setting `this.newBalanceMode.next(newBalanceMode)` alongside the existing
+  add `private newExperienceMode = new BehaviorSubject<boolean>(false);` and
+  `newExperienceModeObserver = this.newExperienceMode.asObservable();`.
+  - Change `resetGameState()` to `resetGameState(newExperienceMode: boolean): void`,
+    setting `this.newExperienceMode.next(newExperienceMode)` alongside the existing
     stack/round reset. Both call sites — `main-game.component.ts:201` and
     `settings.component.ts`'s `onRestartGame()` — pass
-    `this.settingsService.currentSettings.newBalanceMode` as the argument (read
+    `this.settingsService.currentSettings.newExperienceMode` as the argument (read
     fresh from Settings at the moment a **new run** starts; this is the only
     place the live setting is sampled into a run).
-  - Add `restoreNewBalanceMode(value: boolean): void` (sets the BehaviorSubject
+  - Add `restoreNewExperienceMode(value: boolean): void` (sets the BehaviorSubject
     without touching the stack/round) for `RunPersistenceService` to call on
     restore.
-  - Add a synchronous getter `get isNewBalanceMode(): boolean { return this.newBalanceMode.value; }`
+  - Add a synchronous getter `get isNewExperienceMode(): boolean { return this.newExperienceMode.value; }`
     for components that need a one-off read (e.g. inside `calcVictoryOdds()`,
     which isn't reactive).
 - `RunPersistenceService` (`src/app/services/run-persistence-service/run-persistence.service.ts`):
-  - Add `newBalanceMode: boolean` to `SavedRun`.
+  - Add `newExperienceMode: boolean` to `SavedRun`.
   - In the `combineLatest` save pipeline, add
-    `this.gameStateService.newBalanceModeObserver` as a new source and include
-    `newBalanceMode` in the `persistRun(...)` call.
-  - In `restoreRun`, call `this.gameStateService.restoreNewBalanceMode(run.newBalanceMode ?? false)`
+    `this.gameStateService.newExperienceModeObserver` as a new source and include
+    `newExperienceMode` in the `persistRun(...)` call.
+  - In `restoreRun`, call `this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false)`
     (default `false` for saves from before this field existed — old saves are
-    always Classic, never silently upgraded to New Balance).
-  - In `isValidSavedRun`, accept `run.newBalanceMode === undefined || typeof run.newBalanceMode === 'boolean'`
+    always Classic, never silently upgraded to New Experience).
+  - In `isValidSavedRun`, accept `run.newExperienceMode === undefined || typeof run.newExperienceMode === 'boolean'`
     (same optional-field tolerance pattern already used for `pendingTypeBiases`).
 
 **Every mechanic below (and everything in V4) is gated behind
-`gameStateService.isNewBalanceMode`.** When `false`, every touched component
+`gameStateService.isNewExperienceMode`.** When `false`, every touched component
 must behave exactly as it does today — this is the acceptance bar for every
 phase.
 
@@ -245,11 +247,11 @@ File: `.../gym-battle-roulette/gym-battle-roulette.component.ts`
 - Add `prepPhase = true;` and inject `BattlePrepService`.
 - In `onGameStateChange` (`state === 'gym-battle'`): after
   `this.getCurrentLeader()`, check
-  `gameStateService.isNewBalanceMode`:
+  `gameStateService.isNewExperienceMode`:
   - **Classic mode:** skip straight to today's behavior —
     `prepPhase = false`, `this.calcVictoryOdds()` with no `leadIndex`, open the
     leader-presentation modal, show the wheel. **No behavior change.**
-  - **New Balance mode:**
+  - **New Experience mode:**
     - If `battlePrepService.getPendingPrep()` already has an entry for this
       `battleKey` (reload after Confirm) — skip the panel, set
       `prepPhase = false`, recompute `calcVictoryOdds()` using the restored
@@ -268,7 +270,7 @@ File: `.../gym-battle-roulette/gym-battle-roulette.component.ts`
      into `buildVictoryOdds`).
 - `calcVictoryOdds()` becomes:
   ```ts
-  const prep = this.gameStateService.isNewBalanceMode ? this.battlePrepService.getPendingPrep() : null;
+  const prep = this.gameStateService.isNewExperienceMode ? this.battlePrepService.getPendingPrep() : null;
   this.victoryOdds = this.buildVictoryOdds(
     this.currentLeader?.types, 'game.main.roulette.gym', 1, this.currentRound,
     prep?.leadIndex
@@ -297,20 +299,20 @@ no `retries`/`usePotion` machinery today — see A7), `elite-four-battle-roulett
 (`battleKey: 'elite-four-battle'`), `champion-battle-roulette`
 (`battleKey: 'champion-battle'`).
 
-## A7. x-attack behavior change — gated, New-Balance-only
+## A7. x-attack behavior change — gated, New-Experience-only
 
 File: `.../base-battle-roulette/base-battle-roulette.component.ts`
 
 Today `plusModifiers()` scans **all** x-attack items in inventory and applies
 every one, every battle, **without ever consuming them** (line 82-88) — an
-existing quirk, not something V1/V2 touched. Under New Balance, x-attack
+existing quirk, not something V1/V2 touched. Under New Experience, x-attack
 becomes an explicit, consumed, pre-spin choice (A6 step 2 removes it from
 inventory on use). Change `plusModifiers()`:
 
 ```ts
 protected plusModifiers(): number {
-  if (this.gameStateService.isNewBalanceMode) {
-    return 0; // New Balance: x-attack bonus comes from the committed prep instead — see A3's leadIndex-adjacent handling below
+  if (this.gameStateService.isNewExperienceMode) {
+    return 0; // New Experience: x-attack bonus comes from the committed prep instead — see A3's leadIndex-adjacent handling below
   }
   // Classic mode: unchanged passive scan-all-and-apply, never consumed.
   let power = 0;
@@ -320,7 +322,7 @@ protected plusModifiers(): number {
 ```
 
 And in `buildVictoryOdds`, add the committed x-attack bonus alongside the lead
-doubling (New Balance only): if the calling battle component's `calcVictoryOdds()`
+doubling (New Experience only): if the calling battle component's `calcVictoryOdds()`
 found `prep?.xAttackUsed`, compute the same mean-team-power bonus
 `plusModifiers()` used to compute for one x-attack, and add it to
 `effectivePower` — pass it as another optional parameter (`xAttackBonus?: number`)
@@ -337,30 +339,33 @@ every x-attack in inventory forever, exactly as today.
 
 ## Phases (checkpoint after each; `npm run test:local` green each time)
 
-1. **Feature flag plumbing.** `GameSettings.newBalanceMode`, `SettingsService`
+1. [x] **Feature flag plumbing.** `GameSettings.newExperienceMode`, `SettingsService`
    toggle, settings UI row, `GameStateService` snapshot/restore, persistence
    wiring. *Checkpoint: toggling in Settings persists across reload; starting a
    new run snapshots the current value; an in-progress run is unaffected by
    later toggling the global setting.*
-2. **`TypeMatchupService.getMemberSignedDelta` + `BattlePrepService` + `buildVictoryOdds` doubling (A1-A4).**
+2. [x] **`TypeMatchupService.getMemberSignedDelta` + `BattlePrepService` + `buildVictoryOdds` doubling (A1-A4).**
    Unit tests: doubling math for an advantage lead, a disadvantage lead, a
    neutral lead (delta 0, no-op); persistence round-trip of `PendingBattlePrep`.
    No UI yet — drive `buildVictoryOdds` directly in specs with a manual
    `leadIndex`. *Checkpoint: doubled delta shows correctly in
    `matchupAdvantageDelta`/`matchupDisadvantageDelta`.*
-3. **`BattlePrepPanelComponent` (A5).** Presentational only, own spec file
+3. [x] **`BattlePrepPanelComponent` (A5).** Presentational only, own spec file
    with a fake team/opponentTypes, asserting the per-member delta preview and
    the `confirmed` payload shape. *Checkpoint: panel renders, lead defaults to
    index 0, Confirm emits the right shape.*
-4. **Wire into gym (A6, A7), then rival/Elite Four/Champion.** One battle type
+4. [x] **Wire into gym (A6, A7), then rival/Elite Four/Champion.** One battle type
    at a time; each gets its own checkpoint. Verify Classic mode is byte-for-byte
    unchanged (existing specs for each battle component must still pass
-   unmodified when `newBalanceMode` is `false`). *Checkpoint per battle type:
-   New-Balance prep → confirm → wheel odds reflect doubled lead + x-attack;
+   unmodified when `newExperienceMode` is `false`). *Checkpoint per battle type:
+   New-Experience prep → confirm → wheel odds reflect doubled lead + x-attack;
    reload mid-prep re-shows the panel; reload after confirm skips straight to
    the wheel with the same odds.*
-5. **Docs.** README feature entry (agency section). Update this file's status
-   once all four battle types are wired; move to `docs/plans/done/`.
+   - Deviation from plan: rival battles had no retries/potion mechanic at all
+     before this plan. Added one, gated behind New Experience mode only —
+     Classic-mode rival battles remain win/loss-only, unchanged.
+5. [x] **Docs.** README feature entry (agency section). Updated this file's status
+   now that all four battle types are wired; moving to `docs/plans/done/`.
 
 ## Validation
 
@@ -371,7 +376,7 @@ every x-attack in inventory forever, exactly as today.
 - Manual playtest, both modes:
   - Classic mode (setting off): every battle screen behaves exactly as before
     this plan — no prep panel, x-attack still passively always-on.
-  - New Balance mode (setting on): every battle opens with the prep panel;
+  - New Experience mode (setting on): every battle opens with the prep panel;
     picking a favorable-type lead visibly raises the Yes share more than a
     non-doubled advantage would; picking a bad-type lead visibly worsens odds
     more than today; x-attack is spent and gone after one use; a pre-committed

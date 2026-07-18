@@ -8,6 +8,10 @@
     "skipShinyRolls": "Omitir Tiradas de Shiny",
     "skipMegaEvolutionAnimation": "Omitir animacion de Mega Evolucion",
     "fastSpin": "Giro Rápido",
+    "newExperienceMode": {
+      "title": "Modo de Nueva Experiencia",
+      "description": "Añade decisiones previas a la batalla y mayores riesgos. Los cambios se aplican en tu próxima partida."
+    },
     "defaultGender": {
       "title": "Género del Personaje",
       "male": "Siempre Chico",
@@ -406,6 +410,13 @@
           "title": "Pokémon paradoja",
           "catch": "¿Capturar Pokémon paradoja?"
         },
+        "battlePrep": {
+          "title": "Elige tu líder",
+          "chooseLead": "Elige el Pokémon que liderará este combate",
+          "useXAttack": "Usar Ataque X",
+          "usePotion": "Usar una Poción",
+          "confirm": "Confirmar"
+        },
         "cave": {
           "explore": {
             "title": "En la cueva",
@@ -496,6 +507,7 @@
         "rival": {
           "against": "Combate contra",
           "go": "¡Vamos!",
+          "used": "Usó un(a)",
           "victory": "¿Victoria?",
           "yes": "Sí",
           "no": "No"
@@ -3001,10 +3013,16 @@
   },
   "v2_1_0": "Versión 2.1.0",
   "v2_2_0": "Versión 2.2.0",
+  "v3_0_0": "Versión 3.0.0",
   "whatsNew": {
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v3_0_0": {
+      "0": "⚔️ Nuevo ajuste opcional 'Modo de Nueva Experiencia': cada batalla ahora empieza con una fase de preparación — elige qué Pokémon lidera el combate (duplicando su ventaja de tipo) antes de ver las probabilidades.",
+      "1": "🎒 En el Modo de Nueva Experiencia puedes usar un Ataque X o una poción antes de que gire la ruleta, en lugar de solo reaccionar a una derrota — el Ataque X ahora es un impulso de un solo uso en vez de un bono pasivo permanente.",
+      "2": "🤺 Las batallas de rival ahora tienen un mecanismo de reintento/poción (como gimnasio/Alto Mando/Campeón) en el Modo de Nueva Experiencia. El modo clásico no se ve afectado — desactivado por defecto, actívalo desde Ajustes."
+    },
     "v2_2_0": {
       "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo.",
       "1": "⚖️ Probabilidades reequilibradas: capturar Pokémon domina las ruletas iniciales, las pociones son más escasas, el Team Rocket es una amenaza real, y las batallas se vuelven más difíciles conforme avanzas.",

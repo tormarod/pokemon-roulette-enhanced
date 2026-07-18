@@ -1,5 +1,8 @@
 <div class="roulette-header">
     <h1 class="title">{{ 'game.main.roulette.rival.victory' | translate }}</h1>
+    <p class="respin-reason">
+        {{ (retries > 0) ? (currentItem.text | translate) + " x" + retries : ""}}
+    </p>
     @if (currentRival?.types?.length) {
         <app-matchup-strip
             [opponentTypes]="currentRival.types"
@@ -10,11 +13,19 @@
             [disadvantageDelta]="matchupDisadvantageDelta" />
     }
 </div>
-<app-wheel
-    #wheel
-    [items]="victoryOdds"
-    (selectedItemEvent)="onItemSelected($event)">
-</app-wheel>
+@if (prepPhase) {
+    <app-battle-prep-panel
+        [team]="trainerTeam"
+        [opponentTypes]="currentRival?.types"
+        [items]="trainerItems"
+        (confirmed)="onPrepConfirmed($event)" />
+} @else {
+    <app-wheel
+        #wheel
+        [items]="victoryOdds"
+        (selectedItemEvent)="onItemSelected($event)">
+    </app-wheel>
+}
 <div class="roulette-action-row"></div>
 
 <ng-template #rivalPresentationModal let-modal>
@@ -31,5 +42,20 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline-primary" (click)="closeModal()">{{ 'game.main.roulette.rival.go' | translate }}</button>
+    </div>
+</ng-template>
+
+<ng-template #itemUsedModal let-modal>
+    <div class="modal-body">
+        <h1>{{ 'game.main.roulette.rival.used' | translate }} {{ currentItem.text | translate }}!</h1>
+        <div class="item-panel">
+            <img [src]="currentItem.sprite" height="128">
+            <div class="quotes">
+                <p>{{ currentItem.description | translate}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
     </div>
 </ng-template>

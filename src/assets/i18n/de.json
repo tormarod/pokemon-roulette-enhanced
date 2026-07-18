@@ -8,6 +8,10 @@
     "skipShinyRolls": "Shiny Roulette verstecken",
     "skipMegaEvolutionAnimation": "Mega-Entwicklungsanimation überspringen",
     "fastSpin": "Schnelles Drehen",
+    "newExperienceMode": {
+      "title": "Neuer Erfahrungsmodus",
+      "description": "Fügt Vorkampf-Entscheidungen und höhere Einsätze hinzu. Änderungen wirken sich erst auf deinen nächsten Durchlauf aus."
+    },
     "defaultGender": {
       "title": "Geschlecht des Charakters",
       "male": "Immer Junge",
@@ -406,6 +410,13 @@
           "title": "Paradox-Pokémon",
           "catch": "Paradox-Pokémon fangen?"
         },
+        "battlePrep": {
+          "title": "Wähle deinen Anführer",
+          "chooseLead": "Wähle das Pokémon, das diesen Kampf anführt",
+          "useXAttack": "X-Attacke einsetzen",
+          "usePotion": "Trank einsetzen",
+          "confirm": "Bestätigen"
+        },
         "cave": {
           "explore": {
             "title": "In der Höhle",
@@ -496,6 +507,7 @@
         "rival": {
           "against": "Kampf gegen",
           "go": "Los geht's!",
+          "used": "Benutzt",
           "victory": "Erfolg?",
           "yes": "Ja",
           "no": "Nein"
@@ -3001,10 +3013,16 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_0_0": {
+      "0": "⚔️ Neue optionale Einstellung 'Neuer Erfahrungsmodus': Jeder Kampf beginnt jetzt mit einer Vorbereitungsphase — wähle, welches Pokémon den Kampf anführt (verdoppelt dessen Typvorteil), bevor du die Chancen siehst.",
+      "1": "🎒 Im Neuen Erfahrungsmodus kannst du eine X-Attacke oder einen Trank vor dem Drehen einsetzen, statt nur auf eine Niederlage zu reagieren — X-Attacke ist jetzt ein einmaliger, verbrauchter Bonus statt eines passiven Dauerbonus.",
+      "2": "🤺 Rivalenkämpfe haben im Neuen Erfahrungsmodus jetzt ebenfalls einen Wiederholungs-/Trank-Mechanismus (wie Arena/Top Vier/Champ). Der klassische Modus bleibt unverändert — standardmäßig aus, optional in den Einstellungen aktivierbar."
+    },
     "v2_2_0": {
       "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",
       "1": "⚖️ Chancen neu ausbalanciert: Pokémon fangen dominiert die frühen Räder, Tränke sind seltener, Team Rocket ist eine echte Bedrohung, und Kämpfe werden mit fortschreitendem Spiel härter.",

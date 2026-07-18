@@ -8,6 +8,10 @@
     "skipShinyRolls": "Omettre les Roulettes Shiny",
     "skipMegaEvolutionAnimation": "Passer l'animation de Mega Evolution",
     "fastSpin": "Rotation Rapide",
+    "newExperienceMode": {
+      "title": "Mode Nouvelle Expérience",
+      "description": "Ajoute des choix avant combat et des enjeux plus élevés. Les changements prennent effet lors de votre prochaine partie."
+    },
     "defaultGender": {
       "title": "Genre du personnage",
       "male": "Toujours Garçon",
@@ -406,6 +410,13 @@
           "title": "Pokémon Paradoxe",
           "catch": "Attraper Pokémon Paradoxe?"
         },
+        "battlePrep": {
+          "title": "Choisissez votre leader",
+          "chooseLead": "Choisissez le Pokémon qui mènera ce combat",
+          "useXAttack": "Utiliser Attaque X",
+          "usePotion": "Utiliser une Potion",
+          "confirm": "Confirmer"
+        },
         "cave": {
           "explore": {
             "title": "Dans la cave",
@@ -496,6 +507,7 @@
         "rival": {
           "against": "Combat contre",
           "go": "C'est parti!",
+          "used": "A utilisé un(e)",
           "victory": "Victoire?",
           "yes": "Oui",
           "no": "Non"
@@ -3001,10 +3013,16 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_0_0": {
+      "0": "⚔️ Nouveau réglage optionnel 'Mode Nouvelle Expérience' : chaque combat commence désormais par une phase de préparation — choisissez quel Pokémon mène le combat (doublant son avantage de type) avant de voir les probabilités.",
+      "1": "🎒 En Mode Nouvelle Expérience, utilisez une Attaque X ou une potion avant que la roue ne tourne, au lieu de seulement réagir à une défaite — l'Attaque X est désormais un bonus à usage unique, consommé, plutôt qu'un bonus passif permanent.",
+      "2": "🤺 Les combats de rival ont désormais un mécanisme de relance/potion (comme arène/Conseil 4/Champion) en Mode Nouvelle Expérience. Le mode classique n'est pas affecté — désactivé par défaut, activable depuis les Paramètres."
+    },
     "v2_2_0": {
       "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct.",
       "1": "⚖️ Rééquilibrage des probabilités : capturer des Pokémon domine les premières roues, les potions sont plus rares, la Team Rocket est une vraie menace, et les combats deviennent plus difficiles à mesure que vous progressez.",

@@ -4,6 +4,7 @@ import { GameState } from '../game-state-service/game-state';
 import { GameStateService } from '../game-state-service/game-state.service';
 import { PendingTypeBiases, TrainerService, TypeBiasEntry } from '../trainer-service/trainer.service';
 import { GenerationService } from '../generation-service/generation.service';
+import { BattlePrepService, PendingBattlePrep } from '../battle-prep-service/battle-prep.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { Badge } from '../../interfaces/badge';
@@ -19,6 +20,8 @@ export interface SavedRun {
   gender: string;
   generationId: number;
   pendingTypeBiases: PendingTypeBiases;
+  newExperienceMode: boolean;
+  pendingBattlePrep: PendingBattlePrep | null;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -34,6 +37,7 @@ export class RunPersistenceService {
     private gameStateService: GameStateService,
     private trainerService: TrainerService,
     private generationService: GenerationService,
+    private battlePrepService: BattlePrepService,
   ) {
     // Restore BEFORE wiring the auto-save subscription below — otherwise that
     // subscription's own first (synchronous) emission of fresh/default state
@@ -52,7 +56,9 @@ export class RunPersistenceService {
       this.trainerService.getTrainer(),
       this.generationService.getGeneration(),
       this.trainerService.getPendingTypeBiasesObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases]) => {
+      this.gameStateService.newExperienceModeObserver,
+      this.battlePrepService.getPendingPrepObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -69,6 +75,8 @@ export class RunPersistenceService {
         gender: this.trainerService.gender,
         generationId: generation.id,
         pendingTypeBiases,
+        newExperienceMode,
+        pendingBattlePrep,
       });
     });
   }
@@ -106,6 +114,8 @@ export class RunPersistenceService {
     // today's array shape — normalize both into the current array format.
     this.trainerService.restorePendingTypeBiases(this.normalizePendingTypeBiases(run.pendingTypeBiases));
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
+    this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
+    this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
@@ -149,7 +159,9 @@ export class RunPersistenceService {
       Array.isArray(run.trainerBadges) &&
       typeof run.gender === 'string' &&
       typeof run.generationId === 'number' &&
-      (run.pendingTypeBiases === undefined || typeof run.pendingTypeBiases === 'object')
+      (run.pendingTypeBiases === undefined || typeof run.pendingTypeBiases === 'object') &&
+      (run.newExperienceMode === undefined || typeof run.newExperienceMode === 'boolean') &&
+      (run.pendingBattlePrep === undefined || run.pendingBattlePrep === null || typeof run.pendingBattlePrep === 'object')
     );
   }
 }

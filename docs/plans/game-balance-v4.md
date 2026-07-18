@@ -8,7 +8,7 @@ Owner: tormarod
 Last updated: 2026-07-18
 Rationale + roadmap: `docs/research/game-balance-research.md` (§ "V4 — Depth &
 stakes"). Depends on V3 (`docs/plans/game-balance-v3.md`) — reuses its
-`newBalanceMode` flag and its lead-pick (the lead is "the mon at risk" here).
+`newExperienceMode` flag and its lead-pick (the lead is "the mon at risk" here).
 
 ## Decisions locked in (from user Q&A, 2026-07-18)
 
@@ -23,8 +23,8 @@ stakes"). Depends on V3 (`docs/plans/game-balance-v3.md`) — reuses its
    would let a bad run of retry-spending silently leave the player unable to
    revive right after, which reads as an unintended trap rather than a real
    choice.
-4. **Reuses V3's `newBalanceMode` flag** — no second toggle. Abilities and the
-   faint mechanic only exist when the player has opted into New Balance.
+4. **Reuses V3's `newExperienceMode` flag** — no second toggle. Abilities and the
+   faint mechanic only exist when the player has opted into New Experience.
 
 ## Which battles get the faint mechanic (derived, not asked — see below)
 
@@ -86,7 +86,7 @@ instead; nothing below is final:**
   "Precision"/"Unbreakable" above are lead-specific by design, the rest apply
   per-member same as the base matchup math).
 - Hook point: `BaseBattleRouletteComponent.buildVictoryOdds` gets a third New
-  Balance-only addend, applied only when `gameStateService.isNewBalanceMode`
+  Experience-only addend, applied only when `gameStateService.isNewExperienceMode`
   (Classic mode: abilities don't exist, full stop — no species has an ability
   in Classic mode regardless of what's in `abilities-data.ts`).
 - Display: extend `MatchupStripComponent` (or add a small adjacent badge) to
@@ -131,7 +131,7 @@ confirmed:
 1. `abilities-data.ts` + `ability.service.ts` (pure logic, no UI).
 2. Unit tests per effect: one team-member fixture per row of the table,
    asserting the exact numeric delta the service produces.
-3. Wire into `buildVictoryOdds` (New Balance only).
+3. Wire into `buildVictoryOdds` (New Experience only).
 4. UI badge in the battle screens.
 
 # Part B — Faint / revive mechanic
@@ -147,7 +147,7 @@ File: `src/app/main-game/roulette-container/roulette-container.component.ts`
 
 `rivalBattleResult(false)` (line 750) is the concrete hook for now (see
 "Which battles get the faint mechanic" above). Only when
-`gameStateService.isNewBalanceMode`:
+`gameStateService.isNewExperienceMode`:
 
 1. Read the committed lead from `battlePrepService.getPendingPrep()`
    (`leadIndex`, resolved during V3's prep step for this same battle — read it
@@ -170,7 +170,7 @@ File: `src/app/main-game/roulette-container/roulette-container.component.ts`
    elsewhere (check `TrainerService`/`GameStateService` for an existing
    empty-team guard before assuming one needs to be added; V1/V2 didn't touch
    this edge case so it may not exist yet — if it doesn't, this is the moment
-   to add a minimal one, scoped to New Balance mode only).
+   to add a minimal one, scoped to New Experience mode only).
 
 ## B3. Revive UI — `StoragePcComponent`
 
@@ -207,14 +207,14 @@ tightening there).
    the full 18) and the revive-cost approach ((a) or (b)).
 2. **Abilities (Part A).** `abilities-data.ts` + `ability.service.ts` + unit
    tests per effect + `buildVictoryOdds` wiring + UI badge. *Checkpoint: each
-   curated species' effect is visible and numerically correct in New Balance
+   curated species' effect is visible and numerically correct in New Experience
    mode; zero effect in Classic mode.*
 3. **Revive item(s) (Open item 2's file list).** Add to items-data, sprites,
    i18n (6 locales), `find-item` roster weight. *Checkpoint: item appears,
    correct rarity, correct description.*
 4. **Faint mechanic (Part B).** `PokemonItem.fainted`, `rivalBattleResult`
    wiring, `StoragePcComponent` revive UI + drag-drop guard, empty-team edge
-   case. *Checkpoint: a rival loss in New Balance mode faints the committed
+   case. *Checkpoint: a rival loss in New Experience mode faints the committed
    lead, frees the team slot, shows the fainted mon greyed-out in the PC, and
    Revive brings it back; a Classic-mode rival loss is untouched (still just
    `doNothing()`).*
@@ -228,12 +228,12 @@ tightening there).
 - `npm run test:local` green throughout.
 - Persistence test: faint a mon, reload mid-storage-view, confirm it's still
   greyed-out/un-revived (no re-roll of the faint via reload).
-- Manual playtest: run a rival battle to a loss in New Balance mode with a
+- Manual playtest: run a rival battle to a loss in New Experience mode with a
   known lead; confirm exactly that mon lands in the PC fainted; buy/find a
   Revive and confirm it returns to a normal, usable stored Pokémon.
 - Re-run V1/V2's manual playtest checklist in **Classic mode** to confirm zero
   regression — abilities, faint, and Revives must not exist at all when
-  `newBalanceMode` is off.
+  `newExperienceMode` is off.
 
 ## Explicitly out of scope (this plan)
 

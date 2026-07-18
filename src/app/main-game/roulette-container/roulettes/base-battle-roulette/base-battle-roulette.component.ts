@@ -77,7 +77,17 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     return getTypeIconUrl(type);
   }
 
+  /**
+   * Classic mode: passively scans every x-attack in inventory and applies it,
+   * every battle, without ever consuming it. Under New Experience, x-attack
+   * becomes an explicit, consumed, pre-spin choice instead — its bonus comes
+   * from the committed prep's xAttackBonus (see buildVictoryOdds), so this
+   * returns 0 there to avoid double-counting.
+   */
   protected plusModifiers(): number {
+    if (this.gameStateService.isNewExperienceMode) {
+      return 0;
+    }
     let power = 0;
     const xAttacks = this.trainerItems.filter(item => item.name === 'x-attack');
     xAttacks.forEach(() => {
@@ -99,7 +109,9 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     opponentTypes: PokemonType[] | undefined,
     textPrefix: string,
     baseNoCount: number,
-    currentRound: number
+    currentRound: number,
+    leadIndex?: number,
+    xAttackBonus?: number
   ): WheelItem[] {
     const yesText = `${textPrefix}.yes`;
     const noText = `${textPrefix}.no`;
@@ -108,7 +120,15 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     const { yesPower, noBonus, advantageDelta, disadvantageDelta } =
       this.typeMatchupService.calcTeamMatchupTotals(this.trainerTeam, types);
 
-    const effectivePower = yesPower + this.plusModifiers();
+    let leadAdvantageDelta = 0;
+    let leadDisadvantageDelta = 0;
+    if (leadIndex != null && types.length && this.trainerTeam[leadIndex]) {
+      const leadDelta = this.typeMatchupService.getMemberSignedDelta(this.trainerTeam[leadIndex], types);
+      if (leadDelta > 0) leadAdvantageDelta = leadDelta;
+      else if (leadDelta < 0) leadDisadvantageDelta = -leadDelta;
+    }
+
+    const effectivePower = yesPower + leadAdvantageDelta + (xAttackBonus ?? 0) + this.plusModifiers();
     const yesOdds: WheelItem[] = [];
     for (let i = 0; i < Math.round(effectivePower) + 1; i++) {
       yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
@@ -119,8 +139,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       this.matchupSuperEffectiveTypes = superEffectiveTypes;
       this.matchupResistTypes = resistTypes;
       this.matchupDisadvantageTypes = weakTypes;
-      this.matchupAdvantageDelta = advantageDelta;
-      this.matchupDisadvantageDelta = disadvantageDelta;
+      this.matchupAdvantageDelta = advantageDelta + leadAdvantageDelta;
+      this.matchupDisadvantageDelta = disadvantageDelta + leadDisadvantageDelta;
     } else {
       this.matchupSuperEffectiveTypes = [];
       this.matchupResistTypes = [];
@@ -131,7 +151,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const noOdds: WheelItem[] = [];
     const roundThreat = Math.ceil(currentRound * BaseBattleRouletteComponent.ROUND_THREAT_MULT);
-    for (let i = 0; i < baseNoCount + roundThreat + noBonus; i++) {
+    for (let i = 0; i < baseNoCount + roundThreat + noBonus + leadDisadvantageDelta; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

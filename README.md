@@ -11,6 +11,7 @@ This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm
 - Settings gained a volume slider (independent of the mute toggle), a "Fast Spin" option that shortens the wheel's reveal animation to under half a second without changing the odds or outcome, and a restart control, so you don't have to leave the Settings screen to start over.
 - You can now see and act on what's coming before you commit to a roster — see [Opponent agency](#opponent-agency) below.
 - A new Statistics page tracks activity across runs — victories, streaks, most-owned and signature Pokémon, your "nemesis" opponent, and more — persisted separately from the current run so it survives resets, with an explicit reset control of its own. It also tracks luck (are you landing Yes more or less than the odds implied?), a browsable run-history log with recent form and a win-rate trend chart, achievements with unlock toasts, a per-generation breakdown (runs/wins/streaks/records plus most-owned Pokémon, favorite types, and nemesis, filterable by generation), and lets you export/import your whole profile (stats, achievements, and Pokédex together) as a single JSON file or share a stats card image, with per-section resets alongside the full reset.
+- A new opt-in **New Experience Mode** setting adds a pre-battle prep step to every battle (gym, rival, Elite Four, Champion): pick which team member leads the fight and optionally spend an X Attack or a potion before you see the odds — see [New Experience Mode](#new-experience-mode) below. Off by default; existing players see no change in behavior unless they opt in.
 
 See the in-app [Credits](src/app/credits) page for full attribution, and the [Coffee](src/app/coffee) page if you'd like to support either the original creator or this fork.
 
@@ -25,6 +26,18 @@ There's no move/ability system — a Pokémon only has its one or two static typ
 The net score is converted to a ticket delta by multiplying by a per-Pokémon unit, `ceil(power / 4)` — never zero, so even a power-1 Pokémon's matchup always matters, and it depends only on that one Pokémon's own power, never on team size or which other Pokémon are on the roster. Because both offense and defense count, a type pair that's favorable both ways (e.g. Water hits Fire super-effectively *and* resists Fire's counter-hit) scores higher than one that's only favorable on one side — and conversely, an unfavorable pair that cuts both ways (e.g. Fire beats Grass and resists Grass's counter) is a harsher penalty than a plain one-sided weakness. A purely defensive shortcut like immunity no longer unconditionally wins, either — it can be offset by a genuinely bad matchup against a different one of the opponent's types.
 
 The full calculation lives in [`TypeMatchupService`](src/app/services/type-matchup-service/type-matchup.service.ts), shared by all four battle types via [`BaseBattleRouletteComponent.buildVictoryOdds()`](src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts).
+
+## New Experience Mode
+
+New Experience Mode is an opt-in setting (Settings screen) that adds a pre-battle prep step and higher stakes to every battle — gym, rival, Elite Four, and Champion alike. It's off by default (Classic mode); toggling it only takes effect on your *next* run, and whichever value was in effect when a run started stays locked in for that run's whole duration, so you can't dodge a bad matchup — or get surprised by a mechanic you didn't opt into — by flipping the setting mid-run.
+
+With it on, every battle opens with a prep panel instead of going straight to the odds wheel:
+- **Choose your lead**: pick one team member to lead the fight. That Pokémon's own type-matchup delta (see [Battle balancing](#battle-balancing) above) is applied a *second* time on top of the whole team's total — a favorable lead swings the Yes pool further, an unfavorable one adds more to the No pool. Every team member's live delta is shown before you pick, so it's an informed read of the matchup, not a blind choice — and picking is mandatory every battle, keeping that read-the-opponent moment in front of you each time.
+- **Pre-spin items**: optionally spend an X Attack or a potion tier *before* the wheel spins, rather than only reactively after a loss. X Attack becomes a one-time, consumed power boost (instead of Classic mode's quirk of every X Attack in your bag passively applying every battle, forever, without being used up). A pre-committed potion banks its usual retry immediately.
+
+Both the lead pick and any item use are a single editable draft — change your mind freely — until you hit Confirm, which commits everything atomically. From that instant it's persisted the same way a wheel spin's outcome is: a reload mid-prep re-shows the same draft state, and a reload after Confirm skips straight back to the already-computed odds, never a fresh roll.
+
+Rival battles gained a retry/potion mechanic (matching gym/Elite Four/Champion, which already had one) as part of New Experience Mode specifically — Classic-mode rival battles are unaffected and stay win/loss-only, exactly as before.
 
 ## Opponent agency
 

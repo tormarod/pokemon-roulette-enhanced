@@ -8,6 +8,10 @@
     "skipShinyRolls": "Ommitir roletas de Shiny",
     "skipMegaEvolutionAnimation": "Pular animacao de Mega Evolucao",
     "fastSpin": "Giro Rápido",
+    "newExperienceMode": {
+      "title": "Modo Nova Experiência",
+      "description": "Adiciona escolhas pré-batalha e riscos maiores. As mudanças terão efeito na próxima partida."
+    },
     "defaultGender": {
       "title": "Gênero do Personagem",
       "male": "Sempre Garoto",
@@ -406,6 +410,13 @@
           "title": "Pokémon Paradoxo",
           "catch": "Capturar Pokémon Paradoxo?"
         },
+        "battlePrep": {
+          "title": "Escolha seu líder",
+          "chooseLead": "Escolha o Pokémon que liderará esta batalha",
+          "useXAttack": "Usar Ataque X",
+          "usePotion": "Usar uma Poção",
+          "confirm": "Confirmar"
+        },
         "cave": {
           "explore": {
             "title": "Na caverna",
@@ -496,6 +507,7 @@
         "rival": {
           "against": "Batalha contra",
           "go": "Vamos lá!",
+          "used": "Usou ",
           "victory": "Vitória?",
           "yes": "Sim",
           "no": "Não"
@@ -3001,10 +3013,16 @@
   },
   "v2_1_0": "Versão 2.1.0",
   "v2_2_0": "Versão 2.2.0",
+  "v3_0_0": "Versão 3.0.0",
   "whatsNew": {
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v3_0_0": {
+      "0": "⚔️ Nova configuração opcional 'Modo Nova Experiência': cada batalha agora começa com uma etapa de preparação — escolha qual Pokémon lidera a luta (dobrando sua vantagem de tipo) antes de ver as chances.",
+      "1": "🎒 No Modo Nova Experiência, use um Ataque X ou uma poção antes da roleta girar, em vez de reagir apenas a uma derrota — o Ataque X agora é um bônus de uso único e consumido em vez de um bônus passivo permanente.",
+      "2": "🤺 As batalhas contra o rival agora têm um mecanismo de nova tentativa/poção (como ginásio/Elite 4/Campeão) no Modo Nova Experiência. O modo clássico não é afetado — desativado por padrão, ative nas Configurações."
+    },
     "v2_2_0": {
       "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo.",
       "1": "⚖️ Chances reequilibradas: capturar Pokémon domina as rodas iniciais, poções são mais raras, a Team Rocket é uma ameaça real, e as batalhas ficam mais difíceis conforme você avança.",

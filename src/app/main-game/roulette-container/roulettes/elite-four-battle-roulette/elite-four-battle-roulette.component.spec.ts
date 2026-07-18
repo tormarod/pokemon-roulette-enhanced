@@ -12,6 +12,7 @@ import { TrainerService } from '../../../../services/trainer-service/trainer.ser
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 
 describe('EliteFourBattleRouletteComponent', () => {
   let component: EliteFourBattleRouletteComponent;
@@ -19,6 +20,7 @@ describe('EliteFourBattleRouletteComponent', () => {
   let trainerService: TrainerService;
   let modalQueueService: ModalQueueService;
   let gameStateService: GameStateService;
+  let battlePrepService: BattlePrepService;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 4,
@@ -56,6 +58,7 @@ describe('EliteFourBattleRouletteComponent', () => {
     trainerService = TestBed.inject(TrainerService);
     modalQueueService = TestBed.inject(ModalQueueService);
     gameStateService = TestBed.inject(GameStateService);
+    battlePrepService = TestBed.inject(BattlePrepService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
@@ -160,5 +163,98 @@ describe('EliteFourBattleRouletteComponent', () => {
 
     gameStateService.setNextState('elite-four-battle');
     gameStateService.finishCurrentState();
+  });
+
+  // ── New Experience mode: prep phase wiring ──────────────────────────────────
+
+  describe('New Experience mode', () => {
+    beforeEach(() => {
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      gameStateService.resetGameState(true);
+      trainerService.resetTeam();
+    });
+
+    it('should show the prep panel (not skip to the wheel) on entering a fresh elite-four battle', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 3 }));
+      component.currentRound = 0;
+
+      gameStateService.setNextState('elite-four-battle');
+      gameStateService.finishCurrentState();
+
+      expect(component.prepPhase).toBeTrue();
+    });
+
+    it('should double the chosen lead\'s delta after confirming the prep', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // SE + resists fire, netScore=2, delta=2
+      component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+
+      expect(component.prepPhase).toBeFalse();
+      expect(component.matchupAdvantageDelta).toBe(4);
+    });
+
+    it('should consume the x-attack and add its bonus to yes odds after confirming', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 4 }));
+      (component as any).trainerItems = [
+        { name: 'x-attack', text: 'items.x-attack.name', fillStyle: 'red', weight: 1, description: '', sprite: '' }
+      ];
+      component.currentElite = { name: 'Lorelei', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true, potionUsed: null });
+
+      const odds: WheelItem[] = (component as any).victoryOdds;
+      // base(1) + power(4) + xAttackBonus(meanPower=4) = 9
+      expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(9);
+    });
+
+    it('should bank a retry when a potion is chosen during prep', () => {
+      (component as any).trainerItems = [HYPER_POTION_ITEM];
+      component.currentElite = { name: 'Lorelei', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: 'hyper-potion' });
+
+      expect((component as any).retries).toBe(3);
+      expect((component as any).trainerItems.length).toBe(0);
+    });
+
+    it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      component.currentRound = 0;
+
+      gameStateService.setNextState('elite-four-battle');
+      gameStateService.finishCurrentState();
+
+      expect(component.prepPhase).toBeFalse();
+    });
+
+    it('should clear the prep once the battle resolves (win)', () => {
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(battlePrepService.getPendingPrep()).toBeNull();
+    });
+
+    it('should clear the prep once the battle resolves (final loss, no potions left)', () => {
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).trainerItems = [];
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      (component as any).retries = 1;
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(battlePrepService.getPendingPrep()).toBeNull();
+    });
   });
 });

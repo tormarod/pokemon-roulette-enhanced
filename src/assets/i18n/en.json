@@ -8,6 +8,10 @@
     "skipShinyRolls": "Hide Shiny Rolls",
     "skipMegaEvolutionAnimation": "Skip Mega Evolution Animation",
     "fastSpin": "Fast Spin",
+    "newExperienceMode": {
+      "title": "New Experience Mode",
+      "description": "Adds pre-battle choices and higher stakes. Changes take effect on your next run."
+    },
     "defaultGender": {
       "title": "Character Gender",
       "male": "Always Boy",
@@ -406,6 +410,13 @@
           "title": "Paradox Pokémon",
           "catch": "Catch Paradox Pokémon?"
         },
+        "battlePrep": {
+          "title": "Choose your lead",
+          "chooseLead": "Pick the Pokémon that will lead this battle",
+          "useXAttack": "Use X Attack",
+          "usePotion": "Use a Potion",
+          "confirm": "Confirm"
+        },
         "cave": {
           "explore": {
             "title": "In the cave",
@@ -496,6 +507,7 @@
         "rival": {
           "against": "Battle against",
           "go": "Let's Go!",
+          "used": "Used a",
           "victory": "Victory?",
           "yes": "Yes",
           "no": "No"
@@ -3001,10 +3013,16 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v3_0_0": {
+      "0": "⚔️ New opt-in 'New Experience Mode' setting: every battle now opens with a prep step — pick which Pokémon leads the fight (doubling its type-matchup swing) before you see the odds.",
+      "1": "🎒 In New Experience Mode, spend an X Attack or a potion before the wheel spins instead of only reacting to a loss — X Attack is now a one-time, consumed boost instead of a passive always-on bonus.",
+      "2": "🤺 Rival battles gained a retry/potion mechanic (matching gym/Elite Four/Champion) in New Experience Mode. Classic mode is entirely unaffected — off by default, opt in from Settings."
+    },
     "v2_2_0": {
       "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live.",
       "1": "⚖️ Rebalanced the odds: catching Pokémon dominates the early wheels, potions are scarcer, Team Rocket is a real threat, and battles get tougher the further you go.",

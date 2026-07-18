@@ -13,8 +13,16 @@
             [disadvantageDelta]="matchupDisadvantageDelta" />
     }
 </div>
-<app-wheel #wheel [items]="victoryOdds" (selectedItemEvent)="onItemSelected($event)">
-</app-wheel>
+@if (prepPhase) {
+    <app-battle-prep-panel
+        [team]="trainerTeam"
+        [opponentTypes]="currentLeader?.types"
+        [items]="trainerItems"
+        (confirmed)="onPrepConfirmed($event)" />
+} @else {
+    <app-wheel #wheel [items]="victoryOdds" (selectedItemEvent)="onItemSelected($event)">
+    </app-wheel>
+}
 <div class="roulette-action-row"></div>
 
 <ng-template #gymLeaderPresentationModal let-modal>

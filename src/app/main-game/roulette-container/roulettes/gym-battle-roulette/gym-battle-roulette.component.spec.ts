@@ -12,6 +12,7 @@ import { TrainerService } from '../../../../services/trainer-service/trainer.ser
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 
 describe('GymBattleRouletteComponent', () => {
   let component: GymBattleRouletteComponent;
@@ -20,6 +21,7 @@ describe('GymBattleRouletteComponent', () => {
   let generationService: GenerationService;
   let modalQueueService: ModalQueueService;
   let gameStateService: GameStateService;
+  let battlePrepService: BattlePrepService;
 
   /** Pre-set sprite prevents loadPokemonSpriteIfMissing from calling HTTP. */
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
@@ -59,6 +61,7 @@ describe('GymBattleRouletteComponent', () => {
     generationService = TestBed.inject(GenerationService);
     modalQueueService = TestBed.inject(ModalQueueService);
     gameStateService = TestBed.inject(GameStateService);
+    battlePrepService = TestBed.inject(BattlePrepService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
@@ -256,5 +259,99 @@ describe('GymBattleRouletteComponent', () => {
     // Trigger onGameStateChange('gym-battle') → getCurrentLeader() → fromLeaderChange.emit()
     gameStateService.setNextState('gym-battle');
     gameStateService.finishCurrentState();
+  });
+
+  // ── New Experience mode: prep phase wiring ──────────────────────────────────
+
+  describe('New Experience mode', () => {
+    beforeEach(() => {
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      gameStateService.resetGameState(true);
+      trainerService.resetTeam();
+    });
+
+    it('should show the prep panel (not skip to the wheel) on entering a fresh gym battle', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 3 }));
+      component.currentRound = 0;
+
+      gameStateService.setNextState('gym-battle');
+      gameStateService.finishCurrentState();
+
+      expect(component.prepPhase).toBeTrue();
+    });
+
+    it('should double the chosen lead\'s delta after confirming the prep', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // SE + resists fire, netScore=2, delta=2
+      component.currentLeader = { name: 'Brock', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+
+      expect(component.prepPhase).toBeFalse();
+      // Without lead doubling this would be matchupAdvantageDelta=2; with lead doubling it's 4.
+      expect(component.matchupAdvantageDelta).toBe(4);
+    });
+
+    it('should consume the x-attack and add its bonus to yes odds after confirming', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 4 }));
+      (component as any).trainerItems = [
+        { name: 'x-attack', text: 'items.x-attack.name', fillStyle: 'red', weight: 1, description: '', sprite: '' }
+      ];
+      component.currentLeader = { name: 'Brock', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true, potionUsed: null });
+
+      const odds: WheelItem[] = (component as any).victoryOdds;
+      // base(1) + power(4) + xAttackBonus(meanPower=4) = 9
+      expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(9);
+    });
+
+    it('should bank a retry when a potion is chosen during prep', () => {
+      (component as any).trainerItems = [POTION_ITEM];
+      component.currentLeader = { name: 'Brock', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 0;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: 'potion' });
+
+      expect((component as any).retries).toBe(1);
+      expect((component as any).trainerItems.length).toBe(0);
+    });
+
+    it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
+      battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      component.currentRound = 0;
+
+      gameStateService.setNextState('gym-battle');
+      gameStateService.finishCurrentState();
+
+      expect(component.prepPhase).toBeFalse();
+    });
+
+    it('should clear the prep once the battle resolves (win)', () => {
+      battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.gym.yes', fillStyle: 'green', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(battlePrepService.getPendingPrep()).toBeNull();
+    });
+
+    it('should clear the prep once the battle resolves (final loss, no potions left)', () => {
+      battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).trainerItems = [];
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.gym.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      (component as any).retries = 1;
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(battlePrepService.getPendingPrep()).toBeNull();
+    });
   });
 });

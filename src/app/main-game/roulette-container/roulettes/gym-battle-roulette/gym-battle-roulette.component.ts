@@ -14,6 +14,8 @@ import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle-roulette.component';
 import { gymLeadersByGeneration } from './gym-leaders-by-generation';
 import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
+import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
+import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 
 @Component({
   selector: 'app-gym-battle-roulette',
@@ -21,13 +23,16 @@ import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.comp
     CommonModule,
     WheelComponent,
     TranslatePipe,
-    MatchupStripComponent
+    MatchupStripComponent,
+    BattlePrepPanelComponent
   ],
   templateUrl: './gym-battle-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gym-battle-roulette.component.css'
 })
 export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
+
+  private static readonly BATTLE_KEY = 'gym-battle';
 
   gymLeadersByGeneration = gymLeadersByGeneration;
 
@@ -40,6 +45,7 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
   @Output() fromLeaderChange = new EventEmitter<number>();
 
   currentLeader!: GymLeader;
+  prepPhase = true;
 
   constructor(
     modalService: NgbModal,
@@ -49,7 +55,8 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
     trainerService: TrainerService,
     translate: TranslateService,
     typeMatchupService: TypeMatchupService,
-    statsService: StatsService
+    statsService: StatsService,
+    private battlePrepService: BattlePrepService
   ) {
     super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
   }
@@ -58,6 +65,7 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
     this.recordSpin(index);
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.gym.yes') {
+      this.battlePrepService.clearPrep();
       this.battleResultEvent.emit(true);
     } else {
       if (this.retries <= 0) {
@@ -65,23 +73,60 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
         if (potion) {
           this.usePotion(potion, () => this.modalQueueService.open(this.itemUsedModal, { centered: true, size: 'md' }));
         } else {
+          this.battlePrepService.clearPrep();
           this.battleResultEvent.emit(false);
         }
       }
     }
   }
 
+  onPrepConfirmed(prep: BattlePrepConfirmed): void {
+    this.battlePrepService.commitPrep({ battleKey: GymBattleRouletteComponent.BATTLE_KEY, ...prep });
+    if (prep.potionUsed) {
+      const potion = this.trainerItems.find(item => item.name === prep.potionUsed);
+      if (potion) {
+        this.usePotion(potion, () => this.modalQueueService.open(this.itemUsedModal, { centered: true, size: 'md' }));
+      }
+    }
+    this.prepPhase = false;
+    this.calcVictoryOdds();
+  }
+
   protected override async onGameStateChange(state: string): Promise<void> {
     if (state === 'gym-battle') {
       this.getCurrentLeader();
+
+      if (!this.gameStateService.isNewExperienceMode) {
+        this.prepPhase = false;
+        this.calcVictoryOdds();
+        this.modalQueueService.open(this.gymLeaderPresentationModal, { centered: true, size: 'lg' });
+        return;
+      }
+
+      const pendingPrep = this.battlePrepService.getPendingPrep();
+      if (pendingPrep && pendingPrep.battleKey === GymBattleRouletteComponent.BATTLE_KEY) {
+        this.prepPhase = false;
+        this.calcVictoryOdds();
+        this.modalQueueService.open(this.gymLeaderPresentationModal, { centered: true, size: 'lg' });
+        return;
+      }
+
+      this.prepPhase = true;
       this.calcVictoryOdds();
       this.modalQueueService.open(this.gymLeaderPresentationModal, { centered: true, size: 'lg' });
     }
   }
 
   protected override calcVictoryOdds(): void {
+    const prep = this.gameStateService.isNewExperienceMode ? this.battlePrepService.getPendingPrep() : null;
+    const xAttackBonus = prep?.xAttackUsed
+      ? this.trainerTeam.reduce((sum, p) => sum + p.power, 0) / this.trainerTeam.length
+      : 0;
     // Gym battles start with 1 base noOdds
-    this.victoryOdds = this.buildVictoryOdds(this.currentLeader?.types, 'game.main.roulette.gym', 1, this.currentRound);
+    this.victoryOdds = this.buildVictoryOdds(
+      this.currentLeader?.types, 'game.main.roulette.gym', 1, this.currentRound,
+      prep?.leadIndex, xAttackBonus
+    );
   }
 
   private getCurrentLeader(): void {

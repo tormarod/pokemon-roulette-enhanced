@@ -68,4 +68,33 @@ describe('GameStateService', () => {
     expect(emitted[1]).toBe('select-from-pokemon-list');
     expect(emitted[2]).toBe('evolve-pokemon');
   });
+
+  // ── newExperienceMode snapshot ─────────────────────────────────────────────
+
+  it('should default isNewExperienceMode to false', () => {
+    expect(service.isNewExperienceMode).toBeFalse();
+  });
+
+  it('should snapshot newExperienceMode when resetGameState is called with true', () => {
+    service.resetGameState(true);
+
+    expect(service.isNewExperienceMode).toBeTrue();
+  });
+
+  it('should reset newExperienceMode to false when resetGameState is called with no argument', () => {
+    service.resetGameState(true);
+    service.resetGameState();
+
+    expect(service.isNewExperienceMode).toBeFalse();
+  });
+
+  it('should restore newExperienceMode without touching the stack/round', () => {
+    service.advanceRound();
+    const stackBefore = service.getStateStack();
+
+    service.restoreNewExperienceMode(true);
+
+    expect(service.isNewExperienceMode).toBeTrue();
+    expect(service.getStateStack()).toEqual(stackBefore);
+  });
 });

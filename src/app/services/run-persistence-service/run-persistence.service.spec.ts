@@ -6,6 +6,7 @@ import { RunPersistenceService, SavedRun } from './run-persistence.service';
 import { TrainerService } from '../trainer-service/trainer.service';
 import { GameStateService } from '../game-state-service/game-state.service';
 import { GenerationService } from '../generation-service/generation.service';
+import { BattlePrepService } from '../battle-prep-service/battle-prep.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 
 describe('RunPersistenceService', () => {
@@ -71,6 +72,121 @@ describe('RunPersistenceService', () => {
     expect(stored.trainerItems.some(i => i.name === 'super-potion')).toBeTrue();
   });
 
+  it('should save the newExperienceMode snapshot taken at run start', () => {
+    gameStateService.resetGameState(true);
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.newExperienceMode).toBeTrue();
+  });
+
+  it('should restore newExperienceMode from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredGameStateService = TestBed.inject(GameStateService);
+    expect(restoredGameStateService.isNewExperienceMode).toBeTrue();
+  });
+
+  it('should default newExperienceMode to false when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredGameStateService = TestBed.inject(GameStateService);
+    expect(restoredGameStateService.isNewExperienceMode).toBeFalse();
+  });
+
+  it('should save a committed battle prep to localStorage', () => {
+    const battlePrepService = TestBed.inject(BattlePrepService);
+    battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.pendingBattlePrep).toEqual({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+  });
+
+  it('should restore a pending battle prep from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion' },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredBattlePrepService = TestBed.inject(BattlePrepService);
+    expect(restoredBattlePrepService.getPendingPrep()).toEqual({
+      battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion'
+    });
+  });
+
+  it('should default pendingBattlePrep to null when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredBattlePrepService = TestBed.inject(BattlePrepService);
+    expect(restoredBattlePrepService.getPendingPrep()).toBeNull();
+  });
+
   // ── Terminal states clear the save instead of persisting it ────────────
 
   it('should clear the saved run once state reaches game-over', () => {
@@ -107,6 +223,8 @@ describe('RunPersistenceService', () => {
       gender: 'female',
       generationId: 3,
       pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [] },
+      newExperienceMode: false,
+      pendingBattlePrep: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -146,6 +264,8 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [{ type: 'grass', mode: 'hard' }] },
+      newExperienceMode: false,
+      pendingBattlePrep: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
