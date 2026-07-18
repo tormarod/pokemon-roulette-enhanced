@@ -3089,11 +3089,17 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_1_0": "Version 3.1.0",
   "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_1_0": {
+      "0": "🧬 Abilities are now something you build: no longer locked to a species, a roster of 30 is looted as ability capsules and assigned to any Pokémon from the PC (New Experience Mode).",
+      "1": "🎡 A new 'Find an Ability Capsule' adventure reward spins up one specific capsule — odds-shifters like Blaze and Intimidate, team-synergy and comeback effects, or Sturdy's once-per-battle faint save.",
+      "2": "🔁 Assign and re-assign freely: applying a capsule overwrites a Pokémon's ability and consumes it, so who gets what stays a real choice. Classic mode is unaffected."
+    },
     "v3_0_0": {
       "0": "⚔️ Nouveau réglage optionnel 'Mode Nouvelle Expérience' : chaque combat commence désormais par une phase de préparation — choisissez quel Pokémon mène le combat (doublant son avantage de type) avant de voir les probabilités.",
       "1": "🎒 En Mode Nouvelle Expérience, utilisez une Attaque X ou une potion avant que la roue ne tourne, au lieu de seulement réagir à une défaite — l'Attaque X est désormais un bonus à usage unique, consommé, plutôt qu'un bonus passif permanent.",
