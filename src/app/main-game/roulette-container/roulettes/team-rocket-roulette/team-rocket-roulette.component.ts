@@ -37,14 +37,14 @@ export class TeamRocketRouletteComponent implements OnInit {
 
   ngOnInit(): void {
     this.outcomes = [
-      { text: 'game.main.roulette.teamrocket.outcomes.steal', fillStyle: 'crimson', weight: 3 },
-      { text: 'game.main.roulette.teamrocket.outcomes.runAway', fillStyle: 'darkorange', weight: 2 },
+      { text: 'game.main.roulette.teamrocket.outcomes.steal', fillStyle: 'crimson', weight: 2 },
+      { text: 'game.main.roulette.teamrocket.outcomes.runAway', fillStyle: 'darkorange', weight: 1 },
     ];
 
     if (this.stolenPokemon) {
       this.outcomes.push({ text: 'game.main.roulette.teamrocket.outcomes.defeat', fillStyle: 'green', weight: 4 });
     } else {
-      this.outcomes.push({ text: 'game.main.roulette.teamrocket.outcomes.defeat', fillStyle: 'green', weight: 1 });
+      this.outcomes.push({ text: 'game.main.roulette.teamrocket.outcomes.defeat', fillStyle: 'green', weight: 2 });
     }
 
     this.modalService.open(this.teamRockerModal, {
