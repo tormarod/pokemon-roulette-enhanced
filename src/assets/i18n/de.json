@@ -3096,9 +3096,9 @@
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
     "v3_1_0": {
-      "0": "🧬 Abilities are now something you build: no longer locked to a species, a roster of 30 is looted as ability capsules and assigned to any Pokémon from the PC (New Experience Mode).",
-      "1": "🎡 A new 'Find an Ability Capsule' adventure reward spins up one specific capsule — odds-shifters like Blaze and Intimidate, team-synergy and comeback effects, or Sturdy's once-per-battle faint save.",
-      "2": "🔁 Assign and re-assign freely: applying a capsule overwrites a Pokémon's ability and consumes it, so who gets what stays a real choice. Classic mode is unaffected."
+      "0": "🧬 Fähigkeiten sind jetzt etwas, das du dir aufbaust: nicht mehr an eine Spezies gebunden — 30 Fähigkeiten werden als Fähigkeits-Kapseln erbeutet und jedem Pokémon am PC zugewiesen (Neuer Erfahrungsmodus).",
+      "1": "🎡 Eine neue Abenteuer-Belohnung, die eine Fähigkeits-Kapsel findet, dreht eine bestimmte Kapsel aus — Chancen-Veränderer wie Blaze und Intimidate, Team-Synergie- und Comeback-Effekte oder Sturdys einmaliger K.-o.-Schutz pro Kampf.",
+      "2": "🔁 Frei zuweisen und neu zuweisen: Eine Kapsel überschreibt die Fähigkeit eines Pokémon und wird dabei verbraucht — wer was bekommt, bleibt eine echte Entscheidung. Der klassische Modus bleibt unverändert."
     },
     "v3_0_0": {
       "0": "⚔️ Neue optionale Einstellung 'Neuer Erfahrungsmodus': Jeder Kampf beginnt jetzt mit einer Vorbereitungsphase — wähle, welches Pokémon den Kampf anführt (verdoppelt dessen Typvorteil), bevor du die Chancen siehst.",

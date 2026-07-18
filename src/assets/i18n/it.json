@@ -3089,16 +3089,16 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
-  "v3_1_0": "Version 3.1.0",
+  "v3_1_0": "Versione 3.1.0",
   "v3_0_0": "Versione 3.0.0",
   "whatsNew": {
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
     "v3_1_0": {
-      "0": "🧬 Abilities are now something you build: no longer locked to a species, a roster of 30 is looted as ability capsules and assigned to any Pokémon from the PC (New Experience Mode).",
-      "1": "🎡 A new 'Find an Ability Capsule' adventure reward spins up one specific capsule — odds-shifters like Blaze and Intimidate, team-synergy and comeback effects, or Sturdy's once-per-battle faint save.",
-      "2": "🔁 Assign and re-assign freely: applying a capsule overwrites a Pokémon's ability and consumes it, so who gets what stays a real choice. Classic mode is unaffected."
+      "0": "🧬 Le abilità ora sono qualcosa che costruisci: non più legate a una specie — 30 abilità si ottengono come capsule abilità e si assegnano a qualsiasi Pokémon dal PC (Modalità Nuova Esperienza).",
+      "1": "🎡 Una nuova ricompensa d'avventura che trova una capsula abilità fa girare una capsula specifica — modificatori di probabilità come Blaze e Intimidate, effetti di sinergia di squadra e di rimonta, o la protezione dal KO di Sturdy una volta per battaglia.",
+      "2": "🔁 Assegna e riassegna liberamente: applicare una capsula sovrascrive l'abilità di un Pokémon e la consuma, quindi chi ottiene cosa resta una scelta reale. La modalità classica non è interessata."
     },
     "v3_0_0": {
       "0": "⚔️ Nuova impostazione opzionale 'Modalità Nuova Esperienza': ogni battaglia ora inizia con una fase di preparazione — scegli quale Pokémon guida il combattimento (raddoppiando il suo vantaggio di tipo) prima di vedere le probabilità.",
