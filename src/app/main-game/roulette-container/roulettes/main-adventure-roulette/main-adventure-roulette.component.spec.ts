@@ -174,6 +174,13 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     adventureDrawService = TestBed.inject(AdventureDrawService);
     dangerMeterService = TestBed.inject(DangerMeterService);
     gameStateService.resetGameState(true);
+    // Match production reality: this component only ever mounts once the
+    // real state machine (RouletteContainerComponent's @switch) has already
+    // reached 'adventure-continues' — the component's own state subscription
+    // relies on that being true at subscribe time (see main-adventure-roulette
+    // .component.ts ngOnInit for why).
+    gameStateService.setNextState('adventure-continues');
+    gameStateService.finishCurrentState();
   });
 
   const createFixture = () => {
@@ -253,6 +260,31 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     createFixture();
 
     expect(dangerMeterService.rollStep).toHaveBeenCalledWith(0);
+  });
+
+  // ── Regression: multitask returned to the same 'adventure-continues' state ──
+  // without the component being destroyed/recreated (Angular's @switch only
+  // rebuilds on a genuine case change), so a fresh draw never happened and the
+  // choose-between panel appeared frozen. Fixed by subscribing to
+  // gameStateService.currentState instead of only drawing once in ngOnInit.
+
+  it('should draw a fresh set of candidates when the state re-enters adventure-continues without the component being recreated', () => {
+    createFixture();
+    const firstDraw = adventureDrawService.getPendingDraw();
+    expect(firstDraw).toBeTruthy();
+
+    // Simulate what routeCandidate() + multitask() do: clear the committed
+    // draw, then push/pop back to the SAME 'adventure-continues' state —
+    // the exact same component instance is still mounted throughout.
+    adventureDrawService.clearDraw();
+    expect(adventureDrawService.getPendingDraw()).toBeNull();
+
+    gameStateService.setNextState('adventure-continues');
+    gameStateService.finishCurrentState();
+
+    const secondDraw = adventureDrawService.getPendingDraw();
+    expect(secondDraw).toBeTruthy();
+    expect(component.candidates.length).toBe(3);
   });
 
   it('onGoStraight should clear the pending draw and emit doNothingEvent', () => {

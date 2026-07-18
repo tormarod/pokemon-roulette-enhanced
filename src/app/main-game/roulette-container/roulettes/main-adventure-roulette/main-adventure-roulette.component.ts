@@ -85,6 +85,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   actions: WheelItem[] = [...this.baseActions];
   private generationSubscription: Subscription | null = null;
   private dangerSubscription: Subscription | null = null;
+  private gameStateSubscription: Subscription | null = null;
   private isGeneration9 = false;
 
   // ── New Experience mode: choose-between adventure (V2 Part A) ──────────
@@ -172,13 +173,26 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
         this.dangerPercent = percent;
         this.isNextStepGuaranteedSafe = this.dangerMeterService.isNextStepGuaranteedSafe();
       });
-      this.initializeDraw();
+      // Re-draw on every entry into this state, not just component construction.
+      // Some actions (e.g. multitask) route back to 'adventure-continues' without
+      // the component being destroyed/recreated — Angular's @switch only rebuilds
+      // on a genuine case change, so relying on ngOnInit alone missed same-state
+      // re-entries and left the already-picked, stale candidates on screen
+      // (multitaskEvent fired, the round counter advanced, but nothing visibly
+      // happened). currentState is a BehaviorSubject, so this also fires
+      // synchronously for the normal first-render case, same as before.
+      this.gameStateSubscription = this.gameStateService.currentState.subscribe(state => {
+        if (state === 'adventure-continues') {
+          this.initializeDraw();
+        }
+      });
     }
   }
 
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
     this.dangerSubscription?.unsubscribe();
+    this.gameStateSubscription?.unsubscribe();
   }
 
   onGoStraight(): void {
