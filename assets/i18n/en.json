@@ -441,7 +441,6 @@
           "title": "Choose your lead",
           "chooseLead": "Pick the Pokémon that will lead this battle",
           "useXAttack": "Use X Attack",
-          "usePotion": "Use a Potion",
           "confirm": "Confirm"
         },
         "cave": {
