@@ -22,6 +22,7 @@ import { PokedexService } from '../../services/pokedex-service/pokedex.service';
 
 import { RouletteContainerComponent } from './roulette-container.component';
 import { ModalQueueService } from '../../services/modal-queue-service/modal-queue.service';
+import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
@@ -763,6 +764,137 @@ describe('RouletteContainerComponent', () => {
       expect(gameStateService.repeatCurrentState).toHaveBeenCalled();
       expect(trainerService.removeItem).toHaveBeenCalledWith(LINK_CABLE);
       expect(component.tradePokemon).toHaveBeenCalled();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // V2 New Experience threats: itemTheft, toll, badOmen
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('itemTheft', () => {
+    const ITEM: any = { name: 'potion', text: 'items.potion.name', fillStyle: '', weight: 1, description: '', sprite: '' };
+
+    beforeEach(() => {
+      trainerService.resetItems();
+      trainerService.getItems().slice().forEach(item => trainerService.removeItem(item));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('removes one item from the inventory and shows a modal', () => {
+      trainerService.addToItems(ITEM);
+
+      component.itemTheft();
+
+      expect(trainerService.getItems().length).toBe(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('shows a "nothing found" modal without throwing when the inventory is empty', () => {
+      expect(() => component.itemTheft()).not.toThrow();
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('resolves the state (does not get stuck) either way', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.itemTheft();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('toll', () => {
+    const makeItem = (name: string): any => ({ name, text: `items.${name}.name`, fillStyle: '', weight: 1, description: '', sprite: '' });
+    const makePokemon = (id: number, power = 1): any => ({
+      pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
+      sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
+      shiny: false, power, weight: 1,
+    });
+
+    beforeEach(() => {
+      trainerService.resetItems();
+      trainerService.getItems().slice().forEach(item => trainerService.removeItem(item));
+    });
+
+    it('with items in inventory → transitions to select-from-item-list', () => {
+      trainerService.addToItems(makeItem('potion'));
+
+      component.toll();
+
+      expect(component.getGameState()).toBe('select-from-item-list');
+    });
+
+    it('picking the item removes exactly it and resolves the state', () => {
+      trainerService.addToItems(makeItem('potion'));
+      trainerService.addToItems(makeItem('super-potion'));
+
+      component.toll();
+      // Pick by the actual stored item reference — addToItems may enrich/clone
+      // the item, so a locally-constructed object wouldn't match by reference.
+      const potionInInventory = trainerService.getItems().find(i => i.name === 'potion')!;
+      component.continueWithItem(potionInInventory);
+
+      expect(trainerService.getItems().length).toBe(1);
+      expect(trainerService.getItems()[0].name).toBe('super-potion');
+    });
+
+    it('with no items and team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members', () => {
+      trainerService.addToTeam(makePokemon(1, 1));
+      trainerService.addToTeam(makePokemon(4, 4));
+
+      component.toll();
+
+      expect(component.getGameState()).toBe('select-from-pokemon-list');
+      const list = (component as any).auxPokemonList;
+      expect(list.find((p: any) => p.pokemonId === 1).weight).toBe(1);
+      expect(list.find((p: any) => p.pokemonId === 4).weight).toBe(0.25);
+    });
+
+    it('picking a Pokemon for the toll removes the original team member and never sets stolenPokemon (unlike Team Rocket)', () => {
+      trainerService.addToTeam(makePokemon(1, 1));
+      trainerService.addToTeam(makePokemon(4, 4));
+
+      component.toll();
+      const weightedClone = (component as any).auxPokemonList.find((p: any) => p.pokemonId === 4);
+      component.continueWithPokemon(weightedClone);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(trainerService.getTeam()[0].pokemonId).toBe(1);
+      expect((component as any).stolenPokemon).toBeNull();
+    });
+
+    it('with no items and team < 2 → does nothing (never takes the last Pokemon)', () => {
+      trainerService.addToTeam(makePokemon(1, 1));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.toll();
+
+      expect(component.doNothing).toHaveBeenCalled();
+      expect(trainerService.getTeam().length).toBe(1);
+    });
+  });
+
+  describe('badOmen', () => {
+    let battleDebuffService: BattleDebuffService;
+
+    beforeEach(() => {
+      battleDebuffService = TestBed.inject(BattleDebuffService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('sets a pending battle debuff and shows a modal', () => {
+      component.badOmen();
+
+      expect(battleDebuffService.currentDebuff).toBeGreaterThan(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('resolves the state', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.badOmen();
+
+      expect(component.doNothing).toHaveBeenCalled();
     });
   });
 });

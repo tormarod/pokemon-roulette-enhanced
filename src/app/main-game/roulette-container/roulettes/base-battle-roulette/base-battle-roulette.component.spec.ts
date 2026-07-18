@@ -10,6 +10,7 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { PokemonType } from '../../../../interfaces/pokemon-type';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 
 /**
  * Minimal concrete subclass purely for exercising the shared buildVictoryOdds()
@@ -51,6 +52,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
   let fixture: ComponentFixture<TestBattleRouletteComponent>;
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
+  let battleDebuffService: BattleDebuffService;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 1,
@@ -78,9 +80,11 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
     gameStateService = TestBed.inject(GameStateService);
+    battleDebuffService = TestBed.inject(BattleDebuffService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
+    battleDebuffService.clearDebuff();
     fixture.detectChanges();
   });
 
@@ -282,5 +286,26 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(() => component.recalc()).not.toThrow();
     expect(yesCount()).toBe(5);
     expect(component.matchupAdvantageDelta).toBe(2);
+  });
+
+  // ── badOmen: extra No tickets from a pending battle debuff ─────────────
+
+  it('adds the pending battle debuff to the No tickets', () => {
+    component.testBaseNoCount = 1;
+    component.testCurrentRound = 0;
+    battleDebuffService.setDebuff(2);
+
+    component.recalc();
+
+    expect(noCount()).toBe(3); // base(1) + debuff(2)
+  });
+
+  it('adds no extra No tickets when there is no pending debuff', () => {
+    component.testBaseNoCount = 1;
+    component.testCurrentRound = 0;
+
+    component.recalc();
+
+    expect(noCount()).toBe(1);
   });
 });

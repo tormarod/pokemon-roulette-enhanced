@@ -337,6 +337,12 @@
         "label": "A continuación:",
         "oneOf": "(uno de estos tipos)"
       },
+      "danger": {
+        "label": "Peligro",
+        "safe": "A salvo",
+        "relief": "Te escapaste — por ahora estás a salvo.",
+        "help": "Cuanto más alto sube esto, más probable es que tu próximo paso sea una amenaza. Las amenazas lo alivian; unos pasos seguros dejan que vuelva a subir."
+      },
       "roulette": {
         "generation": {
           "title": "¿Generación?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "¿Qué haces entre los gimnasios?",
+          "chooseOne": "Elige uno:",
           "actions": {
             "catchPokemon": "Capturar un Pokémon",
             "battleTrainer": "Batalla de Entrenador",
@@ -403,7 +410,26 @@
             "goFishing": "Pescar",
             "findFossil": "Encontrar un fósil",
             "battleRival": "Combate contra el Rival",
-            "areaZero": "Explorar el Área Cero"
+            "areaZero": "Explorar el Área Cero",
+            "teamRocketAmbush": "¡Emboscada del Team Rocket!",
+            "itemTheft": "Robo de objeto",
+            "toll": "Pagar un peaje",
+            "badOmen": "Mal presagio"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "¡Robo!",
+              "stolenItem": "Un ladrón se llevó tu ",
+              "nothingFound": "Un ladrón rebuscó en tu bolsa pero no encontró nada que llevarse."
+            },
+            "toll": {
+              "pickItem": "¿Qué objeto vas a entregar?",
+              "pickPokemon": "¿Qué Pokémon vas a entregar?"
+            },
+            "badOmen": {
+              "title": "Mal presagio",
+              "description": "Sientes un escalofrío — tu próximo combate será más difícil de lo normal."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ Nuevo ajuste opcional 'Modo de Nueva Experiencia': cada batalla ahora empieza con una fase de preparación — elige qué Pokémon lidera el combate (duplicando su ventaja de tipo) antes de ver las probabilidades.",
       "1": "🎒 En el Modo de Nueva Experiencia puedes usar un Ataque X o una poción antes de que gire la ruleta, en lugar de solo reaccionar a una derrota — el Ataque X ahora es un impulso de un solo uso en vez de un bono pasivo permanente.",
-      "2": "🤺 Las batallas de rival ahora tienen un mecanismo de reintento/poción (como gimnasio/Alto Mando/Campeón) en el Modo de Nueva Experiencia. El modo clásico no se ve afectado — desactivado por defecto, actívalo desde Ajustes."
+      "2": "🤺 Las batallas de rival ahora tienen un mecanismo de reintento/poción (como gimnasio/Alto Mando/Campeón) en el Modo de Nueva Experiencia. El modo clásico no se ve afectado — desactivado por defecto, actívalo desde Ajustes.",
+      "3": "🗺️ También en el Modo de Nueva Experiencia: el paso de aventura entre combates ahora ofrece 3 opciones en lugar de un solo giro, marcado por un medidor de Peligro que sube cuanto más tiempo pasa sin problemas y baja tras cada amenaza.",
+      "4": "⚠️ Pueden aparecer nuevas amenazas entre combates: una emboscada del Team Rocket, un robo de objeto, un peaje (entrega un objeto — o, sin objetos, un miembro más débil del equipo) o un mal presagio que solo complica tu próximo combate.",
+      "5": "✨ Los objetos de sesgo de tipo (Miel, Repelente, Radar Poké, Superrepelente) ahora muestran su efecto directamente en la ruleta — los tipos potenciados obtienen un contorno brillante y los tipos evitados aparecen atenuados."
     },
     "v2_2_0": {
       "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo.",

@@ -5,6 +5,9 @@ import { GameStateService } from '../game-state-service/game-state.service';
 import { PendingTypeBiases, TrainerService, TypeBiasEntry } from '../trainer-service/trainer.service';
 import { GenerationService } from '../generation-service/generation.service';
 import { BattlePrepService, PendingBattlePrep } from '../battle-prep-service/battle-prep.service';
+import { DangerMeterService } from '../danger-meter-service/danger-meter.service';
+import { AdventureDrawService, PendingAdventureDraw } from '../adventure-draw-service/adventure-draw.service';
+import { BattleDebuffService } from '../battle-debuff-service/battle-debuff.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { Badge } from '../../interfaces/badge';
@@ -22,6 +25,10 @@ export interface SavedRun {
   pendingTypeBiases: PendingTypeBiases;
   newExperienceMode: boolean;
   pendingBattlePrep: PendingBattlePrep | null;
+  dangerPercent: number;
+  consecutiveThreats: number;
+  pendingAdventure: PendingAdventureDraw | null;
+  pendingBattleDebuff: number;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -38,6 +45,9 @@ export class RunPersistenceService {
     private trainerService: TrainerService,
     private generationService: GenerationService,
     private battlePrepService: BattlePrepService,
+    private dangerMeterService: DangerMeterService,
+    private adventureDrawService: AdventureDrawService,
+    private battleDebuffService: BattleDebuffService,
   ) {
     // Restore BEFORE wiring the auto-save subscription below — otherwise that
     // subscription's own first (synchronous) emission of fresh/default state
@@ -58,7 +68,10 @@ export class RunPersistenceService {
       this.trainerService.getPendingTypeBiasesObservable(),
       this.gameStateService.newExperienceModeObserver,
       this.battlePrepService.getPendingPrepObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep]) => {
+      this.dangerMeterService.getStateObservable(),
+      this.adventureDrawService.getPendingDrawObservable(),
+      this.battleDebuffService.getPendingDebuffObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -77,6 +90,10 @@ export class RunPersistenceService {
         pendingTypeBiases,
         newExperienceMode,
         pendingBattlePrep,
+        dangerPercent: dangerMeterState.dangerPercent,
+        consecutiveThreats: dangerMeterState.consecutiveThreats,
+        pendingAdventure,
+        pendingBattleDebuff,
       });
     });
   }
@@ -116,6 +133,9 @@ export class RunPersistenceService {
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
     this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
     this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
+    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0);
+    this.adventureDrawService.restoreDraw(run.pendingAdventure ?? null);
+    this.battleDebuffService.restoreDebuff(run.pendingBattleDebuff ?? 0);
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
@@ -161,7 +181,11 @@ export class RunPersistenceService {
       typeof run.generationId === 'number' &&
       (run.pendingTypeBiases === undefined || typeof run.pendingTypeBiases === 'object') &&
       (run.newExperienceMode === undefined || typeof run.newExperienceMode === 'boolean') &&
-      (run.pendingBattlePrep === undefined || run.pendingBattlePrep === null || typeof run.pendingBattlePrep === 'object')
+      (run.pendingBattlePrep === undefined || run.pendingBattlePrep === null || typeof run.pendingBattlePrep === 'object') &&
+      (run.dangerPercent === undefined || typeof run.dangerPercent === 'number') &&
+      (run.consecutiveThreats === undefined || typeof run.consecutiveThreats === 'number') &&
+      (run.pendingAdventure === undefined || run.pendingAdventure === null || typeof run.pendingAdventure === 'object') &&
+      (run.pendingBattleDebuff === undefined || typeof run.pendingBattleDebuff === 'number')
     );
   }
 }

@@ -9,3 +9,21 @@
 .go-straight-button {
 	min-width: 200px;
 }
+
+.choose-one-label {
+	text-align: center;
+	font-weight: 600;
+}
+
+.adventure-card-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.adventure-card {
+	min-width: 160px;
+	border-width: 2px;
+}

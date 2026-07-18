@@ -88,6 +88,11 @@ export class GameStateService {
     return 'game-over';
   }
 
+  /** Synchronous read for non-reactive call sites (e.g. DangerMeterService.rollStep). */
+  get currentRoundValue(): number {
+    return this.currentRound.value;
+  }
+
   advanceRound(): void {
     this.currentRound.next(this.currentRound.value + 1);
   }

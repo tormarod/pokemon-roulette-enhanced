@@ -15,6 +15,7 @@ import { TypeMatchupService } from '../../../../services/type-matchup-service/ty
 import { StatsService } from '../../../../services/stats-service/stats.service';
 import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
+import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 
 @Component({
@@ -55,9 +56,10 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
     translate: TranslateService,
     typeMatchupService: TypeMatchupService,
     statsService: StatsService,
+    battleDebuffService: BattleDebuffService,
     private battlePrepService: BattlePrepService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService, battleDebuffService);
   }
 
   onItemSelected(index: number): void {
@@ -65,6 +67,7 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.champion.yes') {
       this.battlePrepService.clearPrep();
+      this.battleDebuffService.clearDebuff();
       this.battleResultEvent.emit(true);
     } else {
       if (this.retries <= 0) {
@@ -73,6 +76,7 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
           this.usePotion(potion, () => this.modalService.open(this.itemUsedModal, { centered: true, size: 'md' }));
         } else {
           this.battlePrepService.clearPrep();
+          this.battleDebuffService.clearDebuff();
           this.battleResultEvent.emit(false);
         }
       }

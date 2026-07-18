@@ -337,6 +337,12 @@
         "label": "À suivre :",
         "oneOf": "(l'un de ces types)"
       },
+      "danger": {
+        "label": "Danger",
+        "safe": "Sûr",
+        "relief": "Tu t'es échappé — la pression retombe, pour l'instant.",
+        "help": "Plus cette jauge monte, plus ton prochain pas risque d'être une menace. Les menaces la font redescendre ; quelques pas sûrs la laissent remonter."
+      },
       "roulette": {
         "generation": {
           "title": "Génération?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "Que fais-tu entre les arènes?",
+          "chooseOne": "Choisis-en un :",
           "actions": {
             "catchPokemon": "Capturer un Pokémon",
             "battleTrainer": "Combattre un entraîneur",
@@ -403,7 +410,26 @@
             "goFishing": "Pêcher",
             "findFossil": "Trouver un fossile",
             "battleRival": "Combattre le rival",
-            "areaZero": "Explorer la Zone Zéro"
+            "areaZero": "Explorer la Zone Zéro",
+            "teamRocketAmbush": "Embuscade de la Team Rocket !",
+            "itemTheft": "Vol d'objet",
+            "toll": "Payer un péage",
+            "badOmen": "Mauvais présage"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Vol !",
+              "stolenItem": "Un voleur a emporté ton objet : ",
+              "nothingFound": "Un voleur a fouillé ton sac mais n'a rien trouvé à prendre."
+            },
+            "toll": {
+              "pickItem": "Quel objet vas-tu donner ?",
+              "pickPokemon": "Quel Pokémon vas-tu donner ?"
+            },
+            "badOmen": {
+              "title": "Mauvais présage",
+              "description": "Un frisson te parcourt — ton prochain combat sera plus difficile que d'habitude."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ Nouveau réglage optionnel 'Mode Nouvelle Expérience' : chaque combat commence désormais par une phase de préparation — choisissez quel Pokémon mène le combat (doublant son avantage de type) avant de voir les probabilités.",
       "1": "🎒 En Mode Nouvelle Expérience, utilisez une Attaque X ou une potion avant que la roue ne tourne, au lieu de seulement réagir à une défaite — l'Attaque X est désormais un bonus à usage unique, consommé, plutôt qu'un bonus passif permanent.",
-      "2": "🤺 Les combats de rival ont désormais un mécanisme de relance/potion (comme arène/Conseil 4/Champion) en Mode Nouvelle Expérience. Le mode classique n'est pas affecté — désactivé par défaut, activable depuis les Paramètres."
+      "2": "🤺 Les combats de rival ont désormais un mécanisme de relance/potion (comme arène/Conseil 4/Champion) en Mode Nouvelle Expérience. Le mode classique n'est pas affecté — désactivé par défaut, activable depuis les Paramètres.",
+      "3": "🗺️ Toujours en Mode Nouvelle Expérience : l'étape d'aventure entre les combats propose désormais 3 choix au lieu d'un simple tirage, rythmée par une jauge de Danger qui monte plus tu avances sans encombre et redescend après chaque menace.",
+      "4": "⚠️ De nouvelles menaces peuvent survenir entre les combats : une embuscade de la Team Rocket, un vol d'objet, un péage (donne un objet — ou, sans objet, un membre plus faible de ton équipe) ou un mauvais présage qui ne complique que ton prochain combat.",
+      "5": "✨ Les objets de biais de type (Miel, Répulsif, Radar Poké, Super Répulsif) affichent désormais leur effet directement sur la roue — les types favorisés ont un contour lumineux, les types évités sont assombris."
     },
     "v2_2_0": {
       "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct.",

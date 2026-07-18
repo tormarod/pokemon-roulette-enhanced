@@ -337,6 +337,12 @@
         "label": "Als Nächstes:",
         "oneOf": "(einer dieser Typen)"
       },
+      "danger": {
+        "label": "Gefahr",
+        "safe": "Sicher",
+        "relief": "Du bist entkommen — die Luft ist erstmal rein.",
+        "help": "Je höher dieser Wert steigt, desto wahrscheinlicher ist eine Bedrohung beim nächsten Schritt. Bedrohungen senken ihn; ein paar sichere Schritte lassen ihn wieder steigen."
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "Was tun zwischen den Arena-Kämpfen?",
+          "chooseOne": "Wähle eins:",
           "actions": {
             "catchPokemon": "Fange ein Pokémon",
             "battleTrainer": "Trainer-Kampf",
@@ -403,7 +410,26 @@
             "goFishing": "Gehe angeln",
             "findFossil": "Finde ein Fossil",
             "battleRival": "Rivalen-Kampf",
-            "areaZero": "Erkunde Zone Null"
+            "areaZero": "Erkunde Zone Null",
+            "teamRocketAmbush": "Team Rocket Hinterhalt!",
+            "itemTheft": "Diebstahl",
+            "toll": "Wegzoll zahlen",
+            "badOmen": "Böses Omen"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Diebstahl!",
+              "stolenItem": "Ein Dieb hat sich mit deinem Gegenstand davongemacht: ",
+              "nothingFound": "Ein Dieb durchsuchte deine Tasche, fand aber nichts zum Mitnehmen."
+            },
+            "toll": {
+              "pickItem": "Welchen Gegenstand gibst du her?",
+              "pickPokemon": "Welches Pokémon gibst du her?"
+            },
+            "badOmen": {
+              "title": "Böses Omen",
+              "description": "Ein Schauer läuft dir über den Rücken — dein nächster Kampf wird härter als sonst."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ Neue optionale Einstellung 'Neuer Erfahrungsmodus': Jeder Kampf beginnt jetzt mit einer Vorbereitungsphase — wähle, welches Pokémon den Kampf anführt (verdoppelt dessen Typvorteil), bevor du die Chancen siehst.",
       "1": "🎒 Im Neuen Erfahrungsmodus kannst du eine X-Attacke oder einen Trank vor dem Drehen einsetzen, statt nur auf eine Niederlage zu reagieren — X-Attacke ist jetzt ein einmaliger, verbrauchter Bonus statt eines passiven Dauerbonus.",
-      "2": "🤺 Rivalenkämpfe haben im Neuen Erfahrungsmodus jetzt ebenfalls einen Wiederholungs-/Trank-Mechanismus (wie Arena/Top Vier/Champ). Der klassische Modus bleibt unverändert — standardmäßig aus, optional in den Einstellungen aktivierbar."
+      "2": "🤺 Rivalenkämpfe haben im Neuen Erfahrungsmodus jetzt ebenfalls einen Wiederholungs-/Trank-Mechanismus (wie Arena/Top Vier/Champ). Der klassische Modus bleibt unverändert — standardmäßig aus, optional in den Einstellungen aktivierbar.",
+      "3": "🗺️ Ebenfalls im Neuen Erfahrungsmodus: Der Abenteuer-Schritt zwischen den Kämpfen bietet jetzt 3 Auswahlmöglichkeiten statt eines einzelnen Drehs, im Takt eines Gefahren-Meters, das steigt, je länger nichts passiert, und nach jeder Bedrohung sinkt.",
+      "4": "⚠️ Neue Bedrohungen können zwischen den Kämpfen auftauchen: ein Team-Rocket-Hinterhalt, ein Diebstahl, ein Wegzoll (gib einen Gegenstand her — oder, ohne Gegenstände, ein schwächeres Teammitglied) oder ein böses Omen, das nur deinen nächsten Kampf erschwert.",
+      "5": "✨ Typ-Bias-Items (Honig, Abwehrspray, Poké-Radar, Top-Abwehrspray) zeigen ihre Wirkung jetzt direkt am Rad — begünstigte Typen bekommen einen hellen Rand, gemiedene Typen werden abgedunkelt."
     },
     "v2_2_0": {
       "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",

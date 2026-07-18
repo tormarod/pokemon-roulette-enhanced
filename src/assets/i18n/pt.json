@@ -337,6 +337,12 @@
         "label": "A seguir:",
         "oneOf": "(um destes tipos)"
       },
+      "danger": {
+        "label": "Perigo",
+        "safe": "Seguro",
+        "relief": "Você escapou — por enquanto está tudo calmo.",
+        "help": "Quanto mais isso sobe, maior a chance de o próximo passo ser uma ameaça. Ameaças o aliviam; alguns passos seguros deixam-no subir de novo."
+      },
       "roulette": {
         "generation": {
           "title": "Geração?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "O que você faz entre os Ginásios?",
+          "chooseOne": "Escolha um:",
           "actions": {
             "catchPokemon": "Capturar um Pokémon",
             "battleTrainer": "Batalha de Treinador",
@@ -403,7 +410,26 @@
             "goFishing": "Pescar",
             "findFossil": "Encontrar um Fóssil",
             "battleRival": "Batalha contra o Rival",
-            "areaZero": "Explorar a Área Zero"
+            "areaZero": "Explorar a Área Zero",
+            "teamRocketAmbush": "Emboscada da Team Rocket!",
+            "itemTheft": "Roubo de item",
+            "toll": "Pagar um pedágio",
+            "badOmen": "Mau presságio"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Roubo!",
+              "stolenItem": "Um ladrão levou seu ",
+              "nothingFound": "Um ladrão vasculhou sua bolsa mas não encontrou nada para levar."
+            },
+            "toll": {
+              "pickItem": "Qual item você vai entregar?",
+              "pickPokemon": "Qual Pokémon você vai entregar?"
+            },
+            "badOmen": {
+              "title": "Mau presságio",
+              "description": "Um arrepio percorre sua espinha — sua próxima batalha será mais difícil que o normal."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ Nova configuração opcional 'Modo Nova Experiência': cada batalha agora começa com uma etapa de preparação — escolha qual Pokémon lidera a luta (dobrando sua vantagem de tipo) antes de ver as chances.",
       "1": "🎒 No Modo Nova Experiência, use um Ataque X ou uma poção antes da roleta girar, em vez de reagir apenas a uma derrota — o Ataque X agora é um bônus de uso único e consumido em vez de um bônus passivo permanente.",
-      "2": "🤺 As batalhas contra o rival agora têm um mecanismo de nova tentativa/poção (como ginásio/Elite 4/Campeão) no Modo Nova Experiência. O modo clássico não é afetado — desativado por padrão, ative nas Configurações."
+      "2": "🤺 As batalhas contra o rival agora têm um mecanismo de nova tentativa/poção (como ginásio/Elite 4/Campeão) no Modo Nova Experiência. O modo clássico não é afetado — desativado por padrão, ative nas Configurações.",
+      "3": "🗺️ Também no Modo Nova Experiência: a etapa de aventura entre as lutas agora oferece 3 escolhas em vez de um único giro, ritmada por um medidor de Perigo que sobe quanto mais tempo você passa sem problemas e cai após cada ameaça.",
+      "4": "⚠️ Novas ameaças podem surgir entre as lutas: uma emboscada da Team Rocket, um roubo de item, um pedágio (entregue um item — ou, sem itens, um membro mais fraco da equipe) ou um mau presságio que só dificulta sua próxima batalha.",
+      "5": "✨ Os itens de viés de tipo (Mel, Repelente, Radar Poké, Superrepelente) agora mostram seu efeito diretamente na roleta — tipos favorecidos ganham um contorno brilhante, tipos evitados ficam escurecidos."
     },
     "v2_2_0": {
       "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo.",

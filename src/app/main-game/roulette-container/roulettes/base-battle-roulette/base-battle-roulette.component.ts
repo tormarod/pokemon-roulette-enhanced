@@ -7,6 +7,7 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { StatsService } from '../../../../services/stats-service/stats.service';
+import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
@@ -43,7 +44,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     protected readonly trainerService: TrainerService,
     protected readonly translate: TranslateService,
     protected readonly typeMatchupService: TypeMatchupService,
-    protected readonly statsService: StatsService
+    protected readonly statsService: StatsService,
+    protected readonly battleDebuffService: BattleDebuffService
   ) {}
 
   ngOnInit(): void {
@@ -151,7 +153,10 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const noOdds: WheelItem[] = [];
     const roundThreat = Math.ceil(currentRound * BaseBattleRouletteComponent.ROUND_THREAT_MULT);
-    for (let i = 0; i < baseNoCount + roundThreat + noBonus + leadDisadvantageDelta; i++) {
+    // "Bad omen" threat (New Experience only — always 0 otherwise): extra No
+    // tickets for the very next battle, cleared once that battle resolves.
+    const badOmenBonus = this.battleDebuffService.currentDebuff;
+    for (let i = 0; i < baseNoCount + roundThreat + noBonus + leadDisadvantageDelta + badOmenBonus; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

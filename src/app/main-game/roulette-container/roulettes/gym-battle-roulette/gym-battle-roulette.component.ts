@@ -15,6 +15,7 @@ import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle
 import { gymLeadersByGeneration } from './gym-leaders-by-generation';
 import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
+import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 
 @Component({
@@ -56,9 +57,10 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
     translate: TranslateService,
     typeMatchupService: TypeMatchupService,
     statsService: StatsService,
+    battleDebuffService: BattleDebuffService,
     private battlePrepService: BattlePrepService
   ) {
-    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService);
+    super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService, battleDebuffService);
   }
 
   onItemSelected(index: number): void {
@@ -66,6 +68,7 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.gym.yes') {
       this.battlePrepService.clearPrep();
+      this.battleDebuffService.clearDebuff();
       this.battleResultEvent.emit(true);
     } else {
       if (this.retries <= 0) {
@@ -74,6 +77,7 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
           this.usePotion(potion, () => this.modalQueueService.open(this.itemUsedModal, { centered: true, size: 'md' }));
         } else {
           this.battlePrepService.clearPrep();
+          this.battleDebuffService.clearDebuff();
           this.battleResultEvent.emit(false);
         }
       }

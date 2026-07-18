@@ -337,6 +337,12 @@
         "label": "Next up:",
         "oneOf": "(one of these types)"
       },
+      "danger": {
+        "label": "Danger",
+        "safe": "Safe",
+        "relief": "You slipped away — the heat's off, for now.",
+        "help": "The higher this climbs, the more likely your next step is a threat. Threats relieve it; a few safe steps let it climb back up."
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "What do you do between Gyms?",
+          "chooseOne": "Choose one:",
           "actions": {
             "catchPokemon": "Catch a Pokemon",
             "battleTrainer": "Trainer Battle",
@@ -403,7 +410,26 @@
             "goFishing": "Go Fishing",
             "findFossil": "Find a Fossil",
             "battleRival": "Battle Rival",
-            "areaZero": "Explore Area Zero"
+            "areaZero": "Explore Area Zero",
+            "teamRocketAmbush": "Team Rocket Ambush!",
+            "itemTheft": "Item Theft",
+            "toll": "Pay a Toll",
+            "badOmen": "Bad Omen"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Item Theft!",
+              "stolenItem": "A thief made off with your ",
+              "nothingFound": "A thief rummaged through your bag but found nothing to take."
+            },
+            "toll": {
+              "pickItem": "Which item will you hand over?",
+              "pickPokemon": "Which Pokémon will you give up?"
+            },
+            "badOmen": {
+              "title": "Bad Omen",
+              "description": "A chill runs down your spine — your next battle will be tougher than usual."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ New opt-in 'New Experience Mode' setting: every battle now opens with a prep step — pick which Pokémon leads the fight (doubling its type-matchup swing) before you see the odds.",
       "1": "🎒 In New Experience Mode, spend an X Attack or a potion before the wheel spins instead of only reacting to a loss — X Attack is now a one-time, consumed boost instead of a passive always-on bonus.",
-      "2": "🤺 Rival battles gained a retry/potion mechanic (matching gym/Elite Four/Champion) in New Experience Mode. Classic mode is entirely unaffected — off by default, opt in from Settings."
+      "2": "🤺 Rival battles gained a retry/potion mechanic (matching gym/Elite Four/Champion) in New Experience Mode. Classic mode is entirely unaffected — off by default, opt in from Settings.",
+      "3": "🗺️ Also in New Experience Mode: the adventure step between fights now offers 3 choices instead of a single spin, paced by a Danger meter that climbs the longer you go without trouble and drops after every threat.",
+      "4": "⚠️ New threats can turn up between fights: a Team Rocket ambush, an item theft, a toll (hand over an item — or, empty-handed, a weaker team member), or a bad omen that makes just your next battle tougher.",
+      "5": "✨ Type-bias items (Honey, Repel, Poké Radar, Max Repel) now show their effect right on the wheel — boosted types get a bright outline, steered-away types get dimmed."
     },
     "v2_2_0": {
       "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live.",

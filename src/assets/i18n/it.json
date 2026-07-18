@@ -337,6 +337,12 @@
         "label": "Prossimo:",
         "oneOf": "(uno di questi tipi)"
       },
+      "danger": {
+        "label": "Pericolo",
+        "safe": "Sicuro",
+        "relief": "Sei sfuggito — per ora il pericolo è passato.",
+        "help": "Più questo valore sale, più è probabile che il prossimo passo sia una minaccia. Le minacce lo abbassano; qualche passo sicuro lo lascia risalire."
+      },
       "roulette": {
         "generation": {
           "title": "Generazione?",
@@ -385,6 +391,7 @@
         },
         "adventure": {
           "title": "Cosa fai tra una Palestra e l'altra?",
+          "chooseOne": "Scegline uno:",
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
@@ -403,7 +410,26 @@
             "goFishing": "Vai a pescare",
             "findFossil": "Trova un fossile",
             "battleRival": "Lotta contro il rivale",
-            "areaZero": "Esplora Area Zero"
+            "areaZero": "Esplora Area Zero",
+            "teamRocketAmbush": "Imboscata del Team Rocket!",
+            "itemTheft": "Furto di oggetto",
+            "toll": "Pagare un pedaggio",
+            "badOmen": "Cattivo presagio"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Furto!",
+              "stolenItem": "Un ladro ha rubato il tuo ",
+              "nothingFound": "Un ladro ha frugato nella tua borsa ma non ha trovato nulla da prendere."
+            },
+            "toll": {
+              "pickItem": "Quale oggetto consegnerai?",
+              "pickPokemon": "Quale Pokémon consegnerai?"
+            },
+            "badOmen": {
+              "title": "Cattivo presagio",
+              "description": "Un brivido ti percorre la schiena — la tua prossima battaglia sarà più difficile del solito."
+            }
           }
         },
         "areaZero": {
@@ -3021,7 +3047,10 @@
     "v3_0_0": {
       "0": "⚔️ Nuova impostazione opzionale 'Modalità Nuova Esperienza': ogni battaglia ora inizia con una fase di preparazione — scegli quale Pokémon guida il combattimento (raddoppiando il suo vantaggio di tipo) prima di vedere le probabilità.",
       "1": "🎒 In Modalità Nuova Esperienza puoi usare un Attacco X o una pozione prima che la ruota giri, invece di reagire solo a una sconfitta — l'Attacco X ora è un boost monouso e consumato invece di un bonus passivo sempre attivo.",
-      "2": "🤺 Le battaglie contro il rivale ora hanno un meccanismo di ritentativo/pozione (come palestra/Alto Comando/Campione) in Modalità Nuova Esperienza. La modalità classica non è interessata — disattivata di default, attivabile dalle Impostazioni."
+      "2": "🤺 Le battaglie contro il rivale ora hanno un meccanismo di ritentativo/pozione (come palestra/Alto Comando/Campione) in Modalità Nuova Esperienza. La modalità classica non è interessata — disattivata di default, attivabile dalle Impostazioni.",
+      "3": "🗺️ Sempre in Modalità Nuova Esperienza: il passo d'avventura tra le battaglie ora offre 3 scelte invece di un singolo giro, scandito da un misuratore di Pericolo che sale più a lungo procedi senza intoppi e scende dopo ogni minaccia.",
+      "4": "⚠️ Nuove minacce possono comparire tra le battaglie: un'imboscata del Team Rocket, un furto di oggetto, un pedaggio (consegna un oggetto — o, senza oggetti, un membro più debole della squadra) o un cattivo presagio che rende più dura solo la prossima battaglia.",
+      "5": "✨ Gli oggetti di distorsione di tipo (Miele, Repellente, Radar Poké, Superrepellente) ora mostrano il loro effetto direttamente sulla ruota — i tipi favoriti ottengono un contorno luminoso, i tipi evitati vengono oscurati."
     },
     "v2_2_0": {
       "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale.",

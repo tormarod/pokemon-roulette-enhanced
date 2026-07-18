@@ -187,4 +187,47 @@ describe('applyTypeBias', () => {
     // "falls back to the unfiltered pool" behavior); Fire remains selected.
     expect(result.map(p => p.pokemonId)).toEqual([4]);
   });
+
+  // ── V2 B3: wheel-slice highlight/dim visual tagging ────────────────────
+
+  it('tags matching items as highlighted for a soft toward bias', () => {
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'soft' }], away: [] };
+    const result = applyTypeBias(pokemon, biases);
+    expect(result.find(p => p.pokemonId === 4)!.highlighted).toBeTrue();
+    expect(result.find(p => p.pokemonId === 1)!.highlighted).toBeFalsy();
+    expect(result.find(p => p.pokemonId === 7)!.highlighted).toBeFalsy();
+  });
+
+  it('tags matching items as dimmed for a soft away bias', () => {
+    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'water', mode: 'soft' }] };
+    const result = applyTypeBias(pokemon, biases);
+    expect(result.find(p => p.pokemonId === 7)!.dimmed).toBeTrue();
+    expect(result.find(p => p.pokemonId === 1)!.dimmed).toBeFalsy();
+  });
+
+  it('tags matching items as highlighted for a hard toward bias too', () => {
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'hard' }], away: [] };
+    const result = applyTypeBias(pokemon, biases);
+    expect(result.every(p => p.highlighted)).toBeTrue();
+  });
+
+  it('does not tag anything when no bias is active', () => {
+    const result = applyTypeBias(pokemon, noBias);
+    expect(result.every(p => !p.highlighted && !p.dimmed)).toBeTrue();
+  });
+
+  it('does not tag an item as both highlighted and dimmed unless it matches both a toward and an away type', () => {
+    const biases: PendingTypeBiases = {
+      toward: [{ type: 'electric', mode: 'soft' }],
+      away: [{ type: 'water', mode: 'soft' }]
+    };
+    const result = applyTypeBias(dualTypePokemon, biases);
+    expect(result.find(p => p.pokemonId === 181)!.highlighted).toBeTrue();
+    expect(result.find(p => p.pokemonId === 181)!.dimmed).toBeFalsy();
+    expect(result.find(p => p.pokemonId === 184)!.dimmed).toBeTrue();
+    expect(result.find(p => p.pokemonId === 184)!.highlighted).toBeFalsy();
+    // electric-water matches both an active toward type and an active away type.
+    expect(result.find(p => p.pokemonId === 999)!.highlighted).toBeTrue();
+    expect(result.find(p => p.pokemonId === 999)!.dimmed).toBeTrue();
+  });
 });
