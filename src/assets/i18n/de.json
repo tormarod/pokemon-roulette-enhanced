@@ -3089,11 +3089,17 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_1_0": "Version 3.1.0",
   "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_1_0": {
+      "0": "🧬 Fähigkeiten sind jetzt etwas, das du dir aufbaust: nicht mehr an eine Spezies gebunden — 30 Fähigkeiten werden als Fähigkeits-Kapseln erbeutet und jedem Pokémon am PC zugewiesen (Neuer Erfahrungsmodus).",
+      "1": "🎡 Eine neue Abenteuer-Belohnung, die eine Fähigkeits-Kapsel findet, dreht eine bestimmte Kapsel aus — Chancen-Veränderer wie Blaze und Intimidate, Team-Synergie- und Comeback-Effekte oder Sturdys einmaliger K.-o.-Schutz pro Kampf.",
+      "2": "🔁 Frei zuweisen und neu zuweisen: Eine Kapsel überschreibt die Fähigkeit eines Pokémon und wird dabei verbraucht — wer was bekommt, bleibt eine echte Entscheidung. Der klassische Modus bleibt unverändert."
+    },
     "v3_0_0": {
       "0": "⚔️ Neue optionale Einstellung 'Neuer Erfahrungsmodus': Jeder Kampf beginnt jetzt mit einer Vorbereitungsphase — wähle, welches Pokémon den Kampf anführt (verdoppelt dessen Typvorteil), bevor du die Chancen siehst.",
       "1": "🎒 Im Neuen Erfahrungsmodus kannst du eine X-Attacke oder einen Trank vor dem Drehen einsetzen, statt nur auf eine Niederlage zu reagieren — X-Attacke ist jetzt ein einmaliger, verbrauchter Bonus statt eines passiven Dauerbonus.",

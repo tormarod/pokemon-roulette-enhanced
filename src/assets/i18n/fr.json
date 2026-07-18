@@ -3089,11 +3089,17 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_1_0": "Version 3.1.0",
   "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_1_0": {
+      "0": "🧬 Les talents se construisent désormais : ils ne sont plus liés à une espèce — 30 talents s'obtiennent sous forme de capsules de talent et s'attribuent à n'importe quel Pokémon depuis le PC (Mode Nouvelle Expérience).",
+      "1": "🎡 Une nouvelle récompense d'aventure qui trouve une capsule de talent fait tourner une capsule précise — des modificateurs de probabilités comme Blaze et Intimidate, des effets de synergie d'équipe et de remontée, ou la protection K.O. de Sturdy une fois par combat.",
+      "2": "🔁 Attribue et réattribue librement : appliquer une capsule remplace le talent d'un Pokémon et la consomme, donc qui obtient quoi reste un vrai choix. Le mode classique n'est pas affecté."
+    },
     "v3_0_0": {
       "0": "⚔️ Nouveau réglage optionnel 'Mode Nouvelle Expérience' : chaque combat commence désormais par une phase de préparation — choisissez quel Pokémon mène le combat (doublant son avantage de type) avant de voir les probabilités.",
       "1": "🎒 En Mode Nouvelle Expérience, utilisez une Attaque X ou une potion avant que la roue ne tourne, au lieu de seulement réagir à une défaite — l'Attaque X est désormais un bonus à usage unique, consommé, plutôt qu'un bonus passif permanent.",

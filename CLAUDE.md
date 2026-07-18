@@ -65,6 +65,7 @@ Local runs are fast and reliable (~10s for the full suite, clean exit). `karma.c
 
 - This is a fork tracking an upstream project; the `README.md` "New features added on top of the original" list is the changelog of fork-specific work — update it when adding a new user-facing feature.
 - Attribution for the fork lives in the in-app Credits (`src/app/credits`) and Coffee (`src/app/coffee`) pages, not just the README.
+- **Player-facing releases need in-app "What's New" release notes, not just the README.** When shipping a user-facing feature, bump the `version` in `package.json`, add a newest-first entry to `RELEASE_NOTES` (`src/app/data/release-notes.ts`) with `whatsNew.v<major>_<minor>_<patch>.*` note keys, and add those keys plus a `v<x>_<y>_<z>` version label to **all six** locale files (`src/assets/i18n/*.json`) — `en` real, others English placeholder if not translated. `CURRENT_VERSION` derives from the top `RELEASE_NOTES` entry, and the modal shows any entry newer than the visitor's last-seen version. Don't rewrite the notes of an already-shipped version — add a new entry instead.
 
 ## Working with the user
 
