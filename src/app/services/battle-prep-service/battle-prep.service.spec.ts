@@ -42,16 +42,16 @@ describe('BattlePrepService', () => {
   });
 
   it('should commit a prep and make it readable via getPendingPrep', () => {
-    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 2, xAttackUsed: false, potionUsed: null });
+    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 2, xAttackUsed: false });
 
-    expect(service.getPendingPrep()).toEqual({ battleKey: 'gym-battle', leadIndex: 2, xAttackUsed: false, potionUsed: null });
+    expect(service.getPendingPrep()).toEqual({ battleKey: 'gym-battle', leadIndex: 2, xAttackUsed: false });
   });
 
   it('should consume one x-attack from inventory when xAttackUsed is true', () => {
     trainerService.addToItems(makeItem({ name: 'x-attack' }));
     expect(trainerService.getItems().filter(i => i.name === 'x-attack').length).toBe(1);
 
-    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: true, potionUsed: null });
+    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: true });
 
     expect(trainerService.getItems().filter(i => i.name === 'x-attack').length).toBe(0);
   });
@@ -59,13 +59,13 @@ describe('BattlePrepService', () => {
   it('should not touch inventory when xAttackUsed is false', () => {
     trainerService.addToItems(makeItem({ name: 'x-attack' }));
 
-    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
 
     expect(trainerService.getItems().filter(i => i.name === 'x-attack').length).toBe(1);
   });
 
   it('should clear the committed prep', () => {
-    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
 
     service.clearPrep();
 
@@ -73,8 +73,8 @@ describe('BattlePrepService', () => {
   });
 
   it('should restore a prep without touching inventory', () => {
-    service.restorePrep({ battleKey: 'battle-rival', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion' });
+    service.restorePrep({ battleKey: 'battle-rival', leadIndex: 1, xAttackUsed: true });
 
-    expect(service.getPendingPrep()).toEqual({ battleKey: 'battle-rival', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion' });
+    expect(service.getPendingPrep()).toEqual({ battleKey: 'battle-rival', leadIndex: 1, xAttackUsed: true });
   });
 });

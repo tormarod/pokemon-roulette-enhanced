@@ -85,12 +85,6 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
 
   onPrepConfirmed(prep: BattlePrepConfirmed): void {
     this.battlePrepService.commitPrep({ battleKey: EliteFourBattleRouletteComponent.BATTLE_KEY, ...prep });
-    if (prep.potionUsed) {
-      const potion = this.trainerItems.find(item => item.name === prep.potionUsed);
-      if (potion) {
-        this.usePotion(potion, () => this.modalQueueService.open(this.itemUsedModal, { centered: true, size: 'md' }));
-      }
-    }
     this.prepPhase = false;
     this.calcVictoryOdds();
   }

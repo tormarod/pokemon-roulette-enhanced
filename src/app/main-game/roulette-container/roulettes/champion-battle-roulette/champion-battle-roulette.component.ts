@@ -85,12 +85,6 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
 
   onPrepConfirmed(prep: BattlePrepConfirmed): void {
     this.battlePrepService.commitPrep({ battleKey: ChampionBattleRouletteComponent.BATTLE_KEY, ...prep });
-    if (prep.potionUsed) {
-      const potion = this.trainerItems.find(item => item.name === prep.potionUsed);
-      if (potion) {
-        this.usePotion(potion, () => this.modalService.open(this.itemUsedModal, { centered: true, size: 'md' }));
-      }
-    }
     this.prepPhase = false;
     this.calcVictoryOdds();
   }

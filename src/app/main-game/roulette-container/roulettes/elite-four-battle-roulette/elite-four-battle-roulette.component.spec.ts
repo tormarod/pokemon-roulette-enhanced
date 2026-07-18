@@ -189,7 +189,7 @@ describe('EliteFourBattleRouletteComponent', () => {
       component.currentElite = { name: 'Lorelei', sprite: '', quotes: [], types: ['fire'] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false });
 
       expect(component.prepPhase).toBeFalse();
       expect(component.matchupAdvantageDelta).toBe(4);
@@ -203,26 +203,16 @@ describe('EliteFourBattleRouletteComponent', () => {
       component.currentElite = { name: 'Lorelei', sprite: '', quotes: [] } as GymLeader;
       component.currentRound = 0;
 
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true, potionUsed: null });
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true });
 
       const odds: WheelItem[] = (component as any).victoryOdds;
       // base(1) + power(4) + xAttackBonus(meanPower=4) = 9
       expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(9);
     });
 
-    it('should bank a retry when a potion is chosen during prep', () => {
-      (component as any).trainerItems = [HYPER_POTION_ITEM];
-      component.currentElite = { name: 'Lorelei', sprite: '', quotes: [] } as GymLeader;
-      component.currentRound = 0;
-
-      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: false, potionUsed: 'hyper-potion' });
-
-      expect((component as any).retries).toBe(3);
-      expect((component as any).trainerItems.length).toBe(0);
-    });
 
     it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
-      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false });
       component.currentRound = 0;
 
       gameStateService.setNextState('elite-four-battle');
@@ -232,7 +222,7 @@ describe('EliteFourBattleRouletteComponent', () => {
     });
 
     it('should clear the prep once the battle resolves (win)', () => {
-      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false });
       (component as any).victoryOdds = [
         { text: 'game.main.roulette.elite.yes', fillStyle: 'green', weight: 1 },
       ];
@@ -244,7 +234,7 @@ describe('EliteFourBattleRouletteComponent', () => {
     });
 
     it('should clear the prep once the battle resolves (final loss, no potions left)', () => {
-      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      battlePrepService.commitPrep({ battleKey: 'elite-four-battle', leadIndex: 0, xAttackUsed: false });
       (component as any).trainerItems = [];
       (component as any).victoryOdds = [
         { text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 },

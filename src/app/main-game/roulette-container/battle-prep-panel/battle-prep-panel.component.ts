@@ -4,17 +4,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PokemonItem } from '../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../interfaces/item-item';
 import { PokemonType, getTypeIconUrl } from '../../../interfaces/pokemon-type';
-import { RegularItemName } from '../../../services/items-service/regular-item-names';
 import { TypeMatchupService } from '../../../services/type-matchup-service/type-matchup.service';
 
 export interface BattlePrepConfirmed {
   leadIndex: number;
   xAttackUsed: boolean;
-  potionUsed: RegularItemName | null;
 }
-
-/** Weakest to strongest — mirrors BaseBattleRouletteComponent.hasPotions's ranking. */
-const POTION_RANKING: RegularItemName[] = ['potion', 'super-potion', 'hyper-potion'];
 
 @Component({
   selector: 'app-battle-prep-panel',
@@ -32,7 +27,6 @@ export class BattlePrepPanelComponent {
 
   selectedLeadIndex = 0;
   xAttackSelected = false;
-  selectedPotion: RegularItemName | null = null;
 
   readonly getTypeIconUrl = getTypeIconUrl;
 
@@ -66,20 +60,10 @@ export class BattlePrepPanelComponent {
     this.xAttackSelected = !this.xAttackSelected;
   }
 
-  /** Available potion tiers held, weakest-first (matches inventory display order elsewhere). */
-  availablePotionTiers(): RegularItemName[] {
-    return POTION_RANKING.filter(name => this.items.some(item => item.name === name));
-  }
-
-  togglePotion(name: RegularItemName): void {
-    this.selectedPotion = this.selectedPotion === name ? null : name;
-  }
-
   onConfirm(): void {
     this.confirmed.emit({
       leadIndex: this.selectedLeadIndex,
       xAttackUsed: this.xAttackSelected,
-      potionUsed: this.selectedPotion,
     });
   }
 }

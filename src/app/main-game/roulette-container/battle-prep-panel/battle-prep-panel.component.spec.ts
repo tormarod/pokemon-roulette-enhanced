@@ -114,37 +114,6 @@ describe('BattlePrepPanelComponent', () => {
     expect(component.xAttackSelected).toBeFalse();
   });
 
-  it('lists available potion tiers weakest-first', () => {
-    component.items = [
-      makeItem({ name: 'hyper-potion' }),
-      makeItem({ name: 'potion' }),
-    ];
-    fixture.detectChanges();
-
-    expect(component.availablePotionTiers()).toEqual(['potion', 'hyper-potion']);
-  });
-
-  it('toggles a potion tier selection on and off', () => {
-    component.items = [makeItem({ name: 'potion' })];
-    fixture.detectChanges();
-
-    component.togglePotion('potion');
-    expect(component.selectedPotion).toBe('potion');
-
-    component.togglePotion('potion');
-    expect(component.selectedPotion).toBeNull();
-  });
-
-  it('switching potion tier selection replaces the prior tier', () => {
-    component.items = [makeItem({ name: 'potion' }), makeItem({ name: 'super-potion' })];
-    fixture.detectChanges();
-
-    component.togglePotion('potion');
-    component.togglePotion('super-potion');
-
-    expect(component.selectedPotion).toBe('super-potion');
-  });
-
   it('emits the current draft state on confirm, with no lead/item pre-selected other than the default lead', () => {
     component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
     component.items = [makeItem({ name: 'x-attack' }), makeItem({ name: 'potion' })];
@@ -155,22 +124,21 @@ describe('BattlePrepPanelComponent', () => {
 
     component.onConfirm();
 
-    expect(emitted).toEqual({ leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    expect(emitted).toEqual({ leadIndex: 0, xAttackUsed: false });
   });
 
-  it('emits the full draft (lead, x-attack, potion) after the player makes choices', () => {
+  it('emits the full draft (lead, x-attack) after the player makes choices', () => {
     component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
     component.items = [makeItem({ name: 'x-attack' }), makeItem({ name: 'potion' })];
     fixture.detectChanges();
 
     component.selectLead(1);
     component.toggleXAttack();
-    component.togglePotion('potion');
 
     let emitted: any;
     component.confirmed.subscribe(value => emitted = value);
     component.onConfirm();
 
-    expect(emitted).toEqual({ leadIndex: 1, xAttackUsed: true, potionUsed: 'potion' });
+    expect(emitted).toEqual({ leadIndex: 1, xAttackUsed: true });
   });
 });

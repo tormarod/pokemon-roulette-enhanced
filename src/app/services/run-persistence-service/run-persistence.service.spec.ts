@@ -137,11 +137,11 @@ describe('RunPersistenceService', () => {
 
   it('should save a committed battle prep to localStorage', () => {
     const battlePrepService = TestBed.inject(BattlePrepService);
-    battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
     trainerService.addToTeam(makeTestPokemon());
 
     const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
-    expect(stored.pendingBattlePrep).toEqual({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+    expect(stored.pendingBattlePrep).toEqual({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
   });
 
   it('should restore a pending battle prep from a saved run on construction', () => {
@@ -157,7 +157,7 @@ describe('RunPersistenceService', () => {
       generationId: 1,
       pendingTypeBiases: { toward: [], away: [] },
       newExperienceMode: true,
-      pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion' },
+      pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true },
       dangerPercent: 5,
       consecutiveThreats: 0,
       pendingAdventure: null,
@@ -171,7 +171,7 @@ describe('RunPersistenceService', () => {
 
     const restoredBattlePrepService = TestBed.inject(BattlePrepService);
     expect(restoredBattlePrepService.getPendingPrep()).toEqual({
-      battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true, potionUsed: 'potion'
+      battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true
     });
   });
 

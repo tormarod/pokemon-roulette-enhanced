@@ -35,20 +35,6 @@
                 {{ 'game.main.roulette.battlePrep.useXAttack' | translate }}
             </button>
         }
-        @if (availablePotionTiers().length) {
-            <div class="battle-prep-potion-tiers">
-                <span>{{ 'game.main.roulette.battlePrep.usePotion' | translate }}</span>
-                @for (tier of availablePotionTiers(); track tier) {
-                    <button
-                        type="button"
-                        class="btn btn-outline-secondary"
-                        [class.active]="selectedPotion === tier"
-                        (click)="togglePotion(tier)">
-                        {{ 'items.' + tier + '.name' | translate }}
-                    </button>
-                }
-            </div>
-        }
     </div>
 
     <button type="button" class="btn btn-primary battle-prep-confirm" (click)="onConfirm()">
