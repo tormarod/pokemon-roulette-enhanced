@@ -99,16 +99,18 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
         const leaderQuotes = Array.isArray(this.currentLeader.quotes) ? this.currentLeader.quotes : this.currentLeader.quotes;
         const randomIndex = Math.floor(Math.random() * leaderNames.length);
 
-        this.fromLeaderChange.emit(randomIndex);
+        Promise.resolve().then(() => {
+          this.fromLeaderChange.emit(randomIndex);
 
-        this.currentLeader = {
-          name: leaderNames[randomIndex],
-          sprite: leaderSprites[randomIndex],
-          quotes: [Array.isArray(leaderQuotes) ? leaderQuotes[randomIndex] : leaderQuotes],
-          types: leaderTypes ? [leaderTypes[randomIndex]] : undefined
-        } as GymLeader;
+          this.currentLeader = {
+            name: leaderNames[randomIndex],
+            sprite: leaderSprites[randomIndex],
+            quotes: [Array.isArray(leaderQuotes) ? leaderQuotes[randomIndex] : leaderQuotes],
+            types: leaderTypes ? [leaderTypes[randomIndex]] : undefined
+          } as GymLeader;
 
-        this.calcVictoryOdds();
+          this.calcVictoryOdds();
+        });
       });
     }
   }
