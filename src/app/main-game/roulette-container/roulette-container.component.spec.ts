@@ -213,6 +213,49 @@ describe('RouletteContainerComponent', () => {
   });
 
   // ══════════════════════════════════════════════════════════════════════════
+  // rivalBattleResult — empty-team edge case (game-balance-v4 Part B)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('rivalBattleResult(false) — empty-team edge case', () => {
+    it('ends the run when the faint mechanic emptied the team in New Experience mode', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetTeam();
+      let latestState: string | undefined;
+      gameStateService.currentState.subscribe(s => latestState = s);
+
+      component.rivalBattleResult(false);
+
+      expect(latestState).toBe('game-over');
+    });
+
+    it('does not end the run when the team still has a Pokemon left after the loss', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetTeam();
+      trainerService.addToTeam({
+        pokemonId: 1, text: 'pokemon.bulbasaur', fillStyle: 'green',
+        sprite: null, shiny: false, power: 1, weight: 1
+      } as any);
+      let latestState: string | undefined;
+      gameStateService.currentState.subscribe(s => latestState = s);
+
+      component.rivalBattleResult(false);
+
+      expect(latestState).not.toBe('game-over');
+    });
+
+    it('does not end the run on an empty team in Classic mode (faint mechanic does not apply)', () => {
+      gameStateService.resetGameState(false);
+      trainerService.resetTeam();
+      let latestState: string | undefined;
+      gameStateService.currentState.subscribe(s => latestState = s);
+
+      component.rivalBattleResult(false);
+
+      expect(latestState).not.toBe('game-over');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
   // TEST-02: chooseWhoWillEvolve — 8 zero-evolvable branches
   // ══════════════════════════════════════════════════════════════════════════
 

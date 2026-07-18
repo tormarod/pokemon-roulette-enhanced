@@ -528,7 +528,8 @@
         "matchup": {
           "superEffective": "Super efficace",
           "resists": "Résiste",
-          "weak": "Faible"
+          "weak": "Faible",
+          "abilities": "Talents"
         },
         "rival": {
           "against": "Combat contre",
@@ -536,7 +537,8 @@
           "used": "A utilisé un(e)",
           "victory": "Victoire?",
           "yes": "Oui",
-          "no": "Non"
+          "no": "Non",
+          "fainted": "est K.O. !"
         },
         "snorlax": {
           "outcome": "Résultat",
@@ -659,6 +661,10 @@
     "link-cable": {
       "name": "Câble Link",
       "description": "Utilise le Câble Link pour déclencher immédiatement une offre d'échange!"
+    },
+    "revive": {
+      "name": "Rappel",
+      "description": "Rappel ramène un Pokémon K.O. depuis le stockage, prêt à rejoindre ton équipe !"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1048,7 +1054,9 @@
       "stored": "Stocké",
       "team": "Dans l'équipe",
       "unavailable": "PC est indisponible",
-      "unavailableMessage": "La Team Rocket brouille les communications avec le PC"
+      "unavailableMessage": "La Team Rocket brouille les communications avec le PC",
+      "fainted": "K.O.",
+      "revive": "Ranimer"
     }
   },
   "wheel": {
@@ -3050,7 +3058,9 @@
       "2": "🤺 Les combats de rival ont désormais un mécanisme de relance/potion (comme arène/Conseil 4/Champion) en Mode Nouvelle Expérience. Le mode classique n'est pas affecté — désactivé par défaut, activable depuis les Paramètres.",
       "3": "🗺️ Toujours en Mode Nouvelle Expérience : l'étape d'aventure entre les combats propose désormais 3 choix au lieu d'un simple tirage, rythmée par une jauge de Danger qui monte plus tu avances sans encombre et redescend après chaque menace.",
       "4": "⚠️ De nouvelles menaces peuvent survenir entre les combats : une embuscade de la Team Rocket, un vol d'objet, un péage (donne un objet — ou, sans objet, un membre plus faible de ton équipe) ou un mauvais présage qui ne complique que ton prochain combat.",
-      "5": "✨ Les objets de biais de type (Miel, Répulsif, Radar Poké, Super Répulsif) affichent désormais leur effet directement sur la roue — les types favorisés ont un contour lumineux, les types évités sont assombris."
+      "5": "✨ Les objets de biais de type (Miel, Répulsif, Radar Poké, Super Répulsif) affichent désormais leur effet directement sur la roue — les types favorisés ont un contour lumineux, les types évités sont assombris.",
+      "6": "🌟 Toujours en Mode Nouvelle Expérience : 18 talents Pokémon sélectionnés (un par type, comme Brasier de Dracaufeu ou Lévitation de Ectoplasma) modifient désormais les probabilités de combat si cette espèce est dans ton équipe — affichés sous forme de badge à côté de la bande de confrontation.",
+      "7": "💀 Les combats de rival ont désormais de vrais enjeux : une défaite met K.O. ton Pokémon meneur au lieu d'être gratuite. Il part au PC, grisé, jusqu'à être ranimé avec un nouvel objet rare, Rappel. Le mode classique n'est pas affecté."
     },
     "v2_2_0": {
       "0": "🍯 Les objets à biais de type se cumulent maintenant en cas de réutilisation, et peuvent être appliqués à une roue de capture/échange/obtention déjà à l'écran — les chances se mettent à jour en direct.",

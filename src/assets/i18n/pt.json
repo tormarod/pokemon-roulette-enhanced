@@ -528,7 +528,8 @@
         "matchup": {
           "superEffective": "Supereficaz",
           "resists": "Resiste",
-          "weak": "Fraco"
+          "weak": "Fraco",
+          "abilities": "Habilidades"
         },
         "rival": {
           "against": "Batalha contra",
@@ -536,7 +537,8 @@
           "used": "Usou ",
           "victory": "Vitória?",
           "yes": "Sim",
-          "no": "Não"
+          "no": "Não",
+          "fainted": "desmaiou!"
         },
         "snorlax": {
           "outcome": "Resultado",
@@ -659,6 +661,10 @@
     "link-cable": {
       "name": "Cabo Link",
       "description": "Use o Cabo Link para ativar uma oferta de troca imediatamente!"
+    },
+    "revive": {
+      "name": "Revive",
+      "description": "Revive traz de volta do depósito um Pokémon desmaiado, pronto para voltar ao seu time!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1048,7 +1054,9 @@
       "stored": "Armazenado",
       "team": "Na Equipe",
       "unavailable": "O PC não está disponível",
-      "unavailableMessage": "A Equipe Rocket está interferindo a comunicação com o PC"
+      "unavailableMessage": "A Equipe Rocket está interferindo a comunicação com o PC",
+      "fainted": "Desmaiado",
+      "revive": "Reviver"
     }
   },
   "wheel": {
@@ -3050,7 +3058,9 @@
       "2": "🤺 As batalhas contra o rival agora têm um mecanismo de nova tentativa/poção (como ginásio/Elite 4/Campeão) no Modo Nova Experiência. O modo clássico não é afetado — desativado por padrão, ative nas Configurações.",
       "3": "🗺️ Também no Modo Nova Experiência: a etapa de aventura entre as lutas agora oferece 3 escolhas em vez de um único giro, ritmada por um medidor de Perigo que sobe quanto mais tempo você passa sem problemas e cai após cada ameaça.",
       "4": "⚠️ Novas ameaças podem surgir entre as lutas: uma emboscada da Team Rocket, um roubo de item, um pedágio (entregue um item — ou, sem itens, um membro mais fraco da equipe) ou um mau presságio que só dificulta sua próxima batalha.",
-      "5": "✨ Os itens de viés de tipo (Mel, Repelente, Radar Poké, Superrepelente) agora mostram seu efeito diretamente na roleta — tipos favorecidos ganham um contorno brilhante, tipos evitados ficam escurecidos."
+      "5": "✨ Os itens de viés de tipo (Mel, Repelente, Radar Poké, Superrepelente) agora mostram seu efeito diretamente na roleta — tipos favorecidos ganham um contorno brilhante, tipos evitados ficam escurecidos.",
+      "6": "🌟 Também no Modo Nova Experiência: 18 habilidades Pokémon selecionadas (uma por tipo, como Blaze de Charizard ou Levitar de Gengar) agora alteram as chances de batalha se essa espécie estiver na sua equipe — mostradas como um selo ao lado da faixa de confronto.",
+      "7": "💀 As batalhas contra o rival agora têm consequências reais: uma derrota desmaia seu líder escolhido em vez de ser gratuita. Ele vai para o PC, acinzentado, até ser revivido com um novo item raro, Revive. O modo clássico não é afetado."
     },
     "v2_2_0": {
       "0": "🍯 Os itens de viés de tipo agora acumulam quando reutilizados, e podem ser aplicados a uma roda de captura/troca/obtenção já em tela — as chances são atualizadas ao vivo.",

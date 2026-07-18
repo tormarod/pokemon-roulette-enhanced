@@ -17,6 +17,8 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
       'whatsNew.v3_0_0.3',
       'whatsNew.v3_0_0.4',
       'whatsNew.v3_0_0.5',
+      'whatsNew.v3_0_0.6',
+      'whatsNew.v3_0_0.7',
     ],
   },
   {

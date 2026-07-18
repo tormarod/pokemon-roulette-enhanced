@@ -528,7 +528,8 @@
         "matchup": {
           "superEffective": "Sehr effektiv",
           "resists": "Resistent",
-          "weak": "Schwach"
+          "weak": "Schwach",
+          "abilities": "Fähigkeiten"
         },
         "rival": {
           "against": "Kampf gegen",
@@ -536,7 +537,8 @@
           "used": "Benutzt",
           "victory": "Erfolg?",
           "yes": "Ja",
-          "no": "Nein"
+          "no": "Nein",
+          "fainted": "wurde besiegt!"
         },
         "snorlax": {
           "outcome": "Ergebnis",
@@ -659,6 +661,10 @@
     "link-cable": {
       "name": "Linkkabel",
       "description": "Nutze das Linkkabel, um sofort ein Tauschangebot auszulösen!"
+    },
+    "revive": {
+      "name": "Wiederbeleb.",
+      "description": "Wiederbeleb. holt ein besiegtes Pokémon aus der Box zurück, bereit für dein Team!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1048,7 +1054,9 @@
       "stored": "In Box gelagert",
       "team": "Im Team",
       "unavailable": "PC ist nicht verfügbar",
-      "unavailableMessage": "Team Rocket blockiert dein Signal zum PC"
+      "unavailableMessage": "Team Rocket blockiert dein Signal zum PC",
+      "fainted": "Besiegt",
+      "revive": "Wiederbeleben"
     }
   },
   "wheel": {
@@ -3050,7 +3058,9 @@
       "2": "🤺 Rivalenkämpfe haben im Neuen Erfahrungsmodus jetzt ebenfalls einen Wiederholungs-/Trank-Mechanismus (wie Arena/Top Vier/Champ). Der klassische Modus bleibt unverändert — standardmäßig aus, optional in den Einstellungen aktivierbar.",
       "3": "🗺️ Ebenfalls im Neuen Erfahrungsmodus: Der Abenteuer-Schritt zwischen den Kämpfen bietet jetzt 3 Auswahlmöglichkeiten statt eines einzelnen Drehs, im Takt eines Gefahren-Meters, das steigt, je länger nichts passiert, und nach jeder Bedrohung sinkt.",
       "4": "⚠️ Neue Bedrohungen können zwischen den Kämpfen auftauchen: ein Team-Rocket-Hinterhalt, ein Diebstahl, ein Wegzoll (gib einen Gegenstand her — oder, ohne Gegenstände, ein schwächeres Teammitglied) oder ein böses Omen, das nur deinen nächsten Kampf erschwert.",
-      "5": "✨ Typ-Bias-Items (Honig, Abwehrspray, Poké-Radar, Top-Abwehrspray) zeigen ihre Wirkung jetzt direkt am Rad — begünstigte Typen bekommen einen hellen Rand, gemiedene Typen werden abgedunkelt."
+      "5": "✨ Typ-Bias-Items (Honig, Abwehrspray, Poké-Radar, Top-Abwehrspray) zeigen ihre Wirkung jetzt direkt am Rad — begünstigte Typen bekommen einen hellen Rand, gemiedene Typen werden abgedunkelt.",
+      "6": "🌟 Ebenfalls im Neuen Erfahrungsmodus: 18 kuratierte Pokémon-Fähigkeiten (eine pro Typ, z. B. Glurak Blaze oder Gengar Levitation) verschieben jetzt die Kampfchancen, wenn diese Spezies in deinem Team ist — angezeigt als Abzeichen neben der Matchup-Leiste.",
+      "7": "💀 Rivalenkämpfe haben jetzt echte Konsequenzen: Eine Niederlage besiegt dein gewähltes Anführer-Pokémon, statt kostenlos zu sein. Es wandert ausgegraut in den PC, bis es mit einem neuen, seltenen Wiederbelebungs-Item geheilt wird. Der klassische Modus bleibt unverändert."
     },
     "v2_2_0": {
       "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",

@@ -218,6 +218,66 @@ describe('RivalBattleRouletteComponent', () => {
 
       expect(battlePrepService.getPendingPrep()).toBeNull();
     });
+
+    // ── Faint mechanic (game-balance-v4 Part B) ───────────────────────────
+
+    it('should faint the committed lead on a losing spin with no retries/potions left', () => {
+      const lead = makeTestPokemon({ pokemonId: 1, power: 3 });
+      const other = makeTestPokemon({ pokemonId: 2, power: 3 });
+      trainerService.addToTeam(lead);
+      trainerService.addToTeam(other);
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).trainerItems = [];
+      (component as any).retries = 1;
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      const team = trainerService.getTeam();
+      const stored = trainerService.getStored();
+      expect(team.length).toBe(1);
+      expect(team[0].pokemonId).toBe(2);
+      expect(stored.length).toBe(1);
+      expect(stored[0].pokemonId).toBe(1);
+      expect(stored[0].fainted).toBeTrue();
+      expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
+    });
+
+    it('should not faint a lead with the Sturdy ability (Golem, pokemonId 76)', () => {
+      const lead = makeTestPokemon({ pokemonId: 76, power: 3 });
+      trainerService.addToTeam(lead);
+      battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
+      (component as any).trainerItems = [];
+      (component as any).retries = 1;
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(trainerService.getStored().length).toBe(0);
+      expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
+    });
+
+    it('should not faint anything when no prep was committed (no leadIndex to read)', () => {
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, power: 3 }));
+      (component as any).trainerItems = [];
+      (component as any).retries = 1;
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(trainerService.getStored().length).toBe(0);
+    });
   });
 
   // ── Classic mode: rival's win/loss-only mechanic stays untouched ─────────

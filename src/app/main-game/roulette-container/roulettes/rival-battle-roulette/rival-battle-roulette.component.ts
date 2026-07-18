@@ -16,6 +16,7 @@ import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.comp
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
+import { PokemonItem } from '../../../../interfaces/pokemon-item';
 
 @Component({
   selector: 'app-rival-battle-roulette',
@@ -38,6 +39,7 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
 
   @ViewChild('rivalPresentationModal', { static: true }) rivalPresentationModal!: TemplateRef<any>;
   @ViewChild('itemUsedModal', { static: true }) itemUsedModal!: TemplateRef<any>;
+  @ViewChild('faintedModal', { static: true }) faintedModal!: TemplateRef<any>;
 
   @Input() currentRound!: number;
   @Output() battleResultEvent = new EventEmitter<boolean>();
@@ -45,6 +47,8 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
 
   currentRival!: GymLeader;
   prepPhase = true;
+  /** Set by applyFaintOnLoss(), read by the faintedModal template. */
+  faintedPokemon: PokemonItem | null = null;
 
   constructor(
     modalService: NgbModal,
@@ -81,12 +85,44 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
         if (potion) {
           this.usePotion(potion, () => this.modalService.open(this.itemUsedModal, { centered: true, size: 'md' }));
         } else {
+          // Read the committed lead before clearPrep() wipes it — a rival
+          // loss faints the lead instead of ending the run outright.
+          this.applyFaintOnLoss();
           this.battlePrepService.clearPrep();
           this.battleDebuffService.clearDebuff();
           this.battleResultEvent.emit(false);
         }
       }
     }
+  }
+
+  /**
+   * New Experience only: faints the committed lead on a rival loss —
+   * game-balance-v4 Part B. Frees the team slot immediately and moves the
+   * fainted Pokémon into storage via the same commitTeamAndStorage plumbing
+   * StoragePcComponent.drop() uses, so no new persistence wiring is needed.
+   * A lead with the Sturdy ability (faint-immune-lead, see abilities-data.ts)
+   * survives instead — flavor only, no other effect.
+   */
+  private applyFaintOnLoss(): void {
+    const leadIndex = this.battlePrepService.getPendingPrep()?.leadIndex;
+    const team = this.trainerService.getTeam();
+    if (leadIndex == null || !team[leadIndex]) {
+      return;
+    }
+
+    const lead = team[leadIndex];
+    if (this.abilityService.getAbility(lead.pokemonId)?.effect === 'faint-immune-lead') {
+      return;
+    }
+
+    const updatedTeam = [...team];
+    const [faintedMon] = updatedTeam.splice(leadIndex, 1);
+    faintedMon.fainted = true;
+    this.trainerService.commitTeamAndStorage(updatedTeam, [...this.trainerService.getStored(), faintedMon]);
+
+    this.faintedPokemon = faintedMon;
+    this.modalService.open(this.faintedModal, { centered: true, size: 'md' });
   }
 
   onPrepConfirmed(prep: BattlePrepConfirmed): void {

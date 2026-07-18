@@ -528,7 +528,8 @@
         "matchup": {
           "superEffective": "Superefficace",
           "resists": "Resiste",
-          "weak": "Debole"
+          "weak": "Debole",
+          "abilities": "Abilità"
         },
         "rival": {
           "against": "Lotta contro",
@@ -536,7 +537,8 @@
           "used": "Ha usato",
           "victory": "Vittoria?",
           "yes": "Sì",
-          "no": "No"
+          "no": "No",
+          "fainted": "esausto!"
         },
         "snorlax": {
           "outcome": "Risultato",
@@ -659,6 +661,10 @@
     "link-cable": {
       "name": "Cavo Link",
       "description": "Usa il Cavo Link per attivare subito un'offerta di scambio!"
+    },
+    "revive": {
+      "name": "Revitalizz.",
+      "description": "Revitalizz. riporta indietro un Pokémon esausto dal deposito, pronto a unirsi alla squadra!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1048,7 +1054,9 @@
       "stored": "Depositati",
       "team": "In squadra",
       "unavailable": "Il PC non è disponibile",
-      "unavailableMessage": "Il Team Rocket sta bloccando le comunicazioni con il PC"
+      "unavailableMessage": "Il Team Rocket sta bloccando le comunicazioni con il PC",
+      "fainted": "Esausto",
+      "revive": "Revitalizza"
     }
   },
   "wheel": {
@@ -3050,7 +3058,9 @@
       "2": "🤺 Le battaglie contro il rivale ora hanno un meccanismo di ritentativo/pozione (come palestra/Alto Comando/Campione) in Modalità Nuova Esperienza. La modalità classica non è interessata — disattivata di default, attivabile dalle Impostazioni.",
       "3": "🗺️ Sempre in Modalità Nuova Esperienza: il passo d'avventura tra le battaglie ora offre 3 scelte invece di un singolo giro, scandito da un misuratore di Pericolo che sale più a lungo procedi senza intoppi e scende dopo ogni minaccia.",
       "4": "⚠️ Nuove minacce possono comparire tra le battaglie: un'imboscata del Team Rocket, un furto di oggetto, un pedaggio (consegna un oggetto — o, senza oggetti, un membro più debole della squadra) o un cattivo presagio che rende più dura solo la prossima battaglia.",
-      "5": "✨ Gli oggetti di distorsione di tipo (Miele, Repellente, Radar Poké, Superrepellente) ora mostrano il loro effetto direttamente sulla ruota — i tipi favoriti ottengono un contorno luminoso, i tipi evitati vengono oscurati."
+      "5": "✨ Gli oggetti di distorsione di tipo (Miele, Repellente, Radar Poké, Superrepellente) ora mostrano il loro effetto direttamente sulla ruota — i tipi favoriti ottengono un contorno luminoso, i tipi evitati vengono oscurati.",
+      "6": "🌟 Sempre in Modalità Nuova Esperienza: 18 abilità Pokémon selezionate (una per tipo, come Immenso di Charizard o Levitazione di Gengar) ora modificano le probabilità di battaglia se quella specie è nella tua squadra — mostrate come un badge accanto alla barra di confronto.",
+      "7": "💀 Le battaglie contro il rivale ora hanno conseguenze reali: una sconfitta rende esausto il tuo Pokémon guida invece di essere gratuita. Finisce nel PC, in grigio, finché non viene rianimato con un nuovo oggetto raro, Revitalizzante. La modalità classica non è interessata."
     },
     "v2_2_0": {
       "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale.",

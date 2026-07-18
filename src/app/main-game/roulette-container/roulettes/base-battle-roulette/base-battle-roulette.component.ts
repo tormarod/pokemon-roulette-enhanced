@@ -1,4 +1,4 @@
-import { Directive, OnInit, OnDestroy } from '@angular/core';
+import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { TrainerService } from '../../../../services/trainer-service/trainer.ser
 import { TypeMatchupService } from '../../../../services/type-matchup-service/type-matchup.service';
 import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
+import { AbilityService } from '../../../../services/ability-service/ability.service';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
@@ -23,6 +24,9 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected currentItem!: ItemItem;
   protected retries = 0;
   protected victoryOdds: WheelItem[] = [];
+  protected readonly abilityService = inject(AbilityService);
+  /** Guards the once-per-battle Serene Grace-style free retry (see buildVictoryOdds). */
+  private abilityRetryGranted = false;
 
   matchupSuperEffectiveTypes: PokemonType[] = [];
   matchupResistTypes: PokemonType[] = [];
@@ -30,6 +34,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   /** Total power gained/lost across the whole team from the matchup, for display. */
   matchupAdvantageDelta = 0;
   matchupDisadvantageDelta = 0;
+  /** Names of every team member's active ability this battle (New Experience only), for the UI badge. */
+  activeAbilityNames: string[] = [];
 
   private static readonly ROUND_THREAT_MULT = 1.5;
 
@@ -130,7 +136,27 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       else if (leadDelta < 0) leadDisadvantageDelta = -leadDelta;
     }
 
-    const effectivePower = yesPower + leadAdvantageDelta + (xAttackBonus ?? 0) + this.plusModifiers();
+    // Abilities (New Experience only — Classic mode never has an active ability,
+    // regardless of what's curated in abilities-data.ts).
+    let abilityYesBonus = 0;
+    let abilityNoBonus = 0;
+    this.activeAbilityNames = [];
+    if (this.gameStateService.isNewExperienceMode) {
+      this.activeAbilityNames = this.trainerTeam
+        .map(member => this.abilityService.getAbility(member.pokemonId)?.name)
+        .filter((name): name is string => !!name);
+      const abilities = this.abilityService.applyTeamAbilities(this.trainerTeam, types);
+      abilityYesBonus = abilities.yesBonus;
+      abilityNoBonus = abilities.noBonus;
+      // Serene Grace-style: grants one free retry, once per battle instance,
+      // the first time this is computed with the ability present.
+      if (abilities.extraRetry && !this.abilityRetryGranted) {
+        this.abilityRetryGranted = true;
+        this.retries = Math.max(this.retries, 1);
+      }
+    }
+
+    const effectivePower = yesPower + leadAdvantageDelta + (xAttackBonus ?? 0) + this.plusModifiers() + abilityYesBonus;
     const yesOdds: WheelItem[] = [];
     for (let i = 0; i < Math.round(effectivePower) + 1; i++) {
       yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
@@ -156,7 +182,11 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     // "Bad omen" threat (New Experience only — always 0 otherwise): extra No
     // tickets for the very next battle, cleared once that battle resolves.
     const badOmenBonus = this.battleDebuffService.currentDebuff;
-    for (let i = 0; i < baseNoCount + roundThreat + noBonus + leadDisadvantageDelta + badOmenBonus; i++) {
+    // Ability No-reduction is floored at baseNoCount — an ability can make a
+    // battle easier, never risk-free.
+    const rawNoCount = baseNoCount + roundThreat + noBonus + leadDisadvantageDelta + badOmenBonus + abilityNoBonus;
+    const noCount = Math.max(baseNoCount, rawNoCount);
+    for (let i = 0; i < noCount; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

@@ -143,4 +143,19 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     lastPokemonPredicate  = () => this.trainerTeam.length > 1
     teamIsFullPredicate = () => this.trainerTeam.length < 6;
+
+    hasRevive(): boolean {
+      return this.trainerService.hasItem('revive');
+    }
+
+    /** Consumes a Revive and clears the fainted flag — the mon is now a normal stored Pokémon, draggable back into the team. */
+    revivePokemon(pokemon: PokemonItem): void {
+      const revive = this.trainerService.getItem('revive');
+      if (!revive) {
+        return;
+      }
+      this.trainerService.removeItem(revive);
+      pokemon.fainted = false;
+      this.trainerService.commitTeamAndStorage(this.trainerTeam, this.storedPokemon);
+    }
 }

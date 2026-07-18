@@ -848,8 +848,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.statsService.recordBattleWin('rival');
       this.chooseWhoWillEvolve('battle-rival');
     } else {
-      // A rival loss never ends the run, so it's never a "nemesis" — omit the opponent key.
+      // A rival loss never ends the run on its own — it faints the lead
+      // instead (New Experience only, see RivalBattleRouletteComponent). It's
+      // never a "nemesis" — omit the opponent key.
       this.statsService.recordBattleLoss('rival');
+      // Edge case: the faint above emptied the team (no Pokémon left to
+      // field). Nothing to continue with — end the run like any other loss.
+      if (this.gameStateService.isNewExperienceMode && this.trainerService.getTeam().length === 0) {
+        this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
+        this.gameStateService.setNextState('game-over');
+      }
       this.doNothing();
     }
   }
