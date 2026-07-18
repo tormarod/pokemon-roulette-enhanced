@@ -46,6 +46,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Output() legendaryEncounterEvent = new EventEmitter<void>();
   @Output() tradePokemonEvent = new EventEmitter<void>();
   @Output() findItemEvent = new EventEmitter<void>();
+  @Output() findAbilityCapsuleEvent = new EventEmitter<void>();
   @Output() exploreCaveEvent = new EventEmitter<void>();
   @Output() snorlaxEncounterEvent = new EventEmitter<void>();
   @Output() multitaskEvent = new EventEmitter<void>();
@@ -105,6 +106,8 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     { id: 'legendaryEncounter', textKey: 'game.main.roulette.adventure.actions.legendaryEncounter', fillStyle: 'crimson', weight: 1 },
     { id: 'tradePokemon', textKey: 'game.main.roulette.adventure.actions.tradePokemon', fillStyle: 'darkorange', weight: 1 },
     { id: 'findItem', textKey: 'game.main.roulette.adventure.actions.findItem', fillStyle: 'darkgoldenrod', weight: 2 },
+    // New Experience only (lives in rewardPool, never baseActions) — awards an ability capsule.
+    { id: 'findAbilityCapsule', textKey: 'game.main.roulette.adventure.actions.findAbilityCapsule', fillStyle: 'mediumvioletred', weight: 2 },
     { id: 'exploreCave', textKey: 'game.main.roulette.adventure.actions.exploreCave', fillStyle: 'green', weight: 1 },
     { id: 'snorlaxEncounter', textKey: 'game.main.roulette.adventure.actions.snorlaxEncounter', fillStyle: 'darkcyan', weight: 1 },
     { id: 'multitask', textKey: 'game.main.roulette.adventure.actions.multitask', fillStyle: 'blue', weight: 1 },
@@ -146,6 +149,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     legendaryEncounter: () => this.legendaryEncounterEvent.emit(),
     tradePokemon: () => this.tradePokemonEvent.emit(),
     findItem: () => this.findItemEvent.emit(),
+    findAbilityCapsule: () => this.findAbilityCapsuleEvent.emit(),
     exploreCave: () => this.exploreCaveEvent.emit(),
     snorlaxEncounter: () => this.snorlaxEncounterEvent.emit(),
     multitask: () => this.multitaskEvent.emit(),

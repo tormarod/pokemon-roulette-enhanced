@@ -34,7 +34,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   /** Total power gained/lost across the whole team from the matchup, for display. */
   matchupAdvantageDelta = 0;
   matchupDisadvantageDelta = 0;
-  /** Names of every team member's active ability this battle (New Experience only), for the UI badge. */
+  /** i18n name keys of every team member's assigned ability this battle (New Experience only), for the UI badge. */
   activeAbilityNames: string[] = [];
 
   private static readonly ROUND_THREAT_MULT = 1.5;
@@ -143,7 +143,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.activeAbilityNames = [];
     if (this.gameStateService.isNewExperienceMode) {
       this.activeAbilityNames = this.trainerTeam
-        .map(member => this.abilityService.getAbility(member.pokemonId)?.name)
+        .map(member => this.abilityService.getMemberAbility(member)?.name)
         .filter((name): name is string => !!name);
       const abilities = this.abilityService.applyTeamAbilities(this.trainerTeam, types);
       abilityYesBonus = abilities.yesBonus;

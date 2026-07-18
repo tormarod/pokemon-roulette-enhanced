@@ -23,6 +23,16 @@
                    container="body"
                    [ngbTooltip]="pokemonInfoTooltip"
                    [tooltipContext]="{ pokemon: pokemon }">
+              @if (isNewExperienceMode) {
+                @if (getMemberAbilityName(pokemon); as abilityName) {
+                  <span class="ability-badge">{{ abilityName | translate }}</span>
+                }
+                @if (ownedCapsules().length) {
+                  <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">
+                    {{ 'trainer.storage.assignAbility' | translate }}
+                  </button>
+                }
+              }
             </div>
           }
     </div>
@@ -53,6 +63,16 @@
             @if (hasRevive()) {
               <button type="button" class="btn btn-sm btn-outline-primary revive-button" (click)="revivePokemon(pokemon)">
                 {{ 'trainer.storage.revive' | translate }}
+              </button>
+            }
+          }
+          @if (isNewExperienceMode) {
+            @if (getMemberAbilityName(pokemon); as abilityName) {
+              <span class="ability-badge">{{ abilityName | translate }}</span>
+            }
+            @if (!pokemon.fainted && ownedCapsules().length) {
+              <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">
+                {{ 'trainer.storage.assignAbility' | translate }}
               </button>
             }
           }
@@ -89,4 +109,24 @@
                }
           </div>
      </div>
+</ng-template>
+
+<ng-template #abilityPickerModal let-modal>
+  <div class="modal-body">
+    <h1>{{ 'trainer.storage.assignAbilityTitle' | translate }} {{ assignTarget?.text | translate }}</h1>
+    @if (getMemberAbilityName(assignTarget!); as currentAbility) {
+      <p class="ability-picker-current">{{ 'trainer.storage.currentAbility' | translate }} {{ currentAbility | translate }}</p>
+    }
+    <div class="ability-picker-list">
+      @for (capsule of ownedCapsules(); track $index) {
+        <button type="button" class="btn btn-outline-dark ability-picker-option" (click)="assignAbility(capsule)">
+          <span class="ability-picker-name">{{ capsule.text | translate }}</span>
+          <span class="ability-picker-desc">{{ capsule.description | translate }}</span>
+        </button>
+      }
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="closeAbilityPicker()">{{ 'trainer.storage.cancel' | translate }}</button>
+  </div>
 </ng-template>

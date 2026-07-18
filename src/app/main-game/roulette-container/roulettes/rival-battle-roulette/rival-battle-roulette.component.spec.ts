@@ -246,8 +246,8 @@ describe('RivalBattleRouletteComponent', () => {
       expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
     });
 
-    it('should not faint a lead with the Sturdy ability (Golem, pokemonId 76)', () => {
-      const lead = makeTestPokemon({ pokemonId: 76, power: 3 });
+    it('should not faint a lead with the Sturdy ability (faint-immune-lead)', () => {
+      const lead = makeTestPokemon({ pokemonId: 76, power: 3, ability: 'sturdy' });
       trainerService.addToTeam(lead);
       battlePrepService.commitPrep({ battleKey: 'battle-rival', leadIndex: 0, xAttackUsed: false, potionUsed: null });
       (component as any).trainerItems = [];

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { itemsData } from './items-data';
 import { megaStonesData } from './mega-stones-data';
-import { ItemName, MegaStoneItemName, RegularItemName } from './item-names';
+import { abilityCapsulesData } from './ability-capsules-data';
+import { AbilityCapsuleName, ItemName, MegaStoneItemName, RegularItemName } from './item-names';
 import { ItemItem } from '../../interfaces/item-item';
 import { GameStateService } from '../game-state-service/game-state.service';
 
@@ -14,9 +15,11 @@ export class ItemsService {
 
   readonly regularItemsData = itemsData;
   readonly megaStonesData = megaStonesData;
+  readonly abilityCapsulesData = abilityCapsulesData;
   readonly itemsData = {
     ...this.regularItemsData,
-    ...this.megaStonesData
+    ...this.megaStonesData,
+    ...this.abilityCapsulesData
   };
 
   getRegularItem(itemName: RegularItemName): ItemItem {
@@ -25,6 +28,10 @@ export class ItemsService {
 
   getMegaStone(itemName: MegaStoneItemName): ItemItem {
     return this.megaStonesData[itemName];
+  }
+
+  getAbilityCapsule(itemName: AbilityCapsuleName): ItemItem {
+    return this.abilityCapsulesData[itemName];
   }
 
   getItem(itemName: ItemName): ItemItem {
@@ -43,6 +50,15 @@ export class ItemsService {
 
   getMegaStones(): ItemItem[] {
     return Object.values(this.megaStonesData);
+  }
+
+  /**
+   * The full ability-capsule drop pool (all 30, flat weight). Consumed only by
+   * the New-Experience-only ability-capsule wheel — deliberately NOT part of
+   * `getRegularItems()`, so capsules never appear on the regular item wheel.
+   */
+  getAbilityCapsules(): ItemItem[] {
+    return Object.values(this.abilityCapsulesData);
   }
 
   getAllItems(): ItemItem[] {

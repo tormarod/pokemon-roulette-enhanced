@@ -102,6 +102,7 @@
         (legendaryEncounterEvent)="legendaryEncounter()"
         (tradePokemonEvent)="tradePokemon()"
         (findItemEvent)="findItem()"
+        (findAbilityCapsuleEvent)="findAbilityCapsule()"
         (exploreCaveEvent)="exploreCave()"
         (snorlaxEncounterEvent)="snorlaxEncounter()"
         (multitaskEvent)="multitask()"
@@ -148,6 +149,11 @@
     <app-find-item-roulette
         (itemSelectedEvent)="receiveItem($event)">
     </app-find-item-roulette>
+  }
+  @case ('find-ability-capsule') {
+    <app-find-ability-capsule-roulette
+        (capsuleSelectedEvent)="receiveItem($event)">
+    </app-find-ability-capsule-roulette>
   }
   @case ('area-zero') {
     <app-area-zero-roulette

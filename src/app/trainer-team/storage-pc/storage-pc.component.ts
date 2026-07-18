@@ -5,9 +5,11 @@ import { DarkModeService } from '../../services/dark-mode-service/dark-mode.serv
 import { ThemeService } from '../../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { PokemonItem } from '../../interfaces/pokemon-item';
+import { ItemItem } from '../../interfaces/item-item';
+import { AbilityService } from '../../services/ability-service/ability.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { GameState } from '../../services/game-state-service/game-state';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -35,6 +37,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
                 private themeService: ThemeService,
                 private modalService: NgbModal,
                 private gameStateService: GameStateService,
+                private abilityService: AbilityService,
                 private soundFxService: SoundFxService) {
       this.pcTurningOn = this.soundFxService.createPcTurningOnSoundFx();
       this.pcLoginAudio = this.soundFxService.createPcLoginSoundFx();
@@ -43,6 +46,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     @ViewChild('pcStorageModal', { static: true }) pcStorageModal!: TemplateRef<any>;
     @ViewChild('pcInfoModal', { static: true }) infoModal!: TemplateRef<any>;
+    @ViewChild('abilityPickerModal', { static: true }) abilityPickerModal!: TemplateRef<any>;
 
     darkMode!: Observable<boolean>;
     pcTurningOn!: SoundFxHandle;
@@ -54,6 +58,9 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     currentGameState!: GameState;
     infoModalTitle = '';
     infoModalMessage = '';
+    /** New Experience only: the Pokémon currently being assigned an ability via the picker modal. */
+    assignTarget: PokemonItem | null = null;
+    private pickerModalRef: NgbModalRef | null = null;
     private readonly subscriptions = new Subscription();
     private removePcTurningOnEndedListener: (() => void) | null = null;
 
@@ -157,5 +164,48 @@ export class StoragePcComponent implements OnInit, OnDestroy {
       this.trainerService.removeItem(revive);
       pokemon.fainted = false;
       this.trainerService.commitTeamAndStorage(this.trainerTeam, this.storedPokemon);
+    }
+
+    // ── Ability assignment (New Experience only) ───────────────────────────
+
+    /** Whether the whole ability feature is active — gates every ability UI here. */
+    get isNewExperienceMode(): boolean {
+      return this.gameStateService.isNewExperienceMode;
+    }
+
+    /** i18n name key of a Pokémon's assigned ability, or null. Translated in the template. */
+    getMemberAbilityName(pokemon: PokemonItem): string | null {
+      return this.abilityService.getMemberAbility(pokemon)?.name ?? null;
+    }
+
+    /** The ability capsules currently in the bag (assignable payloads). */
+    ownedCapsules(): ItemItem[] {
+      return this.trainerService.getItems().filter(item => !!item.abilityId);
+    }
+
+    /** Opens the capsule picker for a Pokémon (stacked on the PC modal). */
+    openAbilityPicker(pokemon: PokemonItem): void {
+      if (!this.isNewExperienceMode || !this.ownedCapsules().length) {
+        return;
+      }
+      this.assignTarget = pokemon;
+      this.pickerModalRef = this.modalService.open(this.abilityPickerModal, { centered: true, size: 'md' });
+    }
+
+    /** Assigns the chosen capsule's ability to the target (overwrites any current one), consuming the capsule. */
+    assignAbility(capsule: ItemItem): void {
+      if (!this.assignTarget || !this.isNewExperienceMode || !capsule.abilityId) {
+        return;
+      }
+      this.assignTarget.ability = capsule.abilityId;
+      this.trainerService.removeItem(capsule);
+      this.trainerService.commitTeamAndStorage(this.trainerTeam, this.storedPokemon);
+      this.closeAbilityPicker();
+    }
+
+    closeAbilityPicker(): void {
+      this.pickerModalRef?.close();
+      this.pickerModalRef = null;
+      this.assignTarget = null;
     }
 }

@@ -36,6 +36,7 @@ import { CatchLegendaryRouletteComponent } from "./roulettes/catch-legendary-rou
 import { SelectFormRouletteComponent } from './roulettes/select-form-roulette/select-form-roulette.component';
 import { TradePokemonRouletteComponent } from "./roulettes/trade-pokemon-roulette/trade-pokemon-roulette.component";
 import { FindItemRouletteComponent } from "./roulettes/find-item-roulette/find-item-roulette.component";
+import { FindAbilityCapsuleRouletteComponent } from "./roulettes/find-ability-capsule-roulette/find-ability-capsule-roulette.component";
 import { ExploreCaveRouletteComponent } from "./roulettes/explore-cave-roulette/explore-cave-roulette.component";
 import { CavePokemonRouletteComponent } from "./roulettes/cave-pokemon-roulette/cave-pokemon-roulette.component";
 import { FossilRouletteComponent } from "./roulettes/fossil-roulette/fossil-roulette.component";
@@ -95,6 +96,7 @@ const BADOMEN_DEBUFF_AMOUNT = 2;
     CatchLegendaryRouletteComponent,
     TradePokemonRouletteComponent,
     FindItemRouletteComponent,
+    FindAbilityCapsuleRouletteComponent,
     ExploreCaveRouletteComponent,
     CavePokemonRouletteComponent,
     FossilRouletteComponent,
@@ -468,6 +470,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   findItem(): void {
     this.gameStateService.setNextState('find-item');
+    this.finishCurrentState();
+  }
+
+  findAbilityCapsule(): void {
+    this.gameStateService.setNextState('find-ability-capsule');
     this.finishCurrentState();
   }
 

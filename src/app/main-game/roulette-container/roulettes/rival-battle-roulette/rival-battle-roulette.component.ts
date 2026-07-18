@@ -112,7 +112,7 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     }
 
     const lead = team[leadIndex];
-    if (this.abilityService.getAbility(lead.pokemonId)?.effect === 'faint-immune-lead') {
+    if (this.abilityService.getMemberAbility(lead)?.effect === 'faint-immune-lead') {
       return;
     }
 
