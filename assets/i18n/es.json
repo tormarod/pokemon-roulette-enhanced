@@ -8,6 +8,10 @@
     "skipShinyRolls": "Omitir Tiradas de Shiny",
     "skipMegaEvolutionAnimation": "Omitir animacion de Mega Evolucion",
     "fastSpin": "Giro Rápido",
+    "newExperienceMode": {
+      "title": "Modo de Nueva Experiencia",
+      "description": "Añade decisiones previas a la batalla y mayores riesgos. Los cambios se aplican en tu próxima partida."
+    },
     "defaultGender": {
       "title": "Género del Personaje",
       "male": "Siempre Chico",
@@ -333,6 +337,12 @@
         "label": "A continuación:",
         "oneOf": "(uno de estos tipos)"
       },
+      "danger": {
+        "label": "Peligro",
+        "safe": "A salvo",
+        "relief": "Te escapaste — por ahora estás a salvo.",
+        "help": "Cuanto más alto sube esto, más probable es que tu próximo paso sea una amenaza. Las amenazas lo alivian; unos pasos seguros dejan que vuelva a subir."
+      },
       "roulette": {
         "generation": {
           "title": "¿Generación?",
@@ -381,6 +391,7 @@
         },
         "adventure": {
           "title": "¿Qué haces entre los gimnasios?",
+          "chooseOne": "Elige uno:",
           "actions": {
             "catchPokemon": "Capturar un Pokémon",
             "battleTrainer": "Batalla de Entrenador",
@@ -399,12 +410,38 @@
             "goFishing": "Pescar",
             "findFossil": "Encontrar un fósil",
             "battleRival": "Combate contra el Rival",
-            "areaZero": "Explorar el Área Cero"
+            "areaZero": "Explorar el Área Cero",
+            "teamRocketAmbush": "¡Emboscada del Team Rocket!",
+            "itemTheft": "Robo de objeto",
+            "toll": "Pagar un peaje",
+            "badOmen": "Mal presagio"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "¡Robo!",
+              "stolenItem": "Un ladrón se llevó tu ",
+              "nothingFound": "Un ladrón rebuscó en tu bolsa pero no encontró nada que llevarse."
+            },
+            "toll": {
+              "pickItem": "¿Qué objeto vas a entregar?",
+              "pickPokemon": "¿Qué Pokémon vas a entregar?"
+            },
+            "badOmen": {
+              "title": "Mal presagio",
+              "description": "Sientes un escalofrío — tu próximo combate será más difícil de lo normal."
+            }
           }
         },
         "areaZero": {
           "title": "Pokémon paradoja",
           "catch": "¿Capturar Pokémon paradoja?"
+        },
+        "battlePrep": {
+          "title": "Elige tu líder",
+          "chooseLead": "Elige el Pokémon que liderará este combate",
+          "useXAttack": "Usar Ataque X",
+          "usePotion": "Usar una Poción",
+          "confirm": "Confirmar"
         },
         "cave": {
           "explore": {
@@ -491,14 +528,17 @@
         "matchup": {
           "superEffective": "Supereficaz",
           "resists": "Resiste",
-          "weak": "Débil"
+          "weak": "Débil",
+          "abilities": "Habilidades"
         },
         "rival": {
           "against": "Combate contra",
           "go": "¡Vamos!",
+          "used": "Usó un(a)",
           "victory": "¿Victoria?",
           "yes": "Sí",
-          "no": "No"
+          "no": "No",
+          "fainted": "se debilitó!"
         },
         "snorlax": {
           "outcome": "Resultado",
@@ -621,6 +661,10 @@
     "link-cable": {
       "name": "Cable Link",
       "description": "¡Usa el Cable Link para provocar una oferta de intercambio al instante!"
+    },
+    "revive": {
+      "name": "Revivir",
+      "description": "¡Revivir trae de vuelta desde el almacén a un Pokémon debilitado, listo para unirse a tu equipo!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1010,7 +1054,9 @@
       "stored": "Almacenado",
       "team": "En el equipo",
       "unavailable": "La PC no está disponible",
-      "unavailableMessage": "El equipo Rocket está bloqueando las comunicaciones con el PC"
+      "unavailableMessage": "El equipo Rocket está bloqueando las comunicaciones con el PC",
+      "fainted": "Debilitado",
+      "revive": "Revivir"
     }
   },
   "wheel": {
@@ -3001,10 +3047,21 @@
   },
   "v2_1_0": "Versión 2.1.0",
   "v2_2_0": "Versión 2.2.0",
+  "v3_0_0": "Versión 3.0.0",
   "whatsNew": {
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v3_0_0": {
+      "0": "⚔️ Nuevo ajuste opcional 'Modo de Nueva Experiencia': cada batalla ahora empieza con una fase de preparación — elige qué Pokémon lidera el combate (duplicando su ventaja de tipo) antes de ver las probabilidades.",
+      "1": "🎒 En el Modo de Nueva Experiencia puedes usar un Ataque X o una poción antes de que gire la ruleta, en lugar de solo reaccionar a una derrota — el Ataque X ahora es un impulso de un solo uso en vez de un bono pasivo permanente.",
+      "2": "🤺 Las batallas de rival ahora tienen un mecanismo de reintento/poción (como gimnasio/Alto Mando/Campeón) en el Modo de Nueva Experiencia. El modo clásico no se ve afectado — desactivado por defecto, actívalo desde Ajustes.",
+      "3": "🗺️ También en el Modo de Nueva Experiencia: el paso de aventura entre combates ahora ofrece 3 opciones en lugar de un solo giro, marcado por un medidor de Peligro que sube cuanto más tiempo pasa sin problemas y baja tras cada amenaza.",
+      "4": "⚠️ Pueden aparecer nuevas amenazas entre combates: una emboscada del Team Rocket, un robo de objeto, un peaje (entrega un objeto — o, sin objetos, un miembro más débil del equipo) o un mal presagio que solo complica tu próximo combate.",
+      "5": "✨ Los objetos de sesgo de tipo (Miel, Repelente, Radar Poké, Superrepelente) ahora muestran su efecto directamente en la ruleta — los tipos potenciados obtienen un contorno brillante y los tipos evitados aparecen atenuados.",
+      "6": "🌟 También en el Modo de Nueva Experiencia: 18 habilidades Pokémon seleccionadas (una por tipo, como Mar Llamas de Charizard o Levitar de Gengar) ahora alteran las probabilidades de combate si esa especie está en tu equipo — se muestran como una insignia junto a la franja de enfrentamiento.",
+      "7": "💀 Las batallas de rival ahora tienen consecuencias reales: una derrota debilita a tu líder elegido en lugar de ser gratuita. Va al PC, atenuado, hasta ser revivido con un nuevo objeto raro, Revivir. El modo clásico no se ve afectado."
+    },
     "v2_2_0": {
       "0": "🍯 Los objetos de sesgo de tipo ahora se acumulan al reutilizarse, y pueden aplicarse a una ruleta de captura/intercambio/obtención que ya está en pantalla — las probabilidades se actualizan en vivo.",
       "1": "⚖️ Probabilidades reequilibradas: capturar Pokémon domina las ruletas iniciales, las pociones son más escasas, el Team Rocket es una amenaza real, y las batallas se vuelven más difíciles conforme avanzas.",
