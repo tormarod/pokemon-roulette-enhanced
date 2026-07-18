@@ -22,7 +22,8 @@ export class ItemSpriteService {
     "repel": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png' },
     "poke-radar": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-radar.png' },
     "max-repel": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-repel.png' },
-    "link-cable": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png' }
+    "link-cable": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png' },
+    "revive": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png' }
   };
 
   getItemSprite(itemName: ItemName): Observable<{ sprite: string } | undefined> {

@@ -1,0 +1,57 @@
+<div class="battle-prep-panel">
+    <h2 class="battle-prep-title">{{ 'game.main.roulette.battlePrep.title' | translate }}</h2>
+    <p class="battle-prep-subtitle">{{ 'game.main.roulette.battlePrep.chooseLead' | translate }}</p>
+
+    <div class="battle-prep-lead-list">
+        @for (pokemon of team; track $index) {
+            <button
+                type="button"
+                class="battle-prep-lead-card"
+                [class.selected]="selectedLeadIndex === $index"
+                (click)="selectLead($index)">
+                <img [src]="pokemon.sprite?.front_default" [alt]="pokemon.text | translate" class="battle-prep-lead-sprite">
+                <span class="battle-prep-lead-name">{{ pokemon.text | translate }}</span>
+                <div class="battle-prep-lead-types">
+                    @for (type of getPokemonTypes(pokemon); track type) {
+                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="16">
+                    }
+                </div>
+                @if (getMemberDelta(pokemon) > 0) {
+                    <span class="battle-prep-lead-delta battle-prep-lead-delta-positive">+{{ getMemberDelta(pokemon) }}</span>
+                } @else if (getMemberDelta(pokemon) < 0) {
+                    <span class="battle-prep-lead-delta battle-prep-lead-delta-negative">{{ getMemberDelta(pokemon) }}</span>
+                }
+            </button>
+        }
+    </div>
+
+    <div class="battle-prep-items-row">
+        @if (hasXAttack()) {
+            <button
+                type="button"
+                class="btn btn-outline-primary"
+                [class.active]="xAttackSelected"
+                (click)="toggleXAttack()">
+                {{ 'game.main.roulette.battlePrep.useXAttack' | translate }}
+            </button>
+        }
+        @if (availablePotionTiers().length) {
+            <div class="battle-prep-potion-tiers">
+                <span>{{ 'game.main.roulette.battlePrep.usePotion' | translate }}</span>
+                @for (tier of availablePotionTiers(); track tier) {
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        [class.active]="selectedPotion === tier"
+                        (click)="togglePotion(tier)">
+                        {{ 'items.' + tier + '.name' | translate }}
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-primary battle-prep-confirm" (click)="onConfirm()">
+        {{ 'game.main.roulette.battlePrep.confirm' | translate }}
+    </button>
+</div>

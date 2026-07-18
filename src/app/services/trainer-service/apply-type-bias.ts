@@ -42,7 +42,27 @@ export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases)
     result = result.map(p => applySoftWeight(p, towardSoftCounts, awaySoftCounts));
   }
 
+  const towardTypes = new Set([...hardTowardTypes, ...towardSoftCounts.keys()]);
+  const awayTypes = new Set([...hardAwayTypes, ...awaySoftCounts.keys()]);
+  if (towardTypes.size > 0 || awayTypes.size > 0) {
+    result = result.map(p => tagBiasVisuals(p, towardTypes, awayTypes));
+  }
+
   return result;
+}
+
+/** Tags a Pokémon with the wheel-slice highlight/dim flags (V2 B3) for the currently active biases. */
+function tagBiasVisuals(
+  pokemon: PokemonItem,
+  towardTypes: Set<PokemonType>,
+  awayTypes: Set<PokemonType>
+): PokemonItem {
+  const highlighted = matchesAnyType(pokemon, towardTypes);
+  const dimmed = matchesAnyType(pokemon, awayTypes);
+  if (!highlighted && !dimmed) {
+    return pokemon;
+  }
+  return { ...pokemon, highlighted, dimmed };
 }
 
 export function countByType(entries: TypeBiasEntry[]): Map<PokemonType, number> {

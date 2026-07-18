@@ -8,6 +8,10 @@
     "skipShinyRolls": "Shiny Roulette verstecken",
     "skipMegaEvolutionAnimation": "Mega-Entwicklungsanimation überspringen",
     "fastSpin": "Schnelles Drehen",
+    "newExperienceMode": {
+      "title": "Neuer Erfahrungsmodus",
+      "description": "Fügt Vorkampf-Entscheidungen und höhere Einsätze hinzu. Änderungen wirken sich erst auf deinen nächsten Durchlauf aus."
+    },
     "defaultGender": {
       "title": "Geschlecht des Charakters",
       "male": "Immer Junge",
@@ -333,6 +337,12 @@
         "label": "Als Nächstes:",
         "oneOf": "(einer dieser Typen)"
       },
+      "danger": {
+        "label": "Gefahr",
+        "safe": "Sicher",
+        "relief": "Du bist entkommen — die Luft ist erstmal rein.",
+        "help": "Je höher dieser Wert steigt, desto wahrscheinlicher ist eine Bedrohung beim nächsten Schritt. Bedrohungen senken ihn; ein paar sichere Schritte lassen ihn wieder steigen."
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -381,6 +391,7 @@
         },
         "adventure": {
           "title": "Was tun zwischen den Arena-Kämpfen?",
+          "chooseOne": "Wähle eins:",
           "actions": {
             "catchPokemon": "Fange ein Pokémon",
             "battleTrainer": "Trainer-Kampf",
@@ -399,12 +410,38 @@
             "goFishing": "Gehe angeln",
             "findFossil": "Finde ein Fossil",
             "battleRival": "Rivalen-Kampf",
-            "areaZero": "Erkunde Zone Null"
+            "areaZero": "Erkunde Zone Null",
+            "teamRocketAmbush": "Team Rocket Hinterhalt!",
+            "itemTheft": "Diebstahl",
+            "toll": "Wegzoll zahlen",
+            "badOmen": "Böses Omen"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Diebstahl!",
+              "stolenItem": "Ein Dieb hat sich mit deinem Gegenstand davongemacht: ",
+              "nothingFound": "Ein Dieb durchsuchte deine Tasche, fand aber nichts zum Mitnehmen."
+            },
+            "toll": {
+              "pickItem": "Welchen Gegenstand gibst du her?",
+              "pickPokemon": "Welches Pokémon gibst du her?"
+            },
+            "badOmen": {
+              "title": "Böses Omen",
+              "description": "Ein Schauer läuft dir über den Rücken — dein nächster Kampf wird härter als sonst."
+            }
           }
         },
         "areaZero": {
           "title": "Paradox-Pokémon",
           "catch": "Paradox-Pokémon fangen?"
+        },
+        "battlePrep": {
+          "title": "Wähle deinen Anführer",
+          "chooseLead": "Wähle das Pokémon, das diesen Kampf anführt",
+          "useXAttack": "X-Attacke einsetzen",
+          "usePotion": "Trank einsetzen",
+          "confirm": "Bestätigen"
         },
         "cave": {
           "explore": {
@@ -491,14 +528,17 @@
         "matchup": {
           "superEffective": "Sehr effektiv",
           "resists": "Resistent",
-          "weak": "Schwach"
+          "weak": "Schwach",
+          "abilities": "Fähigkeiten"
         },
         "rival": {
           "against": "Kampf gegen",
           "go": "Los geht's!",
+          "used": "Benutzt",
           "victory": "Erfolg?",
           "yes": "Ja",
-          "no": "Nein"
+          "no": "Nein",
+          "fainted": "wurde besiegt!"
         },
         "snorlax": {
           "outcome": "Ergebnis",
@@ -621,6 +661,10 @@
     "link-cable": {
       "name": "Linkkabel",
       "description": "Nutze das Linkkabel, um sofort ein Tauschangebot auszulösen!"
+    },
+    "revive": {
+      "name": "Wiederbeleb.",
+      "description": "Wiederbeleb. holt ein besiegtes Pokémon aus der Box zurück, bereit für dein Team!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1010,7 +1054,9 @@
       "stored": "In Box gelagert",
       "team": "Im Team",
       "unavailable": "PC ist nicht verfügbar",
-      "unavailableMessage": "Team Rocket blockiert dein Signal zum PC"
+      "unavailableMessage": "Team Rocket blockiert dein Signal zum PC",
+      "fainted": "Besiegt",
+      "revive": "Wiederbeleben"
     }
   },
   "wheel": {
@@ -3001,10 +3047,21 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_0_0": {
+      "0": "⚔️ Neue optionale Einstellung 'Neuer Erfahrungsmodus': Jeder Kampf beginnt jetzt mit einer Vorbereitungsphase — wähle, welches Pokémon den Kampf anführt (verdoppelt dessen Typvorteil), bevor du die Chancen siehst.",
+      "1": "🎒 Im Neuen Erfahrungsmodus kannst du eine X-Attacke oder einen Trank vor dem Drehen einsetzen, statt nur auf eine Niederlage zu reagieren — X-Attacke ist jetzt ein einmaliger, verbrauchter Bonus statt eines passiven Dauerbonus.",
+      "2": "🤺 Rivalenkämpfe haben im Neuen Erfahrungsmodus jetzt ebenfalls einen Wiederholungs-/Trank-Mechanismus (wie Arena/Top Vier/Champ). Der klassische Modus bleibt unverändert — standardmäßig aus, optional in den Einstellungen aktivierbar.",
+      "3": "🗺️ Ebenfalls im Neuen Erfahrungsmodus: Der Abenteuer-Schritt zwischen den Kämpfen bietet jetzt 3 Auswahlmöglichkeiten statt eines einzelnen Drehs, im Takt eines Gefahren-Meters, das steigt, je länger nichts passiert, und nach jeder Bedrohung sinkt.",
+      "4": "⚠️ Neue Bedrohungen können zwischen den Kämpfen auftauchen: ein Team-Rocket-Hinterhalt, ein Diebstahl, ein Wegzoll (gib einen Gegenstand her — oder, ohne Gegenstände, ein schwächeres Teammitglied) oder ein böses Omen, das nur deinen nächsten Kampf erschwert.",
+      "5": "✨ Typ-Bias-Items (Honig, Abwehrspray, Poké-Radar, Top-Abwehrspray) zeigen ihre Wirkung jetzt direkt am Rad — begünstigte Typen bekommen einen hellen Rand, gemiedene Typen werden abgedunkelt.",
+      "6": "🌟 Ebenfalls im Neuen Erfahrungsmodus: 18 kuratierte Pokémon-Fähigkeiten (eine pro Typ, z. B. Glurak Blaze oder Gengar Levitation) verschieben jetzt die Kampfchancen, wenn diese Spezies in deinem Team ist — angezeigt als Abzeichen neben der Matchup-Leiste.",
+      "7": "💀 Rivalenkämpfe haben jetzt echte Konsequenzen: Eine Niederlage besiegt dein gewähltes Anführer-Pokémon, statt kostenlos zu sein. Es wandert ausgegraut in den PC, bis es mit einem neuen, seltenen Wiederbelebungs-Item geheilt wird. Der klassische Modus bleibt unverändert."
+    },
     "v2_2_0": {
       "0": "🍯 Typ-Bias-Items stapeln sich jetzt bei erneuter Nutzung und lassen sich auf ein bereits angezeigtes Fang-/Tausch-/Beute-Rad anwenden — die Chancen aktualisieren sich live.",
       "1": "⚖️ Chancen neu ausbalanciert: Pokémon fangen dominiert die frühen Räder, Tränke sind seltener, Team Rocket ist eine echte Bedrohung, und Kämpfe werden mit fortschreitendem Spiel härter.",

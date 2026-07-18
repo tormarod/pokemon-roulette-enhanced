@@ -8,6 +8,10 @@
     "skipShinyRolls": "Nascondi i tiri Shiny",
     "skipMegaEvolutionAnimation": "Salta animazione Mega Evoluzione",
     "fastSpin": "Rotazione Rapida",
+    "newExperienceMode": {
+      "title": "Modalità Nuova Esperienza",
+      "description": "Aggiunge scelte pre-battaglia e posta più alta. Le modifiche avranno effetto dalla prossima partita."
+    },
     "defaultGender": {
       "title": "Genere del personaggio",
       "male": "Sempre Ragazzo",
@@ -333,6 +337,12 @@
         "label": "Prossimo:",
         "oneOf": "(uno di questi tipi)"
       },
+      "danger": {
+        "label": "Pericolo",
+        "safe": "Sicuro",
+        "relief": "Sei sfuggito — per ora il pericolo è passato.",
+        "help": "Più questo valore sale, più è probabile che il prossimo passo sia una minaccia. Le minacce lo abbassano; qualche passo sicuro lo lascia risalire."
+      },
       "roulette": {
         "generation": {
           "title": "Generazione?",
@@ -381,6 +391,7 @@
         },
         "adventure": {
           "title": "Cosa fai tra una Palestra e l'altra?",
+          "chooseOne": "Scegline uno:",
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
@@ -399,12 +410,38 @@
             "goFishing": "Vai a pescare",
             "findFossil": "Trova un fossile",
             "battleRival": "Lotta contro il rivale",
-            "areaZero": "Esplora Area Zero"
+            "areaZero": "Esplora Area Zero",
+            "teamRocketAmbush": "Imboscata del Team Rocket!",
+            "itemTheft": "Furto di oggetto",
+            "toll": "Pagare un pedaggio",
+            "badOmen": "Cattivo presagio"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Furto!",
+              "stolenItem": "Un ladro ha rubato il tuo ",
+              "nothingFound": "Un ladro ha frugato nella tua borsa ma non ha trovato nulla da prendere."
+            },
+            "toll": {
+              "pickItem": "Quale oggetto consegnerai?",
+              "pickPokemon": "Quale Pokémon consegnerai?"
+            },
+            "badOmen": {
+              "title": "Cattivo presagio",
+              "description": "Un brivido ti percorre la schiena — la tua prossima battaglia sarà più difficile del solito."
+            }
           }
         },
         "areaZero": {
           "title": "Pokémon Paradosso",
           "catch": "Catturare Pokémon Paradosso?"
+        },
+        "battlePrep": {
+          "title": "Scegli il tuo leader",
+          "chooseLead": "Scegli il Pokémon che guiderà questa battaglia",
+          "useXAttack": "Usa Attacco X",
+          "usePotion": "Usa una Pozione",
+          "confirm": "Conferma"
         },
         "cave": {
           "explore": {
@@ -491,14 +528,17 @@
         "matchup": {
           "superEffective": "Superefficace",
           "resists": "Resiste",
-          "weak": "Debole"
+          "weak": "Debole",
+          "abilities": "Abilità"
         },
         "rival": {
           "against": "Lotta contro",
           "go": "Andiamo!",
+          "used": "Ha usato",
           "victory": "Vittoria?",
           "yes": "Sì",
-          "no": "No"
+          "no": "No",
+          "fainted": "esausto!"
         },
         "snorlax": {
           "outcome": "Risultato",
@@ -621,6 +661,10 @@
     "link-cable": {
       "name": "Cavo Link",
       "description": "Usa il Cavo Link per attivare subito un'offerta di scambio!"
+    },
+    "revive": {
+      "name": "Revitalizz.",
+      "description": "Revitalizz. riporta indietro un Pokémon esausto dal deposito, pronto a unirsi alla squadra!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1010,7 +1054,9 @@
       "stored": "Depositati",
       "team": "In squadra",
       "unavailable": "Il PC non è disponibile",
-      "unavailableMessage": "Il Team Rocket sta bloccando le comunicazioni con il PC"
+      "unavailableMessage": "Il Team Rocket sta bloccando le comunicazioni con il PC",
+      "fainted": "Esausto",
+      "revive": "Revitalizza"
     }
   },
   "wheel": {
@@ -3001,10 +3047,21 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_0_0": "Versione 3.0.0",
   "whatsNew": {
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_0_0": {
+      "0": "⚔️ Nuova impostazione opzionale 'Modalità Nuova Esperienza': ogni battaglia ora inizia con una fase di preparazione — scegli quale Pokémon guida il combattimento (raddoppiando il suo vantaggio di tipo) prima di vedere le probabilità.",
+      "1": "🎒 In Modalità Nuova Esperienza puoi usare un Attacco X o una pozione prima che la ruota giri, invece di reagire solo a una sconfitta — l'Attacco X ora è un boost monouso e consumato invece di un bonus passivo sempre attivo.",
+      "2": "🤺 Le battaglie contro il rivale ora hanno un meccanismo di ritentativo/pozione (come palestra/Alto Comando/Campione) in Modalità Nuova Esperienza. La modalità classica non è interessata — disattivata di default, attivabile dalle Impostazioni.",
+      "3": "🗺️ Sempre in Modalità Nuova Esperienza: il passo d'avventura tra le battaglie ora offre 3 scelte invece di un singolo giro, scandito da un misuratore di Pericolo che sale più a lungo procedi senza intoppi e scende dopo ogni minaccia.",
+      "4": "⚠️ Nuove minacce possono comparire tra le battaglie: un'imboscata del Team Rocket, un furto di oggetto, un pedaggio (consegna un oggetto — o, senza oggetti, un membro più debole della squadra) o un cattivo presagio che rende più dura solo la prossima battaglia.",
+      "5": "✨ Gli oggetti di distorsione di tipo (Miele, Repellente, Radar Poké, Superrepellente) ora mostrano il loro effetto direttamente sulla ruota — i tipi favoriti ottengono un contorno luminoso, i tipi evitati vengono oscurati.",
+      "6": "🌟 Sempre in Modalità Nuova Esperienza: 18 abilità Pokémon selezionate (una per tipo, come Immenso di Charizard o Levitazione di Gengar) ora modificano le probabilità di battaglia se quella specie è nella tua squadra — mostrate come un badge accanto alla barra di confronto.",
+      "7": "💀 Le battaglie contro il rivale ora hanno conseguenze reali: una sconfitta rende esausto il tuo Pokémon guida invece di essere gratuita. Finisce nel PC, in grigio, finché non viene rianimato con un nuovo oggetto raro, Revitalizzante. La modalità classica non è interessata."
+    },
     "v2_2_0": {
       "0": "🍯 Gli oggetti di bias di tipo ora si accumulano se riutilizzati, e possono essere applicati a una ruota di cattura/scambio/ottenimento già a schermo — le probabilità si aggiornano in tempo reale.",
       "1": "⚖️ Probabilità riequilibrate: catturare Pokémon domina le prime ruote, le pozioni sono più rare, il Team Rocket è una minaccia reale, e le battaglie diventano più difficili man mano che avanzi.",

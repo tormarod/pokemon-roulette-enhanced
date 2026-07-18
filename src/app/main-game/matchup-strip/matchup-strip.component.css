@@ -48,3 +48,26 @@
 .matchup-delta-negative {
     color: #c62828;
 }
+
+.matchup-label-ability {
+    color: #6a1b9a;
+}
+
+.matchup-ability-badges {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.matchup-ability-badge {
+    font-size: small;
+    font-weight: bold;
+    color: #6a1b9a;
+    background: rgba(106, 27, 154, 0.12);
+    border: 1px solid #6a1b9a;
+    border-radius: 8px;
+    padding: 1px 6px;
+}

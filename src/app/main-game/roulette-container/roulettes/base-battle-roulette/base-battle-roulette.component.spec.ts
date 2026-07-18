@@ -10,6 +10,7 @@ import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { PokemonType } from '../../../../interfaces/pokemon-type';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 
 /**
  * Minimal concrete subclass purely for exercising the shared buildVictoryOdds()
@@ -25,11 +26,12 @@ class TestBattleRouletteComponent extends BaseBattleRouletteComponent {
   testOpponentTypes: PokemonType[] | undefined = undefined;
   testBaseNoCount = 1;
   testCurrentRound = 0;
+  testLeadIndex: number | undefined = undefined;
 
   protected onGameStateChange(): void {}
 
   protected calcVictoryOdds(): void {
-    this.victoryOdds = this.buildVictoryOdds(this.testOpponentTypes, 'test.battle', this.testBaseNoCount, this.testCurrentRound);
+    this.victoryOdds = this.buildVictoryOdds(this.testOpponentTypes, 'test.battle', this.testBaseNoCount, this.testCurrentRound, this.testLeadIndex);
   }
 
   recalc(): void {
@@ -50,6 +52,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
   let fixture: ComponentFixture<TestBattleRouletteComponent>;
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
+  let battleDebuffService: BattleDebuffService;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 1,
@@ -77,9 +80,11 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
     gameStateService = TestBed.inject(GameStateService);
+    battleDebuffService = TestBed.inject(BattleDebuffService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
+    battleDebuffService.clearDebuff();
     fixture.detectChanges();
   });
 
@@ -224,5 +229,83 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
   it('returns undefined when no potions are in the inventory', () => {
     component.setItems([{ name: 'x-attack', text: '', fillStyle: '', weight: 1, description: '', sprite: '' }]);
     expect(component.testHasPotions()).toBeUndefined();
+  });
+
+  // ── leadIndex: doubles the chosen lead's signed delta ──────────────────
+
+  it('doubles the advantage for a lead with a favorable matchup', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' })); // SE vs fire AND resists fire: netScore=2, delta=2
+    component.testOpponentTypes = ['fire'];
+    component.testLeadIndex = 0;
+    component.recalc();
+    // Without lead doubling: base(1) + yesPower(2+2)=5 yes, matchupAdvantageDelta=2 (see prior spec).
+    // With the same member as lead, its delta(2) is applied a second time:
+    // yes = base(1) + yesPower(4) + leadAdvantageDelta(2) = 7; matchupAdvantageDelta = 2 + 2 = 4.
+    expect(yesCount()).toBe(7);
+    expect(component.matchupAdvantageDelta).toBe(4);
+    expect(component.matchupDisadvantageDelta).toBe(0);
+  });
+
+  it('doubles the disadvantage (extra No tickets) for a lead with an unfavorable matchup', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire: netScore=-2, delta=-2
+    component.testOpponentTypes = ['fire'];
+    component.testLeadIndex = 0;
+    component.recalc();
+    // Without lead doubling: yes=base(1)+power(2)=3, no=base(1)+noBonus(2)=3, matchupDisadvantageDelta=2.
+    // With lead doubling: no = base(1) + noBonus(2) + leadDisadvantageDelta(2) = 5; matchupDisadvantageDelta = 2 + 2 = 4.
+    expect(yesCount()).toBe(3);
+    expect(noCount()).toBe(5);
+    expect(component.matchupDisadvantageDelta).toBe(4);
+    expect(component.matchupAdvantageDelta).toBe(0);
+  });
+
+  it('is a no-op for a lead with a neutral matchup (delta 0)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 4, type1: 'bug' })); // strong vs grass, weak vs fire: netScore=0
+    component.testOpponentTypes = ['grass', 'fire'];
+    component.testLeadIndex = 0;
+    component.recalc();
+    expect(yesCount()).toBe(5); // unchanged from the no-lead neutral case
+    expect(noCount()).toBe(1);
+    expect(component.matchupAdvantageDelta).toBe(0);
+    expect(component.matchupDisadvantageDelta).toBe(0);
+  });
+
+  it('does not affect odds when leadIndex is undefined (Classic mode / no lead chosen)', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+    component.testOpponentTypes = ['fire'];
+    component.testLeadIndex = undefined;
+    component.recalc();
+    expect(yesCount()).toBe(5);
+    expect(component.matchupAdvantageDelta).toBe(2);
+  });
+
+  it('ignores an out-of-range leadIndex rather than throwing', () => {
+    trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
+    component.testOpponentTypes = ['fire'];
+    component.testLeadIndex = 5;
+    expect(() => component.recalc()).not.toThrow();
+    expect(yesCount()).toBe(5);
+    expect(component.matchupAdvantageDelta).toBe(2);
+  });
+
+  // ── badOmen: extra No tickets from a pending battle debuff ─────────────
+
+  it('adds the pending battle debuff to the No tickets', () => {
+    component.testBaseNoCount = 1;
+    component.testCurrentRound = 0;
+    battleDebuffService.setDebuff(2);
+
+    component.recalc();
+
+    expect(noCount()).toBe(3); // base(1) + debuff(2)
+  });
+
+  it('adds no extra No tickets when there is no pending debuff', () => {
+    component.testBaseNoCount = 1;
+    component.testCurrentRound = 0;
+
+    component.recalc();
+
+    expect(noCount()).toBe(1);
   });
 });

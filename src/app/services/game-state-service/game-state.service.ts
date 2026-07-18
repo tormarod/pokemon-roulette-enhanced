@@ -30,6 +30,9 @@ export class GameStateService {
   private wheelSpinning = new BehaviorSubject<boolean>(false);
   wheelSpinningObserver = this.wheelSpinning.asObservable();
 
+  private newExperienceMode = new BehaviorSubject<boolean>(false);
+  newExperienceModeObserver = this.newExperienceMode.asObservable();
+
   constructor(private generationService: GenerationService) {
     const genId = this.generationService.getCurrentGeneration().id;
     const config = GENERATION_GAME_CONFIG[genId] ?? { gymCount: 8, eliteFourCount: 4 };
@@ -85,6 +88,11 @@ export class GameStateService {
     return 'game-over';
   }
 
+  /** Synchronous read for non-reactive call sites (e.g. DangerMeterService.rollStep). */
+  get currentRoundValue(): number {
+    return this.currentRound.value;
+  }
+
   advanceRound(): void {
     this.currentRound.next(this.currentRound.value + 1);
   }
@@ -101,12 +109,23 @@ export class GameStateService {
     this.wheelSpinning.next(state);
   }
 
-  resetGameState(): void {
+  /** Synchronous read for non-reactive call sites (e.g. calcVictoryOdds()). */
+  get isNewExperienceMode(): boolean {
+    return this.newExperienceMode.value;
+  }
+
+  /** Restores the snapshot taken at run start, without touching the stack/round. */
+  restoreNewExperienceMode(value: boolean): void {
+    this.newExperienceMode.next(value);
+  }
+
+  resetGameState(newExperienceMode: boolean = false): void {
     const genId = this.generationService.getCurrentGeneration().id;
     const config = GENERATION_GAME_CONFIG[genId] ?? { gymCount: 8, eliteFourCount: 4 };
     this.initializeStates(config.gymCount, config.eliteFourCount);
     this.setNextState('game-start');
     this.finishCurrentState();
     this.currentRound.next(0);
+    this.newExperienceMode.next(newExperienceMode);
   }
 }

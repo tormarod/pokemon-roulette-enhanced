@@ -26,6 +26,7 @@ import { RareCandyService } from '../services/rare-candy-service/rare-candy.serv
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
+import { SettingsService } from '../services/settings-service/settings.service';
 
 interface GroupedBias {
   type: PokemonType;
@@ -65,7 +66,8 @@ export class MainGameComponent implements OnInit {
     private rareCandyService: RareCandyService,
     private megaStoneService: MegaStoneService,
     private typeBiasItemService: TypeBiasItemService,
-    private linkCableService: LinkCableService) {
+    private linkCableService: LinkCableService,
+    private settingsService: SettingsService) {
       this.darkMode = this.themeService.isDark$;
   }
 
@@ -198,6 +200,6 @@ export class MainGameComponent implements OnInit {
     this.trainerService.resetItems();
     this.trainerService.resetBadges();
     this.trainerService.clearPendingTypeBiases();
-    this.gameStateService.resetGameState();
+    this.gameStateService.resetGameState(this.settingsService.currentSettings.newExperienceMode);
   }
 }

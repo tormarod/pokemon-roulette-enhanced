@@ -11,4 +11,6 @@ export interface PokemonItem extends WheelItem {
   } | null;
   shiny: boolean;
   power: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  /** New Experience only: set when a rival loss faints this Pokémon (game-balance-v4). Stored, not on the active team, until revived. */
+  fainted?: boolean;
 }

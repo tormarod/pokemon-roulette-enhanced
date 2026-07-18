@@ -18,5 +18,7 @@ export class MatchupStripComponent {
   @Input() weakTypes: PokemonType[] = [];
   @Input() advantageDelta = 0;
   @Input() disadvantageDelta = 0;
+  /** Names of active team abilities this battle (New Experience only), e.g. ["Blaze", "Intimidate"]. */
+  @Input() abilityNames: string[] = [];
   readonly getTypeIconUrl = getTypeIconUrl;
 }

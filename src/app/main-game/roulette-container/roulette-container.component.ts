@@ -66,6 +66,10 @@ import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-lead
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 import { championByGeneration } from './roulettes/champion-battle-roulette/champion-by-generation';
 import { StatsService } from '../../services/stats-service/stats.service';
+import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
+
+/** V2 "badOmen" threat: extra No tickets on the next battle. */
+const BADOMEN_DEBUFF_AMOUNT = 2;
 
 @Component({
   selector: 'app-roulette-container',
@@ -138,7 +142,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private typeBiasItemService: TypeBiasItemService,
       private linkCableService: LinkCableService,
       private generationService: GenerationService,
-      private statsService: StatsService) {
+      private statsService: StatsService,
+      private battleDebuffService: BattleDebuffService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -307,6 +312,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   wheelSpinning: boolean = false;
   private megaSelectionMode: 'none' | 'battle-award-pokemon' | 'battle-award-stone' = 'none';
   private pendingMegaAwardPokemon: PokemonItem | null = null;
+  /** True only while the 'select-from-item-list' screen is up for the toll threat's item pick. */
+  private tollSelectionMode = false;
 
   getGameState(): string {
     return this.currentGameState;
@@ -491,6 +498,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         this.finishCurrentState();
         break;
       }
+      case 'toll-pokemon': {
+        // Same weak-biased pick as steal-pokemon, but a toll payment is gone
+        // for good — unlike a Team Rocket steal, it's never set as
+        // `stolenPokemon` and so can never be recovered by defeating anyone.
+        const index = this.auxPokemonList.indexOf(pokemon);
+        const original = index !== -1 ? this.stealCandidates[index] : pokemon;
+        this.removeFromTeam(original);
+        this.finishCurrentState();
+        break;
+      }
       case 'trade-pokemon':
         this.currentContextPokemon = pokemon;
         break;
@@ -505,6 +522,26 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     if (this.handleMegaStoneAwardSelection(item)) {
       return;
     }
+
+    if (this.handleTollItemSelection(item)) {
+      return;
+    }
+  }
+
+  /**
+   * V2 "toll" threat (New Experience only): the player picked which item to
+   * hand over. removeItem() alone is the commit — no confirmation modal,
+   * matching the low-ceremony bias-item pattern (handleTypeBiasItemUse).
+   */
+  private handleTollItemSelection(item: ItemItem): boolean {
+    if (!this.tollSelectionMode) {
+      return false;
+    }
+    this.tollSelectionMode = false;
+    this.auxItemList = [];
+    this.trainerService.removeItem(item);
+    this.doNothing();
+    return true;
   }
 
   selectPokemonForm(pokemonForm: PokemonForm): void {
@@ -729,6 +766,65 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.finishCurrentState();
   }
 
+  /** V2 "itemTheft" threat (New Experience only): removes one random item, or nothing if the inventory is empty. */
+  itemTheft(): void {
+    const items = this.trainerService.getItems();
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.itemTheft.title');
+
+    if (items.length === 0) {
+      this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.itemTheft.nothingFound');
+    } else {
+      const stolenItem = items[Math.floor(Math.random() * items.length)];
+      this.trainerService.removeItem(stolenItem);
+      const itemName = this.translateService.instant(stolenItem.text);
+      this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.itemTheft.stolenItem') + itemName;
+    }
+
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  /**
+   * V2 "toll" threat (New Experience only): the player picks an item to hand
+   * over; with no items held, it costs a team Pokémon instead (reused
+   * weak-biased pick — see the 'toll-pokemon' case in continueWithPokemon()).
+   */
+  toll(): void {
+    const items = this.trainerService.getItems();
+    if (items.length > 0) {
+      this.auxItemList = items;
+      this.customWheelTitle = 'game.main.roulette.adventure.threats.toll.pickItem';
+      this.tollSelectionMode = true;
+      this.gameStateService.setNextState('select-from-item-list');
+      this.finishCurrentState();
+      return;
+    }
+
+    const trainerTeam = this.trainerService.getTeam();
+    if (trainerTeam.length < 2) {
+      // Never take the player's only Pokémon — nothing left to demand.
+      this.doNothing();
+      return;
+    }
+
+    this.stealCandidates = trainerTeam;
+    this.auxPokemonList = this.weightByInversePower(trainerTeam);
+    this.customWheelTitle = 'game.main.roulette.adventure.threats.toll.pickPokemon';
+    this.auxPokemonListPickMode = false;
+    this.gameStateService.setNextState('toll-pokemon');
+    this.gameStateService.setNextState('select-from-pokemon-list');
+    this.finishCurrentState();
+  }
+
+  /** V2 "badOmen" threat (New Experience only): extra No tickets on the next battle, persisted so a reload can't shake it off. */
+  badOmen(): void {
+    this.battleDebuffService.setDebuff(BADOMEN_DEBUFF_AMOUNT);
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
   paradoxCaptureChance(pokemon: PokemonItem): void {
     this.currentContextPokemon = structuredClone(pokemon);
     // Single-wheel-use: the bias already weighted this Area Zero spin.
@@ -752,8 +848,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.statsService.recordBattleWin('rival');
       this.chooseWhoWillEvolve('battle-rival');
     } else {
-      // A rival loss never ends the run, so it's never a "nemesis" — omit the opponent key.
+      // A rival loss never ends the run on its own — it faints the lead
+      // instead (New Experience only, see RivalBattleRouletteComponent). It's
+      // never a "nemesis" — omit the opponent key.
       this.statsService.recordBattleLoss('rival');
+      // Edge case: the faint above emptied the team (no Pokémon left to
+      // field). Nothing to continue with — end the run like any other loss.
+      if (this.gameStateService.isNewExperienceMode && this.trainerService.getTeam().length === 0) {
+        this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
+        this.gameStateService.setNextState('game-over');
+      }
       this.doNothing();
     }
   }

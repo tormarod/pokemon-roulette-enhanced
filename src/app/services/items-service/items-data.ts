@@ -105,5 +105,16 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     fillStyle: 'silver',
     weight: 0.25,
     description: 'items.link-cable.description'
+  },
+  'revive': {
+    text: 'items.revive.name',
+    name: 'revive',
+    sprite: '',
+    fillStyle: 'gold',
+    // Rarer than hyper-potion (0.25) — Revive is the scarce, high-stakes item
+    // the healing economy is meant to build toward. New Experience only (see
+    // ItemsService.getRegularItems); tune after playtest like V1's other dials.
+    weight: 0.15,
+    description: 'items.revive.description'
   }
 };

@@ -8,6 +8,10 @@
     "skipShinyRolls": "Hide Shiny Rolls",
     "skipMegaEvolutionAnimation": "Skip Mega Evolution Animation",
     "fastSpin": "Fast Spin",
+    "newExperienceMode": {
+      "title": "New Experience Mode",
+      "description": "Adds pre-battle choices and higher stakes. Changes take effect on your next run."
+    },
     "defaultGender": {
       "title": "Character Gender",
       "male": "Always Boy",
@@ -333,6 +337,12 @@
         "label": "Next up:",
         "oneOf": "(one of these types)"
       },
+      "danger": {
+        "label": "Danger",
+        "safe": "Safe",
+        "relief": "You slipped away — the heat's off, for now.",
+        "help": "The higher this climbs, the more likely your next step is a threat. Threats relieve it; a few safe steps let it climb back up."
+      },
       "roulette": {
         "generation": {
           "title": "Generation?",
@@ -381,6 +391,7 @@
         },
         "adventure": {
           "title": "What do you do between Gyms?",
+          "chooseOne": "Choose one:",
           "actions": {
             "catchPokemon": "Catch a Pokemon",
             "battleTrainer": "Trainer Battle",
@@ -399,12 +410,38 @@
             "goFishing": "Go Fishing",
             "findFossil": "Find a Fossil",
             "battleRival": "Battle Rival",
-            "areaZero": "Explore Area Zero"
+            "areaZero": "Explore Area Zero",
+            "teamRocketAmbush": "Team Rocket Ambush!",
+            "itemTheft": "Item Theft",
+            "toll": "Pay a Toll",
+            "badOmen": "Bad Omen"
+          },
+          "threats": {
+            "itemTheft": {
+              "title": "Item Theft!",
+              "stolenItem": "A thief made off with your ",
+              "nothingFound": "A thief rummaged through your bag but found nothing to take."
+            },
+            "toll": {
+              "pickItem": "Which item will you hand over?",
+              "pickPokemon": "Which Pokémon will you give up?"
+            },
+            "badOmen": {
+              "title": "Bad Omen",
+              "description": "A chill runs down your spine — your next battle will be tougher than usual."
+            }
           }
         },
         "areaZero": {
           "title": "Paradox Pokémon",
           "catch": "Catch Paradox Pokémon?"
+        },
+        "battlePrep": {
+          "title": "Choose your lead",
+          "chooseLead": "Pick the Pokémon that will lead this battle",
+          "useXAttack": "Use X Attack",
+          "usePotion": "Use a Potion",
+          "confirm": "Confirm"
         },
         "cave": {
           "explore": {
@@ -491,14 +528,17 @@
         "matchup": {
           "superEffective": "Super effective",
           "resists": "Resists",
-          "weak": "Weak"
+          "weak": "Weak",
+          "abilities": "Abilities"
         },
         "rival": {
           "against": "Battle against",
           "go": "Let's Go!",
+          "used": "Used a",
           "victory": "Victory?",
           "yes": "Yes",
-          "no": "No"
+          "no": "No",
+          "fainted": "fainted!"
         },
         "snorlax": {
           "outcome": "Outcome",
@@ -621,6 +661,10 @@
     "link-cable": {
       "name": "Link Cable",
       "description": "Use Link Cable to trigger a trade offer right away !"
+    },
+    "revive": {
+      "name": "Revive",
+      "description": "Revive brings a fainted Pokémon back from storage, ready to rejoin your team!"
     },
     "abomasite": {
       "name": "Abomasite",
@@ -1010,7 +1054,9 @@
       "stored": "Stored",
       "team": "On Team",
       "unavailable": "PC is unavailable",
-      "unavailableMessage": "Team Rocket is jamming communications with the PC"
+      "unavailableMessage": "Team Rocket is jamming communications with the PC",
+      "fainted": "Fainted",
+      "revive": "Revive"
     }
   },
   "wheel": {
@@ -3001,10 +3047,21 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_0_0": "Version 3.0.0",
   "whatsNew": {
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v3_0_0": {
+      "0": "⚔️ New opt-in 'New Experience Mode' setting: every battle now opens with a prep step — pick which Pokémon leads the fight (doubling its type-matchup swing) before you see the odds.",
+      "1": "🎒 In New Experience Mode, spend an X Attack or a potion before the wheel spins instead of only reacting to a loss — X Attack is now a one-time, consumed boost instead of a passive always-on bonus.",
+      "2": "🤺 Rival battles gained a retry/potion mechanic (matching gym/Elite Four/Champion) in New Experience Mode. Classic mode is entirely unaffected — off by default, opt in from Settings.",
+      "3": "🗺️ Also in New Experience Mode: the adventure step between fights now offers 3 choices instead of a single spin, paced by a Danger meter that climbs the longer you go without trouble and drops after every threat.",
+      "4": "⚠️ New threats can turn up between fights: a Team Rocket ambush, an item theft, a toll (hand over an item — or, empty-handed, a weaker team member), or a bad omen that makes just your next battle tougher.",
+      "5": "✨ Type-bias items (Honey, Repel, Poké Radar, Max Repel) now show their effect right on the wheel — boosted types get a bright outline, steered-away types get dimmed.",
+      "6": "🌟 Also in New Experience Mode: 18 curated Pokémon abilities (one per type, like Charizard's Blaze or Gengar's Levitate) now shift battle odds if that species is on your team — shown as a badge next to the matchup strip.",
+      "7": "💀 Rival battles now have real stakes: a loss faints your chosen lead instead of being free. It's pulled to the PC, greyed out, until revived with a new, rare Revive item. Classic mode is unaffected."
+    },
     "v2_2_0": {
       "0": "🍯 Type-bias items now stack when reused, and can be applied to a catch/trade/obtain wheel already on screen — odds update live.",
       "1": "⚖️ Rebalanced the odds: catching Pokémon dominates the early wheels, potions are scarcer, Team Rocket is a real threat, and battles get tougher the further you go.",

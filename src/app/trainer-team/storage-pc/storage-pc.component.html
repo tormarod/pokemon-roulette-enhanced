@@ -36,15 +36,26 @@
           [cdkDropListEnterPredicate]="lastPokemonPredicate">
       @for (pokemon of storedPokemon; track pokemon) {
         <div  class="pokemon-storage-card shadow"
+              [class.fainted-card]="pokemon.fainted"
               [cdkDragData]="pokemon"
+              [cdkDragDisabled]="!!pokemon.fainted"
               cdkDrag>
           <img [src]="getSprite(pokemon)"
                class="img-fluid"
+               [class.fainted-sprite]="pokemon.fainted"
                placement="bottom"
                container="body"
                [ngbTooltip]="pokemonInfoTooltip"
                triggers="hover click"
                [tooltipContext]="{ pokemon: pokemon }">
+          @if (pokemon.fainted) {
+            <span class="fainted-badge">{{ 'trainer.storage.fainted' | translate }}</span>
+            @if (hasRevive()) {
+              <button type="button" class="btn btn-sm btn-outline-primary revive-button" (click)="revivePokemon(pokemon)">
+                {{ 'trainer.storage.revive' | translate }}
+              </button>
+            }
+          }
         </div>
       }
     </div>

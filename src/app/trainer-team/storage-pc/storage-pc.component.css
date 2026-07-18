@@ -53,3 +53,26 @@
 .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+.fainted-card {
+  cursor: default;
+  background: #b2bec3;
+}
+
+.fainted-sprite {
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+.fainted-badge {
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  color: #636e72;
+}
+
+.revive-button {
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 1px 6px;
+}

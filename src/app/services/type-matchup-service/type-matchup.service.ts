@@ -99,7 +99,8 @@ export class TypeMatchupService {
     return total;
   }
 
-  private getMemberDeltaSigned(member: PokemonItem, opponentTypes: PokemonType[]): number {
+  /** Signed, magnitude-scaled contribution of one team member against the opponent's types. */
+  getMemberSignedDelta(member: PokemonItem, opponentTypes: PokemonType[]): number {
     return this.getMemberNetScore(member, opponentTypes) * this.getMemberDelta(member);
   }
 
@@ -129,7 +130,7 @@ export class TypeMatchupService {
 
     for (const member of team) {
       yesPower += member.power;
-      const delta = this.getMemberDeltaSigned(member, opponentTypes);
+      const delta = this.getMemberSignedDelta(member, opponentTypes);
 
       if (delta > 0) {
         yesPower += delta;

@@ -11,4 +11,5 @@ export type RegularItemName =
   | 'repel'
   | 'poke-radar'
   | 'max-repel'
-  | 'link-cable';
+  | 'link-cable'
+  | 'revive';

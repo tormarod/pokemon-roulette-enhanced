@@ -9,6 +9,7 @@ export interface GameSettings {
   fastSpin: boolean;
   lessExplanations: boolean;
   defaultGender: 'male' | 'female' | 'always-choose';
+  newExperienceMode: boolean;
 }
 
 @Injectable({
@@ -24,7 +25,8 @@ export class SettingsService {
     skipMegaEvolutionAnimation: false,
     fastSpin: false,
     lessExplanations: false,
-    defaultGender: 'always-choose'
+    defaultGender: 'always-choose',
+    newExperienceMode: false
   };
 
   private settingsSubject$: BehaviorSubject<GameSettings>;
@@ -84,6 +86,12 @@ export class SettingsService {
   setDefaultGender(gender: 'male' | 'female' | 'always-choose'): void {
     const currentSettings = this.currentSettings;
     const newSettings = { ...currentSettings, defaultGender: gender };
+    this.updateSettings(newSettings);
+  }
+
+  toggleNewExperienceMode(): void {
+    const currentSettings = this.currentSettings;
+    const newSettings = { ...currentSettings, newExperienceMode: !currentSettings.newExperienceMode };
     this.updateSettings(newSettings);
   }
 

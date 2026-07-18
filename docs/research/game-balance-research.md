@@ -16,20 +16,81 @@ Author: research pass, 2026-07-16
   ("pick your poison"), gated by a **meta-roll** (reward-step vs threat-step) so
   threat frequency is one tunable knob. (c) **New threats added** to stock the
   threat wheel. No pre-spin battle changes (moved to V3).
-- **V3 — Pre-spin battle mechanics.** "Choose your lead" (doubles that Pokémon's
-  matchup delta — advantage if the read is right, disadvantage if wrong) + a
-  formal pre-spin item step. **Committed & persisted on confirm** (reload-proof,
-  mirroring `PendingSpinService`).
-- **V4 — Depth & stakes.** Abilities (curated set) + defeat mechanic (Pokémon
-  faint → heal to revive; between-gym battles only, never gyms; the lever for how
-  impactful potions are). The V3 lead becomes the mon at risk on a loss.
-  - **Expect V2 wheels to need re-tuning / re-pooling at V4.** Once a battle loss
-    can faint a Pokémon, encounters that are *reward-only* today become genuine
-    threats — e.g. the **rival** (and **trainer**) battles, which V2 leaves in the
-    reward pool, would become dual-nature (win = evolution, lose = a faint) and may
-    need to move into the **threat** pool or become TR-style dual entries. The V2
-    reward/threat pools and the Danger-meter tuning will need a revisit when V4
-    lands. (Think about specifics then, not now.)
+### V3 — Pre-spin battle mechanics
+
+A **pre-spin decision step** that runs after the battle screen is shown but before
+the player spins the Yes/No wheel. Two sub-mechanics, both **committed & persisted
+on confirm** so a player can't lock a choice, see it's bad, and reload to undo it
+(same anti-reroll guarantee as `PendingSpinService` — see the run-persistence
+architecture note in CLAUDE.md).
+
+**(a) Choose your lead.** Before spinning, the player picks one team member as the
+"lead" for this battle. That Pokémon's matchup delta is **doubled** in
+`buildVictoryOdds`: if the read is right (the lead has a type advantage) it adds
+double the advantage to `Yes`; if wrong (a disadvantage) it adds double the
+disadvantage to `No`. High risk / high reward — rewards reading the opponent's
+type, punishes a careless pick. The per-Pokémon delta today is `ceil(power/2)`
+(offense best-case → `Yes`, defense worst-case → `No`; the invariant that the
+delta depends only on that Pokémon, never team composition, must be preserved —
+CLAUDE.md). "Doubling the delta" means applying that same mon's advantage/
+disadvantage term a second time, only for the chosen lead.
+
+**(b) Formal pre-spin item step.** A structured moment to use battle items (e.g.
+x-attack, and whatever bias/consumable items are relevant) *before* spinning,
+rather than the current ad-hoc flow — so item use and the lead choice are one
+coherent "prepare for battle" step that then commits together.
+
+**Persistence shape (concrete):** mirror `PendingSpinService` — introduce a
+`PendingBattlePrep` (chosen lead id + items applied) that is committed to the
+`SavedRun` via `RunPersistenceService` the instant the player confirms the prep
+step, *before* the spin. On restore, a battle whose prep was already committed
+re-hydrates the lead/items and goes straight to the spin. Wire the new persistent
+field into `RunPersistenceService` exactly like other run state (CLAUDE.md's
+persistence invariant).
+
+**Open decisions for the user (surface these, don't decide):**
+1. Is choosing a lead **mandatory** each battle, or optional (skip = no doubling)?
+2. Does the lead mechanic apply to **all four** battle types (gym / rival / Elite
+   Four / Champion) or only some?
+3. Which items are eligible in the pre-spin item step, and can the lead choice be
+   changed after applying an item but before the final confirm?
+
+### V4 — Depth & stakes
+
+Two mechanics that add lasting consequence. This is the biggest rebalance; it
+changes what a battle loss *means*.
+
+**(a) Abilities (curated set).** A small, hand-picked set of abilities that modify
+odds or mechanics — NOT the full Pokémon ability list. Scope kept deliberately
+narrow so each is legible and tunable.
+
+**(b) Defeat / faint mechanic.** A battle loss can cause a Pokémon to **faint**
+(not be removed permanently) — the player then **heals it to revive** it. This is
+the lever that finally gives potions/healing real weight (V1 made healing scarce;
+V4 gives it a stake). Key constraints, already decided:
+- **Between-gym battles only, never gym battles.** Gyms stay pure Yes/No; the
+  faint stake applies to the lower-stakes encounters (rival/trainer/Team-Rocket-
+  style) so a bad gym spin doesn't gut your team.
+- **The V3 lead is the mon at risk.** The Pokémon chosen as lead in the V3 pre-
+  spin step is the one that faints on a loss — tying the two versions together:
+  choosing a strong lead raises your odds but puts that mon on the line.
+- Faint → heal-to-revive; tune how impactful potions are via how costly reviving
+  is. (V4 is where the healing economy from V1 pays off.)
+
+**Open decisions for the user (surface these, don't decide):**
+1. The **exact ability set** (which abilities, what each does numerically).
+2. **Faint/revive numbers:** what does reviving cost (which potion tiers work,
+   how many), can a fainted mon still be on the team but unusable until revived,
+   what happens if you have no healing.
+3. Whether fainting is **guaranteed** on a between-gym loss or **probabilistic**.
+
+**Expect V2 wheels to need re-tuning / re-pooling at V4.** Once a battle loss can
+faint a Pokémon, encounters that are *reward-only* today become genuine threats —
+e.g. the **rival** (and **trainer**) battles, which V2 leaves in the reward pool,
+become dual-nature (win = evolution, lose = a faint) and may need to move into the
+**threat** pool or become Team-Rocket-style dual entries (present in both pools).
+The V2 reward/threat pools and the Danger-meter tuning will need a revisit when V4
+lands. (Work out specifics then, not now.)
 
 ## 0. Scope
 

@@ -17,6 +17,7 @@ export type GameState =
   | 'adventure-continues'
   | 'team-rocket-encounter'
   | 'steal-pokemon'
+  | 'toll-pokemon'
   | 'mysterious-egg'
   | 'legendary-encounter'
   | 'catch-legendary'
