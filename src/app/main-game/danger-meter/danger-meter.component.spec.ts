@@ -54,6 +54,14 @@ describe('DangerMeterComponent', () => {
     expect(fixture.nativeElement.querySelector('.shielded')).toBeTruthy();
   });
 
+  it('should show the shielded/safe badge while guaranteed reward steps remain (multitask burst)', () => {
+    dangerMeterService.restore(50, 0, 2); // mid-multitask: 2 guaranteed threat-free steps queued
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.danger-meter-safe-badge')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.shielded')).toBeTruthy();
+  });
+
   it('should not show the relief cue on first render', () => {
     dangerMeterService.restore(50, 0);
     fixture.detectChanges();

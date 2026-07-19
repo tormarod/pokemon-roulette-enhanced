@@ -101,6 +101,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -164,6 +165,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true },
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -206,12 +208,13 @@ describe('RunPersistenceService', () => {
 
   it('should save the danger meter state to localStorage when it changes', () => {
     const dangerMeterService = TestBed.inject(DangerMeterService);
-    dangerMeterService.restore(45, 2);
+    dangerMeterService.restore(45, 2, 1);
     trainerService.addToTeam(makeTestPokemon());
 
     const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
     expect(stored.dangerPercent).toBe(45);
     expect(stored.consecutiveThreats).toBe(2);
+    expect(stored.guaranteedRewardSteps).toBe(1);
   });
 
   it('should restore the danger meter state from a saved run on construction', () => {
@@ -230,6 +233,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 30,
       consecutiveThreats: 1,
+      guaranteedRewardSteps: 2,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -244,6 +248,7 @@ describe('RunPersistenceService', () => {
     const restoredDangerMeterService = TestBed.inject(DangerMeterService);
     expect(restoredDangerMeterService.currentDangerPercent).toBe(30);
     expect(restoredDangerMeterService.currentConsecutiveThreats).toBe(1);
+    expect(restoredDangerMeterService.currentGuaranteedRewardSteps).toBe(2);
   });
 
   it('should default dangerPercent/consecutiveThreats when restoring an older save without those fields', () => {
@@ -297,6 +302,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: { stepType: 'reward', candidates: ['catchPokemon', 'findItem', 'battleRival'], picked: 1 },
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -362,6 +368,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 2,
       markedTeamIndex: null,
@@ -425,6 +432,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: 1,
@@ -488,6 +496,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -566,6 +575,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
@@ -613,6 +623,7 @@ describe('RunPersistenceService', () => {
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
       markedTeamIndex: null,

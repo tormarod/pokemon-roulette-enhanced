@@ -351,6 +351,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       if (this.trainerService.hasItem('running-shoes') && !this.runningShoesUsed) {
         this.runningShoesUsed = true;
         this.gameStateService.setNextState('adventure-continues');
+        // Same rule as multitask: the bonus step Running Shoes grants is
+        // guaranteed threat-free (the danger meter still climbs across it).
+        this.dangerMeterService.addGuaranteedRewardSteps(1);
       }
     }
 
@@ -770,6 +773,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.gameStateService.setNextState('adventure-continues');
     this.multitaskCounter = this.multitaskCounter + 2;
     this.respinReason = 'Multitask x' + this.multitaskCounter;
+    // The extra picks multitask hands out are guaranteed threat-free (New
+    // Experience mode) — a reward that grants more rewards shouldn't be able to
+    // ambush you. The danger meter still climbs across them. No-op in Classic
+    // mode, where nothing draws through the danger meter.
+    this.dangerMeterService.addGuaranteedRewardSteps(2);
     this.finishCurrentState();
   }
 

@@ -30,7 +30,11 @@ export class DangerMeterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.dangerSubscription = this.dangerMeterService.dangerPercent$.subscribe(percent => {
+    // Subscribe to the full state (not the distinctUntilChanged percent stream):
+    // a multitask burst flips the shielded flag via guaranteedRewardSteps without
+    // necessarily changing the percent, and that must still update the badge.
+    this.dangerSubscription = this.dangerMeterService.getStateObservable().subscribe(state => {
+      const percent = state.dangerPercent;
       if (this.previousPercent !== null && percent < this.previousPercent) {
         this.triggerReliefCue();
       }

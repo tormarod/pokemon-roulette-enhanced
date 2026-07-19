@@ -97,6 +97,15 @@ describe('RouletteContainerComponent', () => {
       expect(states[states.length - 1]).not.toBe('adventure-continues');
     });
 
+    it('grants two guaranteed threat-free steps on the danger meter (so a reward cannot cause a threat)', () => {
+      const dangerMeterService = TestBed.inject(DangerMeterService);
+      dangerMeterService.resetForNewRun();
+
+      component.multitask();
+
+      expect(dangerMeterService.currentGuaranteedRewardSteps).toBe(2);
+    });
+
     // Regression coverage: chaining a second multitask() call while already inside
     // the first one's bonus rounds used to leave the rendered "Multitask xN" note
     // exactly one action stale (still showing the PREVIOUS action's value) — the
@@ -127,6 +136,26 @@ describe('RouletteContainerComponent', () => {
       component.doNothing(); // resolve round 2 of the 2nd call, exits the bonus stretch
       fixture.detectChanges();
       expect(component.getGameState()).not.toBe('adventure-continues');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Running Shoes — its one bonus adventure step is guaranteed threat-free too
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('running shoes bonus step', () => {
+    it('grants one guaranteed threat-free step on the danger meter when it queues its bonus round', () => {
+      const dangerMeterService = TestBed.inject(DangerMeterService);
+      dangerMeterService.resetForNewRun();
+      trainerService.addToItems({ text: '', name: 'running-shoes', sprite: 'x', fillStyle: '', weight: 1, description: '' });
+
+      // Transition INTO an adventure-continues step — the moment finishCurrentState
+      // sees the item unused and queues the bonus round.
+      gameStateService.restoreState('gym-battle', ['adventure-continues'], 0);
+      component.doNothing();
+
+      expect(component.getGameState()).toBe('adventure-continues');
+      expect(dangerMeterService.currentGuaranteedRewardSteps).toBe(1);
     });
   });
 
