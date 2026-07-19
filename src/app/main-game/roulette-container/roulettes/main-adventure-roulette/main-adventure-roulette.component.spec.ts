@@ -25,6 +25,9 @@ describe('MainAdventureRouletteComponent', () => {
   });
 
   beforeEach(async () => {
+    // These tests exercise the Classic-mode wheel specifically, which requires
+    // New Experience Mode to be off — explicit since the setting now defaults on.
+    localStorage.clear();
     generationSubject = new BehaviorSubject<GenerationItem>(createGeneration(1));
 
     await TestBed.configureTestingModule({
@@ -40,6 +43,8 @@ describe('MainAdventureRouletteComponent', () => {
       ]
     })
     .compileComponents();
+
+    TestBed.inject(GameStateService).resetGameState(false);
 
     fixture = TestBed.createComponent(MainAdventureRouletteComponent);
     component = fixture.componentInstance;
@@ -189,15 +194,16 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     fixture.detectChanges();
   };
 
-  it('should render the danger meter and 3 pick cards instead of the wheel', () => {
+  it('should render 3 pick cards instead of the wheel', () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
 
-    expect(fixture.nativeElement.querySelector('app-danger-meter')).toBeTruthy();
     expect(fixture.nativeElement.querySelectorAll('button.adventure-card').length).toBe(3);
     expect(fixture.debugElement.query(By.directive(WheelComponent))).toBeFalsy();
   });
 
   it('should draw 3 distinct candidates and commit them via AdventureDrawService', () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
 
     expect(component.candidates.length).toBe(3);
@@ -241,7 +247,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     expect(component.candidates.map(c => c.id)).toEqual(['catchPokemon', 'buyPotions', 'findItem']);
   });
 
-  it('should replay the picked outcome immediately on reload when a pick was already committed', () => {
+  it('should replay the picked outcome immediately on reload when a pick was already committed', async () => {
     adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'buyPotions', 'findItem'], picked: 1 });
 
     fixture = TestBed.createComponent(MainAdventureRouletteComponent);
@@ -249,6 +255,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     spyOn(component.buyPotionsEvent, 'emit');
 
     fixture.detectChanges(); // runs ngOnInit, which should replay the committed pick
+    await Promise.resolve(); // flush the routing microtask (see initializeDraw()'s comment)
 
     expect(component.buyPotionsEvent.emit).toHaveBeenCalled();
     expect(adventureDrawService.getPendingDraw()).toBeNull();
@@ -269,6 +276,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
   // gameStateService.currentState instead of only drawing once in ngOnInit.
 
   it('should draw a fresh set of candidates when the state re-enters adventure-continues without the component being recreated', () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
     const firstDraw = adventureDrawService.getPendingDraw();
     expect(firstDraw).toBeTruthy();
@@ -288,6 +296,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
   });
 
   it('onGoStraight should clear the pending draw and emit doNothingEvent', () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
     spyOn(component.doNothingEvent, 'emit');
     expect(adventureDrawService.getPendingDraw()).toBeTruthy();
@@ -300,20 +309,27 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
 
   // ── V2 Part A phase 3: threat pool ──────────────────────────────────────
 
-  it('should draw from the threat pool when rollStep returns "threat"', () => {
+  it('should auto-draw and auto-route a single threat candidate when rollStep returns "threat", without going through onCandidatePicked', async () => {
     spyOn(dangerMeterService, 'rollStep').and.returnValue('threat');
 
     createFixture();
 
-    const draw = adventureDrawService.getPendingDraw();
-    expect(draw!.stepType).toBe('threat');
-    const threatIds = ['teamRocketAmbush', 'itemTheft', 'forcedRetreat', 'badOmen', 'spooked', 'markedTarget', 'pokeballMalfunction'];
-    expect(component.candidates.every(c => threatIds.includes(c.id))).toBeTrue();
-    expect(component.candidates.length).toBe(3);
+    // stepType and candidates are set synchronously inside createFixture() (ngOnInit's
+    // state subscription -> initializeDraw()) — no cards are ever shown. The actual
+    // routing is deferred to a microtask (see initializeDraw()'s comment on why: routing
+    // can itself trigger another state transition, which would otherwise be reentrant
+    // with the CD pass that's still mounting this very component) — flush it before
+    // asserting the draw was consumed.
+    expect(component.stepType).toBe('threat');
+    expect(component.candidates.length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('button.adventure-card').length).toBe(0);
+
+    await Promise.resolve();
+
+    expect(adventureDrawService.getPendingDraw()).toBeNull();
   });
 
-  it('should route itemTheft/forcedRetreat/badOmen/spooked/markedTarget/pokeballMalfunction/teamRocketAmbush threat picks to their matching output events', () => {
-    createFixture();
+  it('should route each threat id to its matching output event via the auto-draw/auto-route path', async () => {
     const cases: { id: string; emitterName: keyof MainAdventureRouletteComponent }[] = [
       { id: 'itemTheft', emitterName: 'itemTheftEvent' },
       { id: 'forcedRetreat', emitterName: 'forcedRetreatEvent' },
@@ -324,15 +340,48 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
       { id: 'teamRocketAmbush', emitterName: 'teamRocketEncounterEvent' },
     ];
 
-    cases.forEach(({ id, emitterName }) => {
-      adventureDrawService.restoreDraw({ stepType: 'threat', candidates: [id, 'forcedRetreat', 'badOmen'], picked: null });
-      component.candidates = (component as any).resolveCandidates([id, 'forcedRetreat', 'badOmen']);
+    for (const { id, emitterName } of cases) {
+      // Mirrors the reload-replay test's pattern: a threat draw is already
+      // committed with picked === 0 (as the new auto-draw path always leaves it),
+      // and initializeDraw() should replay routeCandidate on mount either way.
+      adventureDrawService.restoreDraw({ stepType: 'threat', candidates: [id], picked: 0 });
+
+      fixture = TestBed.createComponent(MainAdventureRouletteComponent);
+      component = fixture.componentInstance;
       const spy = spyOn(component[emitterName] as any, 'emit');
 
-      component.onCandidatePicked(0);
+      fixture.detectChanges();
+      await Promise.resolve(); // flush the routing microtask
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(adventureDrawService.getPendingDraw()).toBeNull();
-    });
+    }
+  });
+
+  it('should set stepType to "reward" after a reward draw and "threat" after a threat draw', () => {
+    const rollStepSpy = spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
+    createFixture();
+    expect(component.stepType).toBe('reward');
+
+    adventureDrawService.clearDraw();
+    rollStepSpy.and.returnValue('threat');
+    gameStateService.setNextState('adventure-continues');
+    gameStateService.finishCurrentState();
+
+    expect(component.stepType).toBe('threat');
+  });
+
+  it('should replay a threat draw on reload before it was routed', async () => {
+    adventureDrawService.restoreDraw({ stepType: 'threat', candidates: ['itemTheft'], picked: 0 });
+
+    fixture = TestBed.createComponent(MainAdventureRouletteComponent);
+    component = fixture.componentInstance;
+    spyOn(component.itemTheftEvent, 'emit');
+
+    fixture.detectChanges(); // runs ngOnInit, which should replay the committed threat pick
+    await Promise.resolve(); // flush the routing microtask
+
+    expect(component.itemTheftEvent.emit).toHaveBeenCalled();
+    expect(adventureDrawService.getPendingDraw()).toBeNull();
   });
 });

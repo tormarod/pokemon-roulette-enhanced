@@ -1,16 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { DangerMeterComponent } from './danger-meter.component';
+import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
 
 describe('DangerMeterComponent', () => {
   let component: DangerMeterComponent;
   let fixture: ComponentFixture<DangerMeterComponent>;
+  let dangerMeterService: DangerMeterService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DangerMeterComponent, TranslateModule.forRoot()]
     }).compileComponents();
+
+    dangerMeterService = TestBed.inject(DangerMeterService);
+    dangerMeterService.resetForNewRun();
 
     fixture = TestBed.createComponent(DangerMeterComponent);
     component = fixture.componentInstance;
@@ -21,8 +28,8 @@ describe('DangerMeterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the dangerPercent value', () => {
-    fixture.componentRef.setInput('dangerPercent', 42);
+  it('should render the current dangerPercent from DangerMeterService', () => {
+    dangerMeterService.restore(42, 0);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('42%');
@@ -40,7 +47,7 @@ describe('DangerMeterComponent', () => {
   });
 
   it('should show the shielded/safe badge when isNextStepGuaranteedSafe is true', () => {
-    fixture.componentRef.setInput('isNextStepGuaranteedSafe', true);
+    dangerMeterService.restore(50, 2); // PITY - 1 = 2 consecutive threats -> guaranteed safe next
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.danger-meter-safe-badge')).toBeTruthy();
@@ -48,17 +55,17 @@ describe('DangerMeterComponent', () => {
   });
 
   it('should not show the relief cue on first render', () => {
-    fixture.componentRef.setInput('dangerPercent', 50);
+    dangerMeterService.restore(50, 0);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.danger-meter-relief-cue')).toBeFalsy();
   });
 
   it('should show the relief cue when dangerPercent drops after an initial value', () => {
-    fixture.componentRef.setInput('dangerPercent', 50);
+    dangerMeterService.restore(50, 0);
     fixture.detectChanges();
 
-    fixture.componentRef.setInput('dangerPercent', 30);
+    dangerMeterService.restore(30, 0);
     fixture.detectChanges();
 
     expect(component.showReliefCue).toBeTrue();
@@ -66,12 +73,20 @@ describe('DangerMeterComponent', () => {
   });
 
   it('should not show the relief cue when dangerPercent rises', () => {
-    fixture.componentRef.setInput('dangerPercent', 30);
+    dangerMeterService.restore(30, 0);
     fixture.detectChanges();
 
-    fixture.componentRef.setInput('dangerPercent', 50);
+    dangerMeterService.restore(50, 0);
     fixture.detectChanges();
 
     expect(component.showReliefCue).toBeFalse();
+  });
+
+  it('should wire a hover/tap help tooltip onto the meter', () => {
+    fixture.detectChanges();
+
+    const tooltip = fixture.debugElement.query(By.directive(NgbTooltip)).injector.get(NgbTooltip);
+    expect(tooltip.ngbTooltip).toBeTruthy();
+    expect(tooltip.triggers).toBe('hover click');
   });
 });

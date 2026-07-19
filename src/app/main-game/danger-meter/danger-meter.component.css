@@ -2,6 +2,7 @@
     max-width: 400px;
     margin: 0 auto 1rem;
     text-align: center;
+    cursor: help;
 }
 
 .danger-meter-label {

@@ -8,8 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { provideIcons } from '@ng-icons/core';
 import { bootstrapController, bootstrapGear } from '@ng-icons/bootstrap-icons';
 import { SettingsService } from '../services/settings-service/settings.service';
-import { TrainerService } from '../services/trainer-service/trainer.service';
-import { GameStateService } from '../services/game-state-service/game-state.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
 describe('SettingsComponent', () => {
@@ -57,29 +55,15 @@ describe('SettingsComponent', () => {
     expect(settingsService.toggleFastSpin).toHaveBeenCalled();
   });
 
-  it('should reset trainer/game state, clear the saved run, and navigate home on restart', () => {
-    const trainerService = TestBed.inject(TrainerService);
-    const gameStateService = TestBed.inject(GameStateService);
+  it('should start a fresh run and navigate home on restart', () => {
     const runPersistenceService = TestBed.inject(RunPersistenceService);
     const router = TestBed.inject(Router);
-    spyOn(trainerService, 'resetTrainer');
-    spyOn(trainerService, 'resetTeam');
-    spyOn(trainerService, 'resetItems');
-    spyOn(trainerService, 'resetBadges');
-    spyOn(trainerService, 'clearPendingTypeBiases');
-    spyOn(gameStateService, 'resetGameState');
-    spyOn(runPersistenceService, 'clearRun');
+    spyOn(runPersistenceService, 'startFreshRun');
     spyOn(router, 'navigate');
 
     component.onRestartGame();
 
-    expect(trainerService.resetTrainer).toHaveBeenCalled();
-    expect(trainerService.resetTeam).toHaveBeenCalled();
-    expect(trainerService.resetItems).toHaveBeenCalled();
-    expect(trainerService.resetBadges).toHaveBeenCalled();
-    expect(trainerService.clearPendingTypeBiases).toHaveBeenCalled();
-    expect(gameStateService.resetGameState).toHaveBeenCalled();
-    expect(runPersistenceService.clearRun).toHaveBeenCalled();
+    expect(runPersistenceService.startFreshRun).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['']);
   });
 });

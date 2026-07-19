@@ -3,15 +3,16 @@
     <p class="respin-reason">{{ respinReason | translate}}</p>
 </div>
 @if (isNewExperienceMode) {
-    <app-danger-meter [dangerPercent]="dangerPercent" [isNextStepGuaranteedSafe]="isNextStepGuaranteedSafe" />
-    <p class="choose-one-label">{{ 'game.main.roulette.adventure.chooseOne' | translate }}</p>
-    <div class="adventure-card-row">
-        @for (candidate of candidates; track candidate.id; let i = $index) {
-            <button type="button" class="btn btn-outline-light adventure-card" [style.border-color]="candidate.fillStyle" (click)="onCandidatePicked(i)">
-                {{ candidate.textKey | translate }}
-            </button>
-        }
-    </div>
+    @if (stepType === 'reward') {
+        <p class="choose-one-label">{{ 'game.main.roulette.adventure.chooseOne' | translate }}</p>
+        <div class="adventure-card-row">
+            @for (candidate of candidates; track candidate.id; let i = $index) {
+                <button type="button" class="btn btn-outline-light adventure-card" [style.border-color]="candidate.fillStyle" (click)="onCandidatePicked(i)">
+                    {{ candidate.textKey | translate }}
+                </button>
+            }
+        </div>
+    }
     <div class="roulette-action-row">
         <button type="button" class="btn btn-warning go-straight-button" (click)="onGoStraight()">
             {{ 'game.main.roulette.adventure.actions.goStraight' | translate }}

@@ -28,6 +28,11 @@ describe('MainGameComponent', () => {
   let trainerService: TrainerService;
 
   beforeEach(async () => {
+    // MainGameComponent now injects RunPersistenceService (see resetGame()), whose
+    // constructor eagerly restores any saved run from localStorage — without this,
+    // a run persisted by an earlier spec file in the same Karma session leaks in
+    // and desyncs gameStateService's stack from what these tests assume.
+    localStorage.clear();
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
     const analyticsServiceSpyObj = jasmine.createSpyObj('AnalyticsService', ['trackEvent']);
 

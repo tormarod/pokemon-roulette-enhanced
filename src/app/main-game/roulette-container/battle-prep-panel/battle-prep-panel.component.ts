@@ -23,8 +23,8 @@ export class BattlePrepPanelComponent implements OnChanges {
   @Input() team: PokemonItem[] = [];
   @Input() opponentTypes: PokemonType[] | undefined;
   @Input() items: ItemItem[] = [];
-  /** New Experience only: team index the "markedTarget" threat has barred from leading this battle. */
-  @Input() disabledIndex: number | null = null;
+  /** New Experience only: team index the "markedTarget" threat has forced to lead this battle. */
+  @Input() forcedIndex: number | null = null;
   @Output() confirmed = new EventEmitter<BattlePrepConfirmed>();
 
   selectedLeadIndex = 0;
@@ -35,13 +35,13 @@ export class BattlePrepPanelComponent implements OnChanges {
   constructor(private typeMatchupService: TypeMatchupService) {}
 
   ngOnChanges(): void {
-    if (this.selectedLeadIndex === this.disabledIndex) {
-      this.selectedLeadIndex = this.disabledIndex === 0 ? 1 : 0;
+    if (this.forcedIndex !== null) {
+      this.selectedLeadIndex = this.forcedIndex;
     }
   }
 
   selectLead(index: number): void {
-    if (index === this.disabledIndex) {
+    if (this.forcedIndex !== null) {
       return;
     }
     this.selectedLeadIndex = index;

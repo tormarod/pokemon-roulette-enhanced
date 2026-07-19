@@ -68,33 +68,33 @@ describe('BattlePrepPanelComponent', () => {
     expect(component.selectedLeadIndex).toBe(1);
   });
 
-  it('ignores clicks on the disabled (marked) lead card', () => {
+  it('ignores clicks on a non-forced lead card while a lead is forced', () => {
     component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
-    component.disabledIndex = 1;
+    fixture.componentRef.setInput('forcedIndex', 1);
     fixture.detectChanges();
 
-    component.selectLead(1);
-
-    expect(component.selectedLeadIndex).toBe(0);
-  });
-
-  it('shifts the default lead off the disabled index when it starts at index 0', () => {
-    component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
-    fixture.componentRef.setInput('disabledIndex', 0);
-    fixture.detectChanges();
+    component.selectLead(0);
 
     expect(component.selectedLeadIndex).toBe(1);
   });
 
-  it('marks the disabled lead card with the disabled class and attribute', () => {
+  it('locks the default lead onto the forced index when it starts at index 0', () => {
     component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
-    component.disabledIndex = 1;
+    fixture.componentRef.setInput('forcedIndex', 0);
+    fixture.detectChanges();
+
+    expect(component.selectedLeadIndex).toBe(0);
+  });
+
+  it('marks every non-forced lead card with the disabled class and attribute', () => {
+    component.team = [makePokemon({ pokemonId: 1 }), makePokemon({ pokemonId: 2 })];
+    component.forcedIndex = 1;
     fixture.detectChanges();
 
     const cards = fixture.nativeElement.querySelectorAll('.battle-prep-lead-card');
-    expect(cards[1].classList.contains('disabled')).toBeTrue();
-    expect(cards[1].disabled).toBeTrue();
-    expect(cards[0].disabled).toBeFalse();
+    expect(cards[0].classList.contains('disabled')).toBeTrue();
+    expect(cards[0].disabled).toBeTrue();
+    expect(cards[1].disabled).toBeFalse();
   });
 
   it('computes a positive per-member delta preview for a favorable matchup', () => {

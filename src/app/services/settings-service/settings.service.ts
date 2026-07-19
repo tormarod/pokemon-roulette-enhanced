@@ -26,7 +26,7 @@ export class SettingsService {
     fastSpin: false,
     lessExplanations: false,
     defaultGender: 'always-choose',
-    newExperienceMode: false
+    newExperienceMode: true
   };
 
   private settingsSubject$: BehaviorSubject<GameSettings>;

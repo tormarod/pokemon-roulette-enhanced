@@ -130,6 +130,33 @@ export class RunPersistenceService {
     localStorage.removeItem(this.RUN_STORAGE_KEY);
   }
 
+  /**
+   * Single source of truth for "start a brand-new run" — both the sidebar Restart
+   * button (MainGameComponent) and the Settings page's Restart button used to each
+   * duplicate a partial version of this, and both left every per-run ancillary
+   * service (battle prep, danger meter, adventure draw, battle debuff, marked
+   * target, catch risk) holding stale state from the previous run. A stale
+   * committed battlePrepService entry in particular could make a fresh New
+   * Experience Mode run's first battle skip the prep panel entirely (its
+   * battleKey still matched), which only cleared itself once that stale battle
+   * resolved — the "toggling New Experience Mode needs two restarts" bug.
+   */
+  startFreshRun(newExperienceMode: boolean): void {
+    this.trainerService.resetTrainer();
+    this.trainerService.resetTeam();
+    this.trainerService.resetItems();
+    this.trainerService.resetBadges();
+    this.trainerService.clearPendingTypeBiases();
+    this.gameStateService.resetGameState(newExperienceMode);
+    this.battlePrepService.clearPrep();
+    this.dangerMeterService.resetForNewRun();
+    this.adventureDrawService.clearDraw();
+    this.battleDebuffService.clearDebuff();
+    this.markedTargetService.clearMark();
+    this.catchRiskService.clearEscapeChance();
+    this.clearRun();
+  }
+
   private restoreRun(run: SavedRun): void {
     this.generationService.setGenerationById(run.generationId);
     this.trainerService.commitTeamAndStorage(run.trainerTeam, run.storedPokemon);

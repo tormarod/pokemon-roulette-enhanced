@@ -277,6 +277,7 @@ export class TrainerService implements OnDestroy {
 
   replaceForEvolution(pokemonOut: PokemonItem, pokemonIn: PokemonItem): void {
     pokemonIn.shiny = pokemonOut.shiny;
+    pokemonIn.ability = pokemonOut.ability;
     this.loadPokemonSpriteIfMissing(pokemonIn);
 
     let index = this.trainerTeam.indexOf(pokemonOut);
@@ -526,6 +527,7 @@ export class TrainerService implements OnDestroy {
     this.megaBattleOriginalPokemon = structuredClone(this.trainerTeam[index]);
     const replacement = structuredClone(megaForm);
     replacement.shiny = this.trainerTeam[index].shiny;
+    replacement.ability = this.trainerTeam[index].ability;
     replacement.sprite = null;
     this.loadPokemonSpriteIfMissing(replacement);
     this.trainerTeam[index] = replacement;

@@ -61,6 +61,43 @@
   border-radius: 999px;
 }
 
+/* Corner-overlay badges (opposite the mega-stone slot) for New Experience Mode
+   per-Pokémon status — kept as compact overlays rather than PC storage's
+   stacked block-line badges, since these tiles are tight fixed squares with
+   no room below the sprite. */
+.marked-badge {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #c0392b;
+  border-radius: 3px;
+  padding: 1px 4px;
+  z-index: 2;
+  cursor: help;
+}
+
+.ability-badge {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  max-width: 60%;
+  font-size: 9px;
+  font-weight: bold;
+  color: #2d3436;
+  background: #ffffff;
+  border: 1px solid #333;
+  border-radius: 3px;
+  padding: 1px 4px;
+  z-index: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+
 @keyframes pokemon-show {
   0% {
     transform: scale(0);

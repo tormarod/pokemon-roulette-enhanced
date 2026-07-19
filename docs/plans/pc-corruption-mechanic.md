@@ -1,134 +1,195 @@
-# Plan: PC Corruption (ambient Danger-meter mechanic)
+# Plan: PC Corruption (New Experience threat)
 
-Status: **Draft — needs decisions before this is executable.** Not started.
+Status: **Approved — decisions settled 2026-07-19. Do not start until
+`docs/plans/threat-single-draw-rework.md` ships** (corruption is designed as
+a normal `threatPool` entry drawn through that new single-draw flow; building
+it against the old 3-choice picker would be throwaway work).
 Owner: tormarod
 Last updated: 2026-07-19
 
 ## Why
 
-`docs/plans/done/adventure-threats-rework.md` originally added a `pcBreakIn`
-threat (steal a random Pokémon from PC storage) to the New Experience
-choose-between adventure's threat pool. It shipped, then was **removed**
-(2026-07-19): with empty PC storage it degraded to a costless no-op message,
-and a threat-pool entry needs a real, luck-independent cost every time it's
-drawn — a "sometimes there's just no downside" threat isn't acceptable.
+`pcBreakIn` (steal a random Pokémon from PC storage) shipped as a threat,
+then was removed: with empty PC storage it degraded to a costless no-op
+message, and every threat needs a real, luck-independent cost. The
+replacement: hackers corrupt one of your **team** Pokémon (never PC storage,
+so it's never state-dependent) — it becomes unstable and needs to be led
+into (and win) a real battle before a deadline, or it takes a permanent
+penalty.
 
-While discussing a fix, the idea changed shape entirely: instead of another
-threat-wheel entry, tie a new mechanic directly to the **Danger meter**
-(`DangerMeterService`) — an ambient, escalating risk that exists alongside
-the choose-between adventure rather than as one of its 3 candidate picks.
-Concept: hackers corrupt one of your existing team Pokémon. It becomes
-unstable — you're pressured to actually battle with it before some deadline,
-or it degrades permanently. This has real teeth regardless of PC contents,
-since it never touches PC storage at all.
+## Decisions (settled — do not re-litigate without a new conversation)
 
-**This document is deliberately not a finished, executable plan.** The
-mechanic's core rules (how it clears, what the deadline unit is, what the
-lapse penalty is) are still open — see "Decisions needed" below. Don't start
-implementation until those are resolved and this file is updated with the
-chosen answers (and this Status line changed to "Approved").
+1. **It's a normal `threatPool` entry**, not a separate ambient/ Danger-meter-
+   linked service. Drawn exactly like `forcedRetreat`/`spooked`/etc. through
+   the single-draw flow from the rework plan.
+2. **Trigger/availability**: only eligible to be drawn once
+   `dangerMeterService.currentDangerPercent` is at or above a threshold
+   (recommendation: **30** — a tunable balance number, not a locked design
+   decision; adjust freely during implementation/playtesting). Below the
+   threshold, this entry is filtered out of the pool entirely for that draw
+   (see "Pool eligibility filtering" below) — it never gets weight-diluted
+   into the pool only to silently do nothing.
+3. **Clearing**: the corrupted Pokémon must **lead and win** a real battle
+   (gym/rival/Elite Four/Champion) — a loss does **not** clear it.
+4. **Deadline**: **3 real battles** (gym/rival/E4/Champion — not adventure
+   rounds) from the moment it's applied. Counting only real battles matches
+   difficulty pacing; adventure rounds can pass with no battle at all.
+5. **Lapse penalty** (deadline passes without a lead-and-win): **PC storage
+   is locked for the rest of the round** — reuses the existing "unavailable"
+   modal pattern in `StoragePcComponent.showPCModal()` (currently gated on
+   `currentGameState === 'team-rocket-encounter'`), just keyed off a new
+   pending-lock flag instead. "Rest of the round" = until
+   `gameStateService.currentRoundValue` changes (same round-boundary concept
+   used elsewhere) — confirm the exact round-advance signal before wiring
+   (see `GameStateService`).
+6. **Target exclusion**: only a team Pokémon that is **not** `fainted`,
+   `retreatLocked`, or already `corrupted` is eligible. If no team member is
+   eligible, this threat is excluded from the pool for that draw (same
+   filtering mechanism as the danger-threshold gate, not a drawn-then-no-op).
+7. **Visual**: plain badge, same treatment as `fainted`/`retreatLocked` —
+   `"Corrupted"` label on the team/PC card, no new CSS/visual system.
 
-## Current system context (for whoever picks this up)
+## Current system context
 
-- **`DangerMeterService`**
-  (`src/app/services/danger-meter-service/danger-meter.service.ts`) already
-  runs every adventure step via `rollStep(round)`, which decides
-  reward-vs-threat and adjusts `dangerPercent`/`consecutiveThreats`. This is
-  the natural hook point for an ambient "does corruption trigger this step"
-  check — it's called exactly once per adventure step, already has access to
-  the current danger level, and is New-Experience-only (Classic mode's
-  adventure step never calls it).
-- **Badge pattern for per-Pokémon state**: `PokemonItem` already carries
-  optional per-run flags — `fainted`, `retreatLocked`, `ability` — each
-  rendered as a badge in `storage-pc.component.html` and (for `ability`) also
-  in the team view. A `corrupted?: boolean` (or richer) field on `PokemonItem`
-  following this exact pattern is the obvious way to mark the afflicted
-  Pokémon. See `src/app/interfaces/pokemon-item.ts`.
-- **Forcing/barring a lead pick**: `BattlePrepPanelComponent`
-  (`src/app/main-game/roulette-container/battle-prep-panel/`) already has a
-  `disabledIndex` input (added for the `markedTarget` threat) that *forbids*
-  picking a given team index as lead. Forcing a pick (the corrupted mon
-  *must* lead) is the inverse of that same mechanism — likely a new
-  `requiredIndex` input, or repurposing `disabledIndex` to disable every
-  *other* index. `selectLead()` and the `ngOnChanges` default-lead logic
-  would both need updating for whichever approach is chosen.
-- **Permanent per-run debuff precedent**: `badOmen` (see `roulette-container.
-  component.ts`, `battleDebuffService.setDebuff()`) is the closest existing
-  "lasting cost" pattern, but it's a *global* battle-odds debuff, not
-  per-Pokémon and not permanent (it clears after one battle). A permanent
-  *per-Pokémon* power reduction has no existing precedent — closest analog is
-  `PokemonItem.power` being read-only elsewhere (type-matchup math keys off
-  it directly), so mutating it needs care around where else `power` is read
-  (Pokédex display, matchup delta calc, wheel weighting).
-- **Persistence**: any new pending/timed state needs wiring into
-  `RunPersistenceService` the same way `MarkedTargetService`,
-  `CatchRiskService`, etc. were — see those two services
-  (`src/app/services/marked-target-service/`,
-  `src/app/services/catch-risk-service/`) as the shape to mirror for a new
-  service, and `run-persistence.service.ts`'s `SavedRun` interface /
-  `combineLatest` wiring / `isValidSavedRun` for the persistence pattern.
+- **`DangerMeterService.currentDangerPercent`**
+  (`src/app/services/danger-meter-service/danger-meter.service.ts`) — already
+  a public getter, no changes needed to read it for the availability check.
+- **Badge pattern for per-Pokémon state**: `PokemonItem`
+  (`src/app/interfaces/pokemon-item.ts`) already has `fainted?: boolean`,
+  `retreatLocked?: boolean` following this exact shape, each rendered as a
+  `.fainted-badge` in `storage-pc.component.html`. Add `corrupted?: boolean`
+  the same way. **Also needs showing on the *team* view**, not just PC
+  storage — check wherever the team roster renders (`trainerTeam` template,
+  likely alongside the `ability-badge` shown in both `storage-pc.component.html`'s
+  `trainerTeam` loop and PC loop) since a corrupted Pokémon is usually still
+  on the active team, not benched.
+- **Forcing a lead pick**: `BattlePrepPanelComponent`
+  (`src/app/main-game/roulette-container/battle-prep-panel/battle-prep-panel.component.ts`)
+  has a `disabledIndex` input (added for `markedTarget`) that *forbids* one
+  index from being picked as lead, enforced in `selectLead()` and defaulted
+  around in `ngOnChanges()`. Forcing the corrupted Pokémon to lead is the
+  inverse: add a `requiredIndex: number | null = null` input; when set,
+  `selectLead()` should refuse any index other than `requiredIndex` (or
+  simplest: don't let the player change the lead at all while a required
+  index is set — pre-select it and disable every other card, mirroring how
+  `disabledIndex` already disables one card, just inverted to disable all
+  *but* one). Confirm which of these two UX shapes before implementing (both
+  are reasonable; "disable all others, pre-select the required one" is
+  probably the least surprising — the player still sees why via the card
+  styling instead of a click doing nothing unexplained).
+- **Win/loss detection for clearing**: each of the 4 battle roulette
+  components (`gym-battle-roulette`, `rival-battle-roulette`,
+  `elite-four-battle-roulette`, `champion-battle-roulette`) already has the
+  win/loss branches used to wire `clearForcedRetreatLock()` and
+  `clearMark()` (see `onItemSelected()` in each, e.g.
+  `gym-battle-roulette.component.ts` lines ~68-88). Clearing corruption
+  needs the **battle-prep-committed lead's identity** (to check "was the
+  corrupted Pokémon actually the one that led") plus the **win/loss
+  outcome** (only a win clears it) — `BattlePrepService`'s committed prep
+  (`getPendingPrepObservable()`/`leadIndex`) already tracks the committed
+  lead index at prep-confirm time, same source `disabledIndex`/
+  `requiredIndex` would use.
+- **PC lockout modal precedent**: `StoragePcComponent.showPCModal()`
+  (`src/app/trainer-team/storage-pc/storage-pc.component.ts`, ~line 87)
+  already branches on `currentGameState === 'team-rocket-encounter'` to show
+  an "unavailable" info modal instead of the real PC modal. Add a second
+  condition (a new pending-lock service's flag) using the same branch shape.
+- **Persistence pattern**: mirror `MarkedTargetService`
+  (`src/app/services/marked-target-service/marked-target.service.ts`) and
+  `CatchRiskService` (`src/app/services/catch-risk-service/catch-risk.service.ts`)
+  for shape; wire into `RunPersistenceService`
+  (`src/app/services/run-persistence-service/run-persistence.service.ts`)
+  the same way (`SavedRun` field, `combineLatest` entry, `isValidSavedRun`
+  clause) — see how `markedTeamIndex`/`pendingCatchEscapeChance` were added
+  there for the exact pattern.
 
-## Decisions needed (ask the user — do not decide these unilaterally)
+## New: pool eligibility filtering (needed for this threat specifically)
 
-1. **Trigger.** A flat per-round chance? A chance that scales with
-   `dangerPercent` (so it gets more likely as danger climbs, same shape as
-   `rollStep`'s threat roll)? A guaranteed trigger at some `dangerPercent`
-   threshold? Can it trigger while a corruption is already pending (stacking
-   allowed / blocked)?
-2. **Clearing.** The user was explicit they're unsure here — needs a real
-   answer before this is buildable:
-   - Must the corrupted Pokémon **lead and win** a real battle (gym/rival/E4/
-     champion) before the deadline? Just **lead** (win or lose)? Just **stay
-     on the team** (not benched/traded) for N rounds?
-   - Is clearing even possible, or is corruption always terminal (skip the
-     deadline/forced-use framing entirely and just apply the penalty
-     immediately, with the "corrupted" state being purely cosmetic/flavor
-     until then)?
-3. **Deadline unit and length**, if there is one — real battles (3?) or
-   adventure rounds (5?). Real battles matches difficulty pacing better;
-   rounds reuses the existing `currentRoundValue` counter already read
-   elsewhere.
-4. **Lapse penalty**, if uncleared — options discussed so far, roughly
-   ascending invasiveness:
-   - Permanent power debuff on that one Pokémon (self-contained, bounded).
-   - PC locked for the rest of the round (temporary, reuses an
-     unavailable-modal pattern already in `StoragePcComponent.showPCModal`
-     for the `team-rocket-encounter` state).
-   - Permanent team-slot loss (6 → 5) — **rejected as most invasive**: every
-     team-capacity check in the codebase (`addToTeam`, trade, evolution,
-     catch overflow) hardcodes 6 today; this would need a new `maxTeamSize`
-     concept threaded through all of them. Only revisit if the simpler
-     options are judged too weak.
-5. **Can corruption target a Pokémon that's fainted/retreatLocked/already
-   corrupted?** Needs an exclusion rule so it doesn't stack nonsensically
-   with the Phase 1 (`forcedRetreat`) or game-balance-v4 (`fainted`)
-   mechanics.
-6. **Visual/flavor**: badge text, whether the corrupted Pokémon's sprite gets
-   any visual treatment (the "glitched" framing suggests something more than
-   a plain badge, but that's a nice-to-have, not a blocker).
+`MainAdventureRouletteComponent.threatPool` is currently drawn from
+unconditionally (aside from `weight`). This threat needs **conditional
+eligibility** (danger threshold + an eligible team target existing), which
+today's `drawDistinct`/`drawWeightedOne` (from the rework plan) don't
+support — they draw from the pool as given, with no per-draw filtering hook.
 
-## Suggested shape (recommendation, not yet approved)
+Add a filter step in `initializeDraw()`'s threat branch, before calling
+`drawWeightedOne`:
+```ts
+const eligibleThreatPool = this.threatPool.filter(candidate =>
+  candidate.id !== 'pcCorruption' || this.isCorruptionEligible()
+);
+const drawn = this.drawWeightedOne(eligibleThreatPool);
+```
+where `isCorruptionEligible()` checks
+`dangerMeterService.currentDangerPercent >= CORRUPTION_DANGER_THRESHOLD` AND
+at least one team Pokémon is not `fainted`/`retreatLocked`/`corrupted`.
+(`MainAdventureRouletteComponent` needs `TrainerService` injected to check
+team eligibility — it currently doesn't depend on it; confirm this doesn't
+create a circular/unwanted coupling, or move the eligibility check to
+`roulette-container.component.ts` and have it own the final routing decision
+instead — needs a design call at implementation time, not blocking the rest
+of this plan.)
 
-Smallest-surface-area version, to react to rather than a blank slate:
+As flagged in the rework plan's "Related consideration": this is also the
+right fix for `forcedRetreat`/`markedTarget`'s existing team-size-2 no-op —
+consider generalizing this filter to an `isEligible?: (ctx) => boolean`
+field on `AdventureCandidate` rather than a corruption-specific special
+case, if doing both in the same pass.
 
-- Trigger: small per-round chance scaling with `dangerPercent` (e.g.
-  `dangerPercent * 0.15%` per adventure step), checked inside
-  `DangerMeterService.rollStep()` right alongside the existing threat/reward
-  roll — no interaction with the threat-pool draw itself. Only one Pokémon
-  can be corrupted at a time (skip the roll if one's already pending).
-- Target: one random team Pokémon that isn't already `fainted`,
-  `retreatLocked`, or `corrupted`; no-op (skip silently, no wasted trigger)
-  if no eligible Pokémon exists.
-- Clear condition: must **lead a real battle** (win or lose — losing doesn't
-  compound the punishment) within the next 3 real battles.
-- Lapse penalty: permanent `-1` power (floor 1) on that Pokémon, corrupted
-  flag clears either way (on clear via battle lead, or on lapse via penalty)
-  so it never lingers indefinitely.
-- New `CorruptionService` (mirrors `MarkedTargetService`/`CatchRiskService`
-  shape) tracking `{ pokemonRef-or-index, battlesRemaining }`, wired into
-  `RunPersistenceService` the same way.
+## Implementation sketch (flesh out exact file/line detail once the rework plan ships and this is picked up)
 
-This recommendation is a starting point for the "Decisions needed" answers,
-not a final design — update this section (and the Status line) once the user
-has actually decided, then flesh out concrete phases/files/line-numbers
-before implementation, per this repo's plan-writing convention.
+1. `PokemonItem`: add `corrupted?: boolean`.
+2. New `CorruptionService` (mirror `MarkedTargetService` shape): tracks
+   `{ teamIndex: number, battlesRemaining: number } | null`, persisted via
+   `RunPersistenceService`.
+3. `main-adventure-roulette.component.ts`: add `pcCorruption` to
+   `threatPool`, wire its `@Output()`/`actionHandlers` entry, implement pool
+   eligibility filtering (see above).
+4. `roulette-container.component.ts`: `pcCorruption()` handler — pick an
+   eligible team Pokémon, set `pokemon.corrupted = true`, call
+   `corruptionService.setCorruption(teamIndex, 3)`, show an info modal
+   (flavor text), `doNothing()`.
+5. `BattlePrepPanelComponent`: add `requiredIndex` input (see "Current
+   system context" above for the UX-shape decision needed).
+6. Each of the 4 battle roulette components: pass
+   `[requiredIndex]="corruptionService.isPending && trainerTeam[?].corrupted ? index : null"`
+   (exact binding TBD) to `<app-battle-prep-panel>`; on **win only**, if the
+   committed lead was the corrupted Pokémon, clear `corrupted` + call
+   `corruptionService.clearCorruption()`; on any battle resolve (win or
+   loss) where the lead wasn't the corrupted one, decrement
+   `battlesRemaining` and apply the lapse penalty at 0.
+7. `StoragePcComponent.showPCModal()`: add the lapse-lockout branch.
+8. `PokedexService`/team-view templates: add the `corrupted` badge
+   (mirroring `fainted`/`retreatLocked`).
+9. i18n: `actions.pcCorruption`, `threats.pcCorruption.{title,description}`,
+   lockout modal text, badge label — across all 6 locales per repo
+   convention.
+10. `RunPersistenceService` wiring for the new service.
+11. Specs throughout, mirroring the Phase 1-5 pattern from
+    `docs/plans/done/adventure-threats-rework.md`.
+
+## Open implementation-time calls (small, not full re-decisions)
+
+- `CORRUPTION_DANGER_THRESHOLD` exact value (recommend 30, tune freely).
+- Exact deadline-decrement point: does a battle where the corrupted Pokémon
+  *isn't* the lead still count against the 3-battle deadline, or only
+  battles fought at all (regardless of lead)? Recommendation: **every real
+  battle counts**, led by the corrupted mon or not — otherwise the player
+  could stall indefinitely by avoiding leading it, with zero cost, which
+  defeats "pressured to actually use it."
+- `requiredIndex` UX shape (see above).
+- Where `isCorruptionEligible()`'s team check lives (component coupling
+  question above).
+
+## Checklist
+
+- [ ] Confirm `docs/plans/threat-single-draw-rework.md` has shipped
+- [ ] Resolve "Open implementation-time calls" above (can be decided by the
+      implementer without going back to the user — they're small/reversible)
+- [ ] Implement per "Implementation sketch," expanding each step to concrete
+      file/line detail as work proceeds
+- [ ] i18n across all 6 locales
+- [ ] Specs
+- [ ] README update (New Experience Mode threat-list sentence, pool size
+      7 → 8)
+- [ ] Release notes entry
+- [ ] Move to `docs/plans/done/` once shipped

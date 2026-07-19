@@ -18,7 +18,5 @@ export class MatchupStripComponent {
   @Input() weakTypes: PokemonType[] = [];
   @Input() advantageDelta = 0;
   @Input() disadvantageDelta = 0;
-  /** i18n name keys of active team abilities this battle (New Experience only), e.g. ["abilities.blaze.name"]. Translated in the template. */
-  @Input() abilityNames: string[] = [];
   readonly getTypeIconUrl = getTypeIconUrl;
 }
