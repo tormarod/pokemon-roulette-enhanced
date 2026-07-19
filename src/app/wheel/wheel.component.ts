@@ -318,11 +318,15 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    if (this.settingsService.currentSettings.fastSpin) {
-      // Shorten just this spin's reveal animation; winningNumber/finalRotation math
-      // below is untouched, so the wheel still visibly eases onto the right segment.
-      this.duration = 400;
-    }
+    // Recompute per spin so Fast Spin's shortened reveal applies only while the
+    // setting is on: a plain `if (fastSpin) this.duration = 400` (with no else)
+    // permanently clobbered the field, so every later spin stayed 400ms even
+    // after the player turned Fast Spin back off. winningNumber/finalRotation
+    // math below is untouched, so the wheel still visibly eases onto the right
+    // segment either way.
+    this.duration = this.settingsService.currentSettings.fastSpin
+      ? 400
+      : Math.floor(Math.random() * 2000) + 3000;
 
     this.spinning = true;
     this.gameStateService.setWheelSpinning(this.spinning);
@@ -368,8 +372,6 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     const progress = Math.min(elapsed / this.duration, 1);
     const easedProgress = 1 - Math.pow(1 - progress, 3);
     this.currentRotation = easedProgress * this.finalRotation;
-
-    const totalWeight = this.getTotalWeights();
 
     this.drawWheel(this.currentRotation);
 

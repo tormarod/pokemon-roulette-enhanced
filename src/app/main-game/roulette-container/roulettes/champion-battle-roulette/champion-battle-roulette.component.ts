@@ -141,7 +141,7 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
       this.translate.get(this.currentChampion.name).pipe(take(1)).subscribe(translated => {
         const championNames = translated.split('/');
         const championSprites = Array.isArray(this.currentChampion.sprite) ? this.currentChampion.sprite : [this.currentChampion.sprite];
-        const championQuotes = Array.isArray(this.currentChampion.quotes) ? this.currentChampion.quotes : this.currentChampion.quotes;
+        const championQuotes = this.currentChampion.quotes;
         const randomIndex = Math.floor(Math.random() * championNames.length);
 
         this.fromChampionChange.emit(randomIndex);

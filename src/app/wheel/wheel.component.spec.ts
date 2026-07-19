@@ -206,15 +206,35 @@ describe('WheelComponent', () => {
     expect(component.duration).toBe(400);
   });
 
-  it('should leave the spin duration untouched when fastSpin is disabled', () => {
+  it('should use a normal (un-shortened) spin duration when fastSpin is disabled', () => {
     const settingsService = TestBed.inject(SettingsService);
     expect(settingsService.currentSettings.fastSpin).toBeFalse();
     component.items = [{ text: 'a', weight: 1, fillStyle: 'red' }];
     (component as any).translatedItems = component.items;
-    const originalDuration = component.duration;
 
     component.spinWheel();
 
-    expect(component.duration).toBe(originalDuration);
+    // Not the fast-spin value, and within the normal 3000–5000ms range.
+    expect(component.duration).not.toBe(400);
+    expect(component.duration).toBeGreaterThanOrEqual(3000);
+    expect(component.duration).toBeLessThan(5000);
+  });
+
+  it('should restore a normal duration on a later spin after fastSpin is turned back off', () => {
+    const settingsService = TestBed.inject(SettingsService);
+    component.items = [{ text: 'a', weight: 1, fillStyle: 'red' }];
+    (component as any).translatedItems = component.items;
+
+    settingsService.toggleFastSpin();
+    component.spinning = false;
+    component.spinWheel();
+    expect(component.duration).toBe(400);
+
+    // Turning Fast Spin back off must not leave the shortened duration stuck.
+    settingsService.toggleFastSpin();
+    component.spinning = false;
+    component.spinWheel();
+    expect(component.duration).not.toBe(400);
+    expect(component.duration).toBeGreaterThanOrEqual(3000);
   });
 });
