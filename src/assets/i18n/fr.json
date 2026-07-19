@@ -27,14 +27,15 @@
   },
   "coffee": {
     "title": "Vous amusez-vous à faire tourner la roue? 😁",
-    "how_to_help": "Si vous voulez aider, vous pouvez faire un don.",
-    "donations": "Les dons, quel que soit leur montant, aideront à motiver le développement de nouvelles fonctionnalités.",
+    "how_to_help": "Ce jeu est un projet de fans gratuit et non commercial, réalisé sur le temps libre.",
+    "donations": "Les dons sont entièrement facultatifs : ils aident à couvrir les frais d'hébergement et à soutenir le temps que le développeur consacre aux nouvelles fonctionnalités. Ils ne constituent pas l'achat d'un quelconque contenu Pokémon.",
     "support": "Soutenir le créateur original",
     "supportFork": "Soutenir ce fork",
-    "supportForkDescription": "Si vous aimez les nouvelles fonctionnalités, pensez à soutenir aussi ce fork !",
+    "supportForkDescription": "Vous aimez les nouvelles fonctionnalités ? Vous pouvez aussi soutenir le développeur derrière ce fork — toujours facultatif.",
     "buyMeACoffee": "Offrez-moi un café",
     "thanks": "Merci d'avoir joué!",
-    "hope": "Que vous fassiez un don ou que vous partagiez simplement le jeu avec d'autres, j'espère que vous vous amuserez!"
+    "hope": "Que vous fassiez un don ou que vous partagiez simplement le jeu avec d'autres, j'espère que vous vous amuserez!",
+    "supportNote": "Vous soutenez le travail d'un développeur sur un jeu de fans — vous n'achetez rien auprès de Nintendo, Game Freak ou The Pokémon Company, et ce jeu n'est pas affilié à eux."
   },
   "badges": {
     "boulder": "Badge Roche",

@@ -27,14 +27,15 @@
   },
   "coffee": {
     "title": "Ti stai divertendo a girare? 😁",
-    "how_to_help": "Se vuoi aiutare, puoi fare una donazione.",
-    "donations": "Le donazioni di qualsiasi importo aiuteranno a motivare lo sviluppo di nuove funzionalità.",
+    "how_to_help": "Questo gioco è un progetto amatoriale gratuito e senza scopo di lucro, realizzato nel tempo libero.",
+    "donations": "Le donazioni sono del tutto facoltative: aiutano a coprire i costi di hosting e a sostenere il tempo che lo sviluppatore dedica alle nuove funzionalità. Non sono l'acquisto di alcun contenuto Pokémon.",
     "support": "Sostieni il creatore originale",
     "supportFork": "Sostieni questo fork",
-    "supportForkDescription": "Se ti piacciono le nuove funzionalità, considera di sostenere anche questo fork!",
+    "supportForkDescription": "Ti piacciono le nuove funzionalità? Puoi sostenere anche lo sviluppatore dietro questo fork — sempre facoltativo.",
     "buyMeACoffee": "Offrimi un caffè",
     "thanks": "Grazie per aver giocato!",
-    "hope": "Che tu faccia una donazione o semplicemente condivida il gioco con altri, spero che ti diverta!"
+    "hope": "Che tu faccia una donazione o semplicemente condivida il gioco con altri, spero che ti diverta!",
+    "supportNote": "Stai sostenendo il lavoro di uno sviluppatore su un gioco amatoriale — non stai acquistando nulla da Nintendo, Game Freak o The Pokémon Company, né il gioco è affiliato a loro."
   },
   "badges": {
     "boulder": "Medaglia Sasso",

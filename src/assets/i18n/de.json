@@ -27,14 +27,15 @@
   },
   "coffee": {
     "title": "Hast du Spaß beim Drehen? 😀",
-    "how_to_help": "Falls Du helfen möchtest, kannst Du spenden.",
-    "donations": "Spenden jeder Höhe motivieren mich sehr, mehr Features einzubauen.",
+    "how_to_help": "Dieses Spiel ist ein kostenloses, nicht-kommerzielles Fan-Projekt, das in der Freizeit entsteht.",
+    "donations": "Spenden sind völlig freiwillig — sie helfen, die Hosting-Kosten zu decken, und unterstützen die Zeit, die der Entwickler in neue Funktionen steckt. Sie sind kein Kauf von Pokémon-Inhalten.",
     "support": "Unterstütze den Originalautor",
     "supportFork": "Unterstütze diesen Fork",
-    "supportForkDescription": "Wenn dir die neuen Funktionen gefallen, unterstütze doch auch diesen Fork!",
+    "supportForkDescription": "Gefallen dir die neuen Funktionen? Du kannst auch den Entwickler hinter diesem Fork unterstützen — immer freiwillig.",
     "buyMeACoffee": "Spendier mir einen Kaffee",
     "thanks": "Danke für's Spielen!",
-    "hope": "Egal ob du spendest oder das Spiel mit anderen teilst, ich hoffe Du hast Spaß!"
+    "hope": "Egal ob du spendest oder das Spiel mit anderen teilst, ich hoffe Du hast Spaß!",
+    "supportNote": "Du unterstützt die Arbeit eines Entwicklers an einem Fan-Spiel — du kaufst nichts von Nintendo, Game Freak oder The Pokémon Company und stehst in keiner Verbindung zu ihnen."
   },
   "badges": {
     "boulder": "Felsorden",
