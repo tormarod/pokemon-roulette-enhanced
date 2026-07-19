@@ -145,7 +145,7 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
       this.translate.get(this.currentLeader.name).pipe(take(1)).subscribe(translated => {
         const leaderNames = translated.split('/');
         const leaderSprites = Array.isArray(this.currentLeader.sprite) ? this.currentLeader.sprite : [this.currentLeader.sprite];
-        const leaderQuotes = Array.isArray(this.currentLeader.quotes) ? this.currentLeader.quotes : this.currentLeader.quotes;
+        const leaderQuotes = this.currentLeader.quotes;
         const randomIndex = Math.floor(Math.random() * leaderNames.length);
 
         Promise.resolve().then(() => {

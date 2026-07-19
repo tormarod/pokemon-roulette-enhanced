@@ -141,7 +141,7 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
       this.translate.get(this.currentElite.name).pipe(take(1)).subscribe(translated => {
         const eliteNames = translated.split('/');
         const eliteSprites = Array.isArray(this.currentElite.sprite) ? this.currentElite.sprite : [this.currentElite.sprite];
-        const eliteQuotes = Array.isArray(this.currentElite.quotes) ? this.currentElite.quotes : this.currentElite.quotes;
+        const eliteQuotes = this.currentElite.quotes;
         const randomIndex = Math.floor(Math.random() * eliteNames.length);
 
         this.fromEliteChange.emit(randomIndex);
