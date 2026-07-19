@@ -29,6 +29,7 @@ export interface SavedRun {
   pendingBattlePrep: PendingBattlePrep | null;
   dangerPercent: number;
   consecutiveThreats: number;
+  guaranteedRewardSteps: number;
   pendingAdventure: PendingAdventureDraw | null;
   pendingBattleDebuff: number;
   markedTeamIndex: number | null;
@@ -100,6 +101,7 @@ export class RunPersistenceService {
         pendingBattlePrep,
         dangerPercent: dangerMeterState.dangerPercent,
         consecutiveThreats: dangerMeterState.consecutiveThreats,
+        guaranteedRewardSteps: dangerMeterState.guaranteedRewardSteps,
         pendingAdventure,
         pendingBattleDebuff,
         markedTeamIndex,
@@ -170,7 +172,7 @@ export class RunPersistenceService {
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
     this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
     this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
-    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0);
+    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0);
     this.adventureDrawService.restoreDraw(run.pendingAdventure ?? null);
     this.battleDebuffService.restoreDebuff(run.pendingBattleDebuff ?? 0);
     this.markedTargetService.restoreMark(run.markedTeamIndex ?? null);
@@ -223,6 +225,7 @@ export class RunPersistenceService {
       (run.pendingBattlePrep === undefined || run.pendingBattlePrep === null || typeof run.pendingBattlePrep === 'object') &&
       (run.dangerPercent === undefined || typeof run.dangerPercent === 'number') &&
       (run.consecutiveThreats === undefined || typeof run.consecutiveThreats === 'number') &&
+      (run.guaranteedRewardSteps === undefined || typeof run.guaranteedRewardSteps === 'number') &&
       (run.pendingAdventure === undefined || run.pendingAdventure === null || typeof run.pendingAdventure === 'object') &&
       (run.pendingBattleDebuff === undefined || typeof run.pendingBattleDebuff === 'number') &&
       (run.markedTeamIndex === undefined || run.markedTeamIndex === null || typeof run.markedTeamIndex === 'number') &&

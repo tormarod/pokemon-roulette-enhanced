@@ -14,9 +14,10 @@ describe('DangerMeterService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should default to dangerPercent 5 and consecutiveThreats 0', () => {
+  it('should default to dangerPercent 5, consecutiveThreats 0, guaranteedRewardSteps 0', () => {
     expect(service.currentDangerPercent).toBe(5);
     expect(service.currentConsecutiveThreats).toBe(0);
+    expect(service.currentGuaranteedRewardSteps).toBe(0);
   });
 
   it('rollStep should return "threat" and apply relief when the roll is below dangerPercent', () => {
@@ -87,20 +88,56 @@ describe('DangerMeterService', () => {
     expect(service.isNextStepGuaranteedSafe()).toBe(true);
   });
 
+  it('guaranteed reward steps should suppress the threat roll but still recover danger', () => {
+    service.restore(70, 0); // high danger — would almost certainly roll a threat
+    service.addGuaranteedRewardSteps(2);
+    spyOn(Math, 'random').and.returnValue(0.01); // *100 = 1, well below 70% danger
+
+    // First guaranteed step: forced reward despite the low roll, danger keeps climbing.
+    expect(service.rollStep(3)).toBe('reward');
+    expect(service.currentDangerPercent).toBe(50); // recover(3): min(base(3)=50, 70... capped by base) = 50
+    expect(service.currentGuaranteedRewardSteps).toBe(1);
+    expect(service.currentConsecutiveThreats).toBe(0);
+
+    // Second (last) guaranteed step: still forced reward.
+    expect(service.rollStep(3)).toBe('reward');
+    expect(service.currentGuaranteedRewardSteps).toBe(0);
+
+    // Burst exhausted: the low roll now produces a threat again.
+    expect(service.rollStep(3)).toBe('threat');
+  });
+
+  it('addGuaranteedRewardSteps should stack additively (overlapping multitask bursts)', () => {
+    service.addGuaranteedRewardSteps(2);
+    service.addGuaranteedRewardSteps(2);
+    expect(service.currentGuaranteedRewardSteps).toBe(4);
+  });
+
+  it('isNextStepGuaranteedSafe should be true while guaranteed reward steps remain', () => {
+    expect(service.isNextStepGuaranteedSafe()).toBe(false);
+    service.addGuaranteedRewardSteps(1);
+    expect(service.isNextStepGuaranteedSafe()).toBe(true);
+    spyOn(Math, 'random').and.returnValue(0.99);
+    service.rollStep(0); // consumes the guaranteed step
+    expect(service.isNextStepGuaranteedSafe()).toBe(false);
+  });
+
   it('resetForNewRun should restore the initial state', () => {
-    service.restore(70, 2);
+    service.restore(70, 2, 3);
 
     service.resetForNewRun();
 
     expect(service.currentDangerPercent).toBe(5);
     expect(service.currentConsecutiveThreats).toBe(0);
+    expect(service.currentGuaranteedRewardSteps).toBe(0);
   });
 
-  it('restore should set both fields without side effects', () => {
-    service.restore(42, 2);
+  it('restore should set all fields without side effects', () => {
+    service.restore(42, 2, 3);
 
     expect(service.currentDangerPercent).toBe(42);
     expect(service.currentConsecutiveThreats).toBe(2);
+    expect(service.currentGuaranteedRewardSteps).toBe(3);
   });
 
   it('dangerPercent$ should emit the current dangerPercent on subscribe and on change', () => {

@@ -6,6 +6,14 @@ export type AdventureStepType = 'reward' | 'threat';
 export interface DangerMeterState {
   dangerPercent: number;
   consecutiveThreats: number;
+  /**
+   * Extra adventure steps granted by a reward (currently only `multitask`) that
+   * are guaranteed threat-free — a reward that hands you more picks shouldn't be
+   * the thing that ambushes you. Each of these steps still advances the danger
+   * meter (it keeps climbing), it just can't roll a threat. Decremented one per
+   * step in rollStep; persisted so a reload mid-burst can't leak a threat in.
+   */
+  guaranteedRewardSteps: number;
 }
 
 const INIT_DANGER_PERCENT = 5;
@@ -31,7 +39,8 @@ export class DangerMeterService {
 
   private state = new BehaviorSubject<DangerMeterState>({
     dangerPercent: INIT_DANGER_PERCENT,
-    consecutiveThreats: 0
+    consecutiveThreats: 0,
+    guaranteedRewardSteps: 0
   });
 
   dangerPercent$: Observable<number> = this.state.pipe(
@@ -51,6 +60,10 @@ export class DangerMeterService {
     return this.state.value.consecutiveThreats;
   }
 
+  get currentGuaranteedRewardSteps(): number {
+    return this.state.value.guaranteedRewardSteps;
+  }
+
   /** base(round) = min(CAP, BASE + CURVE * round^2) — the ceiling danger recovers up to. */
   private base(round: number): number {
     return Math.min(DangerMeterService.CAP, DangerMeterService.BASE + DangerMeterService.CURVE * round * round);
@@ -68,8 +81,20 @@ export class DangerMeterService {
   rollStep(round: number): AdventureStepType {
     const current = this.state.value;
 
+    // Guaranteed threat-free step (granted by multitask). Consume one and skip
+    // the threat roll entirely, but still recover danger so the meter keeps
+    // climbing through the burst.
+    if (current.guaranteedRewardSteps > 0) {
+      this.state.next({
+        dangerPercent: this.recoverTo(round),
+        consecutiveThreats: 0,
+        guaranteedRewardSteps: current.guaranteedRewardSteps - 1
+      });
+      return 'reward';
+    }
+
     if (current.consecutiveThreats >= DangerMeterService.PITY) {
-      this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0 });
+      this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0 });
       return 'reward';
     }
 
@@ -77,13 +102,24 @@ export class DangerMeterService {
     if (isThreat) {
       this.state.next({
         dangerPercent: Math.max(DangerMeterService.FLOOR, current.dangerPercent - DangerMeterService.RELIEF),
-        consecutiveThreats: current.consecutiveThreats + 1
+        consecutiveThreats: current.consecutiveThreats + 1,
+        guaranteedRewardSteps: 0
       });
       return 'threat';
     }
 
-    this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0 });
+    this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0 });
     return 'reward';
+  }
+
+  /**
+   * Grants `count` guaranteed threat-free adventure steps (called when the
+   * `multitask` reward queues extra picks). Additive, so overlapping bursts
+   * (drawing multitask again during a multitask burst) stack correctly.
+   */
+  addGuaranteedRewardSteps(count: number): void {
+    const current = this.state.value;
+    this.state.next({ ...current, guaranteedRewardSteps: current.guaranteedRewardSteps + count });
   }
 
   /** "Spooked" threat: undoes most of rollStep's automatic threat relief. Not capped by base(round) — a punishment, not a recovery. */
@@ -91,20 +127,26 @@ export class DangerMeterService {
     const current = this.state.value;
     this.state.next({
       dangerPercent: Math.min(100, current.dangerPercent + DangerMeterService.SPIKE),
-      consecutiveThreats: current.consecutiveThreats
+      consecutiveThreats: current.consecutiveThreats,
+      guaranteedRewardSteps: current.guaranteedRewardSteps
     });
   }
 
-  /** True once a forced-safe reward is guaranteed on the next roll (for the UI's shielded state). */
+  /**
+   * True once the next roll can't be a threat (for the UI's shielded state):
+   * either the hard pity is about to trigger, or a multitask burst has queued
+   * guaranteed threat-free steps.
+   */
   isNextStepGuaranteedSafe(): boolean {
-    return this.state.value.consecutiveThreats >= DangerMeterService.PITY - 1;
+    const current = this.state.value;
+    return current.guaranteedRewardSteps > 0 || current.consecutiveThreats >= DangerMeterService.PITY - 1;
   }
 
   resetForNewRun(): void {
-    this.state.next({ dangerPercent: INIT_DANGER_PERCENT, consecutiveThreats: 0 });
+    this.state.next({ dangerPercent: INIT_DANGER_PERCENT, consecutiveThreats: 0, guaranteedRewardSteps: 0 });
   }
 
-  restore(dangerPercent: number, consecutiveThreats: number): void {
-    this.state.next({ dangerPercent, consecutiveThreats });
+  restore(dangerPercent: number, consecutiveThreats: number, guaranteedRewardSteps = 0): void {
+    this.state.next({ dangerPercent, consecutiveThreats, guaranteedRewardSteps });
   }
 }
