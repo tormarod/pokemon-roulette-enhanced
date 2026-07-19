@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 // noteKeys are i18n keys defined in every locale file (see §5).
 export const RELEASE_NOTES: ReleaseNotes[] = [
   {
+    version: '3.3.0',
+    date: '2026-07-19',
+    noteKeys: [
+      'whatsNew.v3_3_0.0',
+      'whatsNew.v3_3_0.1',
+      'whatsNew.v3_3_0.2',
+    ],
+  },
+  {
     version: '3.1.0',
     date: '2026-07-18',
     noteKeys: [

@@ -13,6 +13,7 @@ import { GenerationService } from '../../../../services/generation-service/gener
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
+import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
 
 describe('GymBattleRouletteComponent', () => {
   let component: GymBattleRouletteComponent;
@@ -22,6 +23,7 @@ describe('GymBattleRouletteComponent', () => {
   let modalQueueService: ModalQueueService;
   let gameStateService: GameStateService;
   let battlePrepService: BattlePrepService;
+  let markedTargetService: MarkedTargetService;
 
   /** Pre-set sprite prevents loadPokemonSpriteIfMissing from calling HTTP. */
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
@@ -62,6 +64,7 @@ describe('GymBattleRouletteComponent', () => {
     modalQueueService = TestBed.inject(ModalQueueService);
     gameStateService = TestBed.inject(GameStateService);
     battlePrepService = TestBed.inject(BattlePrepService);
+    markedTargetService = TestBed.inject(MarkedTargetService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
@@ -240,6 +243,56 @@ describe('GymBattleRouletteComponent', () => {
     component.onItemSelected(0);
 
     expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
+  });
+
+  it('should clear any pending Forced Retreat lock on a winning spin', () => {
+    (component as any).victoryOdds = [
+      { text: 'game.main.roulette.gym.yes', fillStyle: 'green', weight: 1 },
+    ];
+    (component as any).retries = 3;
+    spyOn(trainerService, 'clearForcedRetreatLock');
+
+    component.onItemSelected(0);
+
+    expect(trainerService.clearForcedRetreatLock).toHaveBeenCalled();
+  });
+
+  it('should clear any pending Forced Retreat lock on a losing spin with retries exhausted', () => {
+    (component as any).trainerItems = []; // no potions
+    (component as any).victoryOdds = [
+      { text: 'game.main.roulette.gym.no', fillStyle: 'crimson', weight: 1 },
+    ];
+    (component as any).retries = 1;
+    spyOn(trainerService, 'clearForcedRetreatLock');
+
+    component.onItemSelected(0);
+
+    expect(trainerService.clearForcedRetreatLock).toHaveBeenCalled();
+  });
+
+  it('should clear any pending Marked Target mark on a winning spin', () => {
+    (component as any).victoryOdds = [
+      { text: 'game.main.roulette.gym.yes', fillStyle: 'green', weight: 1 },
+    ];
+    (component as any).retries = 3;
+    spyOn(markedTargetService, 'clearMark');
+
+    component.onItemSelected(0);
+
+    expect(markedTargetService.clearMark).toHaveBeenCalled();
+  });
+
+  it('should clear any pending Marked Target mark on a losing spin with retries exhausted', () => {
+    (component as any).trainerItems = []; // no potions
+    (component as any).victoryOdds = [
+      { text: 'game.main.roulette.gym.no', fillStyle: 'crimson', weight: 1 },
+    ];
+    (component as any).retries = 1;
+    spyOn(markedTargetService, 'clearMark');
+
+    component.onItemSelected(0);
+
+    expect(markedTargetService.clearMark).toHaveBeenCalled();
   });
 
   // ── getCurrentLeader: multi-leader generation handling ───────────────────

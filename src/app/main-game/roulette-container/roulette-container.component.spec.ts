@@ -23,6 +23,9 @@ import { PokedexService } from '../../services/pokedex-service/pokedex.service';
 import { RouletteContainerComponent } from './roulette-container.component';
 import { ModalQueueService } from '../../services/modal-queue-service/modal-queue.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
+import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
+import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
+import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 
@@ -833,7 +836,7 @@ describe('RouletteContainerComponent', () => {
   });
 
   // ══════════════════════════════════════════════════════════════════════════
-  // V2 New Experience threats: itemTheft, toll, badOmen
+  // V2 New Experience threats: itemTheft, forcedRetreat, badOmen
   // ══════════════════════════════════════════════════════════════════════════
 
   describe('itemTheft', () => {
@@ -868,46 +871,63 @@ describe('RouletteContainerComponent', () => {
     });
   });
 
-  describe('toll', () => {
-    const makeItem = (name: string): any => ({ name, text: `items.${name}.name`, fillStyle: '', weight: 1, description: '', sprite: '' });
+  describe('markedTarget', () => {
+    const makePokemon = (id: number, power = 1): any => ({
+      pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
+      sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
+      shiny: false, power, weight: 1,
+    });
+    let markedTargetService: MarkedTargetService;
+
+    beforeEach(() => {
+      markedTargetService = TestBed.inject(MarkedTargetService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('with team >= 2 → marks one team index and shows a modal', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(2));
+
+      component.markedTarget();
+
+      expect(markedTargetService.currentMarkedIndex).not.toBeNull();
+      expect([0, 1]).toContain(markedTargetService.currentMarkedIndex as number);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('with team < 2 → does nothing (never marks the only Pokemon)', () => {
+      trainerService.addToTeam(makePokemon(1));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.markedTarget();
+
+      expect(component.doNothing).toHaveBeenCalled();
+      expect(markedTargetService.currentMarkedIndex).toBeNull();
+    });
+
+    it('resolves the state (does not get stuck) either way', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(2));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.markedTarget();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('forcedRetreat', () => {
     const makePokemon = (id: number, power = 1): any => ({
       pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
       sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
       shiny: false, power, weight: 1,
     });
 
-    beforeEach(() => {
-      trainerService.resetItems();
-      trainerService.getItems().slice().forEach(item => trainerService.removeItem(item));
-    });
-
-    it('with items in inventory → transitions to select-from-item-list', () => {
-      trainerService.addToItems(makeItem('potion'));
-
-      component.toll();
-
-      expect(component.getGameState()).toBe('select-from-item-list');
-    });
-
-    it('picking the item removes exactly it and resolves the state', () => {
-      trainerService.addToItems(makeItem('potion'));
-      trainerService.addToItems(makeItem('super-potion'));
-
-      component.toll();
-      // Pick by the actual stored item reference — addToItems may enrich/clone
-      // the item, so a locally-constructed object wouldn't match by reference.
-      const potionInInventory = trainerService.getItems().find(i => i.name === 'potion')!;
-      component.continueWithItem(potionInInventory);
-
-      expect(trainerService.getItems().length).toBe(1);
-      expect(trainerService.getItems()[0].name).toBe('super-potion');
-    });
-
-    it('with no items and team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members', () => {
+    it('with team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members', () => {
       trainerService.addToTeam(makePokemon(1, 1));
       trainerService.addToTeam(makePokemon(4, 4));
 
-      component.toll();
+      component.forcedRetreat();
 
       expect(component.getGameState()).toBe('select-from-pokemon-list');
       const list = (component as any).auxPokemonList;
@@ -915,24 +935,28 @@ describe('RouletteContainerComponent', () => {
       expect(list.find((p: any) => p.pokemonId === 4).weight).toBe(0.25);
     });
 
-    it('picking a Pokemon for the toll removes the original team member and never sets stolenPokemon (unlike Team Rocket)', () => {
+    it('picking a Pokemon for the forced retreat moves it to storage locked, and never sets stolenPokemon (unlike Team Rocket)', () => {
       trainerService.addToTeam(makePokemon(1, 1));
       trainerService.addToTeam(makePokemon(4, 4));
 
-      component.toll();
+      component.forcedRetreat();
       const weightedClone = (component as any).auxPokemonList.find((p: any) => p.pokemonId === 4);
       component.continueWithPokemon(weightedClone);
 
       expect(trainerService.getTeam().length).toBe(1);
       expect(trainerService.getTeam()[0].pokemonId).toBe(1);
+      const stored = trainerService.getStored();
+      expect(stored.length).toBe(1);
+      expect(stored[0].pokemonId).toBe(4);
+      expect(stored[0].retreatLocked).toBe(true);
       expect((component as any).stolenPokemon).toBeNull();
     });
 
-    it('with no items and team < 2 → does nothing (never takes the last Pokemon)', () => {
+    it('with team < 2 → does nothing (never benches the last Pokemon)', () => {
       trainerService.addToTeam(makePokemon(1, 1));
       spyOn(component, 'doNothing').and.callThrough();
 
-      component.toll();
+      component.forcedRetreat();
 
       expect(component.doNothing).toHaveBeenCalled();
       expect(trainerService.getTeam().length).toBe(1);
@@ -960,6 +984,99 @@ describe('RouletteContainerComponent', () => {
       component.badOmen();
 
       expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('spooked', () => {
+    let dangerMeterService: DangerMeterService;
+
+    beforeEach(() => {
+      dangerMeterService = TestBed.inject(DangerMeterService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('spikes the Danger meter, leaves consecutiveThreats unchanged, and shows a modal', () => {
+      dangerMeterService.restore(40, 2);
+
+      component.spooked();
+
+      expect(dangerMeterService.currentDangerPercent).toBe(70);
+      expect(dangerMeterService.currentConsecutiveThreats).toBe(2);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('caps the spike at 100', () => {
+      dangerMeterService.restore(90, 0);
+
+      component.spooked();
+
+      expect(dangerMeterService.currentDangerPercent).toBe(100);
+    });
+
+    it('resolves the state', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.spooked();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('pokeballMalfunction', () => {
+    let catchRiskService: CatchRiskService;
+
+    beforeEach(() => {
+      catchRiskService = TestBed.inject(CatchRiskService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('sets a pending catch escape chance and shows a modal', () => {
+      component.pokeballMalfunction();
+
+      expect(catchRiskService.currentEscapeChance).toBeGreaterThan(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('resolves the state', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.pokeballMalfunction();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+
+    it('makes the next capture fail and clears the pending chance when the roll is below the escape chance', () => {
+      const bulbasaur = pokemonService.getPokemonById(1);
+      expect(bulbasaur).toBeDefined();
+      component.pokeballMalfunction();
+      spyOn(Math, 'random').and.returnValue(0); // always below any positive escape chance
+
+      component.capturePokemon(bulbasaur!);
+
+      expect(trainerService.getTeam().length).toBe(0);
+      expect(catchRiskService.currentEscapeChance).toBe(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('lets the next capture succeed and clears the pending chance when the roll is above the escape chance', () => {
+      const bulbasaur = pokemonService.getPokemonById(1);
+      expect(bulbasaur).toBeDefined();
+      component.pokeballMalfunction();
+      spyOn(Math, 'random').and.returnValue(0.999); // always above any escape chance < 1
+
+      component.capturePokemon(bulbasaur!);
+
+      expect(trainerService.getTeam().length).toBe(1);
+      expect(catchRiskService.currentEscapeChance).toBe(0);
+    });
+
+    it('does not affect a capture when no malfunction is pending', () => {
+      const bulbasaur = pokemonService.getPokemonById(1);
+      expect(bulbasaur).toBeDefined();
+
+      component.capturePokemon(bulbasaur!);
+
+      expect(trainerService.getTeam().length).toBe(1);
     });
   });
 });

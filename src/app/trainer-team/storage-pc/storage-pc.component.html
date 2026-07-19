@@ -46,13 +46,13 @@
           [cdkDropListEnterPredicate]="lastPokemonPredicate">
       @for (pokemon of storedPokemon; track pokemon) {
         <div  class="pokemon-storage-card shadow"
-              [class.fainted-card]="pokemon.fainted"
+              [class.fainted-card]="pokemon.fainted || pokemon.retreatLocked"
               [cdkDragData]="pokemon"
-              [cdkDragDisabled]="!!pokemon.fainted"
+              [cdkDragDisabled]="!!pokemon.fainted || !!pokemon.retreatLocked"
               cdkDrag>
           <img [src]="getSprite(pokemon)"
                class="img-fluid"
-               [class.fainted-sprite]="pokemon.fainted"
+               [class.fainted-sprite]="pokemon.fainted || pokemon.retreatLocked"
                placement="bottom"
                container="body"
                [ngbTooltip]="pokemonInfoTooltip"
@@ -65,6 +65,9 @@
                 {{ 'trainer.storage.revive' | translate }}
               </button>
             }
+          }
+          @if (pokemon.retreatLocked) {
+            <span class="fainted-badge">{{ 'trainer.storage.retreatLocked' | translate }}</span>
           }
           @if (isNewExperienceMode) {
             @if (getMemberAbilityName(pokemon); as abilityName) {

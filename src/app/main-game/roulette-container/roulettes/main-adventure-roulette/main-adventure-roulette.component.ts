@@ -55,8 +55,11 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Output() battleRivalEvent = new EventEmitter<void>();
   @Output() areaZeroEvent = new EventEmitter<void>();
   @Output() itemTheftEvent = new EventEmitter<void>();
-  @Output() tollEvent = new EventEmitter<void>();
+  @Output() forcedRetreatEvent = new EventEmitter<void>();
   @Output() badOmenEvent = new EventEmitter<void>();
+  @Output() spookedEvent = new EventEmitter<void>();
+  @Output() markedTargetEvent = new EventEmitter<void>();
+  @Output() pokeballMalfunctionEvent = new EventEmitter<void>();
 
   private readonly baseActions: WheelItem[] = [
     { text: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
@@ -123,14 +126,17 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   /**
    * Threat pool (V2 A3). `teamRocketAmbush` reuses the existing Team Rocket
    * mini-wheel (no new mechanic — same routing as the reward pool's
-   * `teamRocket` entry, just a threat-flavored label). `itemTheft`, `toll`,
-   * and `badOmen` are new handlers in roulette-container.
+   * `teamRocket` entry, just a threat-flavored label). `itemTheft`,
+   * `forcedRetreat`, and `badOmen` are new handlers in roulette-container.
    */
   private readonly threatPool: AdventureCandidate[] = [
     { id: 'teamRocketAmbush', textKey: 'game.main.roulette.adventure.actions.teamRocketAmbush', fillStyle: 'purple', weight: 2 },
     { id: 'itemTheft', textKey: 'game.main.roulette.adventure.actions.itemTheft', fillStyle: 'darkred', weight: 1 },
-    { id: 'toll', textKey: 'game.main.roulette.adventure.actions.toll', fillStyle: 'darkred', weight: 1 },
+    { id: 'forcedRetreat', textKey: 'game.main.roulette.adventure.actions.forcedRetreat', fillStyle: 'darkred', weight: 1 },
     { id: 'badOmen', textKey: 'game.main.roulette.adventure.actions.badOmen', fillStyle: 'darkred', weight: 1 },
+    { id: 'spooked', textKey: 'game.main.roulette.adventure.actions.spooked', fillStyle: 'darkred', weight: 1 },
+    { id: 'markedTarget', textKey: 'game.main.roulette.adventure.actions.markedTarget', fillStyle: 'darkred', weight: 1 },
+    { id: 'pokeballMalfunction', textKey: 'game.main.roulette.adventure.actions.pokeballMalfunction', fillStyle: 'darkred', weight: 1 },
   ];
 
   /**
@@ -159,8 +165,11 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     areaZero: () => this.areaZeroEvent.emit(),
     teamRocketAmbush: () => this.teamRocketEncounterEvent.emit(),
     itemTheft: () => this.itemTheftEvent.emit(),
-    toll: () => this.tollEvent.emit(),
+    forcedRetreat: () => this.forcedRetreatEvent.emit(),
     badOmen: () => this.badOmenEvent.emit(),
+    spooked: () => this.spookedEvent.emit(),
+    markedTarget: () => this.markedTargetEvent.emit(),
+    pokeballMalfunction: () => this.pokeballMalfunctionEvent.emit(),
   };
 
   ngOnInit(): void {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PokemonItem } from '../../../interfaces/pokemon-item';
@@ -19,10 +19,12 @@ export interface BattlePrepConfirmed {
   styleUrl: './battle-prep-panel.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class BattlePrepPanelComponent {
+export class BattlePrepPanelComponent implements OnChanges {
   @Input() team: PokemonItem[] = [];
   @Input() opponentTypes: PokemonType[] | undefined;
   @Input() items: ItemItem[] = [];
+  /** New Experience only: team index the "markedTarget" threat has barred from leading this battle. */
+  @Input() disabledIndex: number | null = null;
   @Output() confirmed = new EventEmitter<BattlePrepConfirmed>();
 
   selectedLeadIndex = 0;
@@ -32,7 +34,16 @@ export class BattlePrepPanelComponent {
 
   constructor(private typeMatchupService: TypeMatchupService) {}
 
+  ngOnChanges(): void {
+    if (this.selectedLeadIndex === this.disabledIndex) {
+      this.selectedLeadIndex = this.disabledIndex === 0 ? 1 : 0;
+    }
+  }
+
   selectLead(index: number): void {
+    if (index === this.disabledIndex) {
+      return;
+    }
     this.selectedLeadIndex = index;
   }
 

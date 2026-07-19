@@ -90,6 +90,31 @@ describe('StoragePcComponent', () => {
     });
   });
 
+  // ── Forced Retreat lock (adventure threats rework) ──────────────────────
+
+  describe('retreatLocked storage card', () => {
+    it('shows the locked badge and disables dragging for a retreat-locked stored Pokémon', () => {
+      const locked = makeTestPokemon({ retreatLocked: true });
+      component.trainerTeam = [];
+      component.storedPokemon = [locked];
+
+      // Render the modal's <ng-template> directly (bypassing NgbModal, which
+      // this codebase's specs never render into the DOM — see other roulette
+      // specs spying on modalService.open instead) so the fainted/retreatLocked
+      // bindings can be asserted against real DOM output.
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+
+      const card = rootNode.querySelector('#storedPokemon .pokemon-storage-card')!;
+      expect(card).toBeTruthy();
+      expect(card.classList.contains('fainted-card')).toBeTrue();
+      expect(card.querySelector('.fainted-badge')?.textContent).toContain('trainer.storage.retreatLocked');
+
+      viewRef.destroy();
+    });
+  });
+
   // ── Ability assignment (New Experience) ─────────────────────────────────
 
   describe('ability assignment', () => {

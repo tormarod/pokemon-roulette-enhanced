@@ -17,6 +17,7 @@ import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.comp
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
+import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
 
 @Component({
   selector: 'app-elite-four-battle-roulette',
@@ -57,7 +58,8 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
     typeMatchupService: TypeMatchupService,
     statsService: StatsService,
     battleDebuffService: BattleDebuffService,
-    private battlePrepService: BattlePrepService
+    private battlePrepService: BattlePrepService,
+    public markedTargetService: MarkedTargetService
   ) {
     super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService, battleDebuffService);
   }
@@ -67,6 +69,8 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.elite.yes') {
       this.battlePrepService.clearPrep();
+      this.trainerService.clearForcedRetreatLock();
+      this.markedTargetService.clearMark();
       this.battleDebuffService.clearDebuff();
       this.battleResultEvent.emit(true);
     } else {
@@ -76,6 +80,8 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
           this.usePotion(potion, () => this.modalQueueService.open(this.itemUsedModal, { centered: true, size: 'md' }));
         } else {
           this.battlePrepService.clearPrep();
+          this.trainerService.clearForcedRetreatLock();
+          this.markedTargetService.clearMark();
           this.battleDebuffService.clearDebuff();
           this.battleResultEvent.emit(false);
         }

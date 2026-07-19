@@ -10,6 +10,8 @@ import { BattlePrepService } from '../battle-prep-service/battle-prep.service';
 import { DangerMeterService } from '../danger-meter-service/danger-meter.service';
 import { AdventureDrawService } from '../adventure-draw-service/adventure-draw.service';
 import { BattleDebuffService } from '../battle-debuff-service/battle-debuff.service';
+import { MarkedTargetService } from '../marked-target-service/marked-target.service';
+import { CatchRiskService } from '../catch-risk-service/catch-risk.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 
 describe('RunPersistenceService', () => {
@@ -101,6 +103,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -162,6 +166,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -226,6 +232,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 1,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -291,6 +299,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: { stepType: 'reward', candidates: ['catchPokemon', 'findItem', 'battleRival'], picked: 1 },
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -354,6 +364,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 2,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -386,6 +398,132 @@ describe('RunPersistenceService', () => {
 
     const restoredBattleDebuffService = TestBed.inject(BattleDebuffService);
     expect(restoredBattleDebuffService.currentDebuff).toBe(0);
+  });
+
+  it('should save the pending marked target index to localStorage when it changes', () => {
+    const markedTargetService = TestBed.inject(MarkedTargetService);
+    markedTargetService.setMark(1);
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.markedTeamIndex).toBe(1);
+  });
+
+  it('should restore the pending marked target index from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: 1,
+      pendingCatchEscapeChance: 0,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredMarkedTargetService = TestBed.inject(MarkedTargetService);
+    expect(restoredMarkedTargetService.currentMarkedIndex).toBe(1);
+  });
+
+  it('should default markedTeamIndex to null when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredMarkedTargetService = TestBed.inject(MarkedTargetService);
+    expect(restoredMarkedTargetService.currentMarkedIndex).toBeNull();
+  });
+
+  it('should save the pending catch escape chance to localStorage when it changes', () => {
+    const catchRiskService = TestBed.inject(CatchRiskService);
+    catchRiskService.setEscapeChance(0.35);
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.pendingCatchEscapeChance).toBe(0.35);
+  });
+
+  it('should restore the pending catch escape chance from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0.35,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredCatchRiskService = TestBed.inject(CatchRiskService);
+    expect(restoredCatchRiskService.currentEscapeChance).toBe(0.35);
+  });
+
+  it('should default pendingCatchEscapeChance to 0 when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredCatchRiskService = TestBed.inject(CatchRiskService);
+    expect(restoredCatchRiskService.currentEscapeChance).toBe(0);
   });
 
   // ── Terminal states clear the save instead of persisting it ────────────
@@ -430,6 +568,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -475,6 +615,8 @@ describe('RunPersistenceService', () => {
       consecutiveThreats: 0,
       pendingAdventure: null,
       pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
