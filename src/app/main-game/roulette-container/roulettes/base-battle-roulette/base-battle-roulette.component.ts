@@ -149,10 +149,14 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       abilityYesBonus = abilities.yesBonus;
       abilityNoBonus = abilities.noBonus;
       // Serene Grace-style: grants one free retry, once per battle instance,
-      // the first time this is computed with the ability present.
+      // the first time this is computed with the ability present. Seeded to 2,
+      // not 1: onItemSelected() decrements `retries` on every spin (including the
+      // first), and only emits a loss once it hits 0 — so 2 survives the first
+      // spin's decrement to actually buy one extra spin, whereas 1 would be
+      // spent on that first decrement and grant nothing.
       if (abilities.extraRetry && !this.abilityRetryGranted) {
         this.abilityRetryGranted = true;
-        this.retries = Math.max(this.retries, 1);
+        this.retries = Math.max(this.retries, 2);
       }
     }
 

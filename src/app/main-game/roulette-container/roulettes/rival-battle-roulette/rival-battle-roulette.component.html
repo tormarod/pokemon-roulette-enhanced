@@ -1,7 +1,7 @@
 <div class="roulette-header">
     <h1 class="title">{{ 'game.main.roulette.rival.victory' | translate }}</h1>
     <p class="respin-reason">
-        {{ (retries > 0) ? (currentItem.text | translate) + " x" + retries : ""}}
+        {{ (retries > 0 && currentItem) ? (currentItem.text | translate) + " x" + retries : ""}}
     </p>
     @if (currentRival?.types?.length) {
         <app-matchup-strip

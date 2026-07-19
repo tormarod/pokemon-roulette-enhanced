@@ -1,6 +1,6 @@
 <div class="roulette-header">
     <h1 class="title">{{ 'game.main.roulette.elite.title' | translate }}</h1>
-    <p class="respin-reason">{{ (retries > 0) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
+    <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
     @if (currentElite?.types?.length) {
         <app-matchup-strip
             [opponentTypes]="currentElite.types"

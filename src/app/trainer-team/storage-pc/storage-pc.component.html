@@ -114,7 +114,7 @@
 <ng-template #abilityPickerModal let-modal>
   <div class="modal-body">
     <h1>{{ 'trainer.storage.assignAbilityTitle' | translate }} {{ assignTarget?.text | translate }}</h1>
-    @if (getMemberAbilityName(assignTarget!); as currentAbility) {
+    @if (assignTarget && getMemberAbilityName(assignTarget); as currentAbility) {
       <p class="ability-picker-current">{{ 'trainer.storage.currentAbility' | translate }} {{ currentAbility | translate }}</p>
     }
     <div class="ability-picker-list">
