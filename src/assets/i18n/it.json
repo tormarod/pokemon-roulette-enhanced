@@ -1101,6 +1101,10 @@
     }
   },
   "trainer": {
+    "team": {
+      "marked": "Marked",
+      "markedTooltip": "Marked Target: can't lead your next battle."
+    },
     "storage": {
       "access": "Accedi al PC",
       "logout": "Esci",
@@ -3105,6 +3109,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_4_0": "Versione 3.4.0",
   "v3_3_0": "Versione 3.3.0",
   "v3_1_0": "Versione 3.1.0",
   "v3_0_0": "Versione 3.0.0",
@@ -3112,6 +3117,10 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_4_0": {
+      "0": "🎲 New Experience threats are now a single random draw instead of a 3-choice picker — a threat you got to pick between was never really a threat. Reward steps are unchanged, still choose-between.",
+      "1": "📊 The Danger meter now stays visible throughout the whole stretch between fights, not just on the step where it's rolled. Hover or tap it for a tooltip explaining the mechanic."
+    },
     "v3_3_0": {
       "0": "☠️ New Experience adventure threats: the pool grew from 4 to 7, so a threat draw shows way more variety.",
       "1": "🏕️ 'Pay a Toll' is gone — replaced by Forced Retreat, which benches a weak-biased team Pokémon to your PC, locked there until your next battle resolves (win or lose).",

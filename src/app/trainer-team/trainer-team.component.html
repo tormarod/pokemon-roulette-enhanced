@@ -42,6 +42,18 @@
                                                   alt="Mega Stone">
                                         </button>
                                    }
+                                   @if (isNewExperienceMode && i === markedIndex) {
+                                        <span class="marked-badge"
+                                              placement="bottom"
+                                              ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}">
+                                             {{ 'trainer.team.marked' | translate }}
+                                        </span>
+                                   }
+                                   @if (isNewExperienceMode) {
+                                        @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
+                                             <span class="ability-badge">{{ abilityName | translate }}</span>
+                                        }
+                                   }
                               }
                          </div>
                     }

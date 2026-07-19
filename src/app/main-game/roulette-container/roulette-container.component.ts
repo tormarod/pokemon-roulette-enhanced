@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, OnDestroy, OnInit, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { GenerationRouletteComponent } from "./roulettes/generation-roulette/generation-roulette.component";
@@ -69,6 +69,7 @@ import { championByGeneration } from './roulettes/champion-battle-roulette/champ
 import { StatsService } from '../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
 import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
+import { DangerMeterComponent } from '../danger-meter/danger-meter.component';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
 
@@ -113,7 +114,8 @@ const MALFUNCTION_ESCAPE_CHANCE = 0.35;
     EliteFourBattleRouletteComponent,
     ChampionBattleRouletteComponent,
     EndGameComponent,
-    GameOverComponent
+    GameOverComponent,
+    DangerMeterComponent
 ],
   templateUrl: './roulette-container.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -152,7 +154,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private battleDebuffService: BattleDebuffService,
       private dangerMeterService: DangerMeterService,
       private markedTargetService: MarkedTargetService,
-      private catchRiskService: CatchRiskService) {
+      private catchRiskService: CatchRiskService,
+      private cdr: ChangeDetectorRef) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -310,6 +313,20 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
     return this.gymLeadersByGeneration[this.generation.id]?.[this.leadersDefeatedAmount] ?? null;
   }
+
+  /**
+   * Same visibility window as showOpponentPreview (hidden during battles and
+   * before the adventure starts) but also gated on New Experience Mode — the
+   * danger meter is a New-Experience-only cadence engine (see
+   * DangerMeterService); Classic mode's plain wheel never draws through it.
+   */
+  get showDangerMeter(): boolean {
+    if (!this.gameStateService.isNewExperienceMode || this.opponentPreviewHiddenStates.has(this.currentGameState)) {
+      return false;
+    }
+    return !this.gameStateService.getStateStack().includes('start-adventure');
+  }
+
   multitaskCounter: number = 0;
   pkmnEvoTitle = '';
   pkmnIn!: PokemonItem;
@@ -336,6 +353,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         this.gameStateService.setNextState('adventure-continues');
       }
     }
+
+    // gameStateService.finishCurrentState() above synchronously re-enters this
+    // component's own gameStateService.currentState subscription (ngOnInit),
+    // which can mutate fields like respinReason (e.g. the "Multitask x2" note)
+    // that are passed down as an @Input() to whichever roulette is rendered next
+    // — chaining multiple actions in a row (e.g. multitask() then doNothing())
+    // left that label exactly one action stale, since nothing told Angular's
+    // zoneless scheduler that this component had more to re-check. markForCheck()
+    // is safe to call repeatedly/from any of this method's many call sites.
+    this.cdr.markForCheck();
   }
 
   handleGenerationSelected(): void {

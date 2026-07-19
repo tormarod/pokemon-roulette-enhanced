@@ -694,4 +694,54 @@ describe('RunPersistenceService', () => {
     expect(freshTrainerService.getTeam().length).toBe(0);
   });
 
+  // ── startFreshRun — single source of truth for restarting a run ─────────
+  // Regression coverage for the "toggling New Experience Mode needs two
+  // restarts" bug: a stale committed battlePrepService entry (or any other
+  // per-run ancillary service) surviving a restart could make the new run's
+  // first battle behave like the previous run instead of the fresh setting.
+
+  describe('startFreshRun', () => {
+    it('clears every per-run ancillary service, not just trainer/game state', () => {
+      const battlePrepService = TestBed.inject(BattlePrepService);
+      const dangerMeterService = TestBed.inject(DangerMeterService);
+      const adventureDrawService = TestBed.inject(AdventureDrawService);
+      const battleDebuffService = TestBed.inject(BattleDebuffService);
+      const markedTargetService = TestBed.inject(MarkedTargetService);
+      const catchRiskService = TestBed.inject(CatchRiskService);
+
+      trainerService.addToTeam(makeTestPokemon());
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 4 }));
+      battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
+      dangerMeterService.restore(45, 2);
+      adventureDrawService.commitDraw('reward', ['catchPokemon']);
+      battleDebuffService.setDebuff(2);
+      markedTargetService.setMark(1);
+      catchRiskService.setEscapeChance(0.35);
+
+      service.startFreshRun(true);
+
+      expect(battlePrepService.getPendingPrep()).toBeNull();
+      expect(dangerMeterService.currentDangerPercent).toBe(5);
+      expect(dangerMeterService.currentConsecutiveThreats).toBe(0);
+      expect(adventureDrawService.getPendingDraw()).toBeNull();
+      expect(battleDebuffService.currentDebuff).toBe(0);
+      expect(markedTargetService.currentMarkedIndex).toBeNull();
+      expect(catchRiskService.currentEscapeChance).toBe(0);
+      expect(gameStateService.isNewExperienceMode).toBeTrue();
+      expect(localStorage.getItem(RUN_KEY)).toBeNull();
+    });
+
+    it('resets trainer team/items to the default starting kit and applies the requested New Experience Mode value', () => {
+      trainerService.addToTeam(makeTestPokemon());
+      trainerService.addToItems({ name: 'super-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: 'x' });
+
+      service.startFreshRun(false);
+
+      expect(trainerService.getTeam().length).toBe(0);
+      // resetItems() restores the default starting kit (Potion/Honey/Repel), not an empty bag.
+      expect(trainerService.getItems().some(i => i.name === 'super-potion')).toBeFalse();
+      expect(gameStateService.isNewExperienceMode).toBeFalse();
+    });
+  });
+
 });

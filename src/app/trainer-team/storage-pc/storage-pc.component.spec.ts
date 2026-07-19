@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
+import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { AbilityId } from '../../services/ability-service/abilities-data';
 
@@ -187,6 +188,68 @@ describe('StoragePcComponent', () => {
 
       expect(mon.ability).toBeUndefined();
       expect(component.ownedCapsules().length).toBe(1);
+    });
+  });
+
+  // ── Marked Target badge on the PC modal's team loop ──────────────────────
+
+  describe('markedTarget badge (team loop)', () => {
+    let gameStateService: GameStateService;
+    let markedTargetService: MarkedTargetService;
+
+    beforeEach(() => {
+      gameStateService = TestBed.inject(GameStateService);
+      gameStateService.restoreNewExperienceMode(true);
+      markedTargetService = TestBed.inject(MarkedTargetService);
+    });
+
+    it('shows the marked badge only on the team member at the marked index', () => {
+      const marked = makeTestPokemon({ pokemonId: 1 });
+      const other = makeTestPokemon({ pokemonId: 4 });
+      component.trainerTeam = [marked, other];
+      component.storedPokemon = [];
+      markedTargetService.setMark(0);
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+      const cards = rootNode.querySelectorAll('#trainerTeam .pokemon-storage-card');
+
+      expect(cards[0].querySelector('.marked-badge')).toBeTruthy();
+      expect(cards[1].querySelector('.marked-badge')).toBeFalsy();
+
+      viewRef.destroy();
+    });
+
+    it('shows no marked badge when nothing is marked', () => {
+      component.trainerTeam = [makeTestPokemon()];
+      component.storedPokemon = [];
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+
+      expect(rootNode.querySelector('.marked-badge')).toBeFalsy();
+
+      viewRef.destroy();
+    });
+
+    it('hides the marked badge in Classic mode even if a mark is set', () => {
+      gameStateService.restoreNewExperienceMode(false);
+      component.trainerTeam = [makeTestPokemon()];
+      component.storedPokemon = [];
+      markedTargetService.setMark(0);
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+
+      expect(rootNode.querySelector('.marked-badge')).toBeFalsy();
+
+      viewRef.destroy();
     });
   });
 });

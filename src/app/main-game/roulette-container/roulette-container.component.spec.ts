@@ -96,6 +96,38 @@ describe('RouletteContainerComponent', () => {
       component.doNothing(); // resolve round 2 with a bare pop
       expect(states[states.length - 1]).not.toBe('adventure-continues');
     });
+
+    // Regression coverage: chaining a second multitask() call while already inside
+    // the first one's bonus rounds used to leave the rendered "Multitask xN" note
+    // exactly one action stale (still showing the PREVIOUS action's value) — the
+    // component field (respinReason) itself was always correct, but nothing told
+    // Angular's zoneless change detection to re-check the child's @Input() binding
+    // for it. Fixed by calling ChangeDetectorRef.markForCheck() in the private
+    // finishCurrentState() wrapper every action funnels through.
+    it('renders the correct "Multitask xN" note at every step, including a chained 2nd multitask()', () => {
+      gameStateService.resetGameState(true);
+      const respinReasonText = () => fixture.nativeElement.querySelector('.respin-reason')?.textContent?.trim();
+
+      component.multitask(); // 1st call: queues 2 rounds
+      fixture.detectChanges();
+      expect(respinReasonText()).toBe('Multitask x2');
+
+      component.doNothing(); // resolve round 1 of the 1st call
+      fixture.detectChanges();
+      expect(respinReasonText()).toBe('Multitask x1');
+
+      component.multitask(); // chained 2nd call, mid-bonus-round
+      fixture.detectChanges();
+      expect(respinReasonText()).toBe('Multitask x2');
+
+      component.doNothing(); // resolve round 1 of the 2nd call
+      fixture.detectChanges();
+      expect(respinReasonText()).toBe('Multitask x1');
+
+      component.doNothing(); // resolve round 2 of the 2nd call, exits the bonus stretch
+      fixture.detectChanges();
+      expect(component.getGameState()).not.toBe('adventure-continues');
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -148,6 +180,51 @@ describe('RouletteContainerComponent', () => {
       fixture.detectChanges();
 
       expect(component.previewOpponent).toEqual(eliteFourByGeneration[1][0]);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Danger meter — always-visible persistent meter (New Experience Mode only)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('danger meter', () => {
+    const reachStartAdventureNE = () => {
+      gameStateService.resetGameState(true);
+      gameStateService.finishCurrentState(); // character-select
+      gameStateService.finishCurrentState(); // starter-pokemon
+      gameStateService.finishCurrentState(); // start-adventure
+      fixture.detectChanges();
+    };
+
+    it('is hidden in Classic mode even once the adventure has started', () => {
+      gameStateService.finishCurrentState(); // character-select
+      gameStateService.finishCurrentState(); // starter-pokemon
+      gameStateService.finishCurrentState(); // start-adventure
+      fixture.detectChanges();
+
+      expect(component.showDangerMeter).toBeFalse();
+    });
+
+    it('is hidden before the adventure has started in New Experience Mode', () => {
+      gameStateService.resetGameState(true);
+      fixture.detectChanges();
+
+      expect(component.showDangerMeter).toBeFalse();
+    });
+
+    it('is visible once the adventure starts in New Experience Mode', () => {
+      reachStartAdventureNE();
+
+      expect(component.showDangerMeter).toBeTrue();
+    });
+
+    it('is hidden during an actual gym battle in New Experience Mode', () => {
+      reachStartAdventureNE();
+      gameStateService.setNextState('gym-battle');
+      gameStateService.finishCurrentState();
+      fixture.detectChanges();
+
+      expect(component.showDangerMeter).toBeFalse();
     });
   });
 

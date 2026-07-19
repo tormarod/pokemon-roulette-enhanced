@@ -27,6 +27,7 @@ import { MegaStoneService } from '../services/mega-stone-service/mega-stone.serv
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
 import { SettingsService } from '../services/settings-service/settings.service';
+import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
 interface GroupedBias {
   type: PokemonType;
@@ -67,7 +68,8 @@ export class MainGameComponent implements OnInit {
     private megaStoneService: MegaStoneService,
     private typeBiasItemService: TypeBiasItemService,
     private linkCableService: LinkCableService,
-    private settingsService: SettingsService) {
+    private settingsService: SettingsService,
+    private runPersistenceService: RunPersistenceService) {
       this.darkMode = this.themeService.isDark$;
   }
 
@@ -195,11 +197,6 @@ export class MainGameComponent implements OnInit {
   }
 
   resetGame(): void {
-    this.trainerService.resetTrainer();
-    this.trainerService.resetTeam();
-    this.trainerService.resetItems();
-    this.trainerService.resetBadges();
-    this.trainerService.clearPendingTypeBiases();
-    this.gameStateService.resetGameState(this.settingsService.currentSettings.newExperienceMode);
+    this.runPersistenceService.startFreshRun(this.settingsService.currentSettings.newExperienceMode);
   }
 }

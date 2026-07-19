@@ -11,6 +11,7 @@ import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { AbilityService } from '../../services/ability-service/ability.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
+import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { GameState } from '../../services/game-state-service/game-state';
 import {TranslatePipe} from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
@@ -38,6 +39,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
                 private modalService: NgbModal,
                 private gameStateService: GameStateService,
                 private abilityService: AbilityService,
+                private markedTargetService: MarkedTargetService,
                 private soundFxService: SoundFxService) {
       this.pcTurningOn = this.soundFxService.createPcTurningOnSoundFx();
       this.pcLoginAudio = this.soundFxService.createPcLoginSoundFx();
@@ -60,6 +62,8 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     infoModalMessage = '';
     /** New Experience only: the Pokémon currently being assigned an ability via the picker modal. */
     assignTarget: PokemonItem | null = null;
+    /** New Experience only: team index the Marked Target threat currently has locked out of leading. */
+    markedIndex: number | null = null;
     private pickerModalRef: NgbModalRef | null = null;
     private readonly subscriptions = new Subscription();
     private removePcTurningOnEndedListener: (() => void) | null = null;
@@ -76,6 +80,10 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
       this.subscriptions.add(this.gameStateService.currentState.subscribe(state => {
         this.currentGameState = state;
+      }));
+
+      this.subscriptions.add(this.markedTargetService.getPendingMarkObservable().subscribe(index => {
+        this.markedIndex = index;
       }));
     }
 

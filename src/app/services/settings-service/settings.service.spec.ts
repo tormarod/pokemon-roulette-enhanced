@@ -41,16 +41,16 @@ describe('SettingsServiceService', () => {
     expect(service.currentSettings.fastSpin).toBeFalse();
   });
 
-  it('should default newExperienceMode to false', () => {
-    expect(service.currentSettings.newExperienceMode).toBeFalse();
+  it('should default newExperienceMode to true', () => {
+    expect(service.currentSettings.newExperienceMode).toBeTrue();
   });
 
   it('should toggle newExperienceMode', () => {
     service.toggleNewExperienceMode();
-    expect(service.currentSettings.newExperienceMode).toBeTrue();
+    expect(service.currentSettings.newExperienceMode).toBeFalse();
 
     service.toggleNewExperienceMode();
-    expect(service.currentSettings.newExperienceMode).toBeFalse();
+    expect(service.currentSettings.newExperienceMode).toBeTrue();
   });
 
   it('should persist newExperienceMode across a fresh service instance (localStorage)', () => {
@@ -60,6 +60,6 @@ describe('SettingsServiceService', () => {
     TestBed.configureTestingModule({});
     const restored = TestBed.inject(SettingsService);
 
-    expect(restored.currentSettings.newExperienceMode).toBeTrue();
+    expect(restored.currentSettings.newExperienceMode).toBeFalse();
   });
 });

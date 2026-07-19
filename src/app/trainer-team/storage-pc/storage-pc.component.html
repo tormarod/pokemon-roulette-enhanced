@@ -14,7 +14,7 @@
           class="pokemon-storage-grid"
           (cdkDropListDropped)="drop($event)"
           [cdkDropListEnterPredicate]="teamIsFullPredicate">
-          @for (pokemon of trainerTeam; track pokemon) {
+          @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
             <div  class="pokemon-storage-card shadow"
                   cdkDrag>
               <img class="img-fluid"
@@ -23,6 +23,11 @@
                    container="body"
                    [ngbTooltip]="pokemonInfoTooltip"
                    [tooltipContext]="{ pokemon: pokemon }">
+              @if (isNewExperienceMode && idx === markedIndex) {
+                <span class="marked-badge" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}">
+                  {{ 'trainer.team.marked' | translate }}
+                </span>
+              }
               @if (isNewExperienceMode) {
                 @if (getMemberAbilityName(pokemon); as abilityName) {
                   <span class="ability-badge">{{ abilityName | translate }}</span>

@@ -9,8 +9,6 @@ import { NgIconsModule } from '@ng-icons/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { SettingsService, GameSettings } from '../services/settings-service/settings.service';
-import { TrainerService } from '../services/trainer-service/trainer.service';
-import { GameStateService } from '../services/game-state-service/game-state.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 import { WhatsNewService } from '../services/whats-new-service/whats-new.service';
 
@@ -35,8 +33,6 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private settingsService: SettingsService,
-    private trainerService: TrainerService,
-    private gameStateService: GameStateService,
     private runPersistenceService: RunPersistenceService,
     private router: Router,
     private whatsNew: WhatsNewService,
@@ -79,13 +75,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onRestartGame(): void {
-    this.trainerService.resetTrainer();
-    this.trainerService.resetTeam();
-    this.trainerService.resetItems();
-    this.trainerService.resetBadges();
-    this.trainerService.clearPendingTypeBiases();
-    this.gameStateService.resetGameState(this.settingsService.currentSettings.newExperienceMode);
-    this.runPersistenceService.clearRun();
+    this.runPersistenceService.startFreshRun(this.settingsService.currentSettings.newExperienceMode);
     this.router.navigate(['']);
   }
 

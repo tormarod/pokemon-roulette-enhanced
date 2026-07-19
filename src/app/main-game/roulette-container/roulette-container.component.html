@@ -12,6 +12,9 @@
     }
   </div>
 }
+@if (showDangerMeter) {
+  <app-danger-meter />
+}
 @switch (getGameState()) {
   @case ('game-start') {
     <app-generation-roulette

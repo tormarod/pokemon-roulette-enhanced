@@ -5,9 +5,8 @@ import { WheelItem } from '../../../../interfaces/wheel-item';
 import { EventSource } from '../../../EventSource';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
-import { DangerMeterService } from '../../../../services/danger-meter-service/danger-meter.service';
+import { AdventureStepType, DangerMeterService } from '../../../../services/danger-meter-service/danger-meter.service';
 import { AdventureDrawService } from '../../../../services/adventure-draw-service/adventure-draw.service';
-import { DangerMeterComponent } from '../../../danger-meter/danger-meter.component';
 import { Subscription } from 'rxjs';
 
 interface AdventureCandidate {
@@ -19,7 +18,7 @@ interface AdventureCandidate {
 
 @Component({
   selector: 'app-main-adventure-roulette',
-  imports: [WheelComponent, TranslatePipe, DangerMeterComponent],
+  imports: [WheelComponent, TranslatePipe],
   templateUrl: './main-adventure-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-adventure-roulette.component.css'
@@ -88,15 +87,13 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
 
   actions: WheelItem[] = [...this.baseActions];
   private generationSubscription: Subscription | null = null;
-  private dangerSubscription: Subscription | null = null;
   private gameStateSubscription: Subscription | null = null;
   private isGeneration9 = false;
 
   // ── New Experience mode: choose-between adventure (V2 Part A) ──────────
   isNewExperienceMode = false;
   candidates: AdventureCandidate[] = [];
-  dangerPercent = 5;
-  isNextStepGuaranteedSafe = false;
+  stepType: AdventureStepType | null = null;
 
   private readonly rewardPool: AdventureCandidate[] = [
     { id: 'catchPokemon', textKey: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
@@ -182,10 +179,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
 
     this.isNewExperienceMode = this.gameStateService.isNewExperienceMode;
     if (this.isNewExperienceMode) {
-      this.dangerSubscription = this.dangerMeterService.dangerPercent$.subscribe(percent => {
-        this.dangerPercent = percent;
-        this.isNextStepGuaranteedSafe = this.dangerMeterService.isNextStepGuaranteedSafe();
-      });
       // Re-draw on every entry into this state, not just component construction.
       // Some actions (e.g. multitask) route back to 'adventure-continues' without
       // the component being destroyed/recreated — Angular's @switch only rebuilds
@@ -204,7 +197,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
-    this.dangerSubscription?.unsubscribe();
     this.gameStateSubscription?.unsubscribe();
   }
 
@@ -229,9 +221,16 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   private initializeDraw(): void {
     const existing = this.adventureDrawService.getPendingDraw();
     if (existing) {
+      this.stepType = existing.stepType;
       if (existing.picked !== null) {
         // Reload after the pick was committed but before it was routed — replay it.
-        this.routeCandidate(existing.candidates[existing.picked]);
+        // Deferred to a microtask: this runs from ngOnInit's own state subscription, and a
+        // routed threat can itself trigger another state transition (e.g. teamRocketAmbush,
+        // forcedRetreat) synchronously — reentrant while Angular is still mid-render for
+        // *this* component, which leaves the parent's view stuck on the old screen even
+        // though gameStateService has already moved on. Same fix as character-select
+        // .component.ts's queueMicrotask use for the analogous reentrancy.
+        queueMicrotask(() => this.routeCandidate(existing.candidates[existing.picked!]));
         return;
       }
       // Reload before a pick was made — re-show the exact same 3 candidates.
@@ -240,13 +239,21 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     }
 
     const stepType = this.dangerMeterService.rollStep(this.gameStateService.currentRoundValue);
+    this.stepType = stepType;
 
-    const pool = stepType === 'threat'
-      ? this.threatPool
-      : (this.isGeneration9 ? [...this.rewardPool, this.areaZeroCandidate] : this.rewardPool);
-    const drawn = this.drawDistinct(pool, 3);
-    this.candidates = drawn;
-    this.adventureDrawService.commitDraw(stepType, drawn.map(c => c.id));
+    if (stepType === 'threat') {
+      const drawn = this.drawWeightedOne(this.threatPool);
+      this.adventureDrawService.commitDraw('threat', [drawn.id]);
+      this.adventureDrawService.commitPick(0);
+      // See the reload-replay branch above for why this is deferred to a microtask.
+      queueMicrotask(() => this.routeCandidate(drawn.id));
+      return;
+    }
+
+    const pool = this.isGeneration9 ? [...this.rewardPool, this.areaZeroCandidate] : this.rewardPool;
+    const drawnCandidates = this.drawDistinct(pool, 3);
+    this.candidates = drawnCandidates;
+    this.adventureDrawService.commitDraw('reward', drawnCandidates.map(c => c.id));
   }
 
   private resolveCandidates(ids: string[]): AdventureCandidate[] {
@@ -286,6 +293,11 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     }
 
     return drawn;
+  }
+
+  /** Weighted sample of a single entry from `pool`. */
+  private drawWeightedOne(pool: AdventureCandidate[]): AdventureCandidate {
+    return this.drawDistinct(pool, 1)[0];
   }
 
   onItemSelected(index: number): void {

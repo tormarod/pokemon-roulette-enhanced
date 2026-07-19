@@ -77,6 +77,20 @@
   padding: 1px 6px;
 }
 
+/* Marked Target badge (New Experience only) — same stacked block-line convention
+   as .ability-badge below, distinct color so the two read apart at a glance. */
+.marked-badge {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #c0392b;
+  border-radius: 3px;
+  padding: 1px 3px;
+  cursor: help;
+}
+
 /* Ability UI sits on the PC card's fixed light background (#dfe6e9), like the
    fainted badge, so it stays legible in all three app themes. */
 .ability-badge {

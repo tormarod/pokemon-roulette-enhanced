@@ -13,6 +13,9 @@ import { PokedexComponent } from "./pokedex/pokedex.component";
 import {TranslatePipe} from '@ngx-translate/core';
 import { ItemItem } from '../interfaces/item-item';
 import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
+import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
+import { AbilityService } from '../services/ability-service/ability.service';
+import { GameStateService } from '../services/game-state-service/game-state.service';
 
 @Component({
   selector: 'app-trainer-team',
@@ -28,11 +31,15 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
 
   constructor(private trainerService: TrainerService,
               private darkModeService: DarkModeService,
-              private themeService: ThemeService) { }
+              private themeService: ThemeService,
+              private markedTargetService: MarkedTargetService,
+              private abilityService: AbilityService,
+              private gameStateService: GameStateService) { }
 
   trainer!: { sprite: string; };
   trainerTeam!: PokemonItem[];
   trainerBadges!: Badge[];
+  markedIndex: number | null = null;
 
   darkMode!: Observable<boolean>;
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
@@ -40,6 +47,7 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   private trainerSubscription!: Subscription;
   private teamSubscription!: Subscription;
   private badgesSubscription!: Subscription;
+  private markedTargetSubscription!: Subscription;
 
   ngOnInit(): void {
     this.trainerSubscription = this.trainerService.getTrainer().subscribe(trainer => {
@@ -51,6 +59,9 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     this.badgesSubscription = this.trainerService.getBadgesObservable().subscribe(badges => {
       this.trainerBadges = badges;
     });
+    this.markedTargetSubscription = this.markedTargetService.getPendingMarkObservable().subscribe(index => {
+      this.markedIndex = index;
+    });
     this.darkMode = this.themeService.isDark$;
   }
 
@@ -58,6 +69,20 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     this.trainerSubscription?.unsubscribe();
     this.teamSubscription?.unsubscribe();
     this.badgesSubscription?.unsubscribe();
+    this.markedTargetSubscription?.unsubscribe();
+  }
+
+  /** Gates every New-Experience-only status badge (marked target, ability) on the strip. */
+  get isNewExperienceMode(): boolean {
+    return this.gameStateService.isNewExperienceMode;
+  }
+
+  /** i18n name key of a Pokémon's assigned ability, or null. Translated in the template. */
+  getMemberAbilityName(pokemon: PokemonItem | undefined): string | null {
+    if (!pokemon) {
+      return null;
+    }
+    return this.abilityService.getMemberAbility(pokemon)?.name ?? null;
   }
 
   getPokemonTypes(pokemon: PokemonItem): PokemonType[] {
