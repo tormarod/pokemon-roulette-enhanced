@@ -27,14 +27,15 @@
   },
   "coffee": {
     "title": "Having fun spinning? 😁",
-    "how_to_help": "If you want to help, you can donate.",
-    "donations": "Donations of any amount will be help with motivation for new features.",
+    "how_to_help": "This game is a free, non-commercial fan project built in spare time.",
+    "donations": "Donations are entirely optional — they help cover hosting costs and support the developer's time on new features. They are not a purchase of any Pokémon content.",
     "support": "Support the Original Creator",
     "supportFork": "Support This Fork",
-    "supportForkDescription": "If you enjoy the new features, consider supporting this fork too!",
+    "supportForkDescription": "Enjoying the new features? You can support the developer behind this fork too — always optional.",
     "buyMeACoffee": "Buy me a Coffee",
     "thanks": "Thank You for playing!",
-    "hope": "Whether you donate or simply share the game with others, I hope you have fun!"
+    "hope": "Whether you donate or simply share the game with others, I hope you have fun!",
+    "supportNote": "You're supporting a developer's work on a fan-made game — not buying anything from, or affiliated with, Nintendo, Game Freak, or The Pokémon Company."
   },
   "badges": {
     "boulder": "Boulder Badge",

@@ -27,14 +27,15 @@
   },
   "coffee": {
     "title": "¿Te estás divirtiendo girando? 😁",
-    "how_to_help": "Si quieres ayudar, puedes hacer una donación.",
-    "donations": "Las donaciones de cualquier cantidad ayudarán a motivar la incorporación de nuevas funciones.",
+    "how_to_help": "Este juego es un proyecto de fans gratuito y sin fines comerciales, hecho en el tiempo libre.",
+    "donations": "Las donaciones son totalmente opcionales: ayudan a cubrir los costes de alojamiento y a apoyar el tiempo que el desarrollador dedica a nuevas funciones. No son una compra de ningún contenido de Pokémon.",
     "support": "Apoya al creador original",
     "supportFork": "Apoya este fork",
-    "supportForkDescription": "Si te gustan las nuevas funciones, ¡considera apoyar también este fork!",
+    "supportForkDescription": "¿Te gustan las nuevas funciones? También puedes apoyar al desarrollador detrás de este fork, siempre de forma opcional.",
     "buyMeACoffee": "Invítame un café",
     "thanks": "¡Gracias por jugar!",
-    "hope": "Ya sea que dones o simplemente compartas el juego con otros, ¡espero que te diviertas!"
+    "hope": "Ya sea que dones o simplemente compartas el juego con otros, ¡espero que te diviertas!",
+    "supportNote": "Estás apoyando el trabajo de un desarrollador en un juego hecho por fans — no estás comprando nada de Nintendo, Game Freak o The Pokémon Company, ni tiene afiliación con ellos."
   },
   "badges": {
     "boulder": "Medalla Roca",
