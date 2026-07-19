@@ -439,7 +439,7 @@
             },
             "markedTarget": {
               "title": "Marked Target",
-              "description": "A rival scout has tailed one of your team — it can't lead your next battle: "
+              "description": "A rival scout has tailed one of your team — it must lead your next battle: "
             },
             "pokeballMalfunction": {
               "title": "Poké Ball Malfunction",
@@ -1101,6 +1101,10 @@
     }
   },
   "trainer": {
+    "team": {
+      "marked": "Marked",
+      "markedTooltip": "Marked Target: must lead your next battle."
+    },
     "storage": {
       "access": "Access PC",
       "logout": "Logout",
@@ -1109,7 +1113,9 @@
       "unavailable": "PC is unavailable",
       "unavailableMessage": "Team Rocket is jamming communications with the PC",
       "fainted": "Fainted",
+      "faintedTooltip": "Fainted from a battle loss — locked in the PC until revived with a Revive item.",
       "retreatLocked": "Locked (Forced Retreat)",
+      "retreatLockedTooltip": "Benched here by a Forced Retreat threat — unlocks once your next real battle resolves.",
       "revive": "Revive",
       "assignAbility": "Ability",
       "assignAbilityTitle": "Assign an ability to",
@@ -3105,6 +3111,8 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_5_0": "Version 3.5.0",
+  "v3_4_0": "Version 3.4.0",
   "v3_3_0": "Version 3.3.0",
   "v3_1_0": "Version 3.1.0",
   "v3_0_0": "Version 3.0.0",
@@ -3112,6 +3120,15 @@
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v3_5_0": {
+      "0": "🎯 Marked Target now forces that Pokémon to lead your next battle instead of barring it from leading — every other pick is disabled until the battle resolves.",
+      "1": "🧬 Fixed a bug where a Pokémon's assigned ability was silently dropped when it evolved or mega-evolved.",
+      "2": "💬 Ability, Marked Target, Fainted, and Forced Retreat badges on your team and PC Pokémon now show what they mean on hover or tap."
+    },
+    "v3_4_0": {
+      "0": "🎲 New Experience threats are now a single random draw instead of a 3-choice picker — a threat you got to pick between was never really a threat. Reward steps are unchanged, still choose-between.",
+      "1": "📊 The Danger meter now stays visible throughout the whole stretch between fights, not just on the step where it's rolled. Hover or tap it for a tooltip explaining the mechanic."
+    },
     "v3_3_0": {
       "0": "☠️ New Experience adventure threats: the pool grew from 4 to 7, so a threat draw shows way more variety.",
       "1": "🏕️ 'Pay a Toll' is gone — replaced by Forced Retreat, which benches a weak-biased team Pokémon to your PC, locked there until your next battle resolves (win or lose).",
