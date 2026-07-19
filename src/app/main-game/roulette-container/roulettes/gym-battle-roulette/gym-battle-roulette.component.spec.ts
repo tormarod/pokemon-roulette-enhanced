@@ -343,5 +343,31 @@ describe('GymBattleRouletteComponent', () => {
 
       expect(battlePrepService.getPendingPrep()).toBeNull();
     });
+
+    it('Serene Grace (extra-retry) grants exactly one working respin before a loss', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 2, ability: 'serene-grace' }));
+      component.currentLeader = { name: 'Brock', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 0;
+      (component as any).trainerItems = []; // no potions — only the ability can save a loss
+
+      (component as any).calcVictoryOdds();
+      // Seeded to 2, not 1: onItemSelected decrements retries on the first spin, so
+      // 1 would be spent before it could buy an extra spin (the original bug).
+      expect((component as any).retries).toBe(2);
+
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.gym.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      // First losing spin: banked retry absorbs it, no loss emitted yet.
+      component.onItemSelected(0);
+      expect(component.battleResultEvent.emit).not.toHaveBeenCalled();
+      expect((component as any).retries).toBe(1);
+
+      // Second losing spin: retry exhausted, the loss now lands.
+      component.onItemSelected(0);
+      expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
+    });
   });
 });
