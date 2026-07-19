@@ -2,6 +2,8 @@
 
 A luck-based Pokémon browser game built with Angular. Spin roulettes to pick your starter, battle gym leaders and rivals, catch and evolve Pokémon, and try to beat the Elite Four and Champion. No backend — it's a static SPA that pulls Pokémon sprite/type/power data locally and renders everything client-side.
 
+> **Disclaimer:** This is an unofficial, non-commercial fan-made game. It is not affiliated with, endorsed, sponsored, or approved by Nintendo, Game Freak, or The Pokémon Company. Pokémon and all related names, characters, and images are trademarks and copyrights of Nintendo, Game Freak, and The Pokémon Company; all rights belong to their respective owners. Any donations support only the development and hosting of this fan project and are not payment for any Pokémon content.
+
 This is an enhanced fork of the original game by André Xavier Martinez ([zeroxm](https://github.com/zeroxm/pokemon-roulette)). New features added on top of the original:
 - Rich hover/tap tooltips on team and PC-stored Pokémon showing power and type, for informed swap decisions.
 - A full Pokédex view showing every Pokémon (not just caught ones), greyed out until captured, with name search.

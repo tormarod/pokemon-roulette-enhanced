@@ -123,6 +123,8 @@
     "pokeapi": "Come risorsa per i dati e gli sprite di questo gioco",
     "bulbapedia": "Per gli sprite degli Allenatori utilizzati in questo progetto",
     "images": "Tutte le immagini dei Pokémon e degli oggetti correlati ai Pokémon sono copyright di The Pokémon Company.",
+    "disclaimerTitle": "Avviso legale",
+    "disclaimer": "Questo è un gioco amatoriale non ufficiale e senza scopo di lucro. Non è affiliato, approvato, sponsorizzato né autorizzato da Nintendo, Game Freak o The Pokémon Company. Pokémon e tutti i nomi, i personaggi e le immagini correlati sono marchi e opere protette da copyright di Nintendo, Game Freak e The Pokémon Company; tutti i diritti appartengono ai rispettivi proprietari. Le donazioni servono esclusivamente a sostenere lo sviluppo e l'hosting di questo progetto amatoriale e non costituiscono un pagamento per alcun contenuto Pokémon.",
     "endThanks": "Grazie per aver giocato!",
     "endWords": "Spero che tu possa divertirti con i tuoi amici e la tua famiglia giocando a questo gioco :)",
     "enhancedFork": {

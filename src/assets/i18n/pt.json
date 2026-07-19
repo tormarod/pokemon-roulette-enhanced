@@ -123,6 +123,8 @@
     "pokeapi": "Como fonte de dados e sprites para este jogo",
     "bulbapedia": "Pelos sprites dos treinadores usados neste projeto",
     "images": "Todos os conteúdos de imagem de Pokémon e itens relacionados são propriedade da The Pokémon Company.",
+    "disclaimerTitle": "Aviso legal",
+    "disclaimer": "Este é um jogo feito por fãs, não oficial e sem fins lucrativos. Não é afiliado, endossado, patrocinado nem aprovado pela Nintendo, Game Freak ou The Pokémon Company. Pokémon e todos os nomes, personagens e imagens relacionados são marcas registradas e propriedade intelectual da Nintendo, Game Freak e The Pokémon Company; todos os direitos pertencem aos seus respectivos proprietários. Quaisquer doações servem apenas para apoiar o desenvolvimento e a hospedagem deste projeto de fãs e não constituem pagamento por qualquer conteúdo de Pokémon.",
     "endThanks": "Obrigado por jogar!",
     "endWords": "Espero que você se divirta com seus amigos e família jogando este jogo :)",
     "enhancedFork": {

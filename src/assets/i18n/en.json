@@ -123,6 +123,8 @@
     "pokeapi": "As a resource for this game's data and sprites",
     "bulbapedia": "For their trainer's Sprites which are being used in this project",
     "images": "All image contents of Pokémon and Pokémon related items are Copyright of The Pokémon Company.",
+    "disclaimerTitle": "Disclaimer",
+    "disclaimer": "This is an unofficial, non-commercial fan-made game. It is not affiliated with, endorsed, sponsored, or approved by Nintendo, Game Freak, or The Pokémon Company. Pokémon and all related names, characters, and images are trademarks and copyrights of Nintendo, Game Freak, and The Pokémon Company; all rights belong to their respective owners. Any donations support only the development and hosting of this fan project and are not payment for any Pokémon content.",
     "endThanks": "Thank You for Playing!",
     "endWords": "Hope you can have fun with your friends and family playing this game :)",
     "enhancedFork": {
