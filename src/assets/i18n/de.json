@@ -20,7 +20,7 @@
     },
     "theme": {
       "label": "Thema",
-      "starters": "Starters",
+      "starters": "Starter",
       "plainDark": "Einfaches Dunkel",
       "plainLight": "Einfaches Hell"
     }
@@ -267,7 +267,7 @@
       "label": "Du möchtest mir einen Kaffee ausgeben? "
     },
     "creditsButton": {
-      "label": "Credits"
+      "label": "Mitwirkende"
     },
     "statsButton": {
       "label": "Statistiken"
@@ -404,7 +404,7 @@
             "legendaryEncounter": "Legendäre Begegnung",
             "tradePokemon": "Tausche ein Pokémon",
             "findItem": "Finde ein Item",
-            "findAbilityCapsule": "Find an Ability Capsule",
+            "findAbilityCapsule": "Finde eine Fähigkeitskapsel",
             "exploreCave": "Erforsche eine Höhle",
             "snorlaxEncounter": "Relaxo Begegnung",
             "multitask": "Multitasking (Drehe 2x)",
@@ -414,11 +414,11 @@
             "areaZero": "Erkunde Zone Null",
             "teamRocketAmbush": "Team Rocket Hinterhalt!",
             "itemTheft": "Diebstahl",
-            "forcedRetreat": "Forced Retreat",
+            "forcedRetreat": "Erzwungener Rückzug",
             "badOmen": "Böses Omen",
-            "spooked": "Spooked",
-            "markedTarget": "Marked Target",
-            "pokeballMalfunction": "Poké Ball Malfunction"
+            "spooked": "Aufgeschreckt",
+            "markedTarget": "Markiertes Ziel",
+            "pokeballMalfunction": "Poké Ball-Defekt"
           },
           "threats": {
             "itemTheft": {
@@ -427,25 +427,25 @@
               "nothingFound": "Ein Dieb durchsuchte deine Tasche, fand aber nichts zum Mitnehmen."
             },
             "forcedRetreat": {
-              "pickPokemon": "Which Pokémon retreats to your PC box? It'll be locked there for your next battle."
+              "pickPokemon": "Welches Pokémon zieht sich in deine PC-Box zurück? Es bleibt dort bis zu deinem nächsten Kampf gesperrt."
             },
             "badOmen": {
               "title": "Böses Omen",
               "description": "Ein Schauer läuft dir über den Rücken — dein nächster Kampf wird härter als sonst."
             },
             "spooked": {
-              "title": "Spooked!",
-              "description": "Something's rattled your nerves — the road ahead feels more dangerous than it did a moment ago."
+              "title": "Aufgeschreckt!",
+              "description": "Etwas hat dich aus der Fassung gebracht — der Weg vor dir wirkt gefährlicher als noch vor einem Moment."
             },
             "markedTarget": {
-              "title": "Marked Target",
-              "description": "A rival scout has tailed one of your team — it must lead your next battle: "
+              "title": "Markiertes Ziel",
+              "description": "Ein feindlicher Späher ist einem deiner Team-Pokémon gefolgt — es muss deinen nächsten Kampf anführen: "
             },
             "pokeballMalfunction": {
-              "title": "Poké Ball Malfunction",
-              "description": "One of your Poké Balls is acting up — the next Pokémon you try to catch might slip free.",
-              "escapeTitle": "It got away!",
-              "escapeMessage": "The faulty Poké Ball popped open — "
+              "title": "Poké Ball-Defekt",
+              "description": "Einer deiner Poké Bälle spinnt — das nächste Pokémon, das du fangen willst, könnte entkommen.",
+              "escapeTitle": "Es ist entkommen!",
+              "escapeMessage": "Der defekte Poké Ball sprang auf — "
             }
           }
         },
@@ -536,9 +536,9 @@
           "title": "Welches Item?"
         },
         "abilityCapsule": {
-          "found": "Found a capsule:",
-          "title": "Which Ability Capsule?",
-          "assignHint": "Assign it to a Pokémon from your team or PC."
+          "found": "Kapsel gefunden:",
+          "title": "Welche Fähigkeitskapsel?",
+          "assignHint": "Weise sie einem Pokémon aus deinem Team oder PC zu."
         },
         "legendary": {
           "catch": "Legendäres Pokémon gefangen?",
@@ -630,36 +630,36 @@
     }
   },
   "abilities": {
-    "blaze": { "name": "Blaze", "description": "+2 Yes when this Pokémon has a type advantage." },
-    "torrent": { "name": "Torrent", "description": "-2 No when this Pokémon is at a type disadvantage." },
-    "overgrow": { "name": "Overgrow", "description": "+2 Yes when this Pokémon has a type advantage." },
-    "guts": { "name": "Guts", "description": "+2 Yes, always." },
-    "static": { "name": "Static", "description": "+1 Yes, always." },
-    "poison-point": { "name": "Poison Point", "description": "+1 Yes, always." },
-    "intimidate": { "name": "Intimidate", "description": "-1 No, always." },
-    "thick-fat": { "name": "Thick Fat", "description": "-1 No, always." },
-    "clear-body": { "name": "Clear Body", "description": "-1 No, always." },
-    "keen-eye": { "name": "Keen Eye", "description": "-1 No, always." },
-    "snow-cloak": { "name": "Snow Cloak", "description": "-1 No, always." },
-    "multiscale": { "name": "Multiscale", "description": "-2 No when this Pokémon is at a type disadvantage." },
-    "levitate": { "name": "Levitate", "description": "Cancels this Pokémon's own type disadvantage." },
-    "swarm": { "name": "Swarm", "description": "+1 Yes when this Pokémon has a type advantage." },
-    "rough-skin": { "name": "Rough Skin", "description": "+1 Yes when this Pokémon has a type advantage." },
-    "synchronize": { "name": "Synchronize", "description": "+1 Yes per team member sharing a type." },
-    "sturdy": { "name": "Sturdy", "description": "This lead survives a would-be rival faint once per battle." },
-    "serene-grace": { "name": "Serene Grace", "description": "Grants one extra battle retry." },
-    "reckless": { "name": "Reckless", "description": "+1 Yes and +1 No — high risk, high reward." },
-    "battle-armor": { "name": "Battle Armor", "description": "-1 No per team member sharing a type." },
-    "justified": { "name": "Justified", "description": "+2 Yes when this Pokémon is at a type disadvantage." },
-    "last-stand": { "name": "Last Stand", "description": "+2 Yes while your team has 2 or fewer Pokémon." },
-    "adaptability": { "name": "Adaptability", "description": "+1 Yes when this Pokémon's matchup is exactly neutral." },
-    "versatile": { "name": "Versatile", "description": "+1 Yes if this Pokémon is dual-typed." },
-    "pure-power": { "name": "Pure Power", "description": "+1 Yes if this Pokémon is single-typed." },
-    "sheer-force": { "name": "Sheer Force", "description": "Adds your type advantage again as Yes, up to +3." },
-    "comeback": { "name": "Comeback", "description": "Turns your type disadvantage into Yes, up to +3." },
-    "marvel-scale": { "name": "Marvel Scale", "description": "-1 No when this Pokémon is at a type disadvantage." },
-    "sand-rush": { "name": "Sand Rush", "description": "+1 Yes, always." },
-    "cursed-body": { "name": "Cursed Body", "description": "-1 No, always." }
+    "blaze": { "name": "Blaze", "description": "+2 Ja, wenn dieses Pokémon einen Typvorteil hat." },
+    "torrent": { "name": "Torrent", "description": "-2 Nein, wenn dieses Pokémon im Typnachteil ist." },
+    "overgrow": { "name": "Overgrow", "description": "+2 Ja, wenn dieses Pokémon einen Typvorteil hat." },
+    "guts": { "name": "Guts", "description": "+2 Ja, immer." },
+    "static": { "name": "Static", "description": "+1 Ja, immer." },
+    "poison-point": { "name": "Poison Point", "description": "+1 Ja, immer." },
+    "intimidate": { "name": "Intimidate", "description": "-1 Nein, immer." },
+    "thick-fat": { "name": "Thick Fat", "description": "-1 Nein, immer." },
+    "clear-body": { "name": "Clear Body", "description": "-1 Nein, immer." },
+    "keen-eye": { "name": "Keen Eye", "description": "-1 Nein, immer." },
+    "snow-cloak": { "name": "Snow Cloak", "description": "-1 Nein, immer." },
+    "multiscale": { "name": "Multiscale", "description": "-2 Nein, wenn dieses Pokémon im Typnachteil ist." },
+    "levitate": { "name": "Levitate", "description": "Hebt den eigenen Typnachteil dieses Pokémon auf." },
+    "swarm": { "name": "Swarm", "description": "+1 Ja, wenn dieses Pokémon einen Typvorteil hat." },
+    "rough-skin": { "name": "Rough Skin", "description": "+1 Ja, wenn dieses Pokémon einen Typvorteil hat." },
+    "synchronize": { "name": "Synchronize", "description": "+1 Ja pro Teammitglied mit demselben Typ." },
+    "sturdy": { "name": "Sturdy", "description": "Dieser Vorkämpfer übersteht einmal pro Kampf ein drohendes Rivalen-K.o." },
+    "serene-grace": { "name": "Serene Grace", "description": "Gewährt einen zusätzlichen Kampf-Versuch." },
+    "reckless": { "name": "Reckless", "description": "+1 Ja und +1 Nein — hohes Risiko, hohe Belohnung." },
+    "battle-armor": { "name": "Battle Armor", "description": "-1 Nein pro Teammitglied mit demselben Typ." },
+    "justified": { "name": "Justified", "description": "+2 Ja, wenn dieses Pokémon im Typnachteil ist." },
+    "last-stand": { "name": "Last Stand", "description": "+2 Ja, solange dein Team 2 oder weniger Pokémon hat." },
+    "adaptability": { "name": "Adaptability", "description": "+1 Ja, wenn dieses Pokémon genau neutral steht." },
+    "versatile": { "name": "Versatile", "description": "+1 Ja, wenn dieses Pokémon zweityp ist." },
+    "pure-power": { "name": "Pure Power", "description": "+1 Ja, wenn dieses Pokémon eintypig ist." },
+    "sheer-force": { "name": "Sheer Force", "description": "Addiert deinen Typvorteil erneut als Ja, bis zu +3." },
+    "comeback": { "name": "Comeback", "description": "Verwandelt deinen Typnachteil in Ja, bis zu +3." },
+    "marvel-scale": { "name": "Marvel Scale", "description": "-1 Nein, wenn dieses Pokémon im Typnachteil ist." },
+    "sand-rush": { "name": "Sand Rush", "description": "+1 Ja, immer." },
+    "cursed-body": { "name": "Cursed Body", "description": "-1 Nein, immer." }
   },
   "items": {
     "title": "Items",
@@ -1102,8 +1102,8 @@
   },
   "trainer": {
     "team": {
-      "marked": "Marked",
-      "markedTooltip": "Marked Target: must lead your next battle."
+      "marked": "Markiert",
+      "markedTooltip": "Markiertes Ziel: muss deinen nächsten Kampf anführen."
     },
     "storage": {
       "access": "Box öffnen",
@@ -1113,14 +1113,14 @@
       "unavailable": "PC ist nicht verfügbar",
       "unavailableMessage": "Team Rocket blockiert dein Signal zum PC",
       "fainted": "Besiegt",
-      "faintedTooltip": "Fainted from a battle loss — locked in the PC until revived with a Revive item.",
-      "retreatLocked": "Locked (Forced Retreat)",
-      "retreatLockedTooltip": "Benched here by a Forced Retreat threat — unlocks once your next real battle resolves.",
+      "faintedTooltip": "Durch eine Kampfniederlage besiegt — im PC gesperrt, bis es mit einem Wiederbelebungs-Item geheilt wird.",
+      "retreatLocked": "Gesperrt (Erzwungener Rückzug)",
+      "retreatLockedTooltip": "Durch die Bedrohung „Erzwungener Rückzug“ auf die Bank gesetzt — wird nach deinem nächsten echten Kampf entsperrt.",
       "revive": "Wiederbeleben",
-      "assignAbility": "Ability",
-      "assignAbilityTitle": "Assign an ability to",
-      "currentAbility": "Current:",
-      "cancel": "Cancel"
+      "assignAbility": "Fähigkeit",
+      "assignAbilityTitle": "Weise eine Fähigkeit zu an",
+      "currentAbility": "Aktuell:",
+      "cancel": "Abbrechen"
     }
   },
   "wheel": {
