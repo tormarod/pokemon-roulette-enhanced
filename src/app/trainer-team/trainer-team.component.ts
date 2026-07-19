@@ -85,6 +85,14 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     return this.abilityService.getMemberAbility(pokemon)?.name ?? null;
   }
 
+  /** i18n description key of a Pokémon's assigned ability, or null. Translated in the template. */
+  getMemberAbilityDescription(pokemon: PokemonItem | undefined): string | null {
+    if (!pokemon) {
+      return null;
+    }
+    return this.abilityService.getMemberAbility(pokemon)?.descriptionKey ?? null;
+  }
+
   getPokemonTypes(pokemon: PokemonItem): PokemonType[] {
     return [pokemon.type1, pokemon.type2].filter((type): type is PokemonType => !!type);
   }

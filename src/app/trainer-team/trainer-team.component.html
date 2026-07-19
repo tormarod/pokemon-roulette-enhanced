@@ -45,13 +45,17 @@
                                    @if (isNewExperienceMode && i === markedIndex) {
                                         <span class="marked-badge"
                                               placement="bottom"
-                                              ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}">
+                                              ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}"
+                                              triggers="hover click">
                                              {{ 'trainer.team.marked' | translate }}
                                         </span>
                                    }
                                    @if (isNewExperienceMode) {
                                         @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
-                                             <span class="ability-badge">{{ abilityName | translate }}</span>
+                                             <span class="ability-badge"
+                                                   placement="bottom"
+                                                   ngbTooltip="{{ getMemberAbilityDescription(trainerTeam[i]) | translate }}"
+                                                   triggers="hover click">{{ abilityName | translate }}</span>
                                         }
                                    }
                               }

@@ -303,6 +303,13 @@ Non-empty → one storage Pokémon gone, active team untouched, never sets
 
 ## Phase 4 — `markedTarget` (deny a lead pick for one battle)
 
+> **Update (2026-07-19):** this mechanic was flipped after initial ship — the
+> marked Pokémon is now *forced* to lead the next battle (every other pick
+> disabled) instead of being barred from leading. The spec below documents
+> the original ("can't lead") design as built for Phase 4; code, translations,
+> and `battle-prep-panel.component.ts`'s `disabledIndex` input (now
+> `forcedIndex`) reflect the new, opposite behavior.
+
 New file: `src/app/services/marked-target-service/marked-target.service.ts`
 (mirror `battle-debuff.service.ts`'s shape exactly):
 

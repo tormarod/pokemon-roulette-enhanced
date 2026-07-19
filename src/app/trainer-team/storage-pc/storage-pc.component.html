@@ -24,13 +24,16 @@
                    [ngbTooltip]="pokemonInfoTooltip"
                    [tooltipContext]="{ pokemon: pokemon }">
               @if (isNewExperienceMode && idx === markedIndex) {
-                <span class="marked-badge" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}">
+                <span class="marked-badge" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}" triggers="hover click">
                   {{ 'trainer.team.marked' | translate }}
                 </span>
               }
               @if (isNewExperienceMode) {
                 @if (getMemberAbilityName(pokemon); as abilityName) {
-                  <span class="ability-badge">{{ abilityName | translate }}</span>
+                  <span class="ability-badge"
+                        placement="bottom"
+                        ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}"
+                        triggers="hover click">{{ abilityName | translate }}</span>
                 }
                 @if (ownedCapsules().length) {
                   <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">
@@ -64,7 +67,10 @@
                triggers="hover click"
                [tooltipContext]="{ pokemon: pokemon }">
           @if (pokemon.fainted) {
-            <span class="fainted-badge">{{ 'trainer.storage.fainted' | translate }}</span>
+            <span class="fainted-badge"
+                  placement="bottom"
+                  ngbTooltip="{{ 'trainer.storage.faintedTooltip' | translate }}"
+                  triggers="hover click">{{ 'trainer.storage.fainted' | translate }}</span>
             @if (hasRevive()) {
               <button type="button" class="btn btn-sm btn-outline-primary revive-button" (click)="revivePokemon(pokemon)">
                 {{ 'trainer.storage.revive' | translate }}
@@ -72,11 +78,17 @@
             }
           }
           @if (pokemon.retreatLocked) {
-            <span class="fainted-badge">{{ 'trainer.storage.retreatLocked' | translate }}</span>
+            <span class="fainted-badge"
+                  placement="bottom"
+                  ngbTooltip="{{ 'trainer.storage.retreatLockedTooltip' | translate }}"
+                  triggers="hover click">{{ 'trainer.storage.retreatLocked' | translate }}</span>
           }
           @if (isNewExperienceMode) {
             @if (getMemberAbilityName(pokemon); as abilityName) {
-              <span class="ability-badge">{{ abilityName | translate }}</span>
+              <span class="ability-badge"
+                    placement="bottom"
+                    ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}"
+                    triggers="hover click">{{ abilityName | translate }}</span>
             }
             @if (!pokemon.fainted && ownedCapsules().length) {
               <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">

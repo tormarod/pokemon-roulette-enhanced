@@ -806,11 +806,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.doNothing();
   }
 
-  /** V2 "markedTarget" threat (New Experience only): one random team Pokémon can't lead the next real battle. */
+  /** V2 "markedTarget" threat (New Experience only): one random team Pokémon is forced to lead the next real battle. */
   markedTarget(): void {
     const team = this.trainerService.getTeam();
     if (team.length < 2) {
-      // Marking the only option would be a no-choice punishment — skip.
+      // Forcing the only option would be a no-op — skip.
       this.doNothing();
       return;
     }

@@ -62,7 +62,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     infoModalMessage = '';
     /** New Experience only: the Pokémon currently being assigned an ability via the picker modal. */
     assignTarget: PokemonItem | null = null;
-    /** New Experience only: team index the Marked Target threat currently has locked out of leading. */
+    /** New Experience only: team index the Marked Target threat currently forces to lead. */
     markedIndex: number | null = null;
     private pickerModalRef: NgbModalRef | null = null;
     private readonly subscriptions = new Subscription();
@@ -184,6 +184,11 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     /** i18n name key of a Pokémon's assigned ability, or null. Translated in the template. */
     getMemberAbilityName(pokemon: PokemonItem): string | null {
       return this.abilityService.getMemberAbility(pokemon)?.name ?? null;
+    }
+
+    /** i18n description key of a Pokémon's assigned ability, or null. Translated in the template. */
+    getMemberAbilityDescription(pokemon: PokemonItem): string | null {
+      return this.abilityService.getMemberAbility(pokemon)?.descriptionKey ?? null;
     }
 
     /** The ability capsules currently in the bag (assignable payloads). */

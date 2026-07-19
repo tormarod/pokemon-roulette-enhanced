@@ -8,8 +8,8 @@
                 type="button"
                 class="battle-prep-lead-card"
                 [class.selected]="selectedLeadIndex === $index"
-                [class.disabled]="$index === disabledIndex"
-                [disabled]="$index === disabledIndex"
+                [class.disabled]="forcedIndex !== null && $index !== forcedIndex"
+                [disabled]="forcedIndex !== null && $index !== forcedIndex"
                 (click)="selectLead($index)">
                 <img [src]="pokemon.sprite?.front_default" [alt]="pokemon.text | translate" class="battle-prep-lead-sprite">
                 <span class="battle-prep-lead-name">{{ pokemon.text | translate }}</span>
