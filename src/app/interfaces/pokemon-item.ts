@@ -14,6 +14,8 @@ export interface PokemonItem extends WheelItem {
   power: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   /** New Experience only: set when a rival loss faints this Pokémon (game-balance-v4). Stored, not on the active team, until revived. */
   fainted?: boolean;
+  /** New Experience only: set while the Forced Retreat threat has this Pokémon locked in PC storage; cleared once the next real battle resolves. */
+  retreatLocked?: boolean;
   /** New Experience only: player-assigned ability id (via a capsule), or undefined for none. Only ever read behind the New Experience guard. */
   ability?: AbilityId;
 }

@@ -307,23 +307,26 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
 
     const draw = adventureDrawService.getPendingDraw();
     expect(draw!.stepType).toBe('threat');
-    const threatIds = ['teamRocketAmbush', 'itemTheft', 'toll', 'badOmen'];
+    const threatIds = ['teamRocketAmbush', 'itemTheft', 'forcedRetreat', 'badOmen', 'spooked', 'markedTarget', 'pokeballMalfunction'];
     expect(component.candidates.every(c => threatIds.includes(c.id))).toBeTrue();
     expect(component.candidates.length).toBe(3);
   });
 
-  it('should route itemTheft/toll/badOmen/teamRocketAmbush threat picks to their matching output events', () => {
+  it('should route itemTheft/forcedRetreat/badOmen/spooked/markedTarget/pokeballMalfunction/teamRocketAmbush threat picks to their matching output events', () => {
     createFixture();
     const cases: { id: string; emitterName: keyof MainAdventureRouletteComponent }[] = [
       { id: 'itemTheft', emitterName: 'itemTheftEvent' },
-      { id: 'toll', emitterName: 'tollEvent' },
+      { id: 'forcedRetreat', emitterName: 'forcedRetreatEvent' },
       { id: 'badOmen', emitterName: 'badOmenEvent' },
+      { id: 'spooked', emitterName: 'spookedEvent' },
+      { id: 'markedTarget', emitterName: 'markedTargetEvent' },
+      { id: 'pokeballMalfunction', emitterName: 'pokeballMalfunctionEvent' },
       { id: 'teamRocketAmbush', emitterName: 'teamRocketEncounterEvent' },
     ];
 
     cases.forEach(({ id, emitterName }) => {
-      adventureDrawService.restoreDraw({ stepType: 'threat', candidates: [id, 'toll', 'badOmen'], picked: null });
-      component.candidates = (component as any).resolveCandidates([id, 'toll', 'badOmen']);
+      adventureDrawService.restoreDraw({ stepType: 'threat', candidates: [id, 'forcedRetreat', 'badOmen'], picked: null });
+      component.candidates = (component as any).resolveCandidates([id, 'forcedRetreat', 'badOmen']);
       const spy = spyOn(component[emitterName] as any, 'emit');
 
       component.onCandidatePicked(0);

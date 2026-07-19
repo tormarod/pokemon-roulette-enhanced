@@ -19,6 +19,7 @@
         [team]="trainerTeam"
         [opponentTypes]="currentRival?.types"
         [items]="trainerItems"
+        [disabledIndex]="markedTargetService.currentMarkedIndex"
         (confirmed)="onPrepConfirmed($event)" />
 } @else {
     <app-wheel

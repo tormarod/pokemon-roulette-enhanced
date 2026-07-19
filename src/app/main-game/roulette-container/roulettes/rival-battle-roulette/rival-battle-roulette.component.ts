@@ -17,6 +17,7 @@ import { BattlePrepService } from '../../../../services/battle-prep-service/batt
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { BattlePrepPanelComponent, BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
 
 @Component({
   selector: 'app-rival-battle-roulette',
@@ -59,7 +60,8 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     typeMatchupService: TypeMatchupService,
     statsService: StatsService,
     battleDebuffService: BattleDebuffService,
-    private battlePrepService: BattlePrepService
+    private battlePrepService: BattlePrepService,
+    public markedTargetService: MarkedTargetService
   ) {
     super(modalService, gameStateService, generationService, trainerService, translate, typeMatchupService, statsService, battleDebuffService);
   }
@@ -77,6 +79,8 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     this.retries--;
     if (this.victoryOdds[index].text === 'game.main.roulette.rival.yes') {
       this.battlePrepService.clearPrep();
+      this.trainerService.clearForcedRetreatLock();
+      this.markedTargetService.clearMark();
       this.battleDebuffService.clearDebuff();
       this.battleResultEvent.emit(true);
     } else {
@@ -89,6 +93,8 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
           // loss faints the lead instead of ending the run outright.
           this.applyFaintOnLoss();
           this.battlePrepService.clearPrep();
+          this.trainerService.clearForcedRetreatLock();
+          this.markedTargetService.clearMark();
           this.battleDebuffService.clearDebuff();
           this.battleResultEvent.emit(false);
         }

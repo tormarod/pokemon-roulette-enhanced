@@ -27,6 +27,7 @@ export class DangerMeterService {
   private static readonly RECOVERY = 10;
   private static readonly FLOOR = 5;
   private static readonly PITY = 3;
+  private static readonly SPIKE = 30;
 
   private state = new BehaviorSubject<DangerMeterState>({
     dangerPercent: INIT_DANGER_PERCENT,
@@ -83,6 +84,15 @@ export class DangerMeterService {
 
     this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0 });
     return 'reward';
+  }
+
+  /** "Spooked" threat: undoes most of rollStep's automatic threat relief. Not capped by base(round) — a punishment, not a recovery. */
+  applySpike(): void {
+    const current = this.state.value;
+    this.state.next({
+      dangerPercent: Math.min(100, current.dangerPercent + DangerMeterService.SPIKE),
+      consecutiveThreats: current.consecutiveThreats
+    });
   }
 
   /** True once a forced-safe reward is guaranteed on the next roll (for the UI's shielded state). */

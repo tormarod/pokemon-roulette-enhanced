@@ -185,6 +185,16 @@ export class TrainerService implements OnDestroy {
     return [...this.storedPokemon];
   }
 
+  /** Clears any pending Forced Retreat lock once the next real battle resolves. */
+  clearForcedRetreatLock(): void {
+    [...this.trainerTeam, ...this.storedPokemon].forEach(pokemon => {
+      if (pokemon.retreatLocked) {
+        pokemon.retreatLocked = false;
+      }
+    });
+    this.trainerTeamObservable.next(this.getTeam());
+  }
+
   getTeamObservable(): Observable<PokemonItem[]> {
     return this.trainerTeamObservable.asObservable();
   }

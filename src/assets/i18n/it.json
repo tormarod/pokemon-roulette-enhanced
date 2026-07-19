@@ -414,8 +414,11 @@
             "areaZero": "Esplora Area Zero",
             "teamRocketAmbush": "Imboscata del Team Rocket!",
             "itemTheft": "Furto di oggetto",
-            "toll": "Pagare un pedaggio",
-            "badOmen": "Cattivo presagio"
+            "forcedRetreat": "Forced Retreat",
+            "badOmen": "Cattivo presagio",
+            "spooked": "Spooked",
+            "markedTarget": "Marked Target",
+            "pokeballMalfunction": "Poké Ball Malfunction"
           },
           "threats": {
             "itemTheft": {
@@ -423,13 +426,26 @@
               "stolenItem": "Un ladro ha rubato il tuo ",
               "nothingFound": "Un ladro ha frugato nella tua borsa ma non ha trovato nulla da prendere."
             },
-            "toll": {
-              "pickItem": "Quale oggetto consegnerai?",
-              "pickPokemon": "Quale Pokémon consegnerai?"
+            "forcedRetreat": {
+              "pickPokemon": "Which Pokémon retreats to your PC box? It'll be locked there for your next battle."
             },
             "badOmen": {
               "title": "Cattivo presagio",
               "description": "Un brivido ti percorre la schiena — la tua prossima battaglia sarà più difficile del solito."
+            },
+            "spooked": {
+              "title": "Spooked!",
+              "description": "Something's rattled your nerves — the road ahead feels more dangerous than it did a moment ago."
+            },
+            "markedTarget": {
+              "title": "Marked Target",
+              "description": "A rival scout has tailed one of your team — it can't lead your next battle: "
+            },
+            "pokeballMalfunction": {
+              "title": "Poké Ball Malfunction",
+              "description": "One of your Poké Balls is acting up — the next Pokémon you try to catch might slip free.",
+              "escapeTitle": "It got away!",
+              "escapeMessage": "The faulty Poké Ball popped open — "
             }
           }
         },
@@ -1093,6 +1109,7 @@
       "unavailable": "Il PC non è disponibile",
       "unavailableMessage": "Il Team Rocket sta bloccando le comunicazioni con il PC",
       "fainted": "Esausto",
+      "retreatLocked": "Locked (Forced Retreat)",
       "revive": "Revitalizza",
       "assignAbility": "Ability",
       "assignAbilityTitle": "Assign an ability to",
@@ -3088,12 +3105,18 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_3_0": "Versione 3.3.0",
   "v3_1_0": "Versione 3.1.0",
   "v3_0_0": "Versione 3.0.0",
   "whatsNew": {
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_3_0": {
+      "0": "☠️ New Experience adventure threats: the pool grew from 4 to 7, so a threat draw shows way more variety.",
+      "1": "🏕️ 'Pay a Toll' is gone — replaced by Forced Retreat, which benches a weak-biased team Pokémon to your PC, locked there until your next battle resolves (win or lose).",
+      "2": "🎯 Two brand-new threats: Marked Target bars one Pokémon from leading your next battle, and a Poké Ball Malfunction risks your next catch escaping."
+    },
     "v3_1_0": {
       "0": "🧬 Le abilità ora sono qualcosa che costruisci: non più legate a una specie — 30 abilità si ottengono come capsule abilità e si assegnano a qualsiasi Pokémon dal PC (Modalità Nuova Esperienza).",
       "1": "🎡 Una nuova ricompensa d'avventura che trova una capsula abilità fa girare una capsula specifica — modificatori di probabilità come Blaze e Intimidate, effetti di sinergia di squadra e di rimonta, o la protezione dal KO di Sturdy una volta per battaglia.",

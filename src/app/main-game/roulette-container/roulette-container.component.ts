@@ -68,9 +68,13 @@ import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/el
 import { championByGeneration } from './roulettes/champion-battle-roulette/champion-by-generation';
 import { StatsService } from '../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
+import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
+import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
+import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
 
 /** V2 "badOmen" threat: extra No tickets on the next battle. */
 const BADOMEN_DEBUFF_AMOUNT = 2;
+const MALFUNCTION_ESCAPE_CHANCE = 0.35;
 
 @Component({
   selector: 'app-roulette-container',
@@ -145,7 +149,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private linkCableService: LinkCableService,
       private generationService: GenerationService,
       private statsService: StatsService,
-      private battleDebuffService: BattleDebuffService) {
+      private battleDebuffService: BattleDebuffService,
+      private dangerMeterService: DangerMeterService,
+      private markedTargetService: MarkedTargetService,
+      private catchRiskService: CatchRiskService) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
       this.megaEvolutionAudio = this.soundFxService.createMegaEvolutionSoundFx();
@@ -314,8 +321,6 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   wheelSpinning: boolean = false;
   private megaSelectionMode: 'none' | 'battle-award-pokemon' | 'battle-award-stone' = 'none';
   private pendingMegaAwardPokemon: PokemonItem | null = null;
-  /** True only while the 'select-from-item-list' screen is up for the toll threat's item pick. */
-  private tollSelectionMode = false;
 
   getGameState(): string {
     return this.currentGameState;
@@ -505,13 +510,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
         this.finishCurrentState();
         break;
       }
-      case 'toll-pokemon': {
-        // Same weak-biased pick as steal-pokemon, but a toll payment is gone
-        // for good — unlike a Team Rocket steal, it's never set as
-        // `stolenPokemon` and so can never be recovered by defeating anyone.
+      case 'forced-retreat-pokemon': {
+        // Same weak-biased pick as steal-pokemon, but Forced Retreat benches
+        // the Pokémon to PC storage (locked for 1 combat round) instead of
+        // removing it outright — reversible only after surviving one more fight.
         const index = this.auxPokemonList.indexOf(pokemon);
         const original = index !== -1 ? this.stealCandidates[index] : pokemon;
-        this.removeFromTeam(original);
+        original.retreatLocked = true;
+        const newTeam = this.trainerService.getTeam().filter(p => p !== original);
+        const newStorage = [...this.trainerService.getStored(), original];
+        this.trainerService.commitTeamAndStorage(newTeam, newStorage);
         this.finishCurrentState();
         break;
       }
@@ -529,26 +537,6 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     if (this.handleMegaStoneAwardSelection(item)) {
       return;
     }
-
-    if (this.handleTollItemSelection(item)) {
-      return;
-    }
-  }
-
-  /**
-   * V2 "toll" threat (New Experience only): the player picked which item to
-   * hand over. removeItem() alone is the commit — no confirmation modal,
-   * matching the low-ceremony bias-item pattern (handleTypeBiasItemUse).
-   */
-  private handleTollItemSelection(item: ItemItem): boolean {
-    if (!this.tollSelectionMode) {
-      return false;
-    }
-    this.tollSelectionMode = false;
-    this.auxItemList = [];
-    this.trainerService.removeItem(item);
-    this.doNothing();
-    return true;
   }
 
   selectPokemonForm(pokemonForm: PokemonForm): void {
@@ -791,34 +779,49 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.doNothing();
   }
 
-  /**
-   * V2 "toll" threat (New Experience only): the player picks an item to hand
-   * over; with no items held, it costs a team Pokémon instead (reused
-   * weak-biased pick — see the 'toll-pokemon' case in continueWithPokemon()).
-   */
-  toll(): void {
-    const items = this.trainerService.getItems();
-    if (items.length > 0) {
-      this.auxItemList = items;
-      this.customWheelTitle = 'game.main.roulette.adventure.threats.toll.pickItem';
-      this.tollSelectionMode = true;
-      this.gameStateService.setNextState('select-from-item-list');
-      this.finishCurrentState();
-      return;
-    }
-
-    const trainerTeam = this.trainerService.getTeam();
-    if (trainerTeam.length < 2) {
-      // Never take the player's only Pokémon — nothing left to demand.
+  /** V2 "markedTarget" threat (New Experience only): one random team Pokémon can't lead the next real battle. */
+  markedTarget(): void {
+    const team = this.trainerService.getTeam();
+    if (team.length < 2) {
+      // Marking the only option would be a no-choice punishment — skip.
       this.doNothing();
       return;
     }
+    const index = Math.floor(Math.random() * team.length);
+    this.markedTargetService.setMark(index);
+    const pokemonName = this.translateService.instant(team[index].text);
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.markedTarget.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.markedTarget.description') + pokemonName;
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
 
+  /** V2 "pokeballMalfunction" threat (New Experience only): the next catch attempt has a chance to fail. */
+  pokeballMalfunction(): void {
+    this.catchRiskService.setEscapeChance(MALFUNCTION_ESCAPE_CHANCE);
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.pokeballMalfunction.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.pokeballMalfunction.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  /**
+   * V2 "forcedRetreat" threat (New Experience only): benches a weak-biased
+   * team Pokémon to PC storage, locked there for 1 combat round (see the
+   * 'forced-retreat-pokemon' case in continueWithPokemon()).
+   */
+  forcedRetreat(): void {
+    const trainerTeam = this.trainerService.getTeam();
+    if (trainerTeam.length < 2) {
+      // Never bench the player's only Pokémon.
+      this.doNothing();
+      return;
+    }
     this.stealCandidates = trainerTeam;
     this.auxPokemonList = this.weightByInversePower(trainerTeam);
-    this.customWheelTitle = 'game.main.roulette.adventure.threats.toll.pickPokemon';
+    this.customWheelTitle = 'game.main.roulette.adventure.threats.forcedRetreat.pickPokemon';
     this.auxPokemonListPickMode = false;
-    this.gameStateService.setNextState('toll-pokemon');
+    this.gameStateService.setNextState('forced-retreat-pokemon');
     this.gameStateService.setNextState('select-from-pokemon-list');
     this.finishCurrentState();
   }
@@ -828,6 +831,15 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.battleDebuffService.setDebuff(BADOMEN_DEBUFF_AMOUNT);
     this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.title');
     this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  /** V2 "spooked" threat (New Experience only): spikes the Danger meter back up. */
+  spooked(): void {
+    this.dangerMeterService.applySpike();
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.spooked.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.spooked.description');
     this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
     this.doNothing();
   }
@@ -1268,6 +1280,19 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   private preparePokemonCapture(pokemon: PokemonItem): void {
+    const escapeChance = this.catchRiskService.currentEscapeChance;
+    if (escapeChance > 0) {
+      this.catchRiskService.clearEscapeChance();
+      if (Math.random() < escapeChance) {
+        const pokemonName = this.translateService.instant(pokemon.text);
+        this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.pokeballMalfunction.escapeTitle');
+        this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.pokeballMalfunction.escapeMessage') + pokemonName;
+        this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+        this.finishCurrentState();
+        return;
+      }
+    }
+
     if (this.pokemonFormsService.hasForms(pokemon)) {
       const pokemonForms = this.pokemonFormsService.getPokemonForms(pokemon);
       
