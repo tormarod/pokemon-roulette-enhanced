@@ -1,0 +1,1 @@
+import {U as Uv,am as nc,o as oE,an as rc}from'./main-UHCN3T2Y.js';var m=class t{static \u0275fac=function(n){return new(n||t)};static \u0275cmp=Uv({type:t,selectors:[["app-not-found"]],decls:2,vars:0,template:function(n,c){n&1&&(nc(0,"p"),oE(1,"not-found works!"),rc());},encapsulation:2,changeDetection:1})};export{m as NotFoundComponent};
