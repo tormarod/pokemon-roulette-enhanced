@@ -9,6 +9,7 @@ import { GameStateService } from '../../services/game-state-service/game-state.s
 import { GameState } from '../../services/game-state-service/game-state';
 import { ItemsService } from '../../services/items-service/items.service';
 import { ItemSpriteService } from '../../services/item-sprite-service/item-sprite.service';
+import { BattlePrepService } from '../../services/battle-prep-service/battle-prep.service';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { ItemName, RegularItemName } from '../../services/items-service/item-names';
 import { MARKET_PRICES, MarketEntryId } from '../../main-game/roulette-container/economy-config';
@@ -49,6 +50,7 @@ export class MarketComponent implements OnInit, OnDestroy {
               private gameStateService: GameStateService,
               private itemsService: ItemsService,
               private itemSpriteService: ItemSpriteService,
+              private battlePrepService: BattlePrepService,
               private soundFxService: SoundFxService) {
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
@@ -61,8 +63,15 @@ export class MarketComponent implements OnInit, OnDestroy {
   currentGameState!: GameState;
   stock: MarketEntry[] = [];
   itemFoundAudio!: SoundFxHandle;
+  /** True once the pre-battle prep is confirmed (spin imminent/underway). */
+  private prepCommitted = false;
 
-  /** States where the Market is closed — every battle plus the Elite Four prep gate. */
+  /**
+   * Battle-family states. Inside these the Market stays open during the pre-Confirm
+   * prep phase (so you can kit up for a matchup whose odds you can already see —
+   * e.g. buy an X Attack) but closes the instant prep is confirmed, so a purchase
+   * can never react to a spin outcome. Outside these it's freely open.
+   */
   private readonly combatStates = new Set<GameState>([
     'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival', 'elite-four-preparation'
   ]);
@@ -82,6 +91,9 @@ export class MarketComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.gameStateService.currentState.subscribe(state => {
       this.currentGameState = state;
     }));
+    this.subscriptions.add(this.battlePrepService.getPendingPrepObservable().subscribe(prep => {
+      this.prepCommitted = prep !== null;
+    }));
   }
 
   ngOnDestroy(): void {
@@ -93,9 +105,19 @@ export class MarketComponent implements OnInit, OnDestroy {
     return this.gameStateService.isNewExperienceMode;
   }
 
-  /** Openable only outside combat and while no wheel is mid-spin. */
+  /**
+   * Openable when a wheel isn't mid-spin and either we're not in a battle state, or
+   * we are but still in the pre-Confirm prep phase (no committed prep). This lets you
+   * spend coins to prepare for the fight in front of you, but never after committing.
+   */
   get isAvailable(): boolean {
-    return this.isNewExperienceMode && !this.wheelSpinning && !this.combatStates.has(this.currentGameState);
+    if (!this.isNewExperienceMode || this.wheelSpinning) {
+      return false;
+    }
+    if (this.combatStates.has(this.currentGameState)) {
+      return !this.prepCommitted;
+    }
+    return true;
   }
 
   openMarket(): void {
