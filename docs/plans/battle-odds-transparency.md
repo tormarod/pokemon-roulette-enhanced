@@ -16,6 +16,15 @@ round-threat, bad-omen, and abilities — which dominate late game (at the Champ
 strip shows a proud "+12 advantage" on a battle that's actually ~60/40, and the
 game feels rigged when it isn't.
 
+Abilities are a sharp case of this: verified 2026-07-20 that an equipped ability
+(e.g. Torrent's -2 No tickets) computes and applies correctly in every scenario
+tested — assigned before the battle starts, reassigned mid-battle to an already-
+active team member, wheel redraw included — but the effect is invisible anywhere
+in the current UI (`matchupAdvantageDelta`/`matchupDisadvantageDelta`, the only
+numbers the strip shows, are pure type-matchup and never include `abilityYesBonus`/
+`abilityNoBonus`; no battle screen or the prep panel mentions abilities at all).
+Indistinguishable, from the player's seat, from the ability silently doing nothing.
+
 Fix: show a **win-chance % headline** (read from the real odds, drift-proof) plus a
 **breakdown of every Yes and No contribution**, on both the pre-spin prep panel
 (where lead/item decisions are made) and the spin screen (the matchup strip).
@@ -261,12 +270,16 @@ Checkpoint after each phase; keep `npm run test:local` green between phases.
    Water vs Fire: `winChance ≈ 0.596` → headline renders "60%". `matchupDisadvantageDelta = 0`.
 3. **Breakdown reveals hidden No.** Same scenario: breakdown shows a `roundThreat` row
    of `18` even though the type section shows only `+12` advantage.
-4. **Prep updates live.** Switching the selected lead from an advantaged member to a
+4. **Ability effect visible.** A team member with `ability: 'torrent'` (soak-if-negative,
+   -2) at a type disadvantage: the breakdown renders a non-zero `odds.no.ability` row
+   (`-2`), distinct from and in addition to the `typeDisadvantage` row — the two must
+   not be conflated into one number.
+5. **Prep updates live.** Switching the selected lead from an advantaged member to a
    disadvantaged one lowers `oddsPreview.winChance` (lead-disadvantage doubling shows).
    Toggling X Attack raises it.
-5. **Strip suppresses headline during prep.** With `prepPhase=true` the strip receives
+6. **Strip suppresses headline during prep.** With `prepPhase=true` the strip receives
    `odds=null` and renders no win %; with `prepPhase=false` it renders the %.
-6. **Behavior-neutral refactor.** The unchanged `base-battle-roulette.component.spec.ts`
+7. **Behavior-neutral refactor.** The unchanged `base-battle-roulette.component.spec.ts`
    and all four component specs stay green.
 
 ## Risks
