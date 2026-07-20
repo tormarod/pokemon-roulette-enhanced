@@ -97,7 +97,9 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   private readonly rewardPool: AdventureCandidate[] = [
     { id: 'catchPokemon', textKey: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
     { id: 'battleTrainer', textKey: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 2 },
-    { id: 'buyPotions', textKey: 'game.main.roulette.adventure.actions.buyPotions', fillStyle: 'darkgoldenrod', weight: 0.5 },
+    // New Experience repurposes this card as a coin bundle (real Market exists);
+    // the id stays `buyPotions` so routing is unchanged, only the label differs.
+    { id: 'buyPotions', textKey: 'game.main.roulette.adventure.actions.foundCoins', fillStyle: 'darkgoldenrod', weight: 0.5 },
     { id: 'catchTwoPokemon', textKey: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 2 },
     { id: 'visitDaycare', textKey: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1 },
     { id: 'teamRocket', textKey: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2 },

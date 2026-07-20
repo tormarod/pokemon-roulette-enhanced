@@ -301,6 +301,10 @@
         "fails": "La Team Rocket échoue"
       },
       "altPrizes": {
+        "foundCoins": {
+          "title": "Des pièces trouvées !",
+          "desc": "Tu as empoché {{amount}} Pièces. Dépense-les au Marché !"
+        },
         "gymBattle": {
           "potion": "Vous avez obtenu une Potion bonus!",
           "potionDesc": "Comme aucune évolution n'était possible, prenez la meilleure Potion que votre argent peut acheter!"
@@ -398,6 +402,7 @@
             "catchPokemon": "Capturer un Pokémon",
             "battleTrainer": "Combattre un entraîneur",
             "buyPotions": "Acheter des potions",
+            "foundCoins": "Pièces trouvées",
             "catchTwoPokemon": "Capturer deux Pokémon",
             "visitDaycare": "Visiter la pension",
             "teamRocket": "Team Rocket",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 Non quand ce Pokémon est en désavantage de type." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Oui, toujours." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 Non, toujours." }
+  },
+  "market": {
+    "title": "Marché",
+    "access": "Marché",
+    "unavailable": "Le Marché est fermé pendant le combat.",
+    "subtitle": "Dépense tes pièces pour renforcer ton équipe.",
+    "buy": "Acheter",
+    "close": "Fermer",
+    "capsule": {
+      "name": "Capsule de Talent",
+      "description": "Une Capsule de Talent aléatoire — attribue-la à un membre de l'équipe dans le PC pour un avantage permanent."
+    }
   },
   "items": {
     "title": "Objets",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Marqué",
-      "markedTooltip": "Cible Marquée : doit mener ton prochain combat."
+      "markedTooltip": "Cible Marquée : doit mener ton prochain combat.",
+      "coins": "Pièces",
+      "coinsTooltip": "Pièces gagnées grâce aux victoires, aux aventures et à chaque manche. Dépense-les au Marché pour des potions, Attaque+, Capsules de Talent, Rappels et Bonbons Rares."
     },
     "storage": {
       "access": "Accéder au PC",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Version 3.5.0",
   "v3_4_0": "Version 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_7_0": {
+      "0": "🪙 Gagne des Pièces grâce aux victoires, aux aventures et à une petite allocation à chaque manche.",
+      "1": "🏪 Dépense tes Pièces au nouveau Marché — potions, Attaque+, Capsules de Talent, Rappels et Bonbons Rares pour renforcer ton équipe, à tout moment hors combat.",
+      "2": "🧬 Correction d'un bug où une Méga-Évolution pouvait devenir permanente après un rechargement en plein combat, empêchant toute autre Méga-Évolution."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."

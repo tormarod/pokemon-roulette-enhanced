@@ -301,6 +301,10 @@
         "fails": "A Equipe Rocket falhou"
       },
       "altPrizes": {
+        "foundCoins": {
+          "title": "Você achou Moedas!",
+          "desc": "Você embolsou {{amount}} Moedas. Gaste-as no Mercado!"
+        },
         "gymBattle": {
           "potion": "Você recebeu uma Poção de Bônus!",
           "potionDesc": "Como nenhuma evolução era possível, pegue a melhor Poção que seu dinheiro pode comprar!"
@@ -398,6 +402,7 @@
             "catchPokemon": "Capturar um Pokémon",
             "battleTrainer": "Batalha de Treinador",
             "buyPotions": "Comprar Poções",
+            "foundCoins": "Moedas Encontradas",
             "catchTwoPokemon": "Capturar Dois Pokémon",
             "visitDaycare": "Visitar o Daycare",
             "teamRocket": "Equipe Rocket",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 Não quando este Pokémon está em desvantagem de tipo." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Sim, sempre." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 Não, sempre." }
+  },
+  "market": {
+    "title": "Mercado",
+    "access": "Mercado",
+    "unavailable": "O Mercado está fechado durante a batalha.",
+    "subtitle": "Gaste suas moedas para fortalecer sua equipe.",
+    "buy": "Comprar",
+    "close": "Fechar",
+    "capsule": {
+      "name": "Cápsula de Habilidade",
+      "description": "Uma Cápsula de Habilidade aleatória — atribua-a a um membro da equipe no PC para uma vantagem permanente."
+    }
   },
   "items": {
     "title": "Itens",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Marcado",
-      "markedTooltip": "Alvo Marcado: deve liderar sua próxima batalha."
+      "markedTooltip": "Alvo Marcado: deve liderar sua próxima batalha.",
+      "coins": "Moedas",
+      "coinsTooltip": "Moedas ganhas em vitórias, aventuras e a cada rodada. Gaste-as no Mercado em poções, Ataque X, Cápsulas de Habilidade, Reviver e Doces Raros."
     },
     "storage": {
       "access": "Acessar o PC",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Versão 2.1.0",
   "v2_2_0": "Versão 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versão 3.5.0",
   "v3_4_0": "Versão 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v3_7_0": {
+      "0": "🪙 Ganhe Moedas em vitórias, aventuras e um pequeno subsídio a cada rodada.",
+      "1": "🏪 Gaste Moedas no novo Mercado — poções, Ataque X, Cápsulas de Habilidade, Reviver e Doces Raros para fortalecer sua equipe, a qualquer momento fora da batalha.",
+      "2": "🧬 Corrigido um bug em que uma Megaevolução podia se tornar permanente após recarregar no meio da batalha, impedindo o uso de qualquer outra Pedra de Ativação."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."

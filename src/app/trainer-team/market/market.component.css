@@ -1,0 +1,104 @@
+.market-button {
+  width: 100%;
+}
+
+.market-button-icon {
+  margin-right: 0.35em;
+}
+
+/* Header balance pill — carries its own colors so it reads on any themed modal header. */
+.market-balance {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  padding: 0.2em 0.6em;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffe9a8, #ffd257);
+  color: #5c4400;
+}
+
+.market-balance-amount {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1em;
+}
+
+.market-balance-label {
+  font-size: 0.8em;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.market-subtitle {
+  margin-bottom: 1rem;
+  opacity: 0.85;
+}
+
+.market-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Rows inherit the modal's themed text color; the divider adapts to the theme. */
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+}
+
+.market-row:last-child {
+  border-bottom: none;
+}
+
+.market-row-locked {
+  opacity: 0.5;
+}
+
+.market-sprite {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.market-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.market-name {
+  font-weight: 700;
+}
+
+.market-desc {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.market-price {
+  flex: 0 0 auto;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.market-buy {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+}
+
+@media (max-width: 480px) {
+  .market-desc {
+    display: none;
+  }
+}

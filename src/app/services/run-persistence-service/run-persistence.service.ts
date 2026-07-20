@@ -13,6 +13,7 @@ import { CatchRiskService } from '../catch-risk-service/catch-risk.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { Badge } from '../../interfaces/badge';
+import { MegaStoneItemName } from '../items-service/item-names';
 
 export interface SavedRun {
   state: GameState;
@@ -34,6 +35,10 @@ export interface SavedRun {
   pendingBattleDebuff: number;
   markedTeamIndex: number | null;
   pendingCatchEscapeChance: number;
+  coins: number;
+  megaBattleBaseId: number | null;
+  megaBattleStoneName: MegaStoneItemName | null;
+  megaBattleOriginalPokemon: PokemonItem | null;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -80,7 +85,8 @@ export class RunPersistenceService {
       this.battleDebuffService.getPendingDebuffObservable(),
       this.markedTargetService.getPendingMarkObservable(),
       this.catchRiskService.getPendingEscapeChanceObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance]) => {
+      this.trainerService.getCoinsObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -106,6 +112,12 @@ export class RunPersistenceService {
         pendingBattleDebuff,
         markedTeamIndex,
         pendingCatchEscapeChance,
+        coins,
+        // Read synchronously — applying/reverting a mega calls trainerTeamObservable.next,
+        // so this combineLatest already re-fires whenever the mega state changes.
+        megaBattleBaseId: this.trainerService.getMegaBattleBaseId(),
+        megaBattleStoneName: this.trainerService.getMegaBattleStoneName(),
+        megaBattleOriginalPokemon: this.trainerService.getMegaBattleOriginalPokemon(),
       });
     });
   }
@@ -156,12 +168,22 @@ export class RunPersistenceService {
     this.battleDebuffService.clearDebuff();
     this.markedTargetService.clearMark();
     this.catchRiskService.clearEscapeChance();
+    this.trainerService.resetCoins();
+    this.trainerService.resetMegaBattleState();
     this.clearRun();
   }
 
   private restoreRun(run: SavedRun): void {
     this.generationService.setGenerationById(run.generationId);
     this.trainerService.commitTeamAndStorage(run.trainerTeam, run.storedPokemon);
+    // Must precede restoreState below: restoring the state re-emits currentState,
+    // which drives syncBattleForms → revertMegaForms. Without the original in
+    // place first, a reload while mega'd couldn't revert and the mega stuck.
+    this.trainerService.restoreMegaBattleState(
+      run.megaBattleBaseId ?? null,
+      run.megaBattleStoneName ?? null,
+      run.megaBattleOriginalPokemon ?? null
+    );
     this.trainerService.restoreItems(run.trainerItems);
     this.trainerService.restoreBadges(run.trainerBadges);
     this.trainerService.setTrainer(run.generationId, run.gender);
@@ -177,6 +199,7 @@ export class RunPersistenceService {
     this.battleDebuffService.restoreDebuff(run.pendingBattleDebuff ?? 0);
     this.markedTargetService.restoreMark(run.markedTeamIndex ?? null);
     this.catchRiskService.restoreEscapeChance(run.pendingCatchEscapeChance ?? 0);
+    this.trainerService.restoreCoins(run.coins ?? 0);
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
@@ -229,7 +252,11 @@ export class RunPersistenceService {
       (run.pendingAdventure === undefined || run.pendingAdventure === null || typeof run.pendingAdventure === 'object') &&
       (run.pendingBattleDebuff === undefined || typeof run.pendingBattleDebuff === 'number') &&
       (run.markedTeamIndex === undefined || run.markedTeamIndex === null || typeof run.markedTeamIndex === 'number') &&
-      (run.pendingCatchEscapeChance === undefined || typeof run.pendingCatchEscapeChance === 'number')
+      (run.pendingCatchEscapeChance === undefined || typeof run.pendingCatchEscapeChance === 'number') &&
+      (run.coins === undefined || typeof run.coins === 'number') &&
+      (run.megaBattleBaseId === undefined || run.megaBattleBaseId === null || typeof run.megaBattleBaseId === 'number') &&
+      (run.megaBattleStoneName === undefined || run.megaBattleStoneName === null || typeof run.megaBattleStoneName === 'string') &&
+      (run.megaBattleOriginalPokemon === undefined || run.megaBattleOriginalPokemon === null || typeof run.megaBattleOriginalPokemon === 'object')
     );
   }
 }

@@ -10,6 +10,7 @@ import { Badge } from '../interfaces/badge';
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { StoragePcComponent } from "./storage-pc/storage-pc.component";
 import { PokedexComponent } from "./pokedex/pokedex.component";
+import { MarketComponent } from "./market/market.component";
 import {TranslatePipe} from '@ngx-translate/core';
 import { ItemItem } from '../interfaces/item-item';
 import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
@@ -22,7 +23,7 @@ import { GameStateService } from '../services/game-state-service/game-state.serv
   imports: [CommonModule,
     NgbTooltipModule,
     BadgesComponent,
-    StoragePcComponent, TranslatePipe, PokedexComponent],
+    StoragePcComponent, TranslatePipe, PokedexComponent, MarketComponent],
   templateUrl: './trainer-team.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./trainer-team.component.css']
@@ -41,6 +42,13 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   trainerBadges!: Badge[];
   markedIndex: number | null = null;
 
+  /** Market currency balance (New Experience only). */
+  coins = 0;
+  /** Transient "+N" floater shown briefly when the balance increases; null when idle. */
+  coinGain: number | null = null;
+  private previousCoins: number | null = null;
+  private coinGainTimeout: ReturnType<typeof setTimeout> | null = null;
+
   darkMode!: Observable<boolean>;
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
 
@@ -48,6 +56,7 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   private teamSubscription!: Subscription;
   private badgesSubscription!: Subscription;
   private markedTargetSubscription!: Subscription;
+  private coinsSubscription!: Subscription;
 
   ngOnInit(): void {
     this.trainerSubscription = this.trainerService.getTrainer().subscribe(trainer => {
@@ -62,6 +71,15 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     this.markedTargetSubscription = this.markedTargetService.getPendingMarkObservable().subscribe(index => {
       this.markedIndex = index;
     });
+    this.coinsSubscription = this.trainerService.getCoinsObservable().subscribe(coins => {
+      // Flash a "+N" floater whenever the balance climbs (but not on the initial
+      // emission or a run-restore, which aren't "earning" moments).
+      if (this.previousCoins !== null && coins > this.previousCoins) {
+        this.flashCoinGain(coins - this.previousCoins);
+      }
+      this.previousCoins = coins;
+      this.coins = coins;
+    });
     this.darkMode = this.themeService.isDark$;
   }
 
@@ -70,6 +88,21 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     this.teamSubscription?.unsubscribe();
     this.badgesSubscription?.unsubscribe();
     this.markedTargetSubscription?.unsubscribe();
+    this.coinsSubscription?.unsubscribe();
+    if (this.coinGainTimeout) {
+      clearTimeout(this.coinGainTimeout);
+    }
+  }
+
+  private flashCoinGain(delta: number): void {
+    this.coinGain = delta;
+    if (this.coinGainTimeout) {
+      clearTimeout(this.coinGainTimeout);
+    }
+    this.coinGainTimeout = setTimeout(() => {
+      this.coinGain = null;
+      this.coinGainTimeout = null;
+    }, 1500);
   }
 
   /** Gates every New-Experience-only status badge (marked target, ability) on the strip. */
