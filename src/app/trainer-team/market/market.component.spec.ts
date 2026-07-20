@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { MarketComponent } from './market.component';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
+import { BattlePrepService } from '../../services/battle-prep-service/battle-prep.service';
 import { MARKET_PRICES } from '../../main-game/roulette-container/economy-config';
 
 describe('MarketComponent', () => {
@@ -12,6 +13,7 @@ describe('MarketComponent', () => {
   let fixture: ComponentFixture<MarketComponent>;
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
+  let battlePrepService: BattlePrepService;
 
   beforeEach(async () => {
     const httpSpy = jasmine.createSpyObj('HttpClient', ['get']);
@@ -28,10 +30,12 @@ describe('MarketComponent', () => {
     component = fixture.componentInstance;
     trainerService = TestBed.inject(TrainerService);
     gameStateService = TestBed.inject(GameStateService);
+    battlePrepService = TestBed.inject(BattlePrepService);
     gameStateService.resetGameState(true);
     trainerService.resetTeam();
     trainerService.resetItems();
     trainerService.resetCoins();
+    battlePrepService.clearPrep();
     fixture.detectChanges();
   });
 
@@ -80,9 +84,17 @@ describe('MarketComponent', () => {
     expect(trainerService.getItems().length).toBe(before);
   });
 
-  it('is unavailable during a battle', () => {
+  it('is available during the pre-battle prep phase (no committed prep yet)', () => {
     gameStateService.setNextState('gym-battle');
     gameStateService.finishCurrentState();
+    battlePrepService.clearPrep();
+    expect(component.isAvailable).toBeTrue();
+  });
+
+  it('is unavailable once prep is confirmed (spin imminent)', () => {
+    gameStateService.setNextState('gym-battle');
+    gameStateService.finishCurrentState();
+    battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
     expect(component.isAvailable).toBeFalse();
   });
 
