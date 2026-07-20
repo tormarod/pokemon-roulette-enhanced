@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Marqué",
-      "markedTooltip": "Cible Marquée : doit mener ton prochain combat.",
+      "markedTooltip": "Cible Marquée : verrouillée — doit mener ton prochain combat et ne peut pas être mise au PC ni échangée.",
       "coins": "Pièces",
       "coinsTooltip": "Pièces gagnées grâce aux victoires, aux aventures et à chaque manche. Dépense-les au Marché pour des potions, Attaque+, Capsules de Talent, Rappels et Bonbons Rares."
     },

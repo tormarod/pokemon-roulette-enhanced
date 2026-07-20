@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Marcato",
-      "markedTooltip": "Bersaglio Marcato: deve guidare la tua prossima battaglia.",
+      "markedTooltip": "Bersaglio Marcato: bloccato — deve guidare la tua prossima battaglia e non può essere mandato al PC né scambiato.",
       "coins": "Monete",
       "coinsTooltip": "Monete guadagnate da vittorie, avventure e ogni round. Spendile al Mercato per pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare."
     },
