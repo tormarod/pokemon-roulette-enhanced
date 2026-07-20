@@ -20,6 +20,7 @@ import { WheelItem } from '../../../../interfaces/wheel-item';
 import { GymLeader } from '../../../../interfaces/gym-leader';
 import { PokemonType, getTypeIconUrl } from '../../../../interfaces/pokemon-type';
 import { interleaveOdds } from '../../../../utils/odd-utils';
+import { BattleOddsService, BattleOddsBreakdown } from '../../../../services/battle-odds-service/battle-odds.service';
 
 @Directive()
 export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
@@ -33,8 +34,11 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected retries = 0;
   protected victoryOdds: WheelItem[] = [];
   protected readonly abilityService = inject(AbilityService);
+  protected readonly battleOddsService = inject(BattleOddsService);
   /** Guards the once-per-battle Serene Grace-style free retry (see buildVictoryOdds). */
   private abilityRetryGranted = false;
+  /** Full odds breakdown backing the matchup-strip win % + contribution rows; null when the opponent has no configured types. */
+  currentOdds: BattleOddsBreakdown | null = null;
 
   matchupSuperEffectiveTypes: PokemonType[] = [];
   matchupResistTypes: PokemonType[] = [];
@@ -45,8 +49,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
   /** New-Experience prep-gating flag; true while the player hasn't confirmed lead/item for this battle yet. */
   prepPhase = true;
-
-  private static readonly ROUND_THREAT_MULT = 1.5;
 
   private gameSubscription: Subscription | null = null;
   private generationSubscription: Subscription | null = null;
@@ -155,40 +157,31 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     const noText = `${textPrefix}.no`;
     const types = opponentTypes?.length ? opponentTypes : [];
 
-    const { yesPower, noBonus, advantageDelta, disadvantageDelta } =
-      this.typeMatchupService.calcTeamMatchupTotals(this.trainerTeam, types);
+    const odds = this.battleOddsService.computeOdds({
+      team: this.trainerTeam,
+      opponentTypes: types,
+      baseNoCount,
+      currentRound,
+      leadIndex,
+      xAttackBonus,
+      classicPlusModifiers: this.plusModifiers(),
+      badOmen: this.battleDebuffService.currentDebuff,
+      abilitiesActive: this.gameStateService.isNewExperienceMode,
+    });
 
-    let leadAdvantageDelta = 0;
-    let leadDisadvantageDelta = 0;
-    if (leadIndex != null && types.length && this.trainerTeam[leadIndex]) {
-      const leadDelta = this.typeMatchupService.getMemberSignedDelta(this.trainerTeam[leadIndex], types);
-      if (leadDelta > 0) leadAdvantageDelta = leadDelta;
-      else if (leadDelta < 0) leadDisadvantageDelta = -leadDelta;
+    // Serene Grace-style: grants one free retry, once per battle instance, the
+    // first time this is computed with the ability present. Seeded to 2, not
+    // 1: onItemSelected() decrements `retries` on every spin (including the
+    // first), and only emits a loss once it hits 0 — so 2 survives the first
+    // spin's decrement to actually buy one extra spin, whereas 1 would be
+    // spent on that first decrement and grant nothing.
+    if (odds.extraRetry && !this.abilityRetryGranted) {
+      this.abilityRetryGranted = true;
+      this.retries = Math.max(this.retries, 2);
     }
 
-    // Abilities (New Experience only — Classic mode never has an active ability,
-    // regardless of what's curated in abilities-data.ts).
-    let abilityYesBonus = 0;
-    let abilityNoBonus = 0;
-    if (this.gameStateService.isNewExperienceMode) {
-      const abilities = this.abilityService.applyTeamAbilities(this.trainerTeam, types);
-      abilityYesBonus = abilities.yesBonus;
-      abilityNoBonus = abilities.noBonus;
-      // Serene Grace-style: grants one free retry, once per battle instance,
-      // the first time this is computed with the ability present. Seeded to 2,
-      // not 1: onItemSelected() decrements `retries` on every spin (including the
-      // first), and only emits a loss once it hits 0 — so 2 survives the first
-      // spin's decrement to actually buy one extra spin, whereas 1 would be
-      // spent on that first decrement and grant nothing.
-      if (abilities.extraRetry && !this.abilityRetryGranted) {
-        this.abilityRetryGranted = true;
-        this.retries = Math.max(this.retries, 2);
-      }
-    }
-
-    const effectivePower = yesPower + leadAdvantageDelta + (xAttackBonus ?? 0) + this.plusModifiers() + abilityYesBonus;
     const yesOdds: WheelItem[] = [];
-    for (let i = 0; i < Math.round(effectivePower) + 1; i++) {
+    for (let i = 0; i < odds.yesTickets; i++) {
       yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
     }
 
@@ -197,26 +190,20 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       this.matchupSuperEffectiveTypes = superEffectiveTypes;
       this.matchupResistTypes = resistTypes;
       this.matchupDisadvantageTypes = weakTypes;
-      this.matchupAdvantageDelta = advantageDelta + leadAdvantageDelta;
-      this.matchupDisadvantageDelta = disadvantageDelta + leadDisadvantageDelta;
+      this.matchupAdvantageDelta = odds.yes.typeAdvantage;
+      this.matchupDisadvantageDelta = odds.no.typeDisadvantage;
+      this.currentOdds = odds;
     } else {
       this.matchupSuperEffectiveTypes = [];
       this.matchupResistTypes = [];
       this.matchupDisadvantageTypes = [];
       this.matchupAdvantageDelta = 0;
       this.matchupDisadvantageDelta = 0;
+      this.currentOdds = null;
     }
 
     const noOdds: WheelItem[] = [];
-    const roundThreat = Math.ceil(currentRound * BaseBattleRouletteComponent.ROUND_THREAT_MULT);
-    // "Bad omen" threat (New Experience only — always 0 otherwise): extra No
-    // tickets for the very next battle, cleared once that battle resolves.
-    const badOmenBonus = this.battleDebuffService.currentDebuff;
-    // Ability No-reduction is floored at baseNoCount — an ability can make a
-    // battle easier, never risk-free.
-    const rawNoCount = baseNoCount + roundThreat + noBonus + leadDisadvantageDelta + badOmenBonus + abilityNoBonus;
-    const noCount = Math.max(baseNoCount, rawNoCount);
-    for (let i = 0; i < noCount; i++) {
+    for (let i = 0; i < odds.noTickets; i++) {
       noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
     }
 

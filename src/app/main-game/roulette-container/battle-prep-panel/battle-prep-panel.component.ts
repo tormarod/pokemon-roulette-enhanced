@@ -5,6 +5,9 @@ import { PokemonItem } from '../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../interfaces/item-item';
 import { PokemonType, getTypeIconUrl } from '../../../interfaces/pokemon-type';
 import { TypeMatchupService } from '../../../services/type-matchup-service/type-matchup.service';
+import { BattleOddsService, BattleOddsBreakdown } from '../../../services/battle-odds-service/battle-odds.service';
+import { BattleDebuffService } from '../../../services/battle-debuff-service/battle-debuff.service';
+import { GameStateService } from '../../../services/game-state-service/game-state.service';
 
 export interface BattlePrepConfirmed {
   leadIndex: number;
@@ -25,19 +28,49 @@ export class BattlePrepPanelComponent implements OnChanges {
   @Input() items: ItemItem[] = [];
   /** New Experience only: team index the "markedTarget" threat has forced to lead this battle. */
   @Input() forcedIndex: number | null = null;
+  /** Battle type's base No-ticket count (gym 1, elite 2, champion 3, rival 1) — feeds the live odds preview. */
+  @Input() baseNoCount = 1;
+  @Input() currentRound = 0;
   @Output() confirmed = new EventEmitter<BattlePrepConfirmed>();
 
   selectedLeadIndex = 0;
   xAttackSelected = false;
+  /** Live preview of the odds the wheel will be built with on confirm — same computeOdds() call as buildVictoryOdds(), so it never drifts from the real wheel. */
+  oddsPreview: BattleOddsBreakdown | null = null;
 
   readonly getTypeIconUrl = getTypeIconUrl;
 
-  constructor(private typeMatchupService: TypeMatchupService) {}
+  constructor(
+    private typeMatchupService: TypeMatchupService,
+    private battleOddsService: BattleOddsService,
+    private battleDebuffService: BattleDebuffService,
+    private gameStateService: GameStateService,
+  ) {}
 
   ngOnChanges(): void {
     if (this.forcedIndex !== null) {
       this.selectedLeadIndex = this.forcedIndex;
     }
+    this.recomputePreview();
+  }
+
+  private recomputePreview(): void {
+    if (!this.team.length) {
+      this.oddsPreview = null;
+      return;
+    }
+    const meanPower = this.team.reduce((sum, p) => sum + p.power, 0) / this.team.length;
+    this.oddsPreview = this.battleOddsService.computeOdds({
+      team: this.team,
+      opponentTypes: this.opponentTypes ?? [],
+      baseNoCount: this.baseNoCount,
+      currentRound: this.currentRound,
+      leadIndex: this.selectedLeadIndex,
+      xAttackBonus: this.xAttackSelected ? meanPower : 0,
+      classicPlusModifiers: 0,
+      badOmen: this.battleDebuffService.currentDebuff,
+      abilitiesActive: this.gameStateService.isNewExperienceMode,
+    });
   }
 
   selectLead(index: number): void {
@@ -45,6 +78,7 @@ export class BattlePrepPanelComponent implements OnChanges {
       return;
     }
     this.selectedLeadIndex = index;
+    this.recomputePreview();
   }
 
   getPokemonTypes(pokemon: PokemonItem): PokemonType[] {
@@ -69,6 +103,7 @@ export class BattlePrepPanelComponent implements OnChanges {
       return;
     }
     this.xAttackSelected = !this.xAttackSelected;
+    this.recomputePreview();
   }
 
   onConfirm(): void {

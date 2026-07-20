@@ -90,3 +90,30 @@
 .battle-prep-confirm {
     margin-top: 8px;
 }
+
+.odds-winchance {
+    font-size: medium;
+    font-weight: bold;
+}
+
+.odds-breakdown {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 10px;
+}
+
+.matchup-delta {
+    font-size: small;
+    font-weight: bold;
+}
+
+.matchup-delta-positive {
+    color: #2e7d32;
+}
+
+.matchup-delta-negative {
+    color: #c62828;
+}

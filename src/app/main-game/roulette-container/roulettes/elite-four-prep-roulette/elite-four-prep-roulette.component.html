@@ -6,11 +6,7 @@
             [items]="actions"
             (selectedItemEvent)="onItemSelected($event)">
 </app-wheel>
-<div class="roulette-action-row">
-    <button type="button" class="btn btn-warning go-straight-button" [disabled]="wheel.spinning" (click)="doNothingEvent.emit()">
-        {{ 'game.main.roulette.elite.prep.actions.goStraight' | translate }}
-    </button>
-</div>
+<div class="roulette-action-row"></div>
 
 <ng-template #victoryRoadModal let-modal>
     <div class="modal-body">
