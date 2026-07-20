@@ -371,8 +371,7 @@
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
-            "buyPotions": "Compra Pozioni",
-            "goStraight": "Vai dritto"
+            "buyPotions": "Compra Pozioni"
           }
         },
         "catch": {
@@ -399,7 +398,6 @@
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
             "buyPotions": "Compra Pozioni",
-            "goStraight": "Vai dritto",
             "catchTwoPokemon": "Cattura due Pokémon",
             "visitDaycare": "Pensione Pokémon",
             "teamRocket": "Incontro con Team Rocket",
@@ -505,7 +503,6 @@
               "catchTwoPokemon": "Cattura due Pokémon",
               "huntLegendary": "Caccia un Pokémon leggendario",
               "findItem": "Trova uno strumento",
-              "goStraight": "Vai dritto",
               "teamRocket": "Incontro con il Team Rocket",
               "catchThreePokemon": "Cattura tre Pokémon"
             }
@@ -554,6 +551,14 @@
           "resists": "Resiste",
           "weak": "Debole",
           "abilities": "Abilità"
+        },
+        "odds": {
+          "title": "Odds",
+          "winChance": "Win chance",
+          "roundThreat": "Round threat",
+          "badOmen": "Bad omen",
+          "ability": "Ability",
+          "xAttack": "X Attack"
         },
         "rival": {
           "against": "Lotta contro",
@@ -3114,6 +3119,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versione 3.5.0",
   "v3_4_0": "Versione 3.4.0",
   "v3_3_0": "Versione 3.3.0",
@@ -3123,6 +3129,10 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_6_0": {
+      "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
+      "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."
+    },
     "v3_5_0": {
       "0": "🎯 Marked Target now forces that Pokémon to lead your next battle instead of barring it from leading — every other pick is disabled until the battle resolves.",
       "1": "🧬 Fixed a bug where a Pokémon's assigned ability was silently dropped when it evolved or mega-evolved.",
