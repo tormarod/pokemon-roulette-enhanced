@@ -1,0 +1,50 @@
+@if (isNewExperienceMode) {
+  <button type="button" class="btn market-button"
+          [ngClass]="(darkMode | async) ? 'btn-outline-light' : 'btn-outline-dark'"
+          [disabled]="!isAvailable"
+          placement="top"
+          container="body"
+          ngbTooltip="{{ (isAvailable ? 'market.access' : 'market.unavailable') | translate }}"
+          (click)="openMarket()">
+    <span class="market-button-icon" aria-hidden="true">🏪</span>
+    {{ 'market.access' | translate }}
+  </button>
+}
+
+<ng-template #marketModal let-modal>
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <span aria-hidden="true">🏪</span> {{ 'market.title' | translate }}
+    </h2>
+    <span class="market-balance" [ngClass]="(darkMode | async) ? 'balance-dark' : 'balance-light'">
+      <span aria-hidden="true">🪙</span>
+      <span class="market-balance-amount">{{ coins }}</span>
+      <span class="market-balance-label">{{ 'trainer.team.coins' | translate }}</span>
+    </span>
+  </div>
+  <div class="modal-body">
+    <p class="market-subtitle">{{ 'market.subtitle' | translate }}</p>
+    <ul class="market-list">
+      @for (entry of stock; track entry.id) {
+        <li class="market-row" [class.market-row-locked]="!canAfford(entry)">
+          <img class="market-sprite" [src]="entry.sprite" [alt]="entry.labelKey | translate" height="48">
+          <div class="market-info">
+            <span class="market-name">{{ entry.labelKey | translate }}</span>
+            <span class="market-desc">{{ entry.descriptionKey | translate }}</span>
+          </div>
+          <span class="market-price" aria-hidden="true">🪙 {{ entry.price }}</span>
+          <button type="button"
+                  class="btn btn-sm btn-primary market-buy"
+                  [disabled]="!canAfford(entry)"
+                  [attr.aria-label]="(entry.labelKey | translate) + ' — ' + entry.price"
+                  (click)="buy(entry)">
+            {{ 'market.buy' | translate }}
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="closeModal()">{{ 'market.close' | translate }}</button>
+  </div>
+</ng-template>

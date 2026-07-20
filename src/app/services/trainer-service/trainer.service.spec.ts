@@ -88,6 +88,51 @@ describe('TrainerService', () => {
     expect(itemNames).toEqual(['potion', 'honey', 'repel']);
   });
 
+  // ── coins (Market currency) ──────────────────────────────────────────────
+
+  it('should start with zero coins', () => {
+    expect(service.getCoins()).toBe(0);
+  });
+
+  it('addCoins should accumulate and emit', () => {
+    const emitted: number[] = [];
+    service.getCoinsObservable().subscribe(value => emitted.push(value));
+    service.addCoins(10);
+    service.addCoins(5);
+    expect(service.getCoins()).toBe(15);
+    expect(emitted).toEqual([0, 10, 15]);
+  });
+
+  it('addCoins should ignore non-positive amounts', () => {
+    service.addCoins(0);
+    service.addCoins(-5);
+    expect(service.getCoins()).toBe(0);
+  });
+
+  it('spendCoins should deduct and return true when affordable', () => {
+    service.addCoins(20);
+    expect(service.spendCoins(15)).toBeTrue();
+    expect(service.getCoins()).toBe(5);
+  });
+
+  it('spendCoins should no-op and return false when unaffordable', () => {
+    service.addCoins(10);
+    expect(service.spendCoins(15)).toBeFalse();
+    expect(service.getCoins()).toBe(10);
+  });
+
+  it('resetCoins should zero the balance', () => {
+    service.addCoins(30);
+    service.resetCoins();
+    expect(service.getCoins()).toBe(0);
+  });
+
+  it('restoreCoins should overwrite the balance', () => {
+    service.addCoins(30);
+    service.restoreCoins(42);
+    expect(service.getCoins()).toBe(42);
+  });
+
   // ── pendingTypeBiases ────────────────────────────────────────────────────
 
   it('should have no pending type biases by default', () => {

@@ -301,6 +301,10 @@
         "fails": "Team Rocket versagt"
       },
       "altPrizes": {
+        "foundCoins": {
+          "title": "Münzen gefunden!",
+          "desc": "Du hast {{amount}} Münzen eingesteckt. Gib sie im Markt aus!"
+        },
         "gymBattle": {
           "potion": "Bonus Trank erhalten!",
           "potionDesc": "Da keines deiner Pokémon sich gerade entwickeln kann, erhältst du einen der besten Tränke, die man für Geld kaufen kann!"
@@ -398,6 +402,7 @@
             "catchPokemon": "Fange ein Pokémon",
             "battleTrainer": "Trainer-Kampf",
             "buyPotions": "Kaufe Tränke",
+            "foundCoins": "Münzen gefunden",
             "catchTwoPokemon": "Fange zwei Pokémon",
             "visitDaycare": "Pokémon-Pension",
             "teamRocket": "Team Rocket greift an",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 Nein, wenn dieses Pokémon im Typnachteil ist." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Ja, immer." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 Nein, immer." }
+  },
+  "market": {
+    "title": "Markt",
+    "access": "Markt",
+    "unavailable": "Der Markt ist während des Kampfes geschlossen.",
+    "subtitle": "Gib deine Münzen aus, um dein Team zu stärken.",
+    "buy": "Kaufen",
+    "close": "Schließen",
+    "capsule": {
+      "name": "Fähigkeits-Kapsel",
+      "description": "Eine zufällige Fähigkeits-Kapsel – weise sie im PC einem Teammitglied zu, für einen dauerhaften Vorteil."
+    }
   },
   "items": {
     "title": "Items",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Markiert",
-      "markedTooltip": "Markiertes Ziel: muss deinen nächsten Kampf anführen."
+      "markedTooltip": "Markiertes Ziel: muss deinen nächsten Kampf anführen.",
+      "coins": "Münzen",
+      "coinsTooltip": "Münzen aus Siegen, Abenteuern und jeder Runde. Gib sie im Markt für Tränke, X-Angriff, Fähigkeits-Kapseln, Beleber und Sonderbonbons aus."
     },
     "storage": {
       "access": "Box öffnen",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Version 3.5.0",
   "v3_4_0": "Version 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_7_0": {
+      "0": "🪙 Verdiene Münzen durch Kämpfe, Abenteuer und einen kleinen Zuschuss pro Runde.",
+      "1": "🏪 Gib Münzen im neuen Markt aus – Tränke, X-Angriff, Fähigkeits-Kapseln, Beleber und Sonderbonbons, um dein Team zu stärken, jederzeit außerhalb des Kampfes.",
+      "2": "🧬 Fehler behoben, durch den eine Mega-Entwicklung nach einem Neuladen mitten im Kampf dauerhaft werden konnte und keine weitere Mega-Entwicklung mehr möglich war."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."

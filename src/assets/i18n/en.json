@@ -328,6 +328,10 @@
         "megaStone": {
           "stone": "Got a Mega Stone!",
           "stoneDesc": "Tap a Mega Stone icon to activate Mega Evolution during battle!"
+        },
+        "foundCoins": {
+          "title": "Found some Coins!",
+          "desc": "You pocketed {{amount}} Coins. Spend them at the Market!"
         }
       },
       "activeBias": {
@@ -398,6 +402,7 @@
             "catchPokemon": "Catch a Pokemon",
             "battleTrainer": "Trainer Battle",
             "buyPotions": "Buy Potions",
+            "foundCoins": "Found Coins",
             "catchTwoPokemon": "Catch Two Pokemon",
             "visitDaycare": "Visit the Daycare",
             "teamRocket": "Team Rocket Encounter",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 No when this Pokémon is at a type disadvantage." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Yes, always." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 No, always." }
+  },
+  "market": {
+    "title": "Market",
+    "access": "Market",
+    "unavailable": "The Market is closed during battle.",
+    "subtitle": "Spend your coins to power up your team.",
+    "buy": "Buy",
+    "close": "Close",
+    "capsule": {
+      "name": "Ability Capsule",
+      "description": "A random Ability Capsule — assign it to a team member in the PC for a permanent battle edge."
+    }
   },
   "items": {
     "title": "Items",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Marked",
-      "markedTooltip": "Marked Target: must lead your next battle."
+      "markedTooltip": "Marked Target: must lead your next battle.",
+      "coins": "Coins",
+      "coinsTooltip": "Coins earned from wins, adventures and each round. Spend them at the Market on potions, X Attacks, Ability Capsules, Revives and Rare Candies."
     },
     "storage": {
       "access": "Access PC",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Version 3.5.0",
   "v3_4_0": "Version 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v3_7_0": {
+      "0": "🪙 Earn Coins from battle wins, adventures, and a small stipend each round.",
+      "1": "🏪 Spend Coins at the new Market — potions, X Attacks, Ability Capsules, Revives, and Rare Candies to power up your team, any time outside battle.",
+      "2": "🧬 Fixed a bug where a Mega Evolution could become permanent after reloading mid-battle, which blocked using any other Mega Stone."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."

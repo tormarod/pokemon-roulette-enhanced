@@ -66,6 +66,7 @@ import { GymLeader } from '../../interfaces/gym-leader';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 import { championByGeneration } from './roulettes/champion-battle-roulette/champion-by-generation';
+import { battleWinReward, cardCoinReward, foundCoinsReward, PASSIVE_PER_ROUND } from './economy-config';
 import { StatsService } from '../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
 import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
@@ -238,6 +239,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('altPrizeModal', { static: true }) altPrizeModal!: TemplateRef<any>;
+  @ViewChild('coinsFoundModal', { static: true }) coinsFoundModal!: TemplateRef<any>;
+  /** Coins awarded by the repurposed "found coins" card, shown in coinsFoundModal. */
+  coinsFoundAmount = 0;
   @ViewChild('infoModal', { static: true }) infoModal!: TemplateRef<any>;
   @ViewChild('itemActivateModal', { static: true }) itemActivateModal!: TemplateRef<any>;
   @ViewChild('pkmnEvoModal', { static: true }) pkmnEvoModal!: TemplateRef<any>;
@@ -401,6 +405,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   chooseWhoWillEvolve(eventSource: EventSource): void {
+    // The "battle trainer" reward card routes straight here; pay its coin bonus
+    // once, keyed on the source so the shared rival/gym/team-rocket callers don't.
+    if (eventSource === 'battle-trainer') {
+      this.awardCardCoins();
+    }
     this.auxPokemonList = [];
 
     this.auxPokemonList = this.trainerService.getPokemonThatCanEvolve();
@@ -481,6 +490,18 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   buyPotions(): void {
+    // New Experience repurposes this card as a "found coins" bundle now that a
+    // real Market exists (see economy-and-market plan). Classic mode keeps the
+    // original free-potion behaviour — it has no coins to award.
+    if (this.gameStateService.isNewExperienceMode) {
+      this.coinsFoundAmount = foundCoinsReward();
+      this.trainerService.addCoins(this.coinsFoundAmount);
+      this.playItemFoundAudio();
+      this.modalQueueService.open(this.coinsFoundModal, { centered: true, size: 'md' });
+      this.finishCurrentState();
+      return;
+    }
+
     let itemName: ItemName = 'potion';
 
     if (this.leadersDefeatedAmount > 6) {
@@ -496,6 +517,33 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   doNothing(): void {
     this.finishCurrentState();
+  }
+
+  /**
+   * Coins for winning a battle (New Experience only). Call BEFORE advanceRound so
+   * `leadersDefeatedAmount` is still the round just cleared. `advancesRound` adds
+   * the flat per-round stipend — passed true only for gym/elite four (which
+   * advance the round), so the stipend lands exactly once per round and can't be
+   * farmed by rival wins or `multitask`. Champion wins skip this entirely: the run
+   * ends, so there is nothing left to spend on.
+   */
+  private awardBattleCoins(advancesRound: boolean): void {
+    if (!this.gameStateService.isNewExperienceMode) {
+      return;
+    }
+    let coins = battleWinReward(this.leadersDefeatedAmount);
+    if (advancesRound) {
+      coins += PASSIVE_PER_ROUND;
+    }
+    this.trainerService.addCoins(coins);
+  }
+
+  /** A reward card's coin bonus (New Experience only). */
+  private awardCardCoins(): void {
+    if (!this.gameStateService.isNewExperienceMode) {
+      return;
+    }
+    this.trainerService.addCoins(cardCoinReward());
   }
 
   mysteriousEgg(): void {
@@ -608,6 +656,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.statsService.recordBattleWin('gym');
       this.playItemFoundAudio();
       this.trainerService.addBadge(this.leadersDefeatedAmount, this.fromLeader);
+      this.awardBattleCoins(true);
       this.gameStateService.advanceRound();
       this.queueCheckEvolutionAfterImportantBattle();
       this.awardMegaStoneAfterImportantBattle();
@@ -759,11 +808,13 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   exploreCave(): void {
+    this.awardCardCoins();
     this.gameStateService.setNextState('explore-cave');
     this.finishCurrentState();
   }
 
   snorlaxEncounter(): void {
+    this.awardCardCoins();
     this.gameStateService.setNextState('snorlax-encounter');
     this.finishCurrentState();
   }
@@ -782,11 +833,13 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   goFishing(): void {
+    this.awardCardCoins();
     this.gameStateService.setNextState('go-fishing');
     this.finishCurrentState();
   }
 
   findFossil(): void {
+    this.awardCardCoins();
     this.gameStateService.setNextState('find-fossil');
     this.finishCurrentState();
   }
@@ -900,6 +953,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   rivalBattleResult(result: boolean): void {
     if (result) {
       this.statsService.recordBattleWin('rival');
+      this.awardBattleCoins(false);
       this.chooseWhoWillEvolve('battle-rival');
     } else {
       // A rival loss never ends the run on its own — it faints the lead
@@ -1048,6 +1102,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
     if (result) {
       this.statsService.recordBattleWin('eliteFour');
+      this.awardBattleCoins(true);
       this.gameStateService.advanceRound();
       this.queueCheckEvolutionAfterImportantBattle();
       this.awardMegaStoneAfterImportantBattle();

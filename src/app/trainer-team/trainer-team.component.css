@@ -98,6 +98,82 @@
   cursor: help;
 }
 
+/* Coin counter (New Experience only). Carries its own amber background + dark
+   text so it stays legible on the semi-transparent light box in both the light
+   and dark page themes; the border/shadow class toggle matches its siblings. */
+.coin-counter {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.3em 0.75em;
+  background: linear-gradient(135deg, #ffe9a8, #ffd257);
+  color: #5c4400;
+  font-weight: 600;
+  cursor: help;
+  width: fit-content;
+}
+
+.coin-counter .coin-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.coin-counter .coin-amount {
+  font-size: 1.15em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.coin-counter .coin-label {
+  font-size: 0.85em;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* "+N" floater that rises and fades on each gain, plus a brief pulse of the pill. */
+.coin-counter .coin-gain {
+  position: absolute;
+  right: 0.5em;
+  top: -0.2em;
+  color: #1b7a2f;
+  font-weight: 800;
+  font-size: 0.95em;
+  pointer-events: none;
+  animation: coin-gain-float 1.5s ease-out forwards;
+}
+
+.coin-counter:has(.coin-gain) {
+  animation: coin-pulse 0.5s ease-out;
+}
+
+@keyframes coin-gain-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1.4em);
+  }
+}
+
+@keyframes coin-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes pokemon-show {
   0% {
     transform: scale(0);

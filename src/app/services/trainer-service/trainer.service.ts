@@ -118,6 +118,15 @@ export class TrainerService implements OnDestroy {
 
   private trainerBadgesObservable = new BehaviorSubject<Badge[]>(this.trainerBadges);
 
+  /**
+   * Per-run Market currency (New Experience only). A plain number mirroring the
+   * badges/items state pattern: mutated only through the methods below, each of
+   * which re-emits on coinsObservable so the strip counter + run persistence
+   * stay in sync. Reset to 0 per run via resetCoins (see startFreshRun).
+   */
+  private coins = 0;
+  private coinsObservable = new BehaviorSubject<number>(this.coins);
+
   ngOnDestroy(): void {
     this.gameStateSubscription.unsubscribe();
   }
@@ -404,6 +413,37 @@ export class TrainerService implements OnDestroy {
     return this.megaBattleBaseId;
   }
 
+  // ── Mega battle-state persistence (see run-persistence) ────────────────────
+  // These three fields are the transient revert bookkeeping. Applying a mega
+  // mutates trainerTeam (which the run saves), so the mega form gets persisted;
+  // without also persisting the original + base id, a reload while mega'd leaves
+  // revertMegaForms with nothing to restore and the mega becomes permanent.
+
+  getMegaBattleStoneName(): MegaStoneItemName | null {
+    return this.megaBattleStoneName;
+  }
+
+  getMegaBattleOriginalPokemon(): PokemonItem | null {
+    return this.megaBattleOriginalPokemon;
+  }
+
+  /** Bulk-restores the mega battle state from a saved run. */
+  restoreMegaBattleState(
+    baseId: number | null,
+    stoneName: MegaStoneItemName | null,
+    originalPokemon: PokemonItem | null
+  ): void {
+    this.megaBattleBaseId = baseId;
+    this.megaBattleStoneName = stoneName;
+    this.megaBattleOriginalPokemon = originalPokemon;
+  }
+
+  resetMegaBattleState(): void {
+    this.megaBattleBaseId = null;
+    this.megaBattleStoneName = null;
+    this.megaBattleOriginalPokemon = null;
+  }
+
   /** Returns true when any current team member is in a mega form. */
   hasActiveMegaFormInTeam(): boolean {
     const megaFormIds = new Set<number>();
@@ -480,6 +520,41 @@ export class TrainerService implements OnDestroy {
   resetBadges() {
     this.trainerBadges = [];
     this.trainerBadgesObservable.next(this.trainerBadges);
+  }
+
+  getCoins(): number {
+    return this.coins;
+  }
+
+  getCoinsObservable(): Observable<number> {
+    return this.coinsObservable.asObservable();
+  }
+
+  addCoins(amount: number): void {
+    if (amount <= 0) return;
+    this.coins += amount;
+    this.coinsObservable.next(this.coins);
+  }
+
+  /** Deducts `amount` only if affordable; returns whether the purchase went through. */
+  spendCoins(amount: number): boolean {
+    if (amount <= 0 || amount > this.coins) {
+      return false;
+    }
+    this.coins -= amount;
+    this.coinsObservable.next(this.coins);
+    return true;
+  }
+
+  resetCoins(): void {
+    this.coins = 0;
+    this.coinsObservable.next(this.coins);
+  }
+
+  /** Bulk-overwrites the coin balance from a saved run. */
+  restoreCoins(amount: number): void {
+    this.coins = amount;
+    this.coinsObservable.next(this.coins);
   }
 
   // Applies all battle-entry transforms in one pass with a single emit.

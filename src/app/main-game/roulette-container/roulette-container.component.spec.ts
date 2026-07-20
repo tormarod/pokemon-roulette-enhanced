@@ -29,6 +29,7 @@ import { MarkedTargetService } from '../../services/marked-target-service/marked
 import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
+import { battleWinReward, PASSIVE_PER_ROUND, CARD_COIN_MIN, CARD_COIN_MAX } from './economy-config';
 
 describe('RouletteContainerComponent', () => {
   let component: RouletteContainerComponent;
@@ -1247,6 +1248,72 @@ describe('RouletteContainerComponent', () => {
       fixture.detectChanges();
 
       expect(openSpy).toHaveBeenCalledTimes(2); // champion's presentation modal now opened
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Coin economy (Phase 2 — earning)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('coin economy', () => {
+    it('a gym win grants the round-scaled drop plus the per-round stipend in New Experience mode', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetCoins();
+
+      component.gymBattleResult(true); // round 0
+
+      expect(trainerService.getCoins()).toBe(battleWinReward(0) + PASSIVE_PER_ROUND);
+    });
+
+    it('a gym win grants no coins in Classic mode', () => {
+      gameStateService.resetGameState(false);
+      trainerService.resetCoins();
+
+      component.gymBattleResult(true);
+
+      expect(trainerService.getCoins()).toBe(0);
+    });
+
+    it('a rival win grants the win drop but no per-round stipend', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetTeam();
+      trainerService.addToTeam({
+        pokemonId: 1, text: 'pokemon.bulbasaur', fillStyle: 'green',
+        sprite: null, shiny: false, power: 1, weight: 1
+      } as any);
+      trainerService.resetCoins();
+
+      component.rivalBattleResult(true);
+
+      expect(trainerService.getCoins()).toBe(battleWinReward(0));
+    });
+
+    it('an exploreCave card grants a coin bonus within the card range in New Experience mode', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetCoins();
+
+      component.exploreCave();
+
+      expect(trainerService.getCoins()).toBeGreaterThanOrEqual(CARD_COIN_MIN);
+      expect(trainerService.getCoins()).toBeLessThanOrEqual(CARD_COIN_MAX);
+    });
+
+    it('an exploreCave card grants no coins in Classic mode', () => {
+      gameStateService.resetGameState(false);
+      trainerService.resetCoins();
+
+      component.exploreCave();
+
+      expect(trainerService.getCoins()).toBe(0);
+    });
+
+    it('multitask grants no coins (cannot be farmed for the stipend)', () => {
+      gameStateService.resetGameState(true);
+      trainerService.resetCoins();
+
+      component.multitask();
+
+      expect(trainerService.getCoins()).toBe(0);
     });
   });
 });

@@ -301,6 +301,10 @@
         "fails": "El Team Rocket fracasa"
       },
       "altPrizes": {
+        "foundCoins": {
+          "title": "¡Encontraste Monedas!",
+          "desc": "Te embolsaste {{amount}} Monedas. ¡Gástalas en el Mercado!"
+        },
         "gymBattle": {
           "potion": "¡Recibiste una Poción de Bono!",
           "potionDesc": "Como no era posible evolucionar, obtén la mejor Poción que tu dinero puede comprar."
@@ -398,6 +402,7 @@
             "catchPokemon": "Capturar un Pokémon",
             "battleTrainer": "Batalla de Entrenador",
             "buyPotions": "Comprar Pociones",
+            "foundCoins": "Monedas Encontradas",
             "catchTwoPokemon": "Capturar dos Pokémon",
             "visitDaycare": "Visitar la Guardería",
             "teamRocket": "Equipo Rocket",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 No cuando este Pokémon está en desventaja de tipo." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Sí, siempre." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 No, siempre." }
+  },
+  "market": {
+    "title": "Mercado",
+    "access": "Mercado",
+    "unavailable": "El Mercado está cerrado durante el combate.",
+    "subtitle": "Gasta tus monedas para reforzar tu equipo.",
+    "buy": "Comprar",
+    "close": "Cerrar",
+    "capsule": {
+      "name": "Cápsula de Habilidad",
+      "description": "Una Cápsula de Habilidad aleatoria: asígnala a un miembro del equipo en el PC para una ventaja permanente."
+    }
   },
   "items": {
     "title": "Objetos",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Marcado",
-      "markedTooltip": "Objetivo Marcado: debe liderar tu próximo combate."
+      "markedTooltip": "Objetivo Marcado: debe liderar tu próximo combate.",
+      "coins": "Monedas",
+      "coinsTooltip": "Monedas ganadas por victorias, aventuras y en cada ronda. Gástalas en el Mercado en pociones, Ataque X, Cápsulas de Habilidad, Revivir y Caramelos Raros."
     },
     "storage": {
       "access": "Acceder al PC",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Versión 2.1.0",
   "v2_2_0": "Versión 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versión 3.5.0",
   "v3_4_0": "Versión 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v3_7_0": {
+      "0": "🪙 Gana Monedas por victorias, aventuras y un pequeño estipendio cada ronda.",
+      "1": "🏪 Gasta Monedas en el nuevo Mercado: pociones, Ataque X, Cápsulas de Habilidad, Revivir y Caramelos Raros para reforzar tu equipo, en cualquier momento fuera del combate.",
+      "2": "🧬 Corregido un error por el que una Megaevolución podía volverse permanente al recargar en mitad de un combate, impidiendo usar cualquier otra Piedra Activadora."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."

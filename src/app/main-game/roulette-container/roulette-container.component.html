@@ -261,6 +261,21 @@
     </div>
 </ng-template>
 
+<ng-template #coinsFoundModal let-modal>
+    <div class="modal-body">
+        <h1>{{ 'game.main.altPrizes.foundCoins.title' | translate }}</h1>
+        <div class="item-panel">
+            <span style="font-size: 96px; line-height: 1;" aria-hidden="true">🪙</span>
+            <div class="message">
+                <p>{{ 'game.main.altPrizes.foundCoins.desc' | translate:{ amount: coinsFoundAmount } }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
+    </div>
+</ng-template>
+
 <ng-template #pkmnEvoModal let-modal>
     <div class="modal-body">
         <h1>{{ pkmnEvoTitle | translate }}</h1>

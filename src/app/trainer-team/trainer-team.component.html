@@ -62,9 +62,27 @@
                          </div>
                     }
                </div>
+               @if (isNewExperienceMode) {
+                    <div class="col-12 p-0">
+                         <div class="coin-counter rounded-3"
+                              [ngClass]="(darkMode | async) ? 'border white-shadow' : 'black-border shadow'"
+                              placement="bottom"
+                              container="body"
+                              ngbTooltip="{{ 'trainer.team.coinsTooltip' | translate }}"
+                              triggers="hover click">
+                              <span class="coin-icon" aria-hidden="true">🪙</span>
+                              <span class="coin-amount">{{ coins }}</span>
+                              <span class="coin-label">{{ 'trainer.team.coins' | translate }}</span>
+                              @if (coinGain !== null) {
+                                   <span class="coin-gain" aria-hidden="true">+{{ coinGain }}</span>
+                              }
+                         </div>
+                    </div>
+               }
                <div class="col-12 p-0 d-flex flex-column flex-md-row gap-2">
                     <app-storage-pc></app-storage-pc>
                     <app-pokedex></app-pokedex>
+                    <app-market></app-market>
                </div>
           </div>
     </div>

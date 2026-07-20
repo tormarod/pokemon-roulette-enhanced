@@ -106,6 +106,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -170,6 +174,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -238,6 +246,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -307,6 +319,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -373,6 +389,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 2,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -437,6 +457,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: 1,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -501,6 +525,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0.35,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -533,6 +561,126 @@ describe('RunPersistenceService', () => {
 
     const restoredCatchRiskService = TestBed.inject(CatchRiskService);
     expect(restoredCatchRiskService.currentEscapeChance).toBe(0);
+  });
+
+  it('should save the coin balance to localStorage when it changes', () => {
+    trainerService.addCoins(25);
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.coins).toBe(25);
+  });
+
+  it('should restore the coin balance from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 42,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.getCoins()).toBe(42);
+  });
+
+  it('should default coins to 0 when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.getCoins()).toBe(0);
+  });
+
+  it('reverts a persisted active mega form after restore then leaving battle (regression)', () => {
+    // Simulates a reload while a Venusaur (base id 3) is mega-evolved (id 10033):
+    // the mega team is saved along with the mega battle state. Without persisting
+    // that state, revert had nothing to restore and the mega became permanent.
+    const megaTeam = [{
+      pokemonId: 10033, text: 'pokemon.venusaur-mega', fillStyle: 'green',
+      sprite: null, shiny: false, power: 5, weight: 1
+    }];
+    const original = {
+      pokemonId: 3, text: 'pokemon.venusaur', fillStyle: 'green',
+      sprite: null, shiny: false, power: 3, weight: 1
+    };
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: megaTeam as any,
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: 3,
+      megaBattleStoneName: 'venusaurite',
+      megaBattleOriginalPokemon: original as any,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    const restoredGameStateService = TestBed.inject(GameStateService);
+
+    // Restored mid-battle: the mega form is still active.
+    expect(restoredTrainerService.getTeam()[0].pokemonId).toBe(10033);
+
+    // Leaving the battle now reverts, because the original was restored.
+    restoredGameStateService.setNextState('adventure-continues');
+    restoredGameStateService.finishCurrentState();
+    expect(restoredTrainerService.getTeam()[0].pokemonId).toBe(3);
   });
 
   // ── Terminal states clear the save instead of persisting it ────────────
@@ -580,6 +728,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -628,6 +780,10 @@ describe('RunPersistenceService', () => {
       pendingBattleDebuff: 0,
       markedTeamIndex: null,
       pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
