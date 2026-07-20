@@ -16,6 +16,8 @@
           [cdkDropListEnterPredicate]="teamIsFullPredicate">
           @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
             <div  class="pokemon-storage-card shadow"
+                  [class.marked-card]="isNewExperienceMode && idx === markedIndex"
+                  [cdkDragDisabled]="isNewExperienceMode && idx === markedIndex"
                   cdkDrag>
               <img class="img-fluid"
                    [src]="getSprite(pokemon)"

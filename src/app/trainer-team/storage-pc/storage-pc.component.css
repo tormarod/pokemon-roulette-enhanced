@@ -78,6 +78,12 @@
   padding: 1px 6px;
 }
 
+/* Marked Target lock (New Experience only) — the marked team member can't be
+   dragged out to storage or reordered away; see cdkDragDisabled binding. */
+.marked-card {
+  cursor: default;
+}
+
 /* Marked Target badge (New Experience only) — same stacked block-line convention
    as .ability-badge below, distinct color so the two read apart at a glance. */
 .marked-badge {

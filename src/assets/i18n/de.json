@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Markiert",
-      "markedTooltip": "Markiertes Ziel: muss deinen nächsten Kampf anführen.",
+      "markedTooltip": "Markiertes Ziel: festgelegt – muss deinen nächsten Kampf anführen und kann nicht ausgetauscht oder eingelagert werden.",
       "coins": "Münzen",
       "coinsTooltip": "Münzen aus Siegen, Abenteuern und jeder Runde. Gib sie im Markt für Tränke, X-Angriff, Fähigkeits-Kapseln, Beleber und Sonderbonbons aus."
     },

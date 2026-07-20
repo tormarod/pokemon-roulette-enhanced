@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Marcado",
-      "markedTooltip": "Alvo Marcado: deve liderar sua próxima batalha.",
+      "markedTooltip": "Alvo Marcado: travado — deve liderar sua próxima batalha e não pode ser enviado ao PC nem trocado.",
       "coins": "Moedas",
       "coinsTooltip": "Moedas ganhas em vitórias, aventuras e a cada rodada. Gaste-as no Mercado em poções, Ataque X, Cápsulas de Habilidade, Reviver e Doces Raros."
     },

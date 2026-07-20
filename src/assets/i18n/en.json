@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Marked",
-      "markedTooltip": "Marked Target: must lead your next battle.",
+      "markedTooltip": "Marked Target: locked in — must lead your next battle and can't be benched or swapped.",
       "coins": "Coins",
       "coinsTooltip": "Coins earned from wins, adventures and each round. Spend them at the Market on potions, X Attacks, Ability Capsules, Revives and Rare Candies."
     },
