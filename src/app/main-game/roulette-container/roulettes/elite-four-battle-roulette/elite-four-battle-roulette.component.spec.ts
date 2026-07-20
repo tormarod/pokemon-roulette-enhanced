@@ -246,5 +246,29 @@ describe('EliteFourBattleRouletteComponent', () => {
 
       expect(battlePrepService.getPendingPrep()).toBeNull();
     });
+
+    // Elite Four reuses the SAME component instance across all 4 members (the
+    // state stack pushes 'elite-four-battle' four times in a row with nothing
+    // interleaved, unlike gym rounds which get a fresh instance each round) —
+    // so the once-per-battle Serene Grace retry must re-arm on every member,
+    // not fire only on whichever one first computes it.
+    it('re-grants the Serene Grace free retry on each Elite Four member, not just the first', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 2, ability: 'serene-grace' }));
+      component.currentRound = 0;
+
+      gameStateService.setNextState('elite-four-battle');
+      gameStateService.finishCurrentState();
+      expect((component as any).retries).toBe(2);
+
+      // Simulate the retry having been spent during member 1's battle.
+      (component as any).retries = 0;
+
+      // Member 2: a fresh 'elite-four-battle' entry on the SAME component instance.
+      component.currentRound = 1;
+      gameStateService.setNextState('elite-four-battle');
+      gameStateService.finishCurrentState();
+
+      expect((component as any).retries).toBe(2);
+    });
   });
 });

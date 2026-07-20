@@ -274,6 +274,12 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   /** Called for every game state change. Subclass checks its own trigger state. */
   protected onGameStateChange(state: string): void | Promise<void> {
     if (state !== this.battleKey) return;
+    // Elite Four (and any future multi-round battle sharing one component
+    // instance across rounds, see prepareOpponentForRound) re-enters this
+    // battleKey once per member without the component being recreated — reset
+    // here so the once-per-battle retry re-arms for each new round instead of
+    // firing only on whichever round first computed it.
+    this.abilityRetryGranted = false;
     this.prepareOpponentForRound();
     const pending = this.battlePrepService.getPendingPrep();
     const committed = !!pending && pending.battleKey === this.battleKey;
