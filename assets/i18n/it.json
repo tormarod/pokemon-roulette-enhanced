@@ -301,6 +301,10 @@
         "fails": "Il Team Rocket fallisce"
       },
       "altPrizes": {
+        "foundCoins": {
+          "title": "Hai trovato Monete!",
+          "desc": "Hai intascato {{amount}} Monete. Spendile al Mercato!"
+        },
         "gymBattle": {
           "potion": "Hai ottenuto una Pozione Bonus!",
           "potionDesc": "Dato che non era possibile alcuna evoluzione, ottieni la migliore Pozione che i tuoi soldi possano comprare!"
@@ -398,6 +402,7 @@
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
             "buyPotions": "Compra Pozioni",
+            "foundCoins": "Monete Trovate",
             "catchTwoPokemon": "Cattura due Pokémon",
             "visitDaycare": "Pensione Pokémon",
             "teamRocket": "Incontro con Team Rocket",
@@ -668,6 +673,18 @@
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 No quando questo Pokémon è in svantaggio di tipo." },
     "sand-rush": { "name": "Sand Rush", "description": "+1 Sì, sempre." },
     "cursed-body": { "name": "Cursed Body", "description": "-1 No, sempre." }
+  },
+  "market": {
+    "title": "Mercato",
+    "access": "Mercato",
+    "unavailable": "Il Mercato è chiuso durante la battaglia.",
+    "subtitle": "Spendi le tue monete per potenziare la squadra.",
+    "buy": "Compra",
+    "close": "Chiudi",
+    "capsule": {
+      "name": "Capsula Abilità",
+      "description": "Una Capsula Abilità casuale — assegnala a un membro della squadra nel PC per un vantaggio permanente."
+    }
   },
   "items": {
     "title": "Strumenti",
@@ -1111,7 +1128,9 @@
   "trainer": {
     "team": {
       "marked": "Marcato",
-      "markedTooltip": "Bersaglio Marcato: deve guidare la tua prossima battaglia."
+      "markedTooltip": "Bersaglio Marcato: deve guidare la tua prossima battaglia.",
+      "coins": "Monete",
+      "coinsTooltip": "Monete guadagnate da vittorie, avventure e ogni round. Spendile al Mercato per pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare."
     },
     "storage": {
       "access": "Accedi al PC",
@@ -3119,6 +3138,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versione 3.5.0",
   "v3_4_0": "Versione 3.4.0",
@@ -3129,6 +3149,11 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_7_0": {
+      "0": "🪙 Guadagna Monete da vittorie, avventure e un piccolo compenso a ogni round.",
+      "1": "🏪 Spendi le Monete al nuovo Mercato — pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare per potenziare la squadra, in qualsiasi momento fuori dalla battaglia.",
+      "2": "🧬 Corretto un bug per cui una Megaevoluzione poteva diventare permanente dopo un ricaricamento a metà battaglia, impedendo l'uso di qualsiasi altra Megapietra."
+    },
     "v3_6_0": {
       "0": "📈 See your exact battle win chance before every spin, on both the prep screen and the spin screen.",
       "1": "🔍 The battle screen now shows every hidden threat that shapes the odds — round threat, bad omens, and ability effects — not just the type matchup."
