@@ -1128,7 +1128,7 @@
   "trainer": {
     "team": {
       "marked": "Marcado",
-      "markedTooltip": "Objetivo Marcado: debe liderar tu próximo combate.",
+      "markedTooltip": "Objetivo Marcado: bloqueado — debe liderar tu próximo combate y no puede ser enviado al PC ni intercambiado.",
       "coins": "Monedas",
       "coinsTooltip": "Monedas ganadas por victorias, aventuras y en cada ronda. Gástalas en el Mercado en pociones, Ataque X, Cápsulas de Habilidad, Revivir y Caramelos Raros."
     },

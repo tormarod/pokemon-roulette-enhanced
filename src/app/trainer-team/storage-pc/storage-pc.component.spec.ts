@@ -251,5 +251,26 @@ describe('StoragePcComponent', () => {
 
       viewRef.destroy();
     });
+
+    it('disables dragging (bench/swap) only for the marked team member', () => {
+      const marked = makeTestPokemon({ pokemonId: 1 });
+      const other = makeTestPokemon({ pokemonId: 4 });
+      component.trainerTeam = [marked, other];
+      component.storedPokemon = [];
+      markedTargetService.setMark(0);
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+      const cards = rootNode.querySelectorAll('#trainerTeam .pokemon-storage-card');
+
+      expect(cards[0].classList.contains('marked-card')).toBeTrue();
+      expect(cards[0].classList.contains('cdk-drag-disabled')).toBeTrue();
+      expect(cards[1].classList.contains('marked-card')).toBeFalse();
+      expect(cards[1].classList.contains('cdk-drag-disabled')).toBeFalse();
+
+      viewRef.destroy();
+    });
   });
 });
