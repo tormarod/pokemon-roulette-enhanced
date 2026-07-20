@@ -170,4 +170,58 @@ describe('BattlePrepPanelComponent', () => {
 
     expect(emitted).toEqual({ leadIndex: 1, xAttackUsed: true });
   });
+
+  // ── oddsPreview: live win-chance preview, same computeOdds() as the wheel ──
+
+  it('computes a null preview for an empty team', () => {
+    component.team = [];
+    fixture.detectChanges();
+
+    expect(component.oddsPreview).toBeNull();
+  });
+
+  it('computes a non-null preview once a team is present', () => {
+    component.team = [makePokemon({ power: 2 })];
+    component.baseNoCount = 1;
+    component.currentRound = 0;
+    fixture.detectChanges();
+    component.selectLead(0);
+
+    expect(component.oddsPreview).not.toBeNull();
+    expect(component.oddsPreview?.yesTickets).toBe(3); // base(1) + power(2)
+  });
+
+  it('lowers the preview win chance when the lead switches from an advantaged to a disadvantaged member', () => {
+    const advantaged = makePokemon({ pokemonId: 1, power: 2, type1: 'water' }); // SE + resists fire
+    const disadvantaged = makePokemon({ pokemonId: 2, power: 2, type1: 'grass' }); // weak vs fire
+    component.team = [advantaged, disadvantaged];
+    component.opponentTypes = ['fire'];
+    component.baseNoCount = 1;
+    component.currentRound = 0;
+    fixture.detectChanges();
+
+    component.selectLead(0);
+    const advantagedChance = component.oddsPreview!.winChance;
+
+    component.selectLead(1);
+    const disadvantagedChance = component.oddsPreview!.winChance;
+
+    expect(disadvantagedChance).toBeLessThan(advantagedChance);
+  });
+
+  it('raises the preview win chance when x-attack is toggled on', () => {
+    component.team = [makePokemon({ power: 2 })];
+    component.items = [makeItem({ name: 'x-attack' })];
+    component.baseNoCount = 1;
+    component.currentRound = 0;
+    fixture.detectChanges();
+
+    component.selectLead(0);
+    const withoutXAttack = component.oddsPreview!.winChance;
+
+    component.toggleXAttack();
+    const withXAttack = component.oddsPreview!.winChance;
+
+    expect(withXAttack).toBeGreaterThan(withoutXAttack);
+  });
 });

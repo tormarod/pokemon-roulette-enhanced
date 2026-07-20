@@ -37,7 +37,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Output() catchPokemonEvent = new EventEmitter<void>();
   @Output() battleTrainerEvent = new EventEmitter<EventSource>();
   @Output() buyPotionsEvent = new EventEmitter<void>();
-  @Output() doNothingEvent = new EventEmitter<void>();
   @Output() catchTwoPokemonEvent = new EventEmitter<void>();
   @Output() visitDaycareEvent = new EventEmitter<EventSource>();
   @Output() teamRocketEncounterEvent = new EventEmitter<void>();
@@ -198,14 +197,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.generationSubscription?.unsubscribe();
     this.gameStateSubscription?.unsubscribe();
-  }
-
-  onGoStraight(): void {
-    // Bypasses whatever was drawn — clear it so a stale draw can't resurface
-    // the next time 'adventure-continues' is entered. No-op in Classic mode
-    // (the service is simply never populated there).
-    this.adventureDrawService.clearDraw();
-    this.doNothingEvent.emit();
   }
 
   onCandidatePicked(index: number): void {

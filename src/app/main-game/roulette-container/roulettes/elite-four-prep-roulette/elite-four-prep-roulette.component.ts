@@ -36,7 +36,6 @@ export class EliteFourPrepRouletteComponent implements OnInit {
   @Output() catchThreePokemonEvent = new EventEmitter<void>();
   @Output() legendaryEncounterEvent = new EventEmitter<void>();
   @Output() findItemEvent = new EventEmitter<void>();
-  @Output() doNothingEvent = new EventEmitter<void>();
   @Output() teamRocketEncounterEvent = new EventEmitter<void>();
 
   actions: WheelItem[] = [

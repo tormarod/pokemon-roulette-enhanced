@@ -48,3 +48,17 @@
 .matchup-delta-negative {
     color: #c62828;
 }
+
+.odds-winchance {
+    font-size: medium;
+    font-weight: bold;
+}
+
+.odds-breakdown {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 10px;
+}

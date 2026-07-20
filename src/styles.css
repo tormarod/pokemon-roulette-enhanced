@@ -112,7 +112,7 @@ body.theme-starters .achievement-tile {
   margin-right: 0px;
 }
 
-/* ── Roulette header (Go Straight / wheel-position consistency) ─────────────
+/* ── Roulette header (wheel-position consistency) ────────────────────────────
    Reserves a fixed-height area for the title/subtitle/matchup-panel above
    every wheel. Content is top-aligned, so the title always starts at the same
    vertical position across every screen; because the container height is
@@ -127,13 +127,14 @@ body.theme-starters .achievement-tile {
   gap: 4px;
 }
 
-/* ── Roulette action row (Go Straight button slot) ───────────────────────────
-   Only 3 of ~28 wheel screens render a "Go Straight" button below the wheel.
-   On mobile, the team panel stacks directly below the roulette content (see
+/* ── Roulette action row (below-wheel button slot) ───────────────────────────
+   Most wheel screens render this row empty, purely as a spacer; a couple
+   (e.g. generation-roulette's choice buttons) put content in it. On mobile,
+   the team panel stacks directly below the roulette content (see
    main-game.component.html — the columns are only side-by-side at sm+), so
-   any screen that's taller because it has this button pushes the team panel
+   any screen that's taller because it has content here pushes the team panel
    down relative to screens that don't. Reserving this row's height on every
-   screen — whether or not it actually renders a button — keeps total content
+   screen — whether or not it actually renders anything — keeps total content
    height (and therefore the team panel's position) consistent everywhere. */
 .roulette-action-row {
   min-height: 56px;

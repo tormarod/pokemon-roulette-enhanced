@@ -91,7 +91,7 @@ describe('RouletteContainerComponent', () => {
       component.multitask(); // shows the first bonus round
       expect(states[states.length - 1]).toBe('adventure-continues');
 
-      component.doNothing(); // resolve round 1 with a bare pop (like "Go Straight")
+      component.doNothing(); // resolve round 1 with a bare pop
       expect(states[states.length - 1]).toBe('adventure-continues');
 
       component.doNothing(); // resolve round 2 with a bare pop

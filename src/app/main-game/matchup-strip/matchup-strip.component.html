@@ -1,4 +1,24 @@
 <div class="matchup-strip">
+    @if (odds) {
+        <div class="odds-winchance">{{ 'game.main.roulette.odds.winChance' | translate }}: {{ (odds.winChance * 100) | number:'1.0-0' }}%</div>
+        <div class="odds-breakdown">
+            <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.roundThreat' | translate }}: -{{ odds.no.base + odds.no.roundThreat }}</span>
+            @if (odds.no.badOmen > 0) {
+                <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.badOmen' | translate }}: -{{ odds.no.badOmen }}</span>
+            }
+            @if (odds.no.ability !== 0) {
+                <span class="matchup-delta" [class.matchup-delta-negative]="odds.no.ability > 0" [class.matchup-delta-positive]="odds.no.ability < 0">
+                    {{ 'game.main.roulette.odds.ability' | translate }}: {{ odds.no.ability > 0 ? '+' : '' }}{{ odds.no.ability }}
+                </span>
+            }
+            @if (odds.yes.ability > 0) {
+                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.ability' | translate }}: +{{ odds.yes.ability }}</span>
+            }
+            @if (odds.yes.xAttack > 0) {
+                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.xAttack' | translate }}: +{{ odds.yes.xAttack | number:'1.0-1' }}</span>
+            }
+        </div>
+    }
     <div class="matchup-icons-row">
         @for (type of opponentTypes; track $index) {
             <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">

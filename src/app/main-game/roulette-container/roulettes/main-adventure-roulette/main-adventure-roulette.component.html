@@ -13,19 +13,10 @@
             }
         </div>
     }
-    <div class="roulette-action-row">
-        <button type="button" class="btn btn-warning go-straight-button" (click)="onGoStraight()">
-            {{ 'game.main.roulette.adventure.actions.goStraight' | translate }}
-        </button>
-    </div>
 } @else {
     <app-wheel  #wheel
                 [items]="actions"
                 (selectedItemEvent)="onItemSelected($event)">
     </app-wheel>
-    <div class="roulette-action-row">
-        <button type="button" class="btn btn-warning go-straight-button" [disabled]="wheel.spinning" (click)="doNothingEvent.emit()">
-            {{ 'game.main.roulette.adventure.actions.goStraight' | translate }}
-        </button>
-    </div>
 }
+<div class="roulette-action-row"></div>

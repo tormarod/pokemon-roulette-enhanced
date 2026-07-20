@@ -16,7 +16,6 @@ export class StartAdventureRouletteComponent {
   @Output () catchPokemonEvent = new EventEmitter<void>();
   @Output () battleTrainerEvent = new EventEmitter<EventSource>();
   @Output () buyPotionsEvent = new EventEmitter<void>();
-  @Output () doNothingEvent = new EventEmitter<void>();
 
   actions: WheelItem[] = [
     { text: 'game.main.roulette.start.actions.catchPokemon', fillStyle: 'crimson', weight: 3 },

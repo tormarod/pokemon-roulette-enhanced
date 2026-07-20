@@ -3,8 +3,4 @@
             [items]="actions"
             (selectedItemEvent)="onItemSelected($event)">
 </app-wheel>
-<div class="roulette-action-row">
-    <button type="button" class="btn btn-warning go-straight-button" [disabled]="wheel.spinning" (click)="doNothingEvent.emit()">
-        {{ 'game.main.roulette.start.actions.goStraight' | translate }}
-    </button>
-</div>
+<div class="roulette-action-row"></div>

@@ -39,6 +39,27 @@
         }
     </div>
 
+    @if (oddsPreview) {
+        <div class="odds-winchance">{{ 'game.main.roulette.odds.winChance' | translate }}: {{ (oddsPreview.winChance * 100) | number:'1.0-0' }}%</div>
+        <div class="odds-breakdown">
+            <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.roundThreat' | translate }}: -{{ oddsPreview.no.base + oddsPreview.no.roundThreat }}</span>
+            @if (oddsPreview.no.badOmen > 0) {
+                <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.badOmen' | translate }}: -{{ oddsPreview.no.badOmen }}</span>
+            }
+            @if (oddsPreview.no.ability !== 0) {
+                <span class="matchup-delta" [class.matchup-delta-negative]="oddsPreview.no.ability > 0" [class.matchup-delta-positive]="oddsPreview.no.ability < 0">
+                    {{ 'game.main.roulette.odds.ability' | translate }}: {{ oddsPreview.no.ability > 0 ? '+' : '' }}{{ oddsPreview.no.ability }}
+                </span>
+            }
+            @if (oddsPreview.yes.ability > 0) {
+                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.ability' | translate }}: +{{ oddsPreview.yes.ability }}</span>
+            }
+            @if (oddsPreview.yes.xAttack > 0) {
+                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.xAttack' | translate }}: +{{ oddsPreview.yes.xAttack | number:'1.0-1' }}</span>
+            }
+        </div>
+    }
+
     <button type="button" class="btn btn-primary battle-prep-confirm" (click)="onConfirm()">
         {{ 'game.main.roulette.battlePrep.confirm' | translate }}
     </button>

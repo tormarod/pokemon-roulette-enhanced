@@ -8,7 +8,8 @@
             [resistTypes]="matchupResistTypes"
             [weakTypes]="matchupDisadvantageTypes"
             [advantageDelta]="matchupAdvantageDelta"
-            [disadvantageDelta]="matchupDisadvantageDelta" />
+            [disadvantageDelta]="matchupDisadvantageDelta"
+            [odds]="prepPhase ? null : currentOdds" />
     }
 </div>
 @if (prepPhase) {
@@ -17,6 +18,8 @@
         [opponentTypes]="currentElite?.types"
         [items]="trainerItems"
         [forcedIndex]="markedTargetService.currentMarkedIndex"
+        [baseNoCount]="baseNoCount"
+        [currentRound]="currentRound"
         (confirmed)="onPrepConfirmed($event)" />
 } @else {
     <app-wheel

@@ -1,8 +1,15 @@
 # Plan: Battle-odds transparency (win-chance % + threat breakdown)
 
-Status: **Not started.**
+Status: **Done — all 4 phases shipped.**
 Owner: tormarod
 Last updated: 2026-07-20
+
+**Post-completion refinement (2026-07-20):** the `roundThreat` breakdown row
+now displays `odds.no.base + odds.no.roundThreat` (not `roundThreat` alone),
+and always renders (not gated on `> 0`) — the base No ticket was previously
+invisible in the breakdown, so the row's number didn't sum to the wheel's
+actual No count. See `MatchupStripComponent`/`BattlePrepPanelComponent`
+templates and their specs.
 
 ## Why
 
@@ -199,7 +206,7 @@ and `yes.typeAdvantage` are for *display* and together describe `yesPower + lead
 
 Checkpoint after each phase; keep `npm run test:local` green between phases.
 
-- [ ] **Phase 1 — Extract `BattleOddsService` + rewire `buildVictoryOdds`.**
+- [x] **Phase 1 — Extract `BattleOddsService` + rewire `buildVictoryOdds`.**
   Create the service above with its own spec (`battle-odds.service.spec.ts`)
   porting the numeric cases from `base-battle-roulette.component.spec.ts` (empty
   team, mutual-advantage, mutual-disadvantage, lead doubling both directions,
@@ -214,7 +221,7 @@ Checkpoint after each phase; keep `npm run test:local` green between phases.
   `!types.length`, else the result). The existing `base-battle-roulette.component.spec.ts`
   must stay green **unchanged** — this proves the refactor is behavior-neutral.
 
-- [ ] **Phase 2 — Matchup strip: win % headline + breakdown.**
+- [x] **Phase 2 — Matchup strip: win % headline + breakdown.**
   Add to `MatchupStripComponent`: `@Input() odds: BattleOddsBreakdown | null = null;`
   (import the interface). In the template, when `odds` is non-null, render above the
   existing type sections:
@@ -232,7 +239,7 @@ Checkpoint after each phase; keep `npm run test:local` green between phases.
   the prep panel owns the % so the strip suppresses its headline). Add a strip spec
   asserting the headline renders for a non-null `odds` and is absent for `null`.
 
-- [ ] **Phase 3 — Prep panel: live win-chance preview.**
+- [x] **Phase 3 — Prep panel: live win-chance preview.**
   In `BattlePrepPanelComponent`: add `@Input() baseNoCount = 1;` and
   `@Input() currentRound = 0;`; inject `BattleOddsService`, `BattleDebuffService`,
   `GameStateService`. Add a cached field `oddsPreview: BattleOddsBreakdown | null = null;`
@@ -247,7 +254,7 @@ Checkpoint after each phase; keep `npm run test:local` green between phases.
   cases: win % updates when `selectLead` switches to an advantaged vs disadvantaged
   member, and when `toggleXAttack` flips.
 
-- [ ] **Phase 4 — i18n + release notes + docs.**
+- [x] **Phase 4 — i18n + release notes + docs.**
   Add keys to `en.json` (real) and the other five locales (English placeholder):
   `game.main.roulette.odds.winChance` ("Win chance"), `.roundThreat` ("Round threat"),
   `.badOmen` ("Bad omen"), `.ability` ("Ability"), `.xAttack` ("X Attack"),

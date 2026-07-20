@@ -76,35 +76,7 @@ describe('MainAdventureRouletteComponent', () => {
     expect(component.areaZeroEvent.emit).toHaveBeenCalled();
   });
 
-  it('should not include Go Straight as a wheel option', () => {
-    expect(component.actions.some(action => action.text === 'game.main.roulette.adventure.actions.goStraight')).toBeFalse();
-  });
-
-  it('should emit doNothingEvent directly from the standalone Go Straight button, bypassing the wheel', () => {
-    spyOn(component.doNothingEvent, 'emit');
-
-    fixture.nativeElement.querySelector('button.go-straight-button').click();
-
-    expect(component.doNothingEvent.emit).toHaveBeenCalled();
-  });
-
-  it('should disable the Go Straight button while the wheel is spinning', () => {
-    const wheel = fixture.debugElement.query(By.directive(WheelComponent)).componentInstance as WheelComponent;
-
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button.go-straight-button');
-    expect(button.disabled).toBeFalse();
-
-    wheel.spinning = true;
-    fixture.detectChanges();
-    expect(button.disabled).toBeTrue();
-
-    wheel.spinning = false;
-    fixture.detectChanges();
-    expect(button.disabled).toBeFalse();
-  });
-
-  // ── onItemSelected: every remaining wheel index must map to its correct event ──
-  // (regression coverage for re-indexing after removing Go Straight from the array)
+  // ── onItemSelected: every wheel index must map to its correct event ──
 
   it('should map every base action index to its correct event, in order', () => {
     const emitterNames = [
@@ -293,18 +265,6 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     const secondDraw = adventureDrawService.getPendingDraw();
     expect(secondDraw).toBeTruthy();
     expect(component.candidates.length).toBe(3);
-  });
-
-  it('onGoStraight should clear the pending draw and emit doNothingEvent', () => {
-    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
-    createFixture();
-    spyOn(component.doNothingEvent, 'emit');
-    expect(adventureDrawService.getPendingDraw()).toBeTruthy();
-
-    fixture.nativeElement.querySelector('button.go-straight-button').click();
-
-    expect(component.doNothingEvent.emit).toHaveBeenCalled();
-    expect(adventureDrawService.getPendingDraw()).toBeNull();
   });
 
   // ── V2 Part A phase 3: threat pool ──────────────────────────────────────
