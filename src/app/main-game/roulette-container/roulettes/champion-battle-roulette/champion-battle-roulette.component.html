@@ -27,7 +27,7 @@
 }
 <div class="roulette-action-row"></div>
 
-<ng-template #championPresentationModal let-modal>
+<ng-template #presentationModalRef let-modal>
     <div class="modal-body">
         <h1>{{ 'game.main.roulette.champion.champion' | translate }} {{ currentChampion.name | translate }}!</h1>
         <div class="champion-panel">
@@ -46,7 +46,7 @@
     </div>
 </ng-template>
 
-<ng-template #itemUsedModal let-modal>
+<ng-template #itemUsedModalRef let-modal>
     <div class="modal-body">
         <h1>{{ 'game.main.roulette.champion.use' | translate }} {{ currentItem.text | translate}}!</h1>
         <div class="item-panel">
