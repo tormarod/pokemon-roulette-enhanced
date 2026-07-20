@@ -1,8 +1,8 @@
 # Plan: De-duplicate the four battle roulette components
 
-Status: **Not started.**
+Status: **All phases done.**
 Owner: tormarod
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 ## Goal
 
@@ -258,48 +258,174 @@ elite reads its map by `currentRound % 4`.
 
 Checkpoint after each phase; keep the full suite green between phases.
 
-- [ ] **Phase 1 — Base scaffolding.** Convert `BaseBattleRouletteComponent` to
-  `inject()`; add the hoisted `@Input`/`@Output`/`prepPhase`, the abstract hooks,
-  `finishBattleCleanup`, `meanTeamPower`, `resolveOpponentVariant`, and the base
-  `onItemSelected`/`onPrepConfirmed`/`onGameStateChange`/`calcVictoryOdds`. Leave
-  the abstract signatures for `onGameStateChange`/`calcVictoryOdds` as `override`-
-  able concrete methods now. Don't touch subclasses yet — suite still green
-  because nothing calls the new base methods.
+- [x] **Phase 1 — Base scaffolding.** Done 2026-07-20. Converted
+  `BaseBattleRouletteComponent` to `inject()`; added the hoisted `@Input`/
+  `@Output`/`prepPhase`, `finishBattleCleanup`, `meanTeamPower`,
+  `resolveOpponentVariant`, and the base `onItemSelected`/`onPrepConfirmed`/
+  `onGameStateChange`/`calcVictoryOdds`, `openPresentationModal`/
+  `openItemUsedModal`.
 
-- [ ] **Phase 2 — Migrate gym + elite-four.** These already use `ModalQueueService`,
-  so no modal risk. Delete their `onItemSelected`/`onGameStateChange`/`calcVictoryOdds`/
-  `onPrepConfirmed`/constructor; replace `getCurrentX()` with `prepareOpponentForRound()`
-  + the hooks. Rename their `@ViewChild` fields to `presentationModalRef`/`itemUsedModalRef`
-  (update the two `#…` refs in their `.html`). Run both specs.
+  **Two corrections to how this phase actually had to be scoped, found by
+  running `tsc --noEmit` against the literal plan text before trusting it:**
+  1. **Hooks are not TS `abstract`.** The plan's target API showed
+     `battleKey`/`textPrefix`/`baseNoCount`/`opponentTypes`/
+     `presentationModalRef`/`itemUsedModalRef`/`setCurrentOpponent`/
+     `prepareOpponentForRound` as `abstract`. That's impossible while any
+     subclass is still a concrete, non-abstract `@Component` that doesn't
+     implement them — TS fails the whole build, not just that file. They're
+     concrete members with inert placeholder bodies (empty / throw) instead.
+     Each becomes real either as fields Phase 2-4 subclasses set, or —
+     recommended for Phase 5 — converted to genuine `abstract` once all four
+     subclasses implement it, restoring the compile-time completeness check.
+  2. **"Don't touch subclasses yet" was not achievable either**, for a
+     different reason: `currentRound`, `battleResultEvent`, `prepPhase`, and
+     the three newly-hoisted services (`modalQueueService`, `battlePrepService`,
+     `markedTargetService`) already exist on all four subclasses today. The
+     base's own new method bodies need those fields to compile, and having
+     both base and subclass declare the same name collides (private/protected
+     mismatches, "must overwrite base property", and the constructor's
+     `super(...)` call losing its 8 positional params once the base moved to
+     `inject()`). Resolved by expanding Phase 1 to include a **mechanical-only**
+     edit to all four subclasses: deleted the now-redundant duplicate
+     `@Input`/`@Output`/`prepPhase` fields and constructors (base already
+     provides all of it via `inject()`), fixed 2 access-modifier collisions,
+     and added `override` to `onItemSelected`/`onPrepConfirmed`/
+     `onGameStateChange`/`calcVictoryOdds` (now overriding concrete base
+     methods, not abstract ones). **No method body logic changed** — every
+     subclass's `onItemSelected`/`onGameStateChange`/`calcVictoryOdds` is
+     still its own full override, byte-for-byte identical apart from the
+     `override` keyword; they just now resolve `this.modalQueueService` etc.
+     to the base's `inject()`'d field instead of a local one (same singleton
+     either way). Verified via `tsc --noEmit` on both `tsconfig.app.json` and
+     `tsconfig.spec.json`, `npm run build`, and `npm run test:local` (783/783,
+     matching the pre-change baseline exactly).
 
-- [ ] **Phase 3 — Migrate rival.** Same, plus `skipRetriesInClassicMode = true`,
-  `onFinalLoss()` → `applyFaintOnLoss()`, keep faint members. **Rival modal risk is
-  low** (its presentation modal at `battle-rival` entry, and `faintedModal`, are the
-  only modals in that flow) but is covered by the Phase 4 gate. Run rival spec +
-  the two gender regression tests already in `rival-battle-roulette.component.spec.ts`.
+- [x] **Phase 2 — Migrate gym + elite-four.** Done 2026-07-20. Deleted their
+  `onItemSelected`/`onGameStateChange`/`calcVictoryOdds`/`onPrepConfirmed`
+  method bodies; replaced `getCurrentLeader()`/`getCurrentElite()` with
+  `prepareOpponentForRound()` + the hooks (`battleKey`, `textPrefix`,
+  `baseNoCount`, `opponentTypes`, `setCurrentOpponent`). Renamed their
+  `@ViewChild` fields to `presentationModalRef`/`itemUsedModalRef` and updated
+  the matching `#…` refs in both `.html` files.
 
-- [ ] **Phase 4 — Migrate champion + verification gate.** Champion is the risky
-  swap: it is entered right after an Elite-Four win, whose flow can leave a queued
-  `altPrizeModal` open (the mega-stone award, opened via `ModalQueueService` in
-  `roulette-container.awardMegaStoneAfterImportantBattle` → `grantMegaStone`). Under
-  raw `NgbModal` (today) the champion presentation modal stacks over it; under
-  `ModalQueueService` it would serialize behind it — a behavior change.
-  - Verify via Playwright (or a focused integration test): reach `champion-battle`
-    with a mega-eligible team so a stone is awarded on the preceding Elite-Four win,
-    and confirm the presentation modal still appears and is dismissable, with no
-    orphaned/stacked modal, under `ModalQueueService`.
-  - **If behavior-neutral:** migrate champion onto the base's `ModalQueueService`
-    path (all four unified — the target state).
-  - **If any difference is observed:** keep champion (and, if similarly affected,
-    rival) on raw `NgbModal` by overriding `openPresentationModal()`/`openItemUsedModal()`
-    in that subclass to call `this.modalService.open(...)`. Document the reason inline.
-    The rest of the dedup still lands.
+  **One more TS mechanic the plan's target API didn't anticipate:** the base's
+  `presentationModalRef`/`itemUsedModalRef` hooks had to be plain fields, not
+  `get` accessors (TS2610: a property cannot override an accessor) — already
+  fixed as part of Phase 1's placeholder design. Separately, gym/elite-four's
+  own `@ViewChild(...) presentationModalRef!: TemplateRef<unknown>;` still
+  triggered TS2612 ("will overwrite the base property") because of
+  `useDefineForClassFields` (ES2022 target) — a subclass field re-declaration
+  is treated as a fresh `[[DefineOwnProperty]]` at construction, which TS
+  flags defensively even though Angular's ivy compiler assigns ViewChild
+  results post-construction (so there's no actual runtime clobber). Fixed by
+  declaring the subclass fields `declare` instead of `!` (no separate
+  `override` — TS forbids combining `override` with `declare`, "ambient
+  context"). `declare` is safe here specifically because Angular's AOT
+  compiler reads `@ViewChild(...)` from the decorator/AST at compile time and
+  generates its own assignment, independent of whatever the TS-only `declare`
+  field does to JS emit. Applies to any future hook that's a `@ViewChild`/
+  `@Input`/`@Output`-decorated field, not just these two.
 
-- [ ] **Phase 5 — Cleanup & docs.** Remove now-unused imports/constructors. Confirm
-  `base-battle-roulette.component.spec.ts` still passes; add a base-level spec for
-  `onItemSelected` yes/loss/potion routing and the `prepPhase` matrix if not already
-  covered. Update `README.md` only if a user-facing detail changed (it shouldn't).
-  When all phases are done, move this file to `docs/plans/done/`.
+  Verified via `tsc --noEmit` (app + spec), `npm run build`, and
+  `npm run test:local` (783/783, unchanged) — including the existing gen-5
+  gym multi-leader-round spec, which now exercises the standardized
+  `queueMicrotask` deferred-emit path instead of gym's old
+  `Promise.resolve().then()`.
+
+- [x] **Phase 3 — Migrate rival.** Done 2026-07-20. Same shape as Phase 2, plus
+  `skipRetriesInClassicMode = true` and `onFinalLoss()` overridden to the
+  existing `applyFaintOnLoss()` body (renamed as the override, same logic).
+  `faintedModal` stays a separate `@ViewChild` opened directly via
+  `this.modalService` (raw `NgbModal`) inside `onFinalLoss()`, unchanged —
+  there's no base hook for a third modal, and this one was never part of the
+  gym/elite-four modal-opener pattern to begin with.
+
+  **Behavior change carried forward, not yet independently verified:** because
+  rival no longer overrides `openPresentationModal`/`openItemUsedModal`, its
+  presentation and item-used modals now open via the base's default
+  (`ModalQueueService`) instead of the raw `NgbModal` calls it used before this
+  phase. Per the plan's locked modal-opener decision this was expected to
+  happen opportunistically ("risk is low ... covered by the Phase 4 gate") —
+  flagging here so Phase 4's verification pass explicitly includes rival, not
+  just champion, before this is considered proven.
+
+  Verified via `tsc --noEmit` (app + spec), `npm run build`, and
+  `npm run test:local` (783/783, unchanged) — including both gen-6
+  Calem/Serena regression tests (the `types` out-of-bounds bug this codebase
+  hit before) and the Classic-mode direct-emit path.
+
+- [x] **Phase 4 — Migrate champion + verification gate.** Done 2026-07-20.
+  Verified via a focused integration test (not Playwright — no e2e harness in
+  this repo; used the same direct-component-method pattern already established
+  in `roulette-container.component.spec.ts`), added as
+  `roulette-container.component.spec.ts` → describe block `'mega-stone
+  altPrizeModal → champion-battle modal ordering'`:
+  - Built the exact risky sequence: a lone mega-eligible Venusaur (base id 3,
+    single stone `venusaurite`, so `awardMegaStoneAfterImportantBattle()` takes
+    the direct single-candidate/single-stone path with no intervening
+    select-from-list state), `gameStateService.restoreState('elite-four-battle',
+    ['game-finish', 'champion-battle'], 0)` to skip straight to "about to win
+    the last Elite Four round" without replaying all 4 rounds, then
+    `component.eliteFourBattleResult(true)` → `component.doNothing()`
+    (check-evolution's skip) → now at `champion-battle` with the mega-stone
+    `altPrizeModal` never dismissed.
+  - Spied on the real `NgbModal.open()` (`.and.callThrough()`, not a fake) so
+    the assertions exercise the actual `ModalQueueService`/`NgbModal` stack.
+  - **Ran this test against the pre-migration code first, as a baseline**: it
+    failed exactly as predicted — `NgbModal.open()` was called twice
+    immediately (altPrizeModal + champion's raw-`NgbModal` presentation modal),
+    confirming today's stacking behavior and validating the test actually
+    detects the thing it's meant to detect.
+  - **Migrated champion onto the base** (same shape as Phase 2/3: `battleKey`/
+    `textPrefix`/`baseNoCount`/`opponentTypes`/`setCurrentOpponent`/
+    `prepareOpponentForRound` hooks, `presentationModalRef`/`itemUsedModalRef`
+    renamed `@ViewChild`s using `declare` per the Phase 2 note), which — by not
+    overriding `openPresentationModal`/`openItemUsedModal` — puts it on the
+    base's default `ModalQueueService` path.
+  - **Re-ran the same test**: `NgbModal.open()` stayed at 1 call (champion's
+    modal correctly queued, did not stack) right up until `closeModal()`
+    (simulating the player dismissing the mega-stone modal), after which it
+    became 2 calls (champion's modal opened cleanly, no orphan). Needed two
+    test-infra fixes unrelated to app code: `TestBed.inject(NgbModalConfig)
+    .animation = false` (dismiss rejection is gated on a real CSS
+    transitionend even with a spied-through open, not just a microtask) and a
+    real macrotask wait (`setTimeout`) instead of counting `.then()` hops,
+    since `ModalQueueService`'s queue-advance chain plus `NgbModal`'s own
+    dismiss path go several promise links deep.
+  - **Conclusion: behavior-neutral, confirmed empirically, not just by code
+    reading.** Champion unified onto `ModalQueueService` — all four battle
+    types now share the same modal-opener path (the target state). This also
+    retroactively closes out the Phase 3 flag on rival's modal-opener switch:
+    same underlying queuing mechanism, now proven safe under the harder
+    (concurrent-modal) case, so no separate rival-specific verification is
+    needed.
+  - Verified via `tsc --noEmit` (app + spec), `npm run build`, and
+    `npm run test:local` (784/784 — 783 baseline + 1 new modal-ordering test).
+
+- [x] **Phase 5 — Cleanup & docs.** Done 2026-07-20.
+  - Checked every import in the base and all four subclasses for post-migration
+    dead references (counted usages per identifier) — none found; every phase's
+    cleanup already removed what it made redundant as it went. No leftover
+    `constructor(...)` blocks anywhere in the five files.
+  - Added a base-level `onItemSelected` describe block to
+    `base-battle-roulette.component.spec.ts` (win emits `true` + runs the shared
+    cleanup; loss-with-potion consumes it and doesn't emit yet; final loss
+    emits `false`, runs cleanup, and calls `onFinalLoss()`), in the same
+    "shared logic tested once" spirit as the existing `buildVictoryOdds` specs.
+  - **Skipped a separate base-level `prepPhase` matrix spec** — it's already
+    covered, just not centralized: gym/elite-four/rival/champion's own specs
+    each already exercise this exact shared `onGameStateChange` gating logic
+    (e.g. gym's "should show the prep panel...", "...skip the prep panel...
+    (anti-reroll)" tests), and since Phase 2-4 deleted each subclass's own
+    copy of that logic, those tests now run directly against the base's
+    implementation. Matches the plan's own "if not already covered" condition.
+  - `README.md`: checked for stale references to anything renamed/removed in
+    this refactor (`getCurrentLeader`, `championPresentationModal`, etc.) —
+    only one hit, the `BaseBattleRouletteComponent.buildVictoryOdds()` link,
+    which is still accurate (unchanged location/signature). No update needed;
+    no user-facing behavior changed anywhere in this plan.
+  - Final full verification: `tsc --noEmit` (app + spec) clean, `npm run build`
+    clean, `npm run test:local` → **787/787** (784 + 3 new base-level tests).
 
 ## Acceptance tests (input → expected)
 

@@ -1,5 +1,5 @@
-import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Directive, EventEmitter, Input, Output, OnInit, OnDestroy, TemplateRef, inject } from '@angular/core';
+import { Subscription, take } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
@@ -9,15 +9,23 @@ import { TypeMatchupService } from '../../../../services/type-matchup-service/ty
 import { StatsService } from '../../../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
 import { AbilityService } from '../../../../services/ability-service/ability.service';
+import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
+import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
+import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
+import { BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../../interfaces/item-item';
 import { WheelItem } from '../../../../interfaces/wheel-item';
+import { GymLeader } from '../../../../interfaces/gym-leader';
 import { PokemonType, getTypeIconUrl } from '../../../../interfaces/pokemon-type';
 import { interleaveOdds } from '../../../../utils/odd-utils';
 
 @Directive()
 export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
+  @Input() currentRound!: number;
+  @Output() battleResultEvent = new EventEmitter<boolean>();
+
   protected generation!: GenerationItem;
   protected trainerTeam!: PokemonItem[];
   protected trainerItems!: ItemItem[];
@@ -35,22 +43,46 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   matchupAdvantageDelta = 0;
   matchupDisadvantageDelta = 0;
 
+  /** New-Experience prep-gating flag; true while the player hasn't confirmed lead/item for this battle yet. */
+  prepPhase = true;
+
   private static readonly ROUND_THREAT_MULT = 1.5;
 
   private gameSubscription: Subscription | null = null;
   private generationSubscription: Subscription | null = null;
   private teamSubscription: Subscription | null = null;
 
-  constructor(
-    protected readonly modalService: NgbModal,
-    protected readonly gameStateService: GameStateService,
-    protected readonly generationService: GenerationService,
-    protected readonly trainerService: TrainerService,
-    protected readonly translate: TranslateService,
-    protected readonly typeMatchupService: TypeMatchupService,
-    protected readonly statsService: StatsService,
-    protected readonly battleDebuffService: BattleDebuffService
-  ) {}
+  protected readonly modalService = inject(NgbModal);
+  protected readonly gameStateService = inject(GameStateService);
+  protected readonly generationService = inject(GenerationService);
+  protected readonly trainerService = inject(TrainerService);
+  protected readonly translate = inject(TranslateService);
+  protected readonly typeMatchupService = inject(TypeMatchupService);
+  protected readonly statsService = inject(StatsService);
+  protected readonly battleDebuffService = inject(BattleDebuffService);
+  protected readonly modalQueueService = inject(ModalQueueService);
+  protected readonly battlePrepService = inject(BattlePrepService);
+  public readonly markedTargetService = inject(MarkedTargetService);
+
+  // ── Template-method hooks ──────────────────────────────────────────────
+  // Placeholder defaults for now; each becomes real per-subclass state as gym/
+  // elite-four/rival/champion migrate onto the base. `presentationModalRef`/
+  // `itemUsedModalRef` are plain fields (not accessors) so a migrated
+  // subclass's @ViewChild-decorated field can shadow them directly — TS
+  // forbids a property from overriding an accessor.
+  protected readonly battleKey: string = '';
+  protected readonly textPrefix: string = '';
+  protected readonly baseNoCount: number = 0;
+  protected get opponentTypes(): PokemonType[] | undefined { return undefined; }
+  protected presentationModalRef!: TemplateRef<unknown>;
+  protected itemUsedModalRef!: TemplateRef<unknown>;
+  protected setCurrentOpponent(_opponent: GymLeader): void {}
+  protected prepareOpponentForRound(): void {}
+
+  /** Rival overrides to true — Classic mode skips retries/potion/cleanup entirely. */
+  protected readonly skipRetriesInClassicMode: boolean = false;
+  /** Rival overrides to faint the committed lead (applyFaintOnLoss). */
+  protected onFinalLoss(): void {}
 
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(gen => {
@@ -240,8 +272,104 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   }
 
   /** Called for every game state change. Subclass checks its own trigger state. */
-  protected abstract onGameStateChange(state: string): void | Promise<void>;
+  protected onGameStateChange(state: string): void | Promise<void> {
+    if (state !== this.battleKey) return;
+    this.prepareOpponentForRound();
+    const pending = this.battlePrepService.getPendingPrep();
+    const committed = !!pending && pending.battleKey === this.battleKey;
+    this.prepPhase = this.gameStateService.isNewExperienceMode && !committed;
+    this.calcVictoryOdds();
+    this.openPresentationModal();
+  }
 
   /** Rebuilds victoryOdds from current team, items, and opponent data. */
-  protected abstract calcVictoryOdds(): void;
+  protected calcVictoryOdds(): void {
+    const prep = this.gameStateService.isNewExperienceMode
+      ? this.battlePrepService.getPendingPrep() : null;
+    const xAttackBonus = prep?.xAttackUsed ? this.meanTeamPower() : 0;
+    this.victoryOdds = this.buildVictoryOdds(
+      this.opponentTypes, this.textPrefix, this.baseNoCount, this.currentRound,
+      prep?.leadIndex, xAttackBonus
+    );
+  }
+
+  onItemSelected(index: number): void {
+    this.recordSpin(index);
+    const landedYes = this.victoryOdds[index].text === `${this.textPrefix}.yes`;
+
+    if (this.skipRetriesInClassicMode && !this.gameStateService.isNewExperienceMode) {
+      this.battleResultEvent.emit(landedYes);
+      return;
+    }
+
+    this.retries--;
+    if (landedYes) {
+      this.finishBattleCleanup();
+      this.battleResultEvent.emit(true);
+    } else if (this.retries <= 0) {
+      const potion = this.hasPotions();
+      if (potion) {
+        this.usePotion(potion, () => this.openItemUsedModal());
+      } else {
+        this.onFinalLoss();
+        this.finishBattleCleanup();
+        this.battleResultEvent.emit(false);
+      }
+    }
+  }
+
+  onPrepConfirmed(prep: BattlePrepConfirmed): void {
+    this.battlePrepService.commitPrep({ battleKey: this.battleKey, ...prep });
+    this.prepPhase = false;
+    this.calcVictoryOdds();
+  }
+
+  private finishBattleCleanup(): void {
+    this.battlePrepService.clearPrep();
+    this.trainerService.clearForcedRetreatLock();
+    this.markedTargetService.clearMark();
+    this.battleDebuffService.clearDebuff();
+  }
+
+  private meanTeamPower(): number {
+    return this.trainerTeam.reduce((sum, p) => sum + p.power, 0) / this.trainerTeam.length;
+  }
+
+  protected openPresentationModal(): void {
+    this.modalQueueService.open(this.presentationModalRef, { centered: true, size: 'lg' });
+  }
+
+  protected openItemUsedModal(): void {
+    this.modalQueueService.open(this.itemUsedModalRef, { centered: true, size: 'md' });
+  }
+
+  /**
+   * Shared multi-variant resolver (gym trio/duo rounds, gen-8 elite, gen-7
+   * champion, gen-6 rival). Standardized deferred emit via queueMicrotask so the
+   * @Output emit + opponent reassignment never runs mid-change-detection.
+   */
+  protected resolveOpponentVariant(
+    source: GymLeader,
+    pickIndex: (variantCount: number) => number,
+    typesForIndex: (types: PokemonType[] | undefined, index: number) => PokemonType[] | undefined,
+    onIndexResolved: (index: number) => void
+  ): void {
+    const types = Array.isArray(source.types) ? source.types : undefined;
+    this.translate.get(source.name).pipe(take(1)).subscribe(translated => {
+      const names = translated.split('/');
+      const sprites = Array.isArray(source.sprite) ? source.sprite : [source.sprite];
+      const quotes = source.quotes;
+      const index = pickIndex(names.length);
+      queueMicrotask(() => {
+        onIndexResolved(index);
+        this.setCurrentOpponent({
+          name: names[index],
+          sprite: sprites[index],
+          quotes: [Array.isArray(quotes) ? quotes[index] : quotes],
+          types: typesForIndex(types, index)
+        } as GymLeader);
+        this.calcVictoryOdds();
+      });
+    });
+  }
 }

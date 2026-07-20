@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EventEmitter } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgbModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
 import {
   bootstrapArrowRepeat,
   bootstrapBook,
@@ -1183,6 +1184,69 @@ describe('RouletteContainerComponent', () => {
       component.capturePokemon(bulbasaur!);
 
       expect(trainerService.getTeam().length).toBe(1);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Phase 4 verification gate (docs/plans/battle-roulette-dedup.md) — a win on
+  // the final Elite Four round can synchronously open the mega-stone
+  // altPrizeModal (via ModalQueueService) before the player has dismissed it.
+  // Confirms champion's own presentation modal — opened once the player clicks
+  // through check-evolution into champion-battle — correctly QUEUES behind a
+  // still-open altPrizeModal (ModalQueueService serializes) rather than
+  // stacking on top of it (raw NgbModal would stack immediately).
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('mega-stone altPrizeModal → champion-battle modal ordering', () => {
+    it('does not open champion\'s presentation modal until the still-open altPrizeModal is dismissed', async () => {
+      const ngbModal = TestBed.inject(NgbModal);
+      const openSpy = spyOn(ngbModal, 'open').and.callThrough();
+      // Disable modal fade transitions — otherwise dismissAll()'s rejection of
+      // the altPrizeModal's `.result` promise (which ModalQueueService's queue
+      // chain awaits before advancing) is delayed by a real CSS transitionend,
+      // not just a microtask, which a plain `await Promise.resolve()` can't wait out.
+      TestBed.inject(NgbModalConfig).animation = false;
+
+      // A lone Venusaur is mega-eligible for exactly one stone (venusaurite),
+      // not yet held — so awardMegaStoneAfterImportantBattle() takes the
+      // single-candidate/single-stone fast path and opens altPrizeModal
+      // synchronously, with no intervening select-from-list state.
+      trainerService.resetTeam();
+      trainerService.addToTeam({
+        pokemonId: 3, text: 'pokemon.venusaur', fillStyle: 'green',
+        sprite: null, shiny: false, power: 3, weight: 1
+      } as any);
+
+      // Skip straight to "last Elite Four round about to be won" instead of
+      // replaying all 4 rounds — restoreState bypasses the normal push/pop flow.
+      gameStateService.restoreState('elite-four-battle', ['game-finish', 'champion-battle'], 0);
+
+      component.eliteFourBattleResult(true);
+      fixture.detectChanges();
+      // ModalQueueService.open() chains onto its internal queue via .then(),
+      // so the real NgbModal.open() call is a microtask away, not synchronous.
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(openSpy).toHaveBeenCalledTimes(1); // altPrizeModal only
+
+      component.doNothing(); // check-evolution's "no" outcome → advances to champion-battle
+      fixture.detectChanges();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Champion-battle has mounted and run its onGameStateChange, but its
+      // presentation modal must still be queued — altPrizeModal was never dismissed.
+      expect(openSpy).toHaveBeenCalledTimes(1);
+
+      component.closeModal(); // simulates the player clicking "Ok" on altPrizeModal
+      // NgbModal's dismiss path isn't pure microtask chaining even with
+      // animations off (it still needs a real event-loop turn), so wait a real
+      // macrotask rather than counting .then() hops.
+      await new Promise(resolve => setTimeout(resolve, 50));
+      fixture.detectChanges();
+
+      expect(openSpy).toHaveBeenCalledTimes(2); // champion's presentation modal now opened
     });
   });
 });
