@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Scorri per altri contenuti"
+  },
   "settings": {
     "label": "Impostazioni",
     "darkmode": "Modalità scura",

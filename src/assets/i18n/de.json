@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Scrollen für mehr Inhalt"
+  },
   "settings": {
     "label": "Einstellungen",
     "darkmode": "Dunkler Modus",

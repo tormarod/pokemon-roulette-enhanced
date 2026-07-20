@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Scroll for more content"
+  },
   "settings": {
     "label": "Settings",
     "darkmode": "Dark Mode",

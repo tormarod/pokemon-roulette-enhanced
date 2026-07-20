@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Desplázate para ver más contenido"
+  },
   "settings": {
     "label": "Configuración",
     "darkmode": "Modo oscuro",

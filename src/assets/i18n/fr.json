@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Faites défiler pour plus de contenu"
+  },
   "settings": {
     "label": "Paramètres",
     "darkmode": "Mode sombre",

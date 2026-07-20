@@ -1,0 +1,10 @@
+@if (visible) {
+  <button
+    type="button"
+    class="scroll-hint"
+    (click)="scrollDown()"
+    [attr.aria-label]="'common.scrollHint' | translate"
+  >
+    <span class="scroll-hint-chevron"></span>
+  </button>
+}

@@ -1,4 +1,7 @@
 {
+  "common": {
+    "scrollHint": "Role para ver mais conteúdo"
+  },
   "settings": {
     "label": "Configurações",
     "darkmode": "Modo escuro",
