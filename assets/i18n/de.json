@@ -721,9 +721,9 @@
       "name": "Sonderbonbon",
       "description": "Nutze ein Sonderbonbon um dein Pokémon sofort zu entwickeln!"
     },
-    "running-shoes": {
-      "name": "Turbotreter",
-      "description": "Turbotreter lassen dich das Rad zwischen Arena-Kämpfen doppelt drehen!"
+    "bicycle": {
+      "name": "Fahrrad",
+      "description": "Das Fahrrad lässt dich das Rad zwischen Arena-Kämpfen doppelt drehen!"
     },
     "super-potion": {
       "name": "Supertrank",

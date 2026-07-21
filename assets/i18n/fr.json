@@ -721,9 +721,9 @@
       "name": "Super Bonbon",
       "description": "Utilise un Super Bonbon pour faire évoluer ton Pokémon à tout moment!"
     },
-    "running-shoes": {
-      "name": "Chaussures de Sport",
-      "description": "Les Chaussures de Sport te permettent de faire tourner la roue deux fois entre deux Arènes!"
+    "bicycle": {
+      "name": "Vélo",
+      "description": "Le Vélo te permet de faire tourner la roue deux fois entre deux Arènes!"
     },
     "super-potion": {
       "name": "Super Potion",

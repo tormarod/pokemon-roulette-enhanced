@@ -721,9 +721,9 @@
       "name": "Caramelo Raro",
       "description": "¡Usa un caramelo raro para evolucionar a tu Pokémon en cualquier momento!"
     },
-    "running-shoes": {
-      "name": "Zapatillas de Deporte",
-      "description": "¡Las Zapatillas de Deporte te permiten girar la ruleta dos veces entre Gimnasios!"
+    "bicycle": {
+      "name": "Bicicleta",
+      "description": "¡La Bicicleta te permite girar la ruleta dos veces entre Gimnasios!"
     },
     "super-potion": {
       "name": "Superpoción",
