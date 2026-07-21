@@ -427,7 +427,10 @@
             "badOmen": "Mau presságio",
             "spooked": "Assustado",
             "markedTarget": "Alvo Marcado",
-            "pokeballMalfunction": "Falha na Poké Bola"
+            "pokeballMalfunction": "Falha na Poké Bola",
+            "tollBooth": "Toll Booth",
+            "scoutingReport": "Scouting Report",
+            "pcLockout": "PC Lockout"
           },
           "threats": {
             "itemTheft": {
@@ -436,7 +439,13 @@
               "nothingFound": "Um ladrão vasculhou sua bolsa mas não encontrou nada para levar."
             },
             "forcedRetreat": {
+              "title": "Forced Retreat",
+              "description": "A threat forces one of your Pokémon to retreat to your PC box — it'll be locked there for your next battle.",
               "pickPokemon": "Qual Pokémon se retira para sua caixa do PC? Ele ficará bloqueado lá até sua próxima batalha."
+            },
+            "teamRocketAmbush": {
+              "title": "Team Rocket Ambush!",
+              "description": "Team Rocket jumps out and blocks your path — you'll have to deal with them before you can continue."
             },
             "badOmen": {
               "title": "Mau presságio",
@@ -455,6 +464,19 @@
               "description": "Uma das suas Poké Bolas está com defeito — o próximo Pokémon que você tentar capturar pode escapar.",
               "escapeTitle": "Ele escapou!",
               "escapeMessage": "A Poké Bola com defeito se abriu de repente — "
+            },
+            "tollBooth": {
+              "title": "Toll Booth",
+              "paidMessage": "A toll gate blocks the road — you hand over {{paid}} coins.",
+              "shortMessage": "A toll gate blocks the road — you scrape together {{paid}} coins, but coming up short rattles you (danger +{{spike}}%)."
+            },
+            "scoutingReport": {
+              "title": "Rival Scouting Report",
+              "description": "A rival scout studied your team — the next enemy came prepared with a {{type}} edge against your {{pokemon}}."
+            },
+            "pcLockout": {
+              "title": "PC Lockout",
+              "description": "A system glitch locks your PC — you can't withdraw or deposit any Pokémon until after your next battle."
             }
           }
         },
@@ -1146,6 +1168,7 @@
       "faintedTooltip": "Desmaiado após perder uma batalha — bloqueado no PC até ser revivido com um item Revive.",
       "retreatLocked": "Bloqueado (Retirada Forçada)",
       "retreatLockedTooltip": "Colocado no banco por uma ameaça de Retirada Forçada — desbloqueia assim que sua próxima batalha real for resolvida.",
+      "pcLocked": "PC locked until your next battle",
       "revive": "Reviver",
       "assignAbility": "Habilidade",
       "assignAbilityTitle": "Atribuir uma habilidade a",
@@ -3141,6 +3164,7 @@
   },
   "v2_1_0": "Versão 2.1.0",
   "v2_2_0": "Versão 2.2.0",
+  "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versão 3.5.0",
@@ -3152,6 +3176,11 @@
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v3_8_0": {
+      "0": "🚧 Three new adventure threats: Toll Booth drains Coins (or spikes the Danger meter if you can't fully pay), Scouting Report gives your next opponent a type edge against your strongest Pokémon, and PC Lockout freezes withdrawals and deposits until your next battle.",
+      "1": "📈 Threats you draw are now filtered to skip anything that would have no effect on your current roster, and safe adventure steps recover the Danger meter a bit faster.",
+      "2": "💬 Team Rocket Ambush and Forced Retreat now show an explanatory message like every other threat, instead of jumping straight into their screen."
+    },
     "v3_7_0": {
       "0": "🪙 Ganhe Moedas em vitórias, aventuras e um pequeno subsídio a cada rodada.",
       "1": "🏪 Gaste Moedas no novo Mercado — poções, Ataque X, Cápsulas de Habilidade, Reviver e Doces Raros para fortalecer sua equipe, a qualquer momento fora da batalha.",

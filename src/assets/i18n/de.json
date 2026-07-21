@@ -427,7 +427,10 @@
             "badOmen": "Böses Omen",
             "spooked": "Aufgeschreckt",
             "markedTarget": "Markiertes Ziel",
-            "pokeballMalfunction": "Poké Ball-Defekt"
+            "pokeballMalfunction": "Poké Ball-Defekt",
+            "tollBooth": "Toll Booth",
+            "scoutingReport": "Scouting Report",
+            "pcLockout": "PC Lockout"
           },
           "threats": {
             "itemTheft": {
@@ -436,7 +439,13 @@
               "nothingFound": "Ein Dieb durchsuchte deine Tasche, fand aber nichts zum Mitnehmen."
             },
             "forcedRetreat": {
+              "title": "Forced Retreat",
+              "description": "A threat forces one of your Pokémon to retreat to your PC box — it'll be locked there for your next battle.",
               "pickPokemon": "Welches Pokémon zieht sich in deine PC-Box zurück? Es bleibt dort bis zu deinem nächsten Kampf gesperrt."
+            },
+            "teamRocketAmbush": {
+              "title": "Team Rocket Ambush!",
+              "description": "Team Rocket jumps out and blocks your path — you'll have to deal with them before you can continue."
             },
             "badOmen": {
               "title": "Böses Omen",
@@ -455,6 +464,19 @@
               "description": "Einer deiner Poké Bälle spinnt — das nächste Pokémon, das du fangen willst, könnte entkommen.",
               "escapeTitle": "Es ist entkommen!",
               "escapeMessage": "Der defekte Poké Ball sprang auf — "
+            },
+            "tollBooth": {
+              "title": "Toll Booth",
+              "paidMessage": "A toll gate blocks the road — you hand over {{paid}} coins.",
+              "shortMessage": "A toll gate blocks the road — you scrape together {{paid}} coins, but coming up short rattles you (danger +{{spike}}%)."
+            },
+            "scoutingReport": {
+              "title": "Rival Scouting Report",
+              "description": "A rival scout studied your team — the next enemy came prepared with a {{type}} edge against your {{pokemon}}."
+            },
+            "pcLockout": {
+              "title": "PC Lockout",
+              "description": "A system glitch locks your PC — you can't withdraw or deposit any Pokémon until after your next battle."
             }
           }
         },
@@ -1146,6 +1168,7 @@
       "faintedTooltip": "Durch eine Kampfniederlage besiegt — im PC gesperrt, bis es mit einem Wiederbelebungs-Item geheilt wird.",
       "retreatLocked": "Gesperrt (Erzwungener Rückzug)",
       "retreatLockedTooltip": "Durch die Bedrohung „Erzwungener Rückzug“ auf die Bank gesetzt — wird nach deinem nächsten echten Kampf entsperrt.",
+      "pcLocked": "PC locked until your next battle",
       "revive": "Wiederbeleben",
       "assignAbility": "Fähigkeit",
       "assignAbilityTitle": "Weise eine Fähigkeit zu an",
@@ -3141,6 +3164,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Version 3.5.0",
@@ -3152,6 +3176,11 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_8_0": {
+      "0": "🚧 Three new adventure threats: Toll Booth drains Coins (or spikes the Danger meter if you can't fully pay), Scouting Report gives your next opponent a type edge against your strongest Pokémon, and PC Lockout freezes withdrawals and deposits until your next battle.",
+      "1": "📈 Threats you draw are now filtered to skip anything that would have no effect on your current roster, and safe adventure steps recover the Danger meter a bit faster.",
+      "2": "💬 Team Rocket Ambush and Forced Retreat now show an explanatory message like every other threat, instead of jumping straight into their screen."
+    },
     "v3_7_0": {
       "0": "🪙 Verdiene Münzen durch Kämpfe, Abenteuer und einen kleinen Zuschuss pro Runde.",
       "1": "🏪 Gib Münzen im neuen Markt aus – Tränke, X-Angriff, Fähigkeits-Kapseln, Beleber und Sonderbonbons, um dein Team zu stärken, jederzeit außerhalb des Kampfes.",

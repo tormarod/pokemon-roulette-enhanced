@@ -34,6 +34,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   }
 
   @Input() respinReason!: string;
+  @Input() excludedThreatIds: string[] = [];
   @Output() catchPokemonEvent = new EventEmitter<void>();
   @Output() battleTrainerEvent = new EventEmitter<EventSource>();
   @Output() buyPotionsEvent = new EventEmitter<void>();
@@ -58,6 +59,10 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Output() spookedEvent = new EventEmitter<void>();
   @Output() markedTargetEvent = new EventEmitter<void>();
   @Output() pokeballMalfunctionEvent = new EventEmitter<void>();
+  @Output() tollBoothEvent = new EventEmitter<void>();
+  @Output() scoutingReportEvent = new EventEmitter<void>();
+  @Output() pcLockoutEvent = new EventEmitter<void>();
+  @Output() teamRocketAmbushEvent = new EventEmitter<void>();
 
   private readonly baseActions: WheelItem[] = [
     { text: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
@@ -123,18 +128,34 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
 
   /**
    * Threat pool (V2 A3). `teamRocketAmbush` reuses the existing Team Rocket
-   * mini-wheel (no new mechanic — same routing as the reward pool's
-   * `teamRocket` entry, just a threat-flavored label). `itemTheft`,
-   * `forcedRetreat`, and `badOmen` are new handlers in roulette-container.
+   * mini-wheel (no new encounter mechanic), but routes through its own
+   * `teamRocketAmbushEvent` (rather than the reward pool's `teamRocket` id)
+   * so its handler can show a threat-specific info modal before handing off
+   * to the shared `teamRocketEncounter()` logic. `itemTheft`, `forcedRetreat`,
+   * and `badOmen` are new handlers in roulette-container.
+   *
+   * Weights tuned by severity (docs/plans/threat-mechanics-expansion.md Phase 5,
+   * decided 2026-07-21): rarer the more it guarantees a real cost, more common
+   * the more it's recoverable or probabilistic. High (1): forcedRetreat/
+   * scoutingReport — a concrete cost every single draw. High-medium (1.25):
+   * teamRocketAmbush — can cost a whole Pokémon, but only ~40% of the time (the
+   * mini-wheel's other outcomes are neutral/good), so it's not as consistently
+   * punishing as the two `weight: 1` threats. Medium (1.5): pcLockout/badOmen/
+   * markedTarget — worsens one battle or removes flexibility, no roster/coin
+   * loss. Low (2): tollBooth/itemTheft/pokeballMalfunction/spooked — a
+   * recoverable resource loss or a purely probabilistic/meta cost.
    */
   private readonly threatPool: AdventureCandidate[] = [
-    { id: 'teamRocketAmbush', textKey: 'game.main.roulette.adventure.actions.teamRocketAmbush', fillStyle: 'purple', weight: 2 },
-    { id: 'itemTheft', textKey: 'game.main.roulette.adventure.actions.itemTheft', fillStyle: 'darkred', weight: 1 },
+    { id: 'teamRocketAmbush', textKey: 'game.main.roulette.adventure.actions.teamRocketAmbush', fillStyle: 'purple', weight: 1.25 },
+    { id: 'itemTheft', textKey: 'game.main.roulette.adventure.actions.itemTheft', fillStyle: 'darkred', weight: 2 },
     { id: 'forcedRetreat', textKey: 'game.main.roulette.adventure.actions.forcedRetreat', fillStyle: 'darkred', weight: 1 },
-    { id: 'badOmen', textKey: 'game.main.roulette.adventure.actions.badOmen', fillStyle: 'darkred', weight: 1 },
-    { id: 'spooked', textKey: 'game.main.roulette.adventure.actions.spooked', fillStyle: 'darkred', weight: 1 },
-    { id: 'markedTarget', textKey: 'game.main.roulette.adventure.actions.markedTarget', fillStyle: 'darkred', weight: 1 },
-    { id: 'pokeballMalfunction', textKey: 'game.main.roulette.adventure.actions.pokeballMalfunction', fillStyle: 'darkred', weight: 1 },
+    { id: 'badOmen', textKey: 'game.main.roulette.adventure.actions.badOmen', fillStyle: 'darkred', weight: 1.5 },
+    { id: 'spooked', textKey: 'game.main.roulette.adventure.actions.spooked', fillStyle: 'darkred', weight: 2 },
+    { id: 'markedTarget', textKey: 'game.main.roulette.adventure.actions.markedTarget', fillStyle: 'darkred', weight: 1.5 },
+    { id: 'pokeballMalfunction', textKey: 'game.main.roulette.adventure.actions.pokeballMalfunction', fillStyle: 'darkred', weight: 2 },
+    { id: 'tollBooth', textKey: 'game.main.roulette.adventure.actions.tollBooth', fillStyle: 'darkred', weight: 2 },
+    { id: 'scoutingReport', textKey: 'game.main.roulette.adventure.actions.scoutingReport', fillStyle: 'darkred', weight: 1 },
+    { id: 'pcLockout', textKey: 'game.main.roulette.adventure.actions.pcLockout', fillStyle: 'darkred', weight: 1.5 },
   ];
 
   /**
@@ -161,13 +182,16 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     findFossil: () => this.findFossilEvent.emit(),
     battleRival: () => this.battleRivalEvent.emit(),
     areaZero: () => this.areaZeroEvent.emit(),
-    teamRocketAmbush: () => this.teamRocketEncounterEvent.emit(),
+    teamRocketAmbush: () => this.teamRocketAmbushEvent.emit(),
     itemTheft: () => this.itemTheftEvent.emit(),
     forcedRetreat: () => this.forcedRetreatEvent.emit(),
     badOmen: () => this.badOmenEvent.emit(),
     spooked: () => this.spookedEvent.emit(),
     markedTarget: () => this.markedTargetEvent.emit(),
     pokeballMalfunction: () => this.pokeballMalfunctionEvent.emit(),
+    tollBooth: () => this.tollBoothEvent.emit(),
+    scoutingReport: () => this.scoutingReportEvent.emit(),
+    pcLockout: () => this.pcLockoutEvent.emit(),
   };
 
   ngOnInit(): void {
@@ -235,7 +259,8 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     this.stepType = stepType;
 
     if (stepType === 'threat') {
-      const drawn = this.drawWeightedOne(this.threatPool);
+      const eligible = this.threatPool.filter(t => !this.excludedThreatIds.includes(t.id));
+      const drawn = this.drawWeightedOne(eligible.length ? eligible : this.threatPool);
       this.adventureDrawService.commitDraw('threat', [drawn.id]);
       this.adventureDrawService.commitPick(0);
       // See the reload-replay branch above for why this is deferred to a microtask.

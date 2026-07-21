@@ -26,6 +26,11 @@ export class TypeMatchupService {
     return typeMatchups[pokemonType]?.immuneTo.includes(opponentType) ?? false;
   }
 
+  /** All types super-effective against `type` (i.e. `type` is weak to them). */
+  getSuperEffectiveCounters(type: PokemonType): PokemonType[] {
+    return (Object.keys(typeMatchups) as PokemonType[]).filter(t => this.isWeakAgainst(type, t));
+  }
+
   /**
    * Per-net-score-point unit, in wheel tickets: a quarter of the Pokémon's own
    * power, rounded up, uncapped. Two mutually-favorable type pairs (e.g. Water

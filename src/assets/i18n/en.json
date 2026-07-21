@@ -427,7 +427,10 @@
             "badOmen": "Bad Omen",
             "spooked": "Spooked",
             "markedTarget": "Marked Target",
-            "pokeballMalfunction": "Poké Ball Malfunction"
+            "pokeballMalfunction": "Poké Ball Malfunction",
+            "tollBooth": "Toll Booth",
+            "scoutingReport": "Scouting Report",
+            "pcLockout": "PC Lockout"
           },
           "threats": {
             "itemTheft": {
@@ -436,7 +439,13 @@
               "nothingFound": "A thief rummaged through your bag but found nothing to take."
             },
             "forcedRetreat": {
+              "title": "Forced Retreat",
+              "description": "A threat forces one of your Pokémon to retreat to your PC box — it'll be locked there for your next battle.",
               "pickPokemon": "Which Pokémon retreats to your PC box? It'll be locked there for your next battle."
+            },
+            "teamRocketAmbush": {
+              "title": "Team Rocket Ambush!",
+              "description": "Team Rocket jumps out and blocks your path — you'll have to deal with them before you can continue."
             },
             "badOmen": {
               "title": "Bad Omen",
@@ -455,6 +464,19 @@
               "description": "One of your Poké Balls is acting up — the next Pokémon you try to catch might slip free.",
               "escapeTitle": "It got away!",
               "escapeMessage": "The faulty Poké Ball popped open — "
+            },
+            "tollBooth": {
+              "title": "Toll Booth",
+              "paidMessage": "A toll gate blocks the road — you hand over {{paid}} coins.",
+              "shortMessage": "A toll gate blocks the road — you scrape together {{paid}} coins, but coming up short rattles you (danger +{{spike}}%)."
+            },
+            "scoutingReport": {
+              "title": "Rival Scouting Report",
+              "description": "A rival scout studied your team — the next enemy came prepared with a {{type}} edge against your {{pokemon}}."
+            },
+            "pcLockout": {
+              "title": "PC Lockout",
+              "description": "A system glitch locks your PC — you can't withdraw or deposit any Pokémon until after your next battle."
             }
           }
         },
@@ -1146,6 +1168,7 @@
       "faintedTooltip": "Fainted from a battle loss — locked in the PC until revived with a Revive item.",
       "retreatLocked": "Locked (Forced Retreat)",
       "retreatLockedTooltip": "Benched here by a Forced Retreat threat — unlocks once your next real battle resolves.",
+      "pcLocked": "PC locked until your next battle",
       "revive": "Revive",
       "assignAbility": "Ability",
       "assignAbilityTitle": "Assign an ability to",
@@ -3141,6 +3164,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Version 3.5.0",
@@ -3152,6 +3176,11 @@
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v3_8_0": {
+      "0": "🚧 Three new adventure threats: Toll Booth drains Coins (or spikes the Danger meter if you can't fully pay), Scouting Report gives your next opponent a type edge against your strongest Pokémon, and PC Lockout freezes withdrawals and deposits until your next battle.",
+      "1": "📈 Threats you draw are now filtered to skip anything that would have no effect on your current roster, and safe adventure steps recover the Danger meter a bit faster.",
+      "2": "💬 Team Rocket Ambush and Forced Retreat now show an explanatory message like every other threat, instead of jumping straight into their screen."
+    },
     "v3_7_0": {
       "0": "🪙 Earn Coins from battle wins, adventures, and a small stipend each round.",
       "1": "🏪 Spend Coins at the new Market — potions, X Attacks, Ability Capsules, Revives, and Rare Candies to power up your team, any time outside battle.",

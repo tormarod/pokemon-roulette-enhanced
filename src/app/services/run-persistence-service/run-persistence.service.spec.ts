@@ -12,6 +12,8 @@ import { AdventureDrawService } from '../adventure-draw-service/adventure-draw.s
 import { BattleDebuffService } from '../battle-debuff-service/battle-debuff.service';
 import { MarkedTargetService } from '../marked-target-service/marked-target.service';
 import { CatchRiskService } from '../catch-risk-service/catch-risk.service';
+import { ScoutingReportService } from '../scouting-report-service/scouting-report.service';
+import { PcLockService } from '../pc-lock-service/pc-lock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 
 describe('RunPersistenceService', () => {
@@ -110,6 +112,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -178,6 +182,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -250,6 +256,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -323,6 +331,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -393,6 +403,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -461,6 +473,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -493,6 +507,146 @@ describe('RunPersistenceService', () => {
 
     const restoredMarkedTargetService = TestBed.inject(MarkedTargetService);
     expect(restoredMarkedTargetService.currentMarkedIndex).toBeNull();
+  });
+
+  it('should save the pending scouting type to localStorage when it changes', () => {
+    const scoutingReportService = TestBed.inject(ScoutingReportService);
+    scoutingReportService.setType('fire');
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.scoutingType).toBe('fire');
+  });
+
+  it('should restore the pending scouting type from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+      scoutingType: 'fire',
+      pcLocked: false,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredScoutingReportService = TestBed.inject(ScoutingReportService);
+    expect(restoredScoutingReportService.currentType).toBe('fire');
+  });
+
+  it('should default scoutingType to null when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredScoutingReportService = TestBed.inject(ScoutingReportService);
+    expect(restoredScoutingReportService.currentType).toBeNull();
+  });
+
+  it('should save the PC lock to localStorage when it changes', () => {
+    const pcLockService = TestBed.inject(PcLockService);
+    pcLockService.setLock(true);
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.pcLocked).toBeTrue();
+  });
+
+  it('should restore the PC lock from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+      newExperienceMode: true,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: true,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredPcLockService = TestBed.inject(PcLockService);
+    expect(restoredPcLockService.isLocked).toBeTrue();
+  });
+
+  it('should default pcLocked to false when restoring an older save without the field', () => {
+    const legacySavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredPcLockService = TestBed.inject(PcLockService);
+    expect(restoredPcLockService.isLocked).toBeFalse();
   });
 
   it('should save the pending catch escape chance to localStorage when it changes', () => {
@@ -529,6 +683,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -595,6 +751,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -665,6 +823,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: 3,
       megaBattleStoneName: 'venusaurite',
       megaBattleOriginalPokemon: original as any,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -732,6 +892,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -784,6 +946,8 @@ describe('RunPersistenceService', () => {
       megaBattleBaseId: null,
       megaBattleStoneName: null,
       megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -875,6 +1039,8 @@ describe('RunPersistenceService', () => {
       const battleDebuffService = TestBed.inject(BattleDebuffService);
       const markedTargetService = TestBed.inject(MarkedTargetService);
       const catchRiskService = TestBed.inject(CatchRiskService);
+      const scoutingReportService = TestBed.inject(ScoutingReportService);
+      const pcLockService = TestBed.inject(PcLockService);
 
       trainerService.addToTeam(makeTestPokemon());
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 4 }));
@@ -884,6 +1050,8 @@ describe('RunPersistenceService', () => {
       battleDebuffService.setDebuff(2);
       markedTargetService.setMark(1);
       catchRiskService.setEscapeChance(0.35);
+      scoutingReportService.setType('fire');
+      pcLockService.setLock(true);
 
       service.startFreshRun(true);
 
@@ -894,6 +1062,8 @@ describe('RunPersistenceService', () => {
       expect(battleDebuffService.currentDebuff).toBe(0);
       expect(markedTargetService.currentMarkedIndex).toBeNull();
       expect(catchRiskService.currentEscapeChance).toBe(0);
+      expect(scoutingReportService.currentType).toBeNull();
+      expect(pcLockService.isLocked).toBeFalse();
       expect(gameStateService.isNewExperienceMode).toBeTrue();
       expect(localStorage.getItem(RUN_KEY)).toBeNull();
     });

@@ -93,6 +93,7 @@
   @case ('adventure-continues') {
     <app-main-adventure-roulette
         [respinReason]="respinReason"
+        [excludedThreatIds]="excludedThreatIds()"
         (catchPokemonEvent)="catchPokemon()"
         (battleTrainerEvent)="chooseWhoWillEvolve($event)"
         (buyPotionsEvent)="buyPotions()"
@@ -116,7 +117,11 @@
         (badOmenEvent)="badOmen()"
         (spookedEvent)="spooked()"
         (markedTargetEvent)="markedTarget()"
-        (pokeballMalfunctionEvent)="pokeballMalfunction()">
+        (pokeballMalfunctionEvent)="pokeballMalfunction()"
+        (tollBoothEvent)="tollBooth()"
+        (scoutingReportEvent)="scoutingReport()"
+        (pcLockoutEvent)="pcLockout()"
+        (teamRocketAmbushEvent)="teamRocketAmbush()">
     </app-main-adventure-roulette>
   }
   @case ('team-rocket-encounter') {

@@ -1,6 +1,6 @@
 # Plan: Threat-mechanics expansion (New Experience mode)
 
-Status: **Not started.**
+Status: **Implemented.**
 Owner: tormarod
 Last updated: 2026-07-21
 
@@ -460,11 +460,20 @@ real battle and resolve it (win or lose) → PC is usable again. With exactly 1 
 
 ## Phase 5 — Weights review, i18n, README, release notes, backlog
 
-1. **Weights pass (required — weights above are provisional).** With Phase 0's danger bump and
-   three new `weight: 1` threats, re-evaluate: (a) overall threat-vs-reward frequency feel, and
-   (b) per-threat weights within `threatPool` (10 entries now; `teamRocketAmbush` is the only
-   `weight: 2`). Adjust weights from playtest feel and record the chosen values here. Do not
-   treat `weight: 1` as final.
+1. **Weights pass — done (2026-07-21).** Tuned by severity assessment (no playtest data yet;
+   revisit once there is some) instead of leaving every new threat at the provisional `weight: 1`.
+   Final `threatPool` weights in `main-adventure-roulette.component.ts`:
+   - **High (1):** `forcedRetreat`, `scoutingReport` — a concrete cost every single draw
+     (a roster slot benched, or the next battle's odds worsened).
+   - **High-medium (1.25):** `teamRocketAmbush` — can cost a whole Pokémon via the mini-wheel's
+     steal outcome, but only ~40% of the time (defeat/run-away are neutral-to-good), so it's not
+     as consistently punishing as the two `weight: 1` threats. (Demoted from its old `weight: 2`
+     — previously the most common threat in the 7-entry pool — now that the pool has grown and
+     its risk profile was reassessed against the new threats.)
+   - **Medium (1.5):** `pcLockout`, `badOmen`, `markedTarget` — worsens one battle or removes
+     tactical flexibility for a round, but no roster/coin loss.
+   - **Low (2):** `tollBooth`, `itemTheft`, `pokeballMalfunction`, `spooked` — a recoverable
+     resource loss (coins, one item) or a purely probabilistic/meta cost.
 2. Confirm every new key across Phases 2-4 exists in all 6 locale files (`en` real, others
    English placeholder per repo convention).
 3. Update the README "New features added on top of the original" list and the New Experience
@@ -495,9 +504,9 @@ real battle and resolve it (win or lose) → PC is usable again. With exactly 1 
 
 ## Checklist
 
-- [ ] Phase 0 — Danger meter `RECOVERY` 10 → 15
-- [ ] Phase 1 — Threat eligibility draw-filter (fixes `forcedRetreat`/`markedTarget` too)
-- [ ] Phase 2 — `tollBooth`
-- [ ] Phase 3 — `scoutingReport`
-- [ ] Phase 4 — `pcLockout`
-- [ ] Phase 5 — Weights review, i18n, README, release notes, backlog
+- [x] Phase 0 — Danger meter `RECOVERY` 10 → 15
+- [x] Phase 1 — Threat eligibility draw-filter (fixes `forcedRetreat`/`markedTarget` too)
+- [x] Phase 2 — `tollBooth`
+- [x] Phase 3 — `scoutingReport`
+- [x] Phase 4 — `pcLockout`
+- [x] Phase 5 — Weights review, i18n, README, release notes, backlog

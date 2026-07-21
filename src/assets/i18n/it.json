@@ -427,7 +427,10 @@
             "badOmen": "Cattivo presagio",
             "spooked": "Spaventato",
             "markedTarget": "Bersaglio Marcato",
-            "pokeballMalfunction": "Malfunzionamento Poké Ball"
+            "pokeballMalfunction": "Malfunzionamento Poké Ball",
+            "tollBooth": "Toll Booth",
+            "scoutingReport": "Scouting Report",
+            "pcLockout": "PC Lockout"
           },
           "threats": {
             "itemTheft": {
@@ -436,7 +439,13 @@
               "nothingFound": "Un ladro ha frugato nella tua borsa ma non ha trovato nulla da prendere."
             },
             "forcedRetreat": {
+              "title": "Forced Retreat",
+              "description": "A threat forces one of your Pokémon to retreat to your PC box — it'll be locked there for your next battle.",
               "pickPokemon": "Quale Pokémon si ritira nel tuo box PC? Resterà bloccato lì fino alla tua prossima battaglia."
+            },
+            "teamRocketAmbush": {
+              "title": "Team Rocket Ambush!",
+              "description": "Team Rocket jumps out and blocks your path — you'll have to deal with them before you can continue."
             },
             "badOmen": {
               "title": "Cattivo presagio",
@@ -455,6 +464,19 @@
               "description": "Una delle tue Poké Ball si sta comportando in modo strano — il prossimo Pokémon che proverai a catturare potrebbe scappare.",
               "escapeTitle": "È scappato!",
               "escapeMessage": "La Poké Ball difettosa si è aperta di scatto — "
+            },
+            "tollBooth": {
+              "title": "Toll Booth",
+              "paidMessage": "A toll gate blocks the road — you hand over {{paid}} coins.",
+              "shortMessage": "A toll gate blocks the road — you scrape together {{paid}} coins, but coming up short rattles you (danger +{{spike}}%)."
+            },
+            "scoutingReport": {
+              "title": "Rival Scouting Report",
+              "description": "A rival scout studied your team — the next enemy came prepared with a {{type}} edge against your {{pokemon}}."
+            },
+            "pcLockout": {
+              "title": "PC Lockout",
+              "description": "A system glitch locks your PC — you can't withdraw or deposit any Pokémon until after your next battle."
             }
           }
         },
@@ -1146,6 +1168,7 @@
       "faintedTooltip": "Esausto per una sconfitta — bloccato nel PC finché non viene rianimato con un Revitalizzante.",
       "retreatLocked": "Bloccato (Ritirata Forzata)",
       "retreatLockedTooltip": "Messo in panchina da una minaccia di Ritirata Forzata — si sblocca al termine della tua prossima battaglia reale.",
+      "pcLocked": "PC locked until your next battle",
       "revive": "Revitalizza",
       "assignAbility": "Abilità",
       "assignAbilityTitle": "Assegna un'abilità a",
@@ -3141,6 +3164,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
   "v3_5_0": "Versione 3.5.0",
@@ -3152,6 +3176,11 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_8_0": {
+      "0": "🚧 Three new adventure threats: Toll Booth drains Coins (or spikes the Danger meter if you can't fully pay), Scouting Report gives your next opponent a type edge against your strongest Pokémon, and PC Lockout freezes withdrawals and deposits until your next battle.",
+      "1": "📈 Threats you draw are now filtered to skip anything that would have no effect on your current roster, and safe adventure steps recover the Danger meter a bit faster.",
+      "2": "💬 Team Rocket Ambush and Forced Retreat now show an explanatory message like every other threat, instead of jumping straight into their screen."
+    },
     "v3_7_0": {
       "0": "🪙 Guadagna Monete da vittorie, avventure e un piccolo compenso a ogni round.",
       "1": "🏪 Spendi le Monete al nuovo Mercato — pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare per potenziare la squadra, in qualsiasi momento fuori dalla battaglia.",

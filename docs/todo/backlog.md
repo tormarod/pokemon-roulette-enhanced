@@ -1,7 +1,7 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-17
+Last updated: 2026-07-21
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
@@ -13,6 +13,22 @@ Last updated: 2026-07-17
 ---
 
 ## Open items
+
+### Scouting Report selection rule may need tuning
+
+Currently pure random among the counters to the ace's type. Consider upgrading
+to harmful-random (filter out counters that don't worsen the team's odds) or
+meanest-counter if pure random feels too swingy in playtest. See
+`docs/plans/done/threat-mechanics-expansion.md` (Phase 3) for the current
+implementation and the decision record.
+
+### Bench-to-win emergent property (possible balance topic)
+
+Fielding fewer than 6 Pokémon to shed a matchup liability raises win % when
+the team is already favored — an emergent property of the odds math, not
+something PC Lockout introduced, but PC Lockout's freeze makes the tradeoff
+more visible. Independent balance topic, not yet decided whether it needs a
+fix.
 
 ### In-game player suggestions / bug-report + "most wanted" feedback
 

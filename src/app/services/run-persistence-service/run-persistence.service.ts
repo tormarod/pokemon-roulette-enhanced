@@ -10,10 +10,13 @@ import { AdventureDrawService, PendingAdventureDraw } from '../adventure-draw-se
 import { BattleDebuffService } from '../battle-debuff-service/battle-debuff.service';
 import { MarkedTargetService } from '../marked-target-service/marked-target.service';
 import { CatchRiskService } from '../catch-risk-service/catch-risk.service';
+import { ScoutingReportService } from '../scouting-report-service/scouting-report.service';
+import { PcLockService } from '../pc-lock-service/pc-lock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { Badge } from '../../interfaces/badge';
 import { MegaStoneItemName } from '../items-service/item-names';
+import { PokemonType } from '../../interfaces/pokemon-type';
 
 export interface SavedRun {
   state: GameState;
@@ -39,6 +42,8 @@ export interface SavedRun {
   megaBattleBaseId: number | null;
   megaBattleStoneName: MegaStoneItemName | null;
   megaBattleOriginalPokemon: PokemonItem | null;
+  scoutingType: PokemonType | null;
+  pcLocked: boolean;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -60,6 +65,8 @@ export class RunPersistenceService {
     private battleDebuffService: BattleDebuffService,
     private markedTargetService: MarkedTargetService,
     private catchRiskService: CatchRiskService,
+    private scoutingReportService: ScoutingReportService,
+    private pcLockService: PcLockService,
   ) {
     // Restore BEFORE wiring the auto-save subscription below — otherwise that
     // subscription's own first (synchronous) emission of fresh/default state
@@ -86,7 +93,9 @@ export class RunPersistenceService {
       this.markedTargetService.getPendingMarkObservable(),
       this.catchRiskService.getPendingEscapeChanceObservable(),
       this.trainerService.getCoinsObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins]) => {
+      this.scoutingReportService.getPendingTypeObservable(),
+      this.pcLockService.getLockedObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins, scoutingType, pcLocked]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -118,6 +127,8 @@ export class RunPersistenceService {
         megaBattleBaseId: this.trainerService.getMegaBattleBaseId(),
         megaBattleStoneName: this.trainerService.getMegaBattleStoneName(),
         megaBattleOriginalPokemon: this.trainerService.getMegaBattleOriginalPokemon(),
+        scoutingType,
+        pcLocked,
       });
     });
   }
@@ -168,6 +179,8 @@ export class RunPersistenceService {
     this.battleDebuffService.clearDebuff();
     this.markedTargetService.clearMark();
     this.catchRiskService.clearEscapeChance();
+    this.scoutingReportService.clearType();
+    this.pcLockService.clearLock();
     this.trainerService.resetCoins();
     this.trainerService.resetMegaBattleState();
     this.clearRun();
@@ -200,6 +213,8 @@ export class RunPersistenceService {
     this.markedTargetService.restoreMark(run.markedTeamIndex ?? null);
     this.catchRiskService.restoreEscapeChance(run.pendingCatchEscapeChance ?? 0);
     this.trainerService.restoreCoins(run.coins ?? 0);
+    this.scoutingReportService.restoreType(run.scoutingType ?? null);
+    this.pcLockService.setLock(run.pcLocked ?? false);
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
@@ -256,7 +271,9 @@ export class RunPersistenceService {
       (run.coins === undefined || typeof run.coins === 'number') &&
       (run.megaBattleBaseId === undefined || run.megaBattleBaseId === null || typeof run.megaBattleBaseId === 'number') &&
       (run.megaBattleStoneName === undefined || run.megaBattleStoneName === null || typeof run.megaBattleStoneName === 'string') &&
-      (run.megaBattleOriginalPokemon === undefined || run.megaBattleOriginalPokemon === null || typeof run.megaBattleOriginalPokemon === 'object')
+      (run.megaBattleOriginalPokemon === undefined || run.megaBattleOriginalPokemon === null || typeof run.megaBattleOriginalPokemon === 'object') &&
+      (run.scoutingType === undefined || run.scoutingType === null || typeof run.scoutingType === 'string') &&
+      (run.pcLocked === undefined || typeof run.pcLocked === 'boolean')
     );
   }
 }

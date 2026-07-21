@@ -5,7 +5,7 @@
     </p>
     @if (currentLeader?.types?.length) {
         <app-matchup-strip
-            [opponentTypes]="currentLeader.types"
+            [opponentTypes]="effectiveOpponentTypes ?? []"
             [superEffectiveTypes]="matchupSuperEffectiveTypes"
             [resistTypes]="matchupResistTypes"
             [weakTypes]="matchupDisadvantageTypes"
@@ -17,7 +17,7 @@
 @if (prepPhase) {
     <app-battle-prep-panel
         [team]="trainerTeam"
-        [opponentTypes]="currentLeader?.types"
+        [opponentTypes]="effectiveOpponentTypes"
         [items]="trainerItems"
         [forcedIndex]="markedTargetService.currentMarkedIndex"
         [baseNoCount]="baseNoCount"

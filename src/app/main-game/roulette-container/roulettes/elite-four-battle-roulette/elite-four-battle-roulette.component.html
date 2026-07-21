@@ -3,7 +3,7 @@
     <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
     @if (currentElite?.types?.length) {
         <app-matchup-strip
-            [opponentTypes]="currentElite.types"
+            [opponentTypes]="effectiveOpponentTypes ?? []"
             [superEffectiveTypes]="matchupSuperEffectiveTypes"
             [resistTypes]="matchupResistTypes"
             [weakTypes]="matchupDisadvantageTypes"
@@ -15,7 +15,7 @@
 @if (prepPhase) {
     <app-battle-prep-panel
         [team]="trainerTeam"
-        [opponentTypes]="currentElite?.types"
+        [opponentTypes]="effectiveOpponentTypes"
         [items]="trainerItems"
         [forcedIndex]="markedTargetService.currentMarkedIndex"
         [baseNoCount]="baseNoCount"

@@ -6,6 +6,9 @@
 
 <ng-template #pcStorageModal let-modal>
   <div class="modal-body" cdkDropListGroup>
+    @if (pcLocked) {
+      <div class="pc-lock-banner">{{ 'trainer.storage.pcLocked' | translate }}</div>
+    }
     <h2>{{ 'trainer.storage.team' | translate }}</h2>
     <div  id="trainerTeam"
           cdkDropList
@@ -17,7 +20,7 @@
           @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
             <div  class="pokemon-storage-card shadow"
                   [class.marked-card]="isNewExperienceMode && idx === markedIndex"
-                  [cdkDragDisabled]="isNewExperienceMode && idx === markedIndex"
+                  [cdkDragDisabled]="(isNewExperienceMode && idx === markedIndex) || pcLocked"
                   cdkDrag>
               <img class="img-fluid"
                    [src]="getSprite(pokemon)"
@@ -58,7 +61,7 @@
         <div  class="pokemon-storage-card shadow"
               [class.fainted-card]="pokemon.fainted || pokemon.retreatLocked"
               [cdkDragData]="pokemon"
-              [cdkDragDisabled]="!!pokemon.fainted || !!pokemon.retreatLocked"
+              [cdkDragDisabled]="!!pokemon.fainted || !!pokemon.retreatLocked || pcLocked"
               cdkDrag>
           <img [src]="getSprite(pokemon)"
                class="img-fluid"
