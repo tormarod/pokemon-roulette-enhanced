@@ -721,9 +721,9 @@
       "name": "Caramella Rara",
       "description": "Usa una Caramella Rara per far evolvere il tuo Pokémon in qualsiasi momento!"
     },
-    "running-shoes": {
-      "name": "Scarpe da Corsa",
-      "description": "Le Scarpe da Corsa ti permettono di girare la ruota due volte tra una Palestra e l'altra!"
+    "bicycle": {
+      "name": "Bicicletta",
+      "description": "La Bicicletta ti permette di girare la ruota due volte tra una Palestra e l'altra!"
     },
     "super-potion": {
       "name": "Superpozione",

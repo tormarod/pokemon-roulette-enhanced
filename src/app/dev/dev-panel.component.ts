@@ -76,7 +76,7 @@ export class DevPanelComponent {
   readonly regularItems: RegularItemName[] = [
     'potion',
     'rare-candy',
-    'running-shoes',
+    'bicycle',
     'super-potion',
     'x-attack',
     'exp-share',

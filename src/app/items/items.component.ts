@@ -9,6 +9,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import { isMegaStoneItemName } from '../services/items-service/item-names';
+import { ITEM_SPRITE_FALLBACK } from '../services/item-sprite-service/item-sprite.service';
 
 @Component({
   selector: 'app-items',
@@ -67,10 +68,21 @@ export class ItemsComponent implements OnInit, OnDestroy {
   }
 
   getItemSprite(index: number): string {
-    if (this.trainerItems[index]) {
-      return this.trainerItems[index].sprite;
+    const item = this.trainerItems[index];
+    if (!item) {
+      // Empty slot — keep the transparent placeholder, not an item icon.
+      return './place-holder-pixel.png';
     }
-    return './place-holder-pixel.png';
+    // Present item whose sprite never resolved: show the common-item fallback.
+    return item.sprite ? item.sprite : ITEM_SPRITE_FALLBACK;
+  }
+
+  /** Swap a broken/blocked item sprite for the local common-item fallback. */
+  onSpriteError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.endsWith(ITEM_SPRITE_FALLBACK)) {
+      img.src = ITEM_SPRITE_FALLBACK;
+    }
   }
 
   getItemText(index: number): string {

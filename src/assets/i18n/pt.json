@@ -721,9 +721,9 @@
       "name": "Doce Raro",
       "description": "Use um Doce Raro para evoluir seu Pokémon a qualquer momento!"
     },
-    "running-shoes": {
-      "name": "Tênis de Corrida",
-      "description": "Os Tênis de Corrida permitem girar a roleta duas vezes entre os Ginásios!"
+    "bicycle": {
+      "name": "Bicicleta",
+      "description": "A Bicicleta permite girar a roleta duas vezes entre os Ginásios!"
     },
     "super-potion": {
       "name": "Super Poção",

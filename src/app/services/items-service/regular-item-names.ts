@@ -1,7 +1,7 @@
 export type RegularItemName =
   | 'potion'
   | 'rare-candy'
-  | 'running-shoes'
+  | 'bicycle'
   | 'super-potion'
   | 'x-attack'
   | 'exp-share'

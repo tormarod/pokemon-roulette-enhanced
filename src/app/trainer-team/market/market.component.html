@@ -27,7 +27,7 @@
     <ul class="market-list">
       @for (entry of stock; track entry.id) {
         <li class="market-row" [class.market-row-locked]="!canAfford(entry)">
-          <img class="market-sprite" [src]="entry.sprite" [alt]="entry.labelKey | translate" height="48">
+          <img class="market-sprite" [src]="entry.sprite" [alt]="entry.labelKey | translate" height="48" (error)="onSpriteError($event)">
           <div class="market-info">
             <span class="market-name">{{ entry.labelKey | translate }}</span>
             <span class="market-desc">{{ entry.descriptionKey | translate }}</span>

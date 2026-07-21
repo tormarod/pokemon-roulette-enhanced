@@ -18,13 +18,13 @@ export const itemsData: Record<RegularItemName, ItemItem> = {
     weight: 1,
     description: 'items.rare-candy.description'
   },
-  'running-shoes': {
-    text: 'items.running-shoes.name',
-    name: 'running-shoes',
+  'bicycle': {
+    text: 'items.bicycle.name',
+    name: 'bicycle',
     sprite: '',
     fillStyle: 'darkgoldenrod',
     weight: 1,
-    description: 'items.running-shoes.description'
+    description: 'items.bicycle.description'
   },
   'super-potion': {
     text: 'items.super-potion.name',

@@ -8,7 +8,7 @@ import { ThemeService } from '../../services/theme-service/theme.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { GameState } from '../../services/game-state-service/game-state';
 import { ItemsService } from '../../services/items-service/items.service';
-import { ItemSpriteService } from '../../services/item-sprite-service/item-sprite.service';
+import { ItemSpriteService, ITEM_SPRITE_FALLBACK } from '../../services/item-sprite-service/item-sprite.service';
 import { BattlePrepService } from '../../services/battle-prep-service/battle-prep.service';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { ItemName, RegularItemName } from '../../services/items-service/item-names';
@@ -183,5 +183,13 @@ export class MarketComponent implements OnInit, OnDestroy {
       price: MARKET_PRICES['ability-capsule'],
       sprite: CAPSULE_SPRITE
     });
+  }
+
+  /** Swap a broken/blocked item sprite for the local common-item fallback. */
+  onSpriteError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.endsWith(ITEM_SPRITE_FALLBACK)) {
+      img.src = ITEM_SPRITE_FALLBACK;
+    }
   }
 }
