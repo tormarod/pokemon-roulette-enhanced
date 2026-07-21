@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { ItemsService } from '../../../../services/items-service/items.service';
-import { ItemSpriteService } from '../../../../services/item-sprite-service/item-sprite.service';
+import { ItemSpriteService, ITEM_SPRITE_FALLBACK } from '../../../../services/item-sprite-service/item-sprite.service';
 import { ItemItem } from '../../../../interfaces/item-item';
 import { SoundFxHandle, SoundFxService } from '../../../../services/sound-fx-service/sound-fx.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
@@ -37,6 +37,14 @@ export class FindItemRouletteComponent {
   selectedItem: ItemItem | null = null;
   @Output() itemSelectedEvent = new EventEmitter<ItemItem>();
   itemFoundAudio!: SoundFxHandle;
+
+  /** Swap a broken/blocked item sprite for the local common-item fallback. */
+  onSpriteError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.endsWith(ITEM_SPRITE_FALLBACK)) {
+      img.src = ITEM_SPRITE_FALLBACK;
+    }
+  }
 
   onItemSelected(index: number): void {
     this.selectedItem = this.items[index];

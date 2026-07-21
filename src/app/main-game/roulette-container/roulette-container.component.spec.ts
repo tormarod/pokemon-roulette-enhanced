@@ -144,14 +144,14 @@ describe('RouletteContainerComponent', () => {
   });
 
   // ══════════════════════════════════════════════════════════════════════════
-  // Running Shoes — its one bonus adventure step is guaranteed threat-free too
+  // Bicycle — its one bonus adventure step is guaranteed threat-free too
   // ══════════════════════════════════════════════════════════════════════════
 
-  describe('running shoes bonus step', () => {
+  describe('bicycle bonus step', () => {
     it('grants one guaranteed threat-free step on the danger meter when it queues its bonus round', () => {
       const dangerMeterService = TestBed.inject(DangerMeterService);
       dangerMeterService.resetForNewRun();
-      trainerService.addToItems({ text: '', name: 'running-shoes', sprite: 'x', fillStyle: '', weight: 1, description: '' });
+      trainerService.addToItems({ text: '', name: 'bicycle', sprite: 'x', fillStyle: '', weight: 1, description: '' });
 
       // Transition INTO an adventure-continues step — the moment finishCurrentState
       // sees the item unused and queues the bonus round.

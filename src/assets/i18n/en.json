@@ -721,9 +721,9 @@
       "name": "Rare Candy",
       "description": "Use a Rare Candy to Evolve your Pokémon anytime !"
     },
-    "running-shoes": {
-      "name": "Running Shoes",
-      "description": "Running Shoes let you spin the wheel twice between Gyms !"
+    "bicycle": {
+      "name": "Bicycle",
+      "description": "The Bicycle lets you spin the wheel twice between Gyms !"
     },
     "super-potion": {
       "name": "Super Potion",

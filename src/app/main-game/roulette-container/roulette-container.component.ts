@@ -191,8 +191,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
             this.respinReason = 'Multitask x' + this.multitaskCounter;
             this.multitaskCounter--;
           }
-          if (this.runningShoesUsed) {
-            this.respinReason = 'items.running-shoes.name';
+          if (this.bicycleUsed) {
+            this.respinReason = 'items.bicycle.name';
           }
         }
       });
@@ -343,7 +343,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   pkmnOut!: PokemonItem;
   pkmnTradeTitle = '';
   respinReason = '';
-  runningShoesUsed: boolean = false;
+  bicycleUsed: boolean = false;
   stolenPokemon!: PokemonItem | null;
   wheelSpinning: boolean = false;
   private megaSelectionMode: 'none' | 'battle-award-pokemon' | 'battle-award-stone' = 'none';
@@ -358,10 +358,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.gameStateService.finishCurrentState();
 
     if (this.currentGameState === 'adventure-continues') {
-      if (this.trainerService.hasItem('running-shoes') && !this.runningShoesUsed) {
-        this.runningShoesUsed = true;
+      if (this.trainerService.hasItem('bicycle') && !this.bicycleUsed) {
+        this.bicycleUsed = true;
         this.gameStateService.setNextState('adventure-continues');
-        // Same rule as multitask: the bonus step Running Shoes grants is
+        // Same rule as multitask: the bonus step the Bicycle grants is
         // guaranteed threat-free (the danger meter still climbs across it).
         this.dangerMeterService.addGuaranteedRewardSteps(1);
       }
@@ -655,7 +655,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   gymBattleResult(result: boolean): void {
-    this.runningShoesUsed = false;
+    this.bicycleUsed = false;
     this.respinReason = '';
 
     if (result) {
@@ -1219,7 +1219,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   eliteFourBattleResult(result: boolean): void {
-    this.runningShoesUsed = false;
+    this.bicycleUsed = false;
     this.respinReason = '';
 
     if (result) {
@@ -1238,7 +1238,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   championBattleResult(result: boolean): void {
-    this.runningShoesUsed = false;
+    this.bicycleUsed = false;
     this.respinReason = '';
 
     if (result) {

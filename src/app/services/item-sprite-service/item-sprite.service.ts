@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import { ItemName } from '../items-service/item-names';
 import { Observable, of } from 'rxjs';
 
+/**
+ * Local, always-available fallback shown whenever an item has no mapped sprite
+ * or its remote sprite fails to load (see `onSpriteError` handlers in the item
+ * views). Served from `public/` at the app root — no network dependency, so a
+ * broken/blocked external host never leaves a missing-image icon.
+ */
+export const ITEM_SPRITE_FALLBACK = 'item-fallback.png';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +20,7 @@ export class ItemSpriteService {
   itemSpriteData: Partial<Record<ItemName, { sprite: string }>> = {
     "potion": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png' },
     "rare-candy": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png' },
-    "running-shoes": { sprite: 'https://archives.bulbagarden.net/media/upload/4/42/Bag_Running_Shoes_Sprite.png' },
+    "bicycle": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png' },
     "super-potion": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png' },
     "x-attack": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png' },
     "exp-share": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png' },
@@ -26,7 +34,7 @@ export class ItemSpriteService {
     "revive": { sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png' }
   };
 
-  getItemSprite(itemName: ItemName): Observable<{ sprite: string } | undefined> {
-    return of(this.itemSpriteData[itemName]);
+  getItemSprite(itemName: ItemName): Observable<{ sprite: string }> {
+    return of(this.itemSpriteData[itemName] ?? { sprite: ITEM_SPRITE_FALLBACK });
   }
 }
