@@ -8,6 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
+import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { AbilityId } from '../../services/ability-service/abilities-data';
 
@@ -111,6 +112,53 @@ describe('StoragePcComponent', () => {
       expect(card).toBeTruthy();
       expect(card.classList.contains('fainted-card')).toBeTrue();
       expect(card.querySelector('.fainted-badge')?.textContent).toContain('trainer.storage.retreatLocked');
+
+      viewRef.destroy();
+    });
+  });
+
+  // ── PC Lockout threat (threat-mechanics-expansion Phase 4) ──────────────
+
+  describe('pcLockout lock', () => {
+    let pcLockService: PcLockService;
+
+    beforeEach(() => {
+      pcLockService = TestBed.inject(PcLockService);
+    });
+
+    it('disables dragging on both a team card and a stored card, and shows the banner, while locked', () => {
+      component.trainerTeam = [makeTestPokemon({ pokemonId: 1 })];
+      component.storedPokemon = [makeTestPokemon({ pokemonId: 4 })];
+      pcLockService.setLock(true);
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+
+      const teamCard = rootNode.querySelector('#trainerTeam .pokemon-storage-card')!;
+      const storedCard = rootNode.querySelector('#storedPokemon .pokemon-storage-card')!;
+      expect(teamCard.classList.contains('cdk-drag-disabled')).toBeTrue();
+      expect(storedCard.classList.contains('cdk-drag-disabled')).toBeTrue();
+      expect(rootNode.querySelector('.pc-lock-banner')?.textContent).toContain('trainer.storage.pcLocked');
+
+      viewRef.destroy();
+    });
+
+    it('leaves dragging enabled and hides the banner when not locked', () => {
+      component.trainerTeam = [makeTestPokemon({ pokemonId: 1 })];
+      component.storedPokemon = [makeTestPokemon({ pokemonId: 4 })];
+      fixture.detectChanges();
+
+      const viewRef = component.pcStorageModal.createEmbeddedView({});
+      viewRef.detectChanges();
+      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
+
+      const teamCard = rootNode.querySelector('#trainerTeam .pokemon-storage-card')!;
+      const storedCard = rootNode.querySelector('#storedPokemon .pokemon-storage-card')!;
+      expect(teamCard.classList.contains('cdk-drag-disabled')).toBeFalse();
+      expect(storedCard.classList.contains('cdk-drag-disabled')).toBeFalse();
+      expect(rootNode.querySelector('.pc-lock-banner')).toBeFalsy();
 
       viewRef.destroy();
     });

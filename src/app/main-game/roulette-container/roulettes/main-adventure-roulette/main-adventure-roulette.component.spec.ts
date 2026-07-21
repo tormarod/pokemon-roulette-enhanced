@@ -297,7 +297,10 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
       { id: 'spooked', emitterName: 'spookedEvent' },
       { id: 'markedTarget', emitterName: 'markedTargetEvent' },
       { id: 'pokeballMalfunction', emitterName: 'pokeballMalfunctionEvent' },
-      { id: 'teamRocketAmbush', emitterName: 'teamRocketEncounterEvent' },
+      { id: 'teamRocketAmbush', emitterName: 'teamRocketAmbushEvent' },
+      { id: 'tollBooth', emitterName: 'tollBoothEvent' },
+      { id: 'scoutingReport', emitterName: 'scoutingReportEvent' },
+      { id: 'pcLockout', emitterName: 'pcLockoutEvent' },
     ];
 
     for (const { id, emitterName } of cases) {
@@ -343,5 +346,25 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
 
     expect(component.itemTheftEvent.emit).toHaveBeenCalled();
     expect(adventureDrawService.getPendingDraw()).toBeNull();
+  });
+
+  it('should never draw an excluded threat id (Phase 1 draw-filter)', async () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('threat');
+    createFixture();
+    await Promise.resolve(); // flush the initial (unfiltered) draw's routing microtask
+
+    fixture.componentRef.setInput('excludedThreatIds', ['forcedRetreat', 'markedTarget']);
+    const forcedRetreatSpy = spyOn(component.forcedRetreatEvent, 'emit');
+    const markedTargetSpy = spyOn(component.markedTargetEvent, 'emit');
+
+    for (let i = 0; i < 50; i++) {
+      adventureDrawService.clearDraw();
+      gameStateService.setNextState('adventure-continues');
+      gameStateService.finishCurrentState();
+      await Promise.resolve();
+    }
+
+    expect(forcedRetreatSpy).not.toHaveBeenCalled();
+    expect(markedTargetSpy).not.toHaveBeenCalled();
   });
 });

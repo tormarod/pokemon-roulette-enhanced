@@ -6,11 +6,12 @@ import { ThemeService } from './services/theme-service/theme.service';
 import { RunPersistenceService } from './services/run-persistence-service/run-persistence.service';
 import { AchievementToastComponent } from './achievement-toast/achievement-toast.component';
 import { WhatsNewService } from './services/whats-new-service/whats-new.service';
+import { ScrollHintComponent } from './scroll-hint/scroll-hint.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, TranslateModule, AchievementToastComponent],
+  imports: [RouterOutlet, TranslateModule, AchievementToastComponent, ScrollHintComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.css',

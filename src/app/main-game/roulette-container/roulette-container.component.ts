@@ -73,6 +73,9 @@ import { DangerMeterService } from '../../services/danger-meter-service/danger-m
 import { DangerMeterComponent } from '../danger-meter/danger-meter.component';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
+import { ScoutingReportService } from '../../services/scouting-report-service/scouting-report.service';
+import { TypeMatchupService } from '../../services/type-matchup-service/type-matchup.service';
+import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 
 /** V2 "badOmen" threat: extra No tickets on the next battle. */
 const BADOMEN_DEBUFF_AMOUNT = 2;
@@ -156,6 +159,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private dangerMeterService: DangerMeterService,
       private markedTargetService: MarkedTargetService,
       private catchRiskService: CatchRiskService,
+      private scoutingReportService: ScoutingReportService,
+      private typeMatchupService: TypeMatchupService,
+      private pcLockService: PcLockService,
       private cdr: ChangeDetectorRef) {
       this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
       this.megaStoneTapAudio = this.soundFxService.createMegaStoneTapSoundFx();
@@ -701,6 +707,14 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.finishCurrentState();
   }
 
+  /** V2 "teamRocketAmbush" threat (New Experience only): same mini-wheel as the reward-pool Team Rocket encounter, with a threat-specific modal explaining the ambush first. */
+  teamRocketAmbush(): void {
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.teamRocketAmbush.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.teamRocketAmbush.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.teamRocketEncounter();
+  }
+
   legendaryEncounter(): void {
     this.gameStateService.setNextState('legendary-encounter');
     this.finishCurrentState();
@@ -894,6 +908,21 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * V2 threat-draw filter (New Experience only): threat ids that would be a
+   * costless no-op given current roster state, excluded from the draw pool
+   * before a threat step commits its danger-meter relief (see
+   * `MainAdventureRouletteComponent.initializeDraw()`).
+   */
+  excludedThreatIds(): string[] {
+    const teamCount = this.trainerService.getTeam().length;
+    const total = teamCount + this.trainerService.getStored().length;
+    const excluded: string[] = [];
+    if (total <= 1) excluded.push('pcLockout'); // nothing to withdraw or bench
+    if (teamCount <= 1) excluded.push('forcedRetreat', 'markedTarget'); // never bench/mark your only battler
+    return excluded;
+  }
+
+  /**
    * V2 "forcedRetreat" threat (New Experience only): benches a weak-biased
    * team Pokémon to PC storage, locked there for 1 combat round (see the
    * 'forced-retreat-pokemon' case in continueWithPokemon()).
@@ -905,6 +934,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.doNothing();
       return;
     }
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.forcedRetreat.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.forcedRetreat.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
     this.stealCandidates = trainerTeam;
     this.auxPokemonList = this.weightByInversePower(trainerTeam);
     this.customWheelTitle = 'game.main.roulette.adventure.threats.forcedRetreat.pickPokemon';
@@ -928,6 +960,96 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.dangerMeterService.applySpike();
     this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.spooked.title');
     this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.spooked.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  /**
+   * V2 "scoutingReport" threat (New Experience only): the next real battle's opponent gains
+   * one extra type, super-effective against the strongest Pokémon across team + PC (locked
+   * at draw time so stashing the ace afterward can't relabel who's targeted — see the
+   * "Scouting 'strongest'" decision in docs/plans/threat-mechanics-expansion.md). Pure random
+   * pick among the counters, not "meanest."
+   */
+  scoutingReport(): void {
+    const roster = [...this.trainerService.getTeam(), ...this.trainerService.getStored()];
+    if (roster.length === 0) {
+      this.doNothing();
+      return;
+    }
+    const ace = roster.reduce((best, p) => (p.power > best.power ? p : best), roster[0]);
+    const aceTypes = [ace.type1, ace.type2].filter((t): t is PokemonType => !!t);
+    const shuffledAceTypes = [...aceTypes].sort(() => Math.random() - 0.5);
+    let chosen: PokemonType | null = null;
+    for (const at of shuffledAceTypes) {
+      const counters = this.typeMatchupService.getSuperEffectiveCounters(at);
+      if (counters.length) {
+        chosen = counters[Math.floor(Math.random() * counters.length)];
+        break;
+      }
+    }
+    if (!chosen) {
+      // No type on the ace has any counter — extremely rare (no type is currently
+      // counter-less in this game's chart), but guard against a costless no-op regardless.
+      this.doNothing();
+      return;
+    }
+    this.scoutingReportService.setType(chosen);
+    const aceName = this.translateService.instant(ace.text);
+    const typeName = this.translateService.instant(`pokemonType.${chosen}`);
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.scoutingReport.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.scoutingReport.description', { pokemon: aceName, type: typeName });
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  /**
+   * V2 "pcLockout" threat (New Experience only): freezes the PC both directions (no withdraw,
+   * no deposit) until the next real battle resolves. The `total <= 1` guard is a defensive
+   * fallback — Phase 1's draw-filter (`excludedThreatIds`) already excludes this threat in
+   * that case, so it should never actually fire here in normal play.
+   */
+  pcLockout(): void {
+    const total = this.trainerService.getTeam().length + this.trainerService.getStored().length;
+    if (total <= 1) {
+      this.doNothing();
+      return;
+    }
+    this.pcLockService.setLock(true);
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.pcLockout.title');
+    this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.pcLockout.description');
+    this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
+    this.doNothing();
+  }
+
+  private tollAmount(round: number): number {
+    return 15 + 3 * round;
+  }
+
+  /**
+   * V2 "tollBooth" threat (New Experience only): drains coins scaled by round. An empty or
+   * short wallet takes what's there and applies a danger-meter spike scaled to the unpaid
+   * fraction of the toll — being short must never be a costless no-op (see the threat design
+   * guardrail in docs/plans/threat-mechanics-expansion.md).
+   */
+  tollBooth(): void {
+    const round = this.gameStateService.currentRoundValue;
+    const toll = this.tollAmount(round);
+    const balance = this.trainerService.getCoins();
+    const paid = Math.min(balance, toll);
+    if (paid > 0) {
+      this.trainerService.spendCoins(paid);
+    }
+    const unpaidFraction = (toll - paid) / toll;
+    let spike = 0;
+    if (unpaidFraction > 0) {
+      spike = unpaidFraction <= 1 / 3 ? 5 : unpaidFraction <= 2 / 3 ? 10 : 15;
+      this.dangerMeterService.applySpike(spike);
+    }
+    this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.tollBooth.title');
+    this.infoModalMessage = spike > 0
+      ? this.translateService.instant('game.main.roulette.adventure.threats.tollBooth.shortMessage', { paid, spike })
+      : this.translateService.instant('game.main.roulette.adventure.threats.tollBooth.paidMessage', { paid });
     this.modalQueueService.open(this.infoModal, { centered: true, size: 'md' });
     this.doNothing();
   }

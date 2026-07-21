@@ -37,6 +37,14 @@ describe('TypeMatchupService', () => {
     expect(service.isWeakAgainst('water', 'fire')).toBeFalse();
   });
 
+  // ── getSuperEffectiveCounters (scoutingReport threat) ─────────────────────
+
+  it('getSuperEffectiveCounters returns every type super-effective against the given type', () => {
+    const counters = service.getSuperEffectiveCounters('grass');
+    expect(counters).toContain('fire');
+    expect(counters).not.toContain('water');
+  });
+
   // ── getMemberDelta: a quarter power rounded up, uncapped, never zero ──────
   // This is now the per-net-score-point unit (see calcTeamMatchupTotals):
   // a plain mutual-advantage pair like Water vs Fire scores netScore=2, so

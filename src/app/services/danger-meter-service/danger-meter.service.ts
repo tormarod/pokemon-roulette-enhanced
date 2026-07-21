@@ -32,7 +32,7 @@ export class DangerMeterService {
   private static readonly CURVE = 5;
   private static readonly CAP = 70;
   private static readonly RELIEF = 20;
-  private static readonly RECOVERY = 10;
+  private static readonly RECOVERY = 15;
   private static readonly FLOOR = 5;
   private static readonly PITY = 3;
   private static readonly SPIKE = 30;
@@ -122,11 +122,15 @@ export class DangerMeterService {
     this.state.next({ ...current, guaranteedRewardSteps: current.guaranteedRewardSteps + count });
   }
 
-  /** "Spooked" threat: undoes most of rollStep's automatic threat relief. Not capped by base(round) — a punishment, not a recovery. */
-  applySpike(): void {
+  /**
+   * "Spooked" threat: undoes most of rollStep's automatic threat relief. Not capped by
+   * base(round) — a punishment, not a recovery. `amount` lets other threats (e.g. `tollBooth`'s
+   * overdraft) request a smaller spike than the default.
+   */
+  applySpike(amount: number = DangerMeterService.SPIKE): void {
     const current = this.state.value;
     this.state.next({
-      dangerPercent: Math.min(100, current.dangerPercent + DangerMeterService.SPIKE),
+      dangerPercent: Math.min(100, current.dangerPercent + amount),
       consecutiveThreats: current.consecutiveThreats,
       guaranteedRewardSteps: current.guaranteedRewardSteps
     });

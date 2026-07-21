@@ -36,7 +36,7 @@ describe('DangerMeterService', () => {
     const step = service.rollStep(0);
 
     expect(step).toBe('reward');
-    expect(service.currentDangerPercent).toBe(5); // recover(0): min(base(0)=5, 5+10)=5
+    expect(service.currentDangerPercent).toBe(5); // recover(0): min(base(0)=5, 5+15)=5
     expect(service.currentConsecutiveThreats).toBe(0);
   });
 
@@ -47,7 +47,7 @@ describe('DangerMeterService', () => {
 
     rounds.forEach((round, i) => {
       // 65 is below the reward threshold (random*100=99) but high enough that
-      // dangerPercent+RECOVERY(10)=75 >= base(round) for every round below, so
+      // dangerPercent+RECOVERY(15)=80 >= base(round) for every round below, so
       // recover() is always capped by base(round), not by +RECOVERY.
       service.restore(65, 0);
       service.rollStep(round);
@@ -61,9 +61,9 @@ describe('DangerMeterService', () => {
     service.restore(5, 0);
     spyOn(Math, 'random').and.returnValue(0.99); // reward path
 
-    service.rollStep(3); // base(3) = 50, but recovery is capped at +10
+    service.rollStep(3); // base(3) = 50, but recovery is capped at +15
 
-    expect(service.currentDangerPercent).toBe(15);
+    expect(service.currentDangerPercent).toBe(20);
   });
 
   it('should hard-pity to a reward and reset consecutiveThreats after PITY consecutive threats', () => {
@@ -120,6 +120,30 @@ describe('DangerMeterService', () => {
     spyOn(Math, 'random').and.returnValue(0.99);
     service.rollStep(0); // consumes the guaranteed step
     expect(service.isNextStepGuaranteedSafe()).toBe(false);
+  });
+
+  it('applySpike with no argument should add the default SPIKE amount, uncapped by base(round)', () => {
+    service.restore(40, 1, 0);
+
+    service.applySpike();
+
+    expect(service.currentDangerPercent).toBe(70); // 40 + default SPIKE(30)
+  });
+
+  it('applySpike should accept a custom amount (e.g. tollBooth\'s scaled overdraft spike)', () => {
+    service.restore(40, 1, 0);
+
+    service.applySpike(10);
+
+    expect(service.currentDangerPercent).toBe(50);
+  });
+
+  it('applySpike should cap dangerPercent at 100', () => {
+    service.restore(95, 0, 0);
+
+    service.applySpike();
+
+    expect(service.currentDangerPercent).toBe(100);
   });
 
   it('resetForNewRun should restore the initial state', () => {

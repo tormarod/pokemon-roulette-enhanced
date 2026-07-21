@@ -17,6 +17,7 @@ import {TranslatePipe} from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { Subscription } from 'rxjs';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
+import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 
 @Component({
   selector: 'app-storage-pc',
@@ -40,6 +41,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
                 private gameStateService: GameStateService,
                 private abilityService: AbilityService,
                 private markedTargetService: MarkedTargetService,
+                private pcLockService: PcLockService,
                 private soundFxService: SoundFxService) {
       this.pcTurningOn = this.soundFxService.createPcTurningOnSoundFx();
       this.pcLoginAudio = this.soundFxService.createPcLoginSoundFx();
@@ -64,6 +66,8 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     assignTarget: PokemonItem | null = null;
     /** New Experience only: team index the Marked Target threat currently forces to lead. */
     markedIndex: number | null = null;
+    /** New Experience only: true while the PC Lockout threat has frozen both drop lists. */
+    pcLocked = false;
     private pickerModalRef: NgbModalRef | null = null;
     private readonly subscriptions = new Subscription();
     private removePcTurningOnEndedListener: (() => void) | null = null;
@@ -84,6 +88,10 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
       this.subscriptions.add(this.markedTargetService.getPendingMarkObservable().subscribe(index => {
         this.markedIndex = index;
+      }));
+
+      this.subscriptions.add(this.pcLockService.getLockedObservable().subscribe(locked => {
+        this.pcLocked = locked;
       }));
     }
 

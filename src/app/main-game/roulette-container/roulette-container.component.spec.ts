@@ -27,6 +27,8 @@ import { BattleDebuffService } from '../../services/battle-debuff-service/battle
 import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
+import { ScoutingReportService } from '../../services/scouting-report-service/scouting-report.service';
+import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 import { battleWinReward, PASSIVE_PER_ROUND, CARD_COIN_MIN, CARD_COIN_MAX } from './economy-config';
@@ -947,6 +949,47 @@ describe('RouletteContainerComponent', () => {
   // V2 New Experience threats: itemTheft, forcedRetreat, badOmen
   // ══════════════════════════════════════════════════════════════════════════
 
+  describe('excludedThreatIds', () => {
+    const makePokemon = (id: number): any => ({
+      pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
+      sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
+      shiny: false, power: 1, weight: 1,
+    });
+
+    it('excludes pcLockout, forcedRetreat, and markedTarget for a 1-Pokemon roster', () => {
+      trainerService.addToTeam(makePokemon(1));
+
+      expect(component.excludedThreatIds().sort()).toEqual(['forcedRetreat', 'markedTarget', 'pcLockout']);
+    });
+
+    it('excludes only forcedRetreat/markedTarget for a 1-team + 2-PC roster', () => {
+      trainerService.commitTeamAndStorage([makePokemon(1)], [makePokemon(2), makePokemon(3)]);
+
+      expect(component.excludedThreatIds().sort()).toEqual(['forcedRetreat', 'markedTarget']);
+    });
+
+    it('excludes nothing for a healthy 4-team roster', () => {
+      trainerService.commitTeamAndStorage(
+        [makePokemon(1), makePokemon(2), makePokemon(3), makePokemon(4)], []
+      );
+
+      expect(component.excludedThreatIds()).toEqual([]);
+    });
+  });
+
+  describe('teamRocketAmbush', () => {
+    beforeEach(() => {
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('shows a modal and transitions into the shared Team Rocket encounter', () => {
+      component.teamRocketAmbush();
+
+      expect(modalQueueService.open).toHaveBeenCalled();
+      expect(component.getGameState()).toBe('team-rocket-encounter');
+    });
+  });
+
   describe('itemTheft', () => {
     const ITEM: any = { name: 'potion', text: 'items.potion.name', fillStyle: '', weight: 1, description: '', sprite: '' };
 
@@ -1031,7 +1074,11 @@ describe('RouletteContainerComponent', () => {
       shiny: false, power, weight: 1,
     });
 
-    it('with team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members', () => {
+    beforeEach(() => {
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('with team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members, and shows a modal', () => {
       trainerService.addToTeam(makePokemon(1, 1));
       trainerService.addToTeam(makePokemon(4, 4));
 
@@ -1041,6 +1088,7 @@ describe('RouletteContainerComponent', () => {
       const list = (component as any).auxPokemonList;
       expect(list.find((p: any) => p.pokemonId === 1).weight).toBe(1);
       expect(list.find((p: any) => p.pokemonId === 4).weight).toBe(0.25);
+      expect(modalQueueService.open).toHaveBeenCalled();
     });
 
     it('picking a Pokemon for the forced retreat moves it to storage locked, and never sets stolenPokemon (unlike Team Rocket)', () => {
@@ -1185,6 +1233,142 @@ describe('RouletteContainerComponent', () => {
       component.capturePokemon(bulbasaur!);
 
       expect(trainerService.getTeam().length).toBe(1);
+    });
+  });
+
+  describe('tollBooth', () => {
+    let dangerMeterService: DangerMeterService;
+
+    beforeEach(() => {
+      dangerMeterService = TestBed.inject(DangerMeterService);
+      spyOn(dangerMeterService, 'applySpike').and.callThrough();
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('balance >= toll: pays the full toll, no spike', () => {
+      // round 0 -> toll = 15 + 3*0 = 15
+      trainerService.addCoins(100);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(85);
+      expect(dangerMeterService.applySpike).not.toHaveBeenCalled();
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('balance 0: pays nothing, applies the max spike tier (fully unpaid)', () => {
+      expect(trainerService.getCoins()).toBe(0);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(15);
+    });
+
+    it('balance just under toll: pays what it can, applies the smallest spike tier', () => {
+      // round 0 -> toll = 15; balance 14 -> unpaid 1/15 ≈ 0.067 <= 1/3
+      trainerService.addCoins(14);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(5);
+    });
+
+    it('resolves the state either way', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.tollBooth();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('scoutingReport', () => {
+    const makePokemon = (id: number, power: number, type1: any, type2: any = null): any => ({
+      pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
+      sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
+      shiny: false, power, weight: 1, type1, type2,
+    });
+    let scoutingReportService: ScoutingReportService;
+
+    beforeEach(() => {
+      scoutingReportService = TestBed.inject(ScoutingReportService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('with an empty roster → does nothing, sets no type', () => {
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.scoutingReport();
+
+      expect(component.doNothing).toHaveBeenCalled();
+      expect(scoutingReportService.currentType).toBeNull();
+    });
+
+    it('sets a type super-effective against the highest-power member (team + PC combined)', () => {
+      trainerService.addToTeam(makePokemon(1, 1, 'water'));
+      trainerService.commitTeamAndStorage(trainerService.getTeam(), [makePokemon(2, 99, 'grass')]);
+
+      component.scoutingReport();
+
+      // ace = the power-99 Grass Pokémon stashed in the PC — counters: fire, ice, poison, flying, bug
+      expect(scoutingReportService.currentType).not.toBeNull();
+      expect(['fire', 'ice', 'poison', 'flying', 'bug']).toContain(scoutingReportService.currentType as string);
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('resolves the state either way', () => {
+      trainerService.addToTeam(makePokemon(1, 1, 'water'));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.scoutingReport();
+
+      expect(component.doNothing).toHaveBeenCalled();
+    });
+  });
+
+  describe('pcLockout', () => {
+    const makePokemon = (id: number): any => ({
+      pokemonId: id, text: `pokemon.${id}`, fillStyle: 'green',
+      sprite: { front_default: 'p.png', front_shiny: 'ps.png' },
+      shiny: false, power: 1, weight: 1,
+    });
+    let pcLockService: PcLockService;
+
+    beforeEach(() => {
+      pcLockService = TestBed.inject(PcLockService);
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+    });
+
+    it('with total >= 2 → locks the PC and shows a modal', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(2));
+
+      component.pcLockout();
+
+      expect(pcLockService.isLocked).toBeTrue();
+      expect(modalQueueService.open).toHaveBeenCalled();
+    });
+
+    it('with exactly 1 total (team + PC) → does nothing, lock stays false', () => {
+      trainerService.addToTeam(makePokemon(1));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.pcLockout();
+
+      expect(component.doNothing).toHaveBeenCalled();
+      expect(pcLockService.isLocked).toBeFalse();
+    });
+
+    it('resolves the state either way', () => {
+      trainerService.addToTeam(makePokemon(1));
+      trainerService.addToTeam(makePokemon(2));
+      spyOn(component, 'doNothing').and.callThrough();
+
+      component.pcLockout();
+
+      expect(component.doNothing).toHaveBeenCalled();
     });
   });
 

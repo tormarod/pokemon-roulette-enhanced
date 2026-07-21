@@ -1,0 +1,46 @@
+.scroll-hint {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1030;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(45, 52, 54, 0.85);
+  cursor: pointer;
+  animation: scroll-hint-bounce 1.6s ease-in-out infinite;
+}
+
+body.light-mode .scroll-hint,
+body.theme-plain-light .scroll-hint {
+  background-color: rgba(223, 230, 233, 0.9);
+}
+
+.scroll-hint-chevron {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 2px solid #dfe6e9;
+  border-bottom: 2px solid #dfe6e9;
+  transform: rotate(45deg);
+  margin-top: -0.3rem;
+}
+
+body.light-mode .scroll-hint-chevron,
+body.theme-plain-light .scroll-hint-chevron {
+  border-color: #2d3436;
+}
+
+@keyframes scroll-hint-bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(6px);
+  }
+}

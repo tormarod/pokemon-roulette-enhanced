@@ -78,6 +78,19 @@
   padding: 1px 6px;
 }
 
+/* PC Lockout threat (New Experience only) — same warning red as .marked-badge,
+   but a full-width banner since it applies to the whole modal, not one card. */
+.pc-lock-banner {
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: #c0392b;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+}
+
 /* Marked Target lock (New Experience only) — the marked team member can't be
    dragged out to storage or reordered away; see cdkDragDisabled binding. */
 .marked-card {

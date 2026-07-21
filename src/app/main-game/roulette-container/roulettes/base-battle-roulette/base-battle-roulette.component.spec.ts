@@ -15,6 +15,7 @@ import { BattleDebuffService } from '../../../../services/battle-debuff-service/
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
+import { ScoutingReportService } from '../../../../services/scouting-report-service/scouting-report.service';
 
 /**
  * Minimal concrete subclass purely for exercising the shared buildVictoryOdds()
@@ -34,10 +35,12 @@ class TestBattleRouletteComponent extends BaseBattleRouletteComponent {
   testCurrentRound = 0;
   testLeadIndex: number | undefined = undefined;
 
+  protected override get opponentTypes(): PokemonType[] | undefined { return this.testOpponentTypes; }
+
   protected override onGameStateChange(): void {}
 
   protected override calcVictoryOdds(): void {
-    this.victoryOdds = this.buildVictoryOdds(this.testOpponentTypes, 'test.battle', this.testBaseNoCount, this.testCurrentRound, this.testLeadIndex);
+    this.victoryOdds = this.buildVictoryOdds(this.effectiveOpponentTypes, 'test.battle', this.testBaseNoCount, this.testCurrentRound, this.testLeadIndex);
   }
 
   recalc(): void {
@@ -62,6 +65,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
   let modalQueueService: ModalQueueService;
   let battlePrepService: BattlePrepService;
   let markedTargetService: MarkedTargetService;
+  let scoutingReportService: ScoutingReportService;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 1,
@@ -93,10 +97,12 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     modalQueueService = TestBed.inject(ModalQueueService);
     battlePrepService = TestBed.inject(BattlePrepService);
     markedTargetService = TestBed.inject(MarkedTargetService);
+    scoutingReportService = TestBed.inject(ScoutingReportService);
 
     gameStateService.resetGameState();
     trainerService.resetTeam();
     battleDebuffService.clearDebuff();
+    scoutingReportService.clearType();
     fixture.detectChanges();
   });
 
@@ -321,6 +327,45 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(noCount()).toBe(1);
   });
 
+  // ── scoutingReport: pending type appended to opponentTypes ─────────────
+
+  describe('effectiveOpponentTypes / scoutingReport', () => {
+    it('falls back to opponentTypes when no scouting type is pending', () => {
+      component.testOpponentTypes = ['fire'];
+      expect((component as any).effectiveOpponentTypes).toEqual(['fire']);
+    });
+
+    it('appends the pending scouting type to opponentTypes', () => {
+      component.testOpponentTypes = ['fire'];
+      scoutingReportService.setType('water');
+      expect((component as any).effectiveOpponentTypes).toEqual(['fire', 'water']);
+    });
+
+    it('produces more No tickets when a scouting type is pending, for a team weak to it', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'grass' })); // weak vs fire
+      component.testOpponentTypes = ['fire'];
+      component.recalc();
+      const baselineNo = noCount();
+
+      scoutingReportService.setType('ice'); // grass is also weak to ice
+      component.recalc();
+
+      expect(noCount()).toBeGreaterThan(baselineNo);
+    });
+
+    it('clears the pending scouting type on battle cleanup (a winning spin)', () => {
+      scoutingReportService.setType('fire');
+      (component as any).victoryOdds = [
+        { text: 'test.battle.yes', fillStyle: 'green', weight: 1 },
+      ];
+      (component as any).retries = 3;
+
+      component.onItemSelected(0);
+
+      expect(scoutingReportService.currentType).toBeNull();
+    });
+  });
+
   // ── onItemSelected: shared win/loss/potion routing (docs/plans/battle-roulette-dedup.md
   // Phase 5) — gym/elite-four/rival/champion each already cover this same shared
   // base logic via their own specs (they no longer have their own onItemSelected
@@ -338,6 +383,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
       spyOn(trainerService, 'clearForcedRetreatLock');
       spyOn(markedTargetService, 'clearMark');
       spyOn(battleDebuffService, 'clearDebuff');
+      spyOn(scoutingReportService, 'clearType');
 
       component.onItemSelected(0);
 
@@ -346,6 +392,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
       expect(trainerService.clearForcedRetreatLock).toHaveBeenCalled();
       expect(markedTargetService.clearMark).toHaveBeenCalled();
       expect(battleDebuffService.clearDebuff).toHaveBeenCalled();
+      expect(scoutingReportService.clearType).toHaveBeenCalled();
     });
 
     it('consumes a potion and does not emit yet when a loss still has one available', () => {

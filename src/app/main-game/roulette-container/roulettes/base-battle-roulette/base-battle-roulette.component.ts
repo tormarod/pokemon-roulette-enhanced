@@ -12,6 +12,8 @@ import { AbilityService } from '../../../../services/ability-service/ability.ser
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
+import { ScoutingReportService } from '../../../../services/scouting-report-service/scouting-report.service';
+import { PcLockService } from '../../../../services/pc-lock-service/pc-lock.service';
 import { BattlePrepConfirmed } from '../../battle-prep-panel/battle-prep-panel.component';
 import { GenerationItem } from '../../../../interfaces/generation-item';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
@@ -65,6 +67,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected readonly modalQueueService = inject(ModalQueueService);
   protected readonly battlePrepService = inject(BattlePrepService);
   public readonly markedTargetService = inject(MarkedTargetService);
+  protected readonly scoutingReportService = inject(ScoutingReportService);
+  protected readonly pcLockService = inject(PcLockService);
 
   // ── Template-method hooks ──────────────────────────────────────────────
   // Placeholder defaults for now; each becomes real per-subclass state as gym/
@@ -76,6 +80,13 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected readonly textPrefix: string = '';
   protected readonly baseNoCount: number = 0;
   protected get opponentTypes(): PokemonType[] | undefined { return undefined; }
+
+  /** opponentTypes with the pending scouting-report type appended (New Experience threat). */
+  protected get effectiveOpponentTypes(): PokemonType[] | undefined {
+    const scouted = this.scoutingReportService.currentType;
+    if (!scouted) return this.opponentTypes;
+    return [...(this.opponentTypes ?? []), scouted];
+  }
   protected presentationModalRef!: TemplateRef<unknown>;
   protected itemUsedModalRef!: TemplateRef<unknown>;
   protected setCurrentOpponent(_opponent: GymLeader): void {}
@@ -281,7 +292,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       ? this.battlePrepService.getPendingPrep() : null;
     const xAttackBonus = prep?.xAttackUsed ? this.meanTeamPower() : 0;
     this.victoryOdds = this.buildVictoryOdds(
-      this.opponentTypes, this.textPrefix, this.baseNoCount, this.currentRound,
+      this.effectiveOpponentTypes, this.textPrefix, this.baseNoCount, this.currentRound,
       prep?.leadIndex, xAttackBonus
     );
   }
@@ -322,6 +333,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.trainerService.clearForcedRetreatLock();
     this.markedTargetService.clearMark();
     this.battleDebuffService.clearDebuff();
+    this.scoutingReportService.clearType();
+    this.pcLockService.clearLock();
   }
 
   private meanTeamPower(): number {
