@@ -1,8 +1,8 @@
 # Plan: Endgame rebalance & ability-magnitude parity
 
-Status: **Not started.**
+Status: **Done.** Shipped in v3.11.0.
 Owner: tormarod
-Last updated: 2026-07-22 (split out of the former `game-design-holistic-review.md`)
+Last updated: 2026-07-22 (all phases complete)
 
 > One of two plans carved from the 2026-07-22 holistic review. **This plan is the
 > battle-math half** (amplify agency in the back half). The economy half — Find Item
@@ -196,11 +196,11 @@ today's `ceil(2×1.5)=3`.
   **Stop for the owner to confirm 1.25 + symmetric `/2`** (or pick `/3`, or different
   values — only the constants + "chosen" rows change, the phase structure is
   identical). Delete the throwaway spec.
-- [ ] **1b — Lever A: lower `ROUND_THREAT_MULT`** to 1.25 in
+- [x] **1b — Lever A: lower `ROUND_THREAT_MULT`** to 1.25 in
   `battle-odds.service.ts:7`. Update every Lever-A spec to the new `ceil(round ×
   1.25)` expectations, keeping comments accurate. `npm run test:local` green.
   Checkpoint.
-- [ ] **1c — Lever B: double the matchup unit.** Change `getMemberDelta` to
+- [x] **1c — Lever B: double the matchup unit.** Change `getMemberDelta` to
   `Math.ceil(member.power / 2)`; update its doc-comment ("quarter" → "half"). Run
   the suite; every failing type-matchup / prep-panel / ability / gym assertion is a
   hard-coded old-unit number — recompute with the table above and fix the inline
@@ -227,13 +227,13 @@ don't stack into over-easing.
   / `faint-immune-lead` / `zero-own-negative` ignore `value`.
 
 **Sub-phases:**
-- [ ] **2a — Measure.** Throwaway spec (delete after) in `.../ability-service/`
+- [x] **2a — Measure.** Throwaway spec (delete after) in `.../ability-service/`
   that, at the Phase-1 unit (`ceil(power/2)`), logs each ability's ticket impact on
   a representative team (6× power-3) vs one matchup point (`ceil(3/2)=2` per
   net-score point). Report the table. **Stop for the owner to lock a target
   parity** (recommendation: a strong ability ≈ one favourable matchup point, ~2–4
   tickets, not 1).
-- [ ] **2b — Apply locked values.** Bump the flat magnitudes toward the target
+- [x] **2b — Apply locked values.** Bump the flat magnitudes toward the target
   (starting recommendation, pending 2a: `flat`/`offense-if-positive` `1→2`, `2→3`;
   keep No shifts symmetric; raise `scale-with-*` caps `3→4`). Update
   `ability.service.spec.ts`. `npm run test:local` green. Checkpoint.
@@ -247,19 +247,21 @@ playtest.
 
 ## Phase 3 — Docs, version, release notes
 
-- [ ] **README `Battle balancing` section** — state the new `ROUND_THREAT_MULT`
+- [x] **README `Battle balancing` section** — state the new `ROUND_THREAT_MULT`
   (1.25) **and** the new matchup unit (`ceil(power/2)`) + intent (endgame stays
   hard but not a coin flip; type-countering the opponent now pays off more).
-- [ ] Bump `package.json` `version` (confirm current first) and add a newest-first
+- [x] Bump `package.json` `version` (confirm current first) and add a newest-first
   `RELEASE_NOTES` entry (`src/app/data/release-notes.ts`) with
   `whatsNew.v<x>_<y>_<z>.*` keys + a `v<x>_<y>_<z>` label in **all six** locale
   files (`en` real, others English placeholder). Call out: late-game less punishing
   + type-countering rewarded more (Phase 1); the symmetric penalty makes mismatched
   teams harder; and (if shipped) the ability bump.
-- [ ] **If this ships in the same release as `economy-market-reconciliation.md`**,
+- [x] **If this ships in the same release as `economy-market-reconciliation.md`**,
   fold both into one What's-New entry / one version bump rather than bumping twice —
-  coordinate whichever plan lands second.
-- [ ] Move this plan file to `docs/plans/done/` once all phases complete.
+  coordinate whichever plan lands second. *(N/A — economy-market-reconciliation.md
+  is still "Not started" as of this release, so no coordination was needed;
+  shipped 3.10.0 → 3.11.0 on its own.)*
+- [x] Move this plan file to `docs/plans/done/` once all phases complete.
 
 ---
 

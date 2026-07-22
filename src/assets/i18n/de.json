@@ -3164,6 +3164,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
   "v3_8_0": "Version 3.8.0",
@@ -3178,6 +3179,11 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_11_0": {
+      "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
+      "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",
+      "2": "✨ Ability effects got stronger to keep pace with the bigger type-matchup swings — most flat Yes/No bonuses and the scale-with-advantage/disadvantage caps are bigger now."
+    },
     "v3_10_0": {
       "0": "⚔️ X Attack is stronger in tougher fights — its power boost now scales with how far you've progressed."
     },

@@ -26,7 +26,7 @@ describe('BattleOddsService', () => {
       team: [], opponentTypes: [], baseNoCount: 2, currentRound: 3, abilitiesActive: false,
     });
     expect(odds.yesTickets).toBe(1);
-    expect(odds.noTickets).toBe(7); // 2 + ceil(3*1.5)
+    expect(odds.noTickets).toBe(6); // 2 + ceil(3*1.25)
   });
 
   it('boosts yes by the net-score-scaled unit for a mutual-advantage matchup', () => {
@@ -103,12 +103,12 @@ describe('BattleOddsService', () => {
   });
 
   it('folds an active ability effect into a distinct ability field, separate from typeDisadvantage', () => {
-    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'torrent' })]; // weak vs fire, torrent: soak-if-negative -2
+    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'torrent' })]; // weak vs fire, torrent: soak-if-negative -3
     const odds = service.computeOdds({
       team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: true,
     });
-    expect(odds.no.ability).toBe(-2);
-    expect(odds.no.typeDisadvantage).toBe(2); // netScore(2) * unit(ceil(4/4)=1), unaffected by the ability
+    expect(odds.no.ability).toBe(-3);
+    expect(odds.no.typeDisadvantage).toBe(4); // netScore(2) * unit(ceil(4/2)=2), unaffected by the ability
   });
 
   it('ignores ability effects when abilitiesActive is false (Classic mode)', () => {
@@ -124,10 +124,10 @@ describe('BattleOddsService', () => {
     const odds = service.computeOdds({
       team: [], opponentTypes: [], baseNoCount: 3, currentRound: 12, abilitiesActive: false,
     });
-    // yesTickets=1, roundThreat=ceil(12*1.5)=18, noTickets=max(3, 3+18)=21
+    // yesTickets=1, roundThreat=ceil(12*1.25)=15, noTickets=max(3, 3+15)=18
     expect(odds.yesTickets).toBe(1);
-    expect(odds.noTickets).toBe(21);
-    expect(odds.winChance).toBeCloseTo(1 / 22, 5);
+    expect(odds.noTickets).toBe(18);
+    expect(odds.winChance).toBeCloseTo(1 / 19, 5);
   });
 
   it('marks floored true only when Math.max(baseNoCount, raw) actually clamps upward', () => {

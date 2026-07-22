@@ -156,8 +156,8 @@ describe('GymBattleRouletteComponent', () => {
     expect(component.matchupSuperEffectiveTypes).toEqual(['poison']);
     expect(component.matchupResistTypes).toEqual(['poison']);
     expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
-    expect(component.matchupAdvantageDelta).toBe(2);      // 1 mutual-advantage member * (netScore(2) * unit(1))
-    expect(component.matchupDisadvantageDelta).toBe(4);   // 2 mutual-disadvantage members * (netScore(2) * unit(1)) = 4
+    expect(component.matchupAdvantageDelta).toBe(4);      // 1 mutual-advantage member * (netScore(2) * unit(ceil(3/2)=2))
+    expect(component.matchupDisadvantageDelta).toBe(8);   // 2 mutual-disadvantage members * (netScore(2) * unit(ceil(3/2)=2)) = 8
 
     const sectionLabels = fixture.nativeElement.querySelectorAll('.matchup-label-positive, .matchup-label-negative');
     // poison is both super-effective AND resists grass, plus the weak heading: 3 labels total
@@ -165,8 +165,8 @@ describe('GymBattleRouletteComponent', () => {
 
     const deltaEls = fixture.nativeElement.querySelectorAll('.matchup-delta');
     const deltaTexts = Array.from(deltaEls).map((el: any) => el.textContent.trim());
-    expect(deltaTexts).toContain('+2');
-    expect(deltaTexts).toContain('-4');
+    expect(deltaTexts).toContain('+4');
+    expect(deltaTexts).toContain('-8');
   });
 
   it('should still show a small, non-zero Disadvantage for a low-power weak Pokémon (no more "-0")', () => {
