@@ -12,6 +12,7 @@ import { MarkedTargetService } from '../marked-target-service/marked-target.serv
 import { CatchRiskService } from '../catch-risk-service/catch-risk.service';
 import { ScoutingReportService } from '../scouting-report-service/scouting-report.service';
 import { PcLockService } from '../pc-lock-service/pc-lock.service';
+import { MarketStockService, MarketStockState } from '../market-stock-service/market-stock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { ItemItem } from '../../interfaces/item-item';
 import { Badge } from '../../interfaces/badge';
@@ -45,6 +46,7 @@ export interface SavedRun {
   megaBattleOriginalPokemon: PokemonItem | null;
   scoutingType: PokemonType | null;
   pcLocked: boolean;
+  marketStock: MarketStockState | null;
 }
 
 /** A run reaching either of these states is over — nothing left to resume. */
@@ -68,6 +70,7 @@ export class RunPersistenceService {
     private catchRiskService: CatchRiskService,
     private scoutingReportService: ScoutingReportService,
     private pcLockService: PcLockService,
+    private marketStockService: MarketStockService,
   ) {
     // Restore BEFORE wiring the auto-save subscription below — otherwise that
     // subscription's own first (synchronous) emission of fresh/default state
@@ -96,7 +99,8 @@ export class RunPersistenceService {
       this.trainerService.getCoinsObservable(),
       this.scoutingReportService.getPendingTypeObservable(),
       this.pcLockService.getLockedObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins, scoutingType, pcLocked]) => {
+      this.marketStockService.getStateObservable(),
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins, scoutingType, pcLocked, marketStock]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -131,6 +135,7 @@ export class RunPersistenceService {
         megaBattleOriginalPokemon: this.trainerService.getMegaBattleOriginalPokemon(),
         scoutingType,
         pcLocked,
+        marketStock,
       });
     });
   }
@@ -183,6 +188,7 @@ export class RunPersistenceService {
     this.catchRiskService.clearEscapeChance();
     this.scoutingReportService.clearType();
     this.pcLockService.clearLock();
+    this.marketStockService.resetForNewRun();
     this.trainerService.resetCoins();
     this.trainerService.resetMegaBattleState();
     this.clearRun();
@@ -217,6 +223,7 @@ export class RunPersistenceService {
     this.trainerService.restoreCoins(run.coins ?? 0);
     this.scoutingReportService.restoreType(run.scoutingType ?? null);
     this.pcLockService.setLock(run.pcLocked ?? false);
+    this.marketStockService.restore(run.marketStock ?? null);
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
@@ -276,7 +283,8 @@ export class RunPersistenceService {
       (run.megaBattleStoneName === undefined || run.megaBattleStoneName === null || typeof run.megaBattleStoneName === 'string') &&
       (run.megaBattleOriginalPokemon === undefined || run.megaBattleOriginalPokemon === null || typeof run.megaBattleOriginalPokemon === 'object') &&
       (run.scoutingType === undefined || run.scoutingType === null || typeof run.scoutingType === 'string') &&
-      (run.pcLocked === undefined || typeof run.pcLocked === 'boolean')
+      (run.pcLocked === undefined || typeof run.pcLocked === 'boolean') &&
+      (run.marketStock === undefined || run.marketStock === null || typeof run.marketStock === 'object')
     );
   }
 }

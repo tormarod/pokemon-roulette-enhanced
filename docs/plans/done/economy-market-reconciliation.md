@@ -1,9 +1,8 @@
 # Plan: Economy & Market reconciliation
 
-Status: **Not started.**
+Status: **Done — shipped as v3.14.0.**
 Owner: tormarod
-Last updated: 2026-07-22 (split out of the former `game-design-holistic-review.md`;
-Bicycle pulled from the Market to Find-Item-only)
+Last updated: 2026-07-22 (all 6 phases complete)
 
 > One of two plans carved from the 2026-07-22 holistic review. **This plan is the
 > economy half** — reconcile the coin Market with a reward set designed before coins
@@ -121,12 +120,12 @@ rare found power-item.
   lives in `MARKET_PRICES` / `MarketEntryId` (`economy-config.ts:56`).
 
 **Change (New Experience only; Classic unchanged — it has no Market):**
-- [ ] **Remove `bicycle` from the Market** — drop it from `MarketComponent.buildStock`
+- [x] **Remove `bicycle` from the Market** — drop it from `MarketComponent.buildStock`
   (`market.component.ts:156`) and remove its `'bicycle'` key from `MARKET_PRICES`
   (`economy-config.ts:56`), so `MarketEntryId` no longer includes it. Keep the item
   definition in `items-data.ts` (it's still a findable/holdable item). It now sells for
   the flat gadget rate in Phase 2 (`GADGET_SELL_VALUE`), not a Market-price fraction.
-- [ ] Add `ItemsService.getFindableItems()`: in New Experience, return
+- [x] Add `ItemsService.getFindableItems()`: in New Experience, return
   `getRegularItems()` filtered to exclude the Market-sold item names (the six
   consumables **and `honey`** — `bicycle` is **no longer** Market-sold, so it stays
   findable), leaving the gadgets (`exp-share, escape-rope, repel, poke-radar,
@@ -134,8 +133,8 @@ rare found power-item.
   Keep the exclusion list **derived from the Market stock** so the two can't silently
   drift apart — with Bicycle removed from stock, it drops out of the exclusion
   automatically.
-- [ ] Point `FindItemRouletteComponent`'s constructor at `getFindableItems()`.
-- [ ] Update `find-item-roulette.component.spec.ts`, `items.service.spec.ts`, and
+- [x] Point `FindItemRouletteComponent`'s constructor at `getFindableItems()`.
+- [x] Update `find-item-roulette.component.spec.ts`, `items.service.spec.ts`, and
   `market.component.spec.ts` (Bicycle no longer in the shop). `npm run test:local`
   green. Checkpoint.
 
@@ -165,16 +164,16 @@ confirm sell value < buy price.)
   during combat/prep).
 
 **Change (New Experience only):**
-- [ ] Add `SELL_RATE = 0.4` and `GADGET_SELL_VALUE = 5` (coins) to
+- [x] Add `SELL_RATE = 0.4` and `GADGET_SELL_VALUE = 5` (coins) to
   `economy-config.ts`, plus `sellValue(itemName)`: Market consumables →
   `floor(MARKET_PRICES[id] × SELL_RATE)`; gadgets → `GADGET_SELL_VALUE`.
   Recommendation baked in: ability capsules sellable at `floor(35 × SELL_RATE)=14`
   (capsule price is 35 as of PR #47); mega stones **not** sellable (build pieces).
-- [ ] Add a "Sell" section to the Market modal listing held sellable items (dedup
+- [x] Add a "Sell" section to the Market modal listing held sellable items (dedup
   by name with a count), each with a sell button → `removeItem` +
   `addCoins(sellValue)`. Reuse the affordable/disabled styling and the
   combat-lockout (`isAvailable`) so a sale can't react to a shown loss.
-- [ ] `market.component.spec.ts` cases (sell removes item + credits coins; disabled
+- [x] `market.component.spec.ts` cases (sell removes item + credits coins; disabled
   in combat). `npm run test:local` green. Checkpoint.
 
 **Acceptance:** selling a Potion (price 25 as of PR #47) yields `floor(25×0.4)=10`
@@ -213,10 +212,10 @@ escalating, capped Market restock"):**
   gated by the Market's existing `isNewExperienceMode` + `isAvailable` (closed during
   combat/committed prep) — a restock can't react to a shown loss, same as any buy.
 
-**Recommended values (baked in, owner confirms in 3a — flag if any feel off):**
+**Owner-confirmed values (2026-07-22 checkpoint):**
 ```
-MARKET_STOCK      = { potion:5, super-potion:3, hyper-potion:2, x-attack:3,
-                      rare-candy:2, revive:2, ability-capsule:2, honey:3 }
+MARKET_STOCK      = { potion:3, super-potion:2, hyper-potion:1, x-attack:5,
+                      rare-candy:3, revive:1, ability-capsule:5, honey:3 }
 RESTOCK_BASE = 60   RESTOCK_STEP = 40   RESTOCK_MAX_USES = 3   // → 60/100/140, max 3×
 ```
 (`honey-target-share-market.md` has shipped and added `honey` to `MARKET_PRICES` —
@@ -241,7 +240,7 @@ owner-confirms.
   refresh stock **or** reset the restock counter).
 
 **Sub-phases:**
-- [ ] **3a — `MarketStockService` + config + persistence (engine only).** New root
+- [x] **3a — `MarketStockService` + config + persistence (engine only).** New root
   service `src/app/services/market-stock-service/market-stock.service.ts` holding a
   `BehaviorSubject` of `{ remaining: Record<MarketEntryId, number>; timesRestocked:
   number }`. Methods: `getStateObservable()`, `getRemaining(id)`, `consume(id)`
@@ -261,7 +260,7 @@ owner-confirms.
   60/100/140; `canRestock` false after 3; `marketStock` round-trips through
   persistence and missing fields restore to caps / 0. **Stop for owner to confirm the
   caps + restock price/cap.** Checkpoint.
-- [ ] **3b — Market UI: deplete on buy, sold-out state, + paid Restock row.**
+- [x] **3b — Market UI: deplete on buy, sold-out state, + paid Restock row.**
   `MarketComponent`: inject `MarketStockService`, subscribe to `getStateObservable()`
   into a `remaining` map + `timesRestocked`. In `buy()` call
   `marketStockService.consume(entry.id)` after the successful `spendCoins`/`addToItems`;
@@ -307,12 +306,12 @@ bite" guardrail) but cut its spike so a spender can't be gutted.
   when `total <= 1`).
 
 **Change — locked (R2): keep the threat, cut the spike.**
-- [ ] Keep `tollAmount(round) = 15 + 3*round` and the `min(balance, toll)` payment
+- [x] Keep `tollAmount(round) = 15 + 3*round` and the `min(balance, toll)` payment
   unchanged. In the shortfall branch (`:1046`), **cut the spike cap from 15 to 5** —
   i.e. `spike = unpaidFraction <= 1/3 ? 2 : unpaidFraction <= 2/3 ? 3 : 5` (or the
   simplest equivalent that tops out at 5). A short player still feels a nudge, but a
   full shortfall can no longer gut a run.
-- [ ] Update the `tollBooth` modal copy so the shortfall message reflects the smaller
+- [x] Update the `tollBooth` modal copy so the shortfall message reflects the smaller
   bite (no other copy path changes), and update the toll spec's spike expectations.
   `npm run test:local` green. Checkpoint.
 
@@ -343,7 +342,7 @@ wording makes players undervalue the most important consumable. (Extra relevant 
 Phase 3 makes potions a scarce, capped resource — the description should not
 mislead about when they help.)
 
-- [ ] Reword the three descriptions to "any battle" (or equivalent) in
+- [x] Reword the three descriptions to "any battle" (or equivalent) in
   `src/assets/i18n/en.json` (real) and the other five locale files (`de, es, fr, it,
   pt` — translated where practical, English placeholder otherwise). No code change.
   Checkpoint.
@@ -352,23 +351,25 @@ mislead about when they help.)
 
 ## Phase 6 — Docs, version, release notes
 
-- [ ] **README `Economy & the Market` section** — Find Item now disjoint from the
+- [x] **README `Economy & the Market` section** — Find Item now disjoint from the
   Market (and Bicycle moved back out of the Market to a lucky find); the Market is
   consumed/assigned staples + Honey only; sell-for-coins; the Market stock system
   (finite per-run stock + a costly, capped restock); Toll Booth's shortfall spike
   softened (cap 15→5, still a threat). (Honey-in-Market is documented by
   `honey-target-share-market.md`.)
-- [ ] Bump `package.json` `version` (confirm current first) and add a newest-first
+- [x] Bump `package.json` `version` (confirm current first) and add a newest-first
   `RELEASE_NOTES` entry (`src/app/data/release-notes.ts`) with
   `whatsNew.v<x>_<y>_<z>.*` keys + a `v<x>_<y>_<z>` label in **all six** locale
   files (`en` real, others English placeholder). Call out: Find Item no longer dumps
   Market items; Bicycle is a lucky find again (no longer buyable); you can sell items
   for coins; the Market now has limited stock with a costly restock; the softer Toll
-  Booth spike.
-- [ ] **If this ships in the same release as `endgame-rebalance.md`** (or the Honey /
+  Booth spike. Shipped as **v3.14.0**.
+- [x] **If this ships in the same release as `endgame-rebalance.md`** (or the Honey /
   Repel plans), fold all into one What's-New entry / one version bump rather than
-  bumping multiple times — coordinate whichever plan lands second.
-- [ ] Move this plan file to `docs/plans/done/` once all phases complete.
+  bumping multiple times — coordinate whichever plan lands second. (`endgame-rebalance.md`
+  and the Honey/Repel plans had already shipped in earlier versions — v3.14.0 is this
+  plan's own release.)
+- [x] Move this plan file to `docs/plans/done/` once all phases complete.
 
 ---
 

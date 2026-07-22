@@ -1269,20 +1269,40 @@ describe('RouletteContainerComponent', () => {
       expect(modalQueueService.open).toHaveBeenCalled();
     });
 
-    it('balance 0: pays nothing, applies the max spike tier (fully unpaid)', () => {
+    it('balance 0: pays nothing, applies the max spike tier (fully unpaid, R2: cap cut 15→5)', () => {
       expect(trainerService.getCoins()).toBe(0);
       spyOn(component, 'doNothing').and.callThrough();
 
       component.tollBooth();
 
       expect(trainerService.getCoins()).toBe(0);
-      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(15);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(5);
       expect(component.doNothing).toHaveBeenCalled();
     });
 
     it('balance just under toll: pays what it can, applies the smallest spike tier', () => {
       // round 0 -> toll = 15; balance 14 -> unpaid 1/15 ≈ 0.067 <= 1/3
       trainerService.addCoins(14);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(2);
+    });
+
+    it('mid unpaid fraction applies the middle spike tier', () => {
+      // round 0 -> toll = 15; balance 8 -> unpaid 7/15 ≈ 0.467, > 1/3 and <= 2/3
+      trainerService.addCoins(8);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(3);
+    });
+
+    it('round 8, badly short: toll 39, pay 10, spike capped at the new ceiling of 5', () => {
+      gameStateService.restoreState('adventure-continues', ['adventure-continues'], 8);
+      trainerService.addCoins(10);
 
       component.tollBooth();
 

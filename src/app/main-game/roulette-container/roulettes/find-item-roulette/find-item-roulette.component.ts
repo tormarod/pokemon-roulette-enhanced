@@ -28,7 +28,7 @@ export class FindItemRouletteComponent {
     private itemService: ItemsService,
     private itemSpriteService: ItemSpriteService,
     private soundFxService: SoundFxService) {
-    this.items = itemService.getRegularItems();
+    this.items = itemService.getFindableItems();
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
 

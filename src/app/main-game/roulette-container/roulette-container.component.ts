@@ -1082,7 +1082,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     const unpaidFraction = (toll - paid) / toll;
     let spike = 0;
     if (unpaidFraction > 0) {
-      spike = unpaidFraction <= 1 / 3 ? 5 : unpaidFraction <= 2 / 3 ? 10 : 15;
+      spike = unpaidFraction <= 1 / 3 ? 2 : unpaidFraction <= 2 / 3 ? 3 : 5;
       this.dangerMeterService.applySpike(spike);
     }
     this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.tollBooth.title');

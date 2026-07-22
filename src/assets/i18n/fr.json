@@ -707,6 +707,15 @@
     "subtitle": "Dépense tes pièces pour renforcer ton équipe.",
     "buy": "Acheter",
     "close": "Fermer",
+    "sell": "Vendre",
+    "sellButton": "Vendre",
+    "soldOut": "Épuisé",
+    "stockLeft": "{{count}} restant(s)",
+    "restock": "Réapprovisionner — 🪙 {{price}}",
+    "restockExhausted": "Plus de réapprovisionnement disponible",
+    "restockConfirmMessage": "Réapprovisionner le Marché à son stock plein pour 🪙 {{price}} ?",
+    "restockConfirmYes": "Réapprovisionner",
+    "restockConfirmNo": "Annuler",
     "capsule": {
       "name": "Capsule de Talent",
       "description": "Une Capsule de Talent aléatoire — attribue-la à un membre de l'équipe dans le PC pour un avantage permanent."
@@ -716,7 +725,7 @@
     "title": "Objets",
     "potion": {
       "name": "Potion",
-      "description": "La Potion te permet de rejouer si tu perds un combat d'Arène!"
+      "description": "La Potion te permet de rejouer si tu perds n'importe quel combat!"
     },
     "rare-candy": {
       "name": "Super Bonbon",
@@ -728,7 +737,7 @@
     },
     "super-potion": {
       "name": "Super Potion",
-      "description": "La Super Potion te permet de rejouer jusqu'à deux fois si tu perds un combat d'Arène!"
+      "description": "La Super Potion te permet de rejouer jusqu'à deux fois si tu perds n'importe quel combat!"
     },
     "x-attack": {
       "name": "Attaque +",
@@ -740,7 +749,7 @@
     },
     "hyper-potion": {
       "name": "Hyper Potion",
-      "description": "L'Hyper Potion te permet de rejouer jusqu'à trois fois si tu perds un combat d'Arène!"
+      "description": "L'Hyper Potion te permet de rejouer jusqu'à trois fois si tu perds n'importe quel combat!"
     },
     "escape-rope": {
       "name": "Corde Sortie",
@@ -3165,6 +3174,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_14_0": "Version 3.14.0",
   "v3_13_0": "Version 3.13.0",
   "v3_12_0": "Version 3.12.0",
   "v3_11_0": "Version 3.11.0",
@@ -3182,6 +3192,13 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_14_0": {
+      "0": "🎯 Find Item and the Market are now disjoint — Find Item never hands you something you could just buy, leaving it concentrated on find-only gadgets and a rare Bicycle.",
+      "1": "🚲 The Bicycle is no longer sold in the Market — it's a lucky find again on the Find Item wheel.",
+      "2": "🪙 You can now sell held items back for coins from a new Sell section in the Market.",
+      "3": "📦 The Market now has a limited per-run stock — buying depletes it, and it doesn't refill on its own. A costly, escalating, capped Restock action is the only way to top it back up.",
+      "4": "🚧 The Toll Booth threat's Danger-meter spike is softer when you come up short — it still bites, just not as hard."
+    },
     "v3_13_0": {
       "0": "🛡️ Repel and Max Repel reworked into New Experience-only threat-avoidance items: Repel keeps your very next adventure step threat-free, Max Repel covers the next 3 — instead of steering your next catch away from a type.",
       "1": "⏳ A Repel/Max Repel shield only delays danger, it never defuses it — the Danger meter keeps climbing underneath even while you walk safely past a threat."

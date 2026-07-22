@@ -5,6 +5,7 @@ import { abilityCapsulesData } from './ability-capsules-data';
 import { AbilityCapsuleName, ItemName, MegaStoneItemName, RegularItemName } from './item-names';
 import { ItemItem } from '../../interfaces/item-item';
 import { GameStateService } from '../game-state-service/game-state.service';
+import { MARKET_PRICES } from '../../main-game/roulette-container/economy-config';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,29 @@ export class ItemsService {
   getRegularItems(): ItemItem[] {
     return Object.values(this.regularItemsData)
       .filter(item => !ItemsService.NE_ONLY_ITEM_NAMES.has(item.name as RegularItemName) || this.gameStateService.isNewExperienceMode);
+  }
+
+  /**
+   * Item names the Market sells (derived from MARKET_PRICES, minus the
+   * synthetic 'ability-capsule' entry which isn't a regular item). Kept
+   * derived rather than a separately-maintained list so Find Item and the
+   * Market can't silently drift apart.
+   */
+  private static readonly MARKET_SOLD_ITEM_NAMES = new Set<string>(
+    Object.keys(MARKET_PRICES).filter(id => id !== 'ability-capsule')
+  );
+
+  /**
+   * Find Item's wheel pool. In New Experience it's disjoint from the Market:
+   * excludes anything buyable there, leaving only find-only gadgets and the
+   * Bicycle power-item. Classic has no Market, so it's unchanged.
+   */
+  getFindableItems(): ItemItem[] {
+    const regularItems = this.getRegularItems();
+    if (!this.gameStateService.isNewExperienceMode) {
+      return regularItems;
+    }
+    return regularItems.filter(item => !ItemsService.MARKET_SOLD_ITEM_NAMES.has(item.name));
   }
 
   getMegaStones(): ItemItem[] {

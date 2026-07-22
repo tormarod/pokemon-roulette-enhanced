@@ -115,6 +115,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -186,6 +187,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -262,6 +264,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -365,6 +368,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -438,6 +442,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -509,6 +514,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -580,6 +586,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: 'fire',
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -651,6 +658,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: true,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -722,6 +730,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -791,6 +800,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -864,6 +874,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: original as any,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -934,6 +945,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -989,6 +1001,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 
@@ -1079,6 +1092,7 @@ describe('RunPersistenceService', () => {
       megaBattleOriginalPokemon: null,
       scoutingType: null,
       pcLocked: false,
+      marketStock: null,
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
 

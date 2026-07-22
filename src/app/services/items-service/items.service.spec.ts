@@ -57,4 +57,18 @@ describe('ItemsService', () => {
     expect(service.getItem('capsule-sturdy').abilityId).toBe('sturdy');
     expect(service.getAbilityCapsule('capsule-sturdy').name).toBe('capsule-sturdy');
   });
+
+  it('getFindableItems excludes Market-sold items (and Honey) in New Experience mode', () => {
+    gameStateService.restoreNewExperienceMode(true);
+    const findable = service.getFindableItems().map(item => item.name);
+    expect(findable).toEqual(jasmine.arrayWithExactContents([
+      'exp-share', 'escape-rope', 'repel', 'poke-radar', 'max-repel', 'link-cable', 'bicycle'
+    ]));
+  });
+
+  it('getFindableItems is unchanged (same as getRegularItems) in Classic mode', () => {
+    gameStateService.restoreNewExperienceMode(false);
+    expect(service.getFindableItems().map(item => item.name))
+      .toEqual(service.getRegularItems().map(item => item.name));
+  });
 });

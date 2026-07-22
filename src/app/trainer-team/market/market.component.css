@@ -97,6 +97,44 @@
   min-width: 4.5rem;
 }
 
+.market-section-title {
+  font-size: 1.1em;
+  margin: 0.5rem 0;
+}
+
+.market-count {
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.market-sell {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+}
+
+.market-stock-left {
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.market-sold-out {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: #b02a37;
+}
+
+.market-restock {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.market-restock-exhausted {
+  font-size: 0.9em;
+  opacity: 0.7;
+  font-style: italic;
+}
+
 @media (max-width: 480px) {
   .market-desc {
     display: none;
