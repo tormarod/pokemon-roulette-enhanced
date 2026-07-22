@@ -8,6 +8,14 @@ import { isAbilityCapsuleName } from '../../services/items-service/ability-capsu
  * every magic number here rather than scattered at the call sites.
  */
 
+/**
+ * Global income multiplier applied to every coin *source* (battle wins, the
+ * per-round stipend, reward cards, found-coins bundles) — a single dial for
+ * tuning overall purchasing power without touching each stream's shape. Prices
+ * and stock are deliberately NOT scaled by this. Set to 0.9 for a 10% income cut.
+ */
+export const INCOME_SCALE = 0.9; // tunable
+
 /** Flat coins every battle win pays before round scaling. */
 export const WIN_BASE = 10; // tunable
 /** Extra coins per round already cleared, added to the win drop. */
@@ -26,7 +34,12 @@ export const CARD_COIN_MAX = 15; // tunable
 
 /** Coins paid for winning a battle at `round` (rounds already cleared). */
 export function battleWinReward(round: number): number {
-  return WIN_BASE + round * WIN_PER_ROUND;
+  return Math.round((WIN_BASE + round * WIN_PER_ROUND) * INCOME_SCALE);
+}
+
+/** The flat per-round stipend, income-scaled. */
+export function passiveRoundStipend(): number {
+  return Math.round(PASSIVE_PER_ROUND * INCOME_SCALE);
 }
 
 /** Uniform random integer in [min, max]. */
@@ -34,9 +47,9 @@ export function randInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-/** A single reward card's coin bonus, in [CARD_COIN_MIN, CARD_COIN_MAX]. */
+/** A single reward card's coin bonus, income-scaled from [CARD_COIN_MIN, CARD_COIN_MAX]. */
 export function cardCoinReward(): number {
-  return randInt(CARD_COIN_MIN, CARD_COIN_MAX);
+  return Math.round(randInt(CARD_COIN_MIN, CARD_COIN_MAX) * INCOME_SCALE);
 }
 
 /**
@@ -48,7 +61,7 @@ export const FOUND_COINS_MIN = 20; // tunable
 export const FOUND_COINS_MAX = 40; // tunable
 
 export function foundCoinsReward(): number {
-  return randInt(FOUND_COINS_MIN, FOUND_COINS_MAX);
+  return Math.round(randInt(FOUND_COINS_MIN, FOUND_COINS_MAX) * INCOME_SCALE);
 }
 
 /**
@@ -89,14 +102,14 @@ export const GADGET_SELL_VALUE = 5; // tunable
  * `MarketEntryId` (`MARKET_PRICES`).
  */
 export const MARKET_STOCK: Record<MarketEntryId, number> = {
-  'potion': 3,
-  'super-potion': 2,
+  'potion': 2,
+  'super-potion': 1,
   'hyper-potion': 1,
-  'x-attack': 5,
-  'rare-candy': 3,
+  'x-attack': 2,
+  'rare-candy': 2,
   'revive': 1,
-  'ability-capsule': 5,
-  'honey': 3,
+  'ability-capsule': 2,
+  'honey': 2,
 }; // tunable
 
 /** Paid Restock pricing: `restockPrice(n) = RESTOCK_BASE + RESTOCK_STEP * n`. */

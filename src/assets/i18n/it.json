@@ -3174,6 +3174,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_14_1": "Version 3.14.1",
   "v3_14_0": "Version 3.14.0",
   "v3_13_0": "Version 3.13.0",
   "v3_12_0": "Version 3.12.0",
@@ -3192,6 +3193,10 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_14_1": {
+      "0": "🧪 Potions can no longer be used in rival battles — like Team Rocket fights, rivals now play out without them. Potions stay reserved for Gym, Elite Four, and Champion battles.",
+      "1": "🪙 Tightened the Market economy: lower per-run stock across the board and about 10% less coin income, so a run's supplies actually run dry and the Restock action becomes a real decision instead of something you never need."
+    },
     "v3_14_0": {
       "0": "🎯 Find Item and the Market are now disjoint — Find Item never hands you something you could just buy, leaving it concentrated on find-only gadgets and a rare Bicycle.",
       "1": "🚲 The Bicycle is no longer sold in the Market — it's a lucky find again on the Find Item wheel.",

@@ -94,6 +94,13 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
   /** Rival overrides to true — Classic mode skips retries/potion/cleanup entirely. */
   protected readonly skipRetriesInClassicMode: boolean = false;
+  /**
+   * Whether a loss can be salvaged by spending a potion for extra retries.
+   * Only gym/Elite Four/Champion battles allow it; rival battles override to
+   * false so a loss is final (and faints the lead). Team Rocket never reaches
+   * this base at all. The once-per-battle ability free-retry is unaffected.
+   */
+  protected readonly allowPotions: boolean = true;
   /** Rival overrides to faint the committed lead (applyFaintOnLoss). */
   protected onFinalLoss(): void {}
 
@@ -312,7 +319,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       this.finishBattleCleanup();
       this.battleResultEvent.emit(true);
     } else if (this.retries <= 0) {
-      const potion = this.hasPotions();
+      const potion = this.allowPotions ? this.hasPotions() : undefined;
       if (potion) {
         this.usePotion(potion, () => this.openItemUsedModal());
       } else {

@@ -31,7 +31,7 @@ import { ScoutingReportService } from '../../services/scouting-report-service/sc
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
-import { battleWinReward, PASSIVE_PER_ROUND, CARD_COIN_MIN, CARD_COIN_MAX } from './economy-config';
+import { battleWinReward, passiveRoundStipend, CARD_COIN_MIN, CARD_COIN_MAX } from './economy-config';
 
 describe('RouletteContainerComponent', () => {
   let component: RouletteContainerComponent;
@@ -1458,7 +1458,7 @@ describe('RouletteContainerComponent', () => {
 
       component.gymBattleResult(true); // round 0
 
-      expect(trainerService.getCoins()).toBe(battleWinReward(0) + PASSIVE_PER_ROUND);
+      expect(trainerService.getCoins()).toBe(battleWinReward(0) + passiveRoundStipend());
     });
 
     it('a gym win grants no coins in Classic mode', () => {
