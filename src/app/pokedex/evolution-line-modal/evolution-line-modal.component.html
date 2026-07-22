@@ -1,0 +1,120 @@
+<div class="evo-modal-root" [ngClass]="(darkMode | async) ? 'evo-dark' : 'evo-light'">
+  <div class="evo-header">
+    <div>
+      <div class="evo-dex-label">
+        {{ formatPokemonNumber(selectedStage.pokemonId) }}
+        @if (selectedStage.isMega) { · {{ 'evolutionModal.megaFormSuffix' | translate }} }
+      </div>
+      <div class="evo-name">{{ selectedStage.text | translate }}</div>
+    </div>
+    <button type="button" class="evo-close" (click)="activeModal.dismiss()" aria-label="Close">×</button>
+  </div>
+
+  @for (_ of [revealTick]; track revealTick) {
+    <div class="evo-row">
+      @for (column of baseColumns; track $index; let ci = $index) {
+        @if (ci > 0) {
+          <div class="evo-arrow evo-reveal" [style.animation-delay.ms]="column[0] ? revealDelayMs(column[0]) - 130 : 0">→</div>
+        }
+        @if (column.length === 1) {
+          <button type="button" class="evo-tile evo-reveal"
+                  [class.evo-tile-selected]="isSelected(column[0])"
+                  [style.animation-delay.ms]="revealDelayMs(column[0])"
+                  (click)="selectStage(column[0])">
+            <span class="evo-tile-ring">
+              <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(column[0].pokemonId)"
+                   [alt]="column[0].text | translate" (error)="onSpriteError(column[0].pokemonId)">
+            </span>
+            <span class="evo-tile-name">{{ column[0].text | translate }}</span>
+          </button>
+        } @else {
+          <div class="evo-branch-spine">
+            @for (stage of column; track stage.pokemonId) {
+              <div class="evo-branch-item">
+                <div class="evo-branch-connector"></div>
+                <button type="button" class="evo-tile evo-tile-branch evo-reveal"
+                        [class.evo-tile-selected]="isSelected(stage)"
+                        [style.animation-delay.ms]="revealDelayMs(stage)"
+                        (click)="selectStage(stage)">
+                  <span class="evo-tile-ring">
+                    <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(stage.pokemonId)"
+                         [alt]="stage.text | translate" (error)="onSpriteError(stage.pokemonId)">
+                  </span>
+                  <span class="evo-tile-name">{{ stage.text | translate }}</span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @if (megaStages.length === 1) {
+        <div class="evo-arrow evo-reveal" [style.animation-delay.ms]="revealDelayMs(megaStages[0]) - 130">→</div>
+        <button type="button" class="evo-tile evo-tile-mega evo-reveal"
+                [class.evo-tile-selected]="isSelected(megaStages[0])"
+                [class.evo-tile-glow]="isSelected(megaStages[0]) && !megaStages[0].locked"
+                [style.animation-delay.ms]="revealDelayMs(megaStages[0])"
+                [disabled]="megaStages[0].locked"
+                (click)="selectStage(megaStages[0])">
+          <span class="evo-tile-ring evo-ring-mega">
+            <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(megaStages[0].pokemonId)"
+                 [alt]="megaStages[0].text | translate" (error)="onSpriteError(megaStages[0].pokemonId)">
+            <img class="evo-mega-badge" [src]="megaSymbolUrl" alt="Mega">
+            @if (megaStages[0].locked) { <span class="evo-lock-overlay">🔒</span> }
+          </span>
+          <span class="evo-tile-name">{{ megaStages[0].text | translate }}</span>
+        </button>
+      } @else if (megaStages.length > 1) {
+        <div class="evo-arrow evo-reveal" [style.animation-delay.ms]="revealDelayMs(megaStages[0]) - 130">→</div>
+        <div class="evo-branch-spine">
+          @for (stage of megaStages; track stage.pokemonId) {
+            <div class="evo-branch-item">
+              <div class="evo-branch-connector"></div>
+              <button type="button" class="evo-tile evo-tile-branch evo-tile-mega evo-reveal"
+                      [class.evo-tile-selected]="isSelected(stage)"
+                      [class.evo-tile-glow]="isSelected(stage) && !stage.locked"
+                      [style.animation-delay.ms]="revealDelayMs(stage)"
+                      [disabled]="stage.locked"
+                      (click)="selectStage(stage)">
+                <span class="evo-tile-ring evo-ring-mega">
+                  <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(stage.pokemonId)"
+                       [alt]="stage.text | translate" (error)="onSpriteError(stage.pokemonId)">
+                  <img class="evo-mega-badge" [src]="megaSymbolUrl" alt="Mega">
+                  @if (stage.locked) { <span class="evo-lock-overlay">🔒</span> }
+                </span>
+                <span class="evo-tile-name">{{ stage.text | translate }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <hr class="evo-divider">
+
+  @for (_ of [selectedId]; track selectedId) {
+    <div class="evo-stats evo-stats-fade">
+      <div class="evo-stats-types">
+        <img class="evo-type-icon" [src]="getTypeIconUrl(selectedStage.type1!)" [alt]="selectedStage.type1">
+        @if (selectedStage.type2) {
+          <img class="evo-type-icon" [src]="getTypeIconUrl(selectedStage.type2)" [alt]="selectedStage.type2">
+        }
+      </div>
+      <div class="evo-stats-power">
+        <div class="evo-power-label">{{ 'detail.power' | translate }} {{ selectedStage.power }}/{{ pipCap }}</div>
+        <div class="evo-power-pips">
+          @for (filled of powerPipFilled; track $index) {
+            <span class="evo-pip" [class.evo-pip-filled]="filled"></span>
+          }
+        </div>
+      </div>
+      @if (selectedStage.isMega) {
+        <div class="evo-mega-tag">{{ 'evolutionModal.megaBadge' | translate }}</div>
+      }
+      @if (selectedStage.isMega && selectedStage.locked) {
+        <div class="evo-locked-note">{{ 'evolutionModal.megaLocked' | translate }}</div>
+      }
+    </div>
+  }
+</div>

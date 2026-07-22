@@ -21,11 +21,14 @@
                               @if (trainerTeam[i]?.sprite) {
                                    <img [src]="getSprite(trainerTeam[i])"
                                         class="img-fluid"
+                                        role="button"
+                                        style="cursor: pointer;"
                                         placement="bottom"
                                         container="body"
                                         [ngbTooltip]="pokemonInfoTooltip"
-                                        triggers="hover click"
-                                        [tooltipContext]="{ pokemon: trainerTeam[i] }">
+                                        triggers="hover"
+                                        [tooltipContext]="{ pokemon: trainerTeam[i] }"
+                                        (click)="openEvolutionDetail(trainerTeam[i])">
 
                                    @if (getMegaStoneSprite(trainerTeam[i]); as megaStoneSprite) {
                                         <button

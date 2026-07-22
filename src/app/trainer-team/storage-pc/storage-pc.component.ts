@@ -18,6 +18,7 @@ import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/s
 import { Subscription } from 'rxjs';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
+import { EvolutionLineModalComponent } from '../../pokedex/evolution-line-modal/evolution-line-modal.component';
 
 @Component({
   selector: 'app-storage-pc',
@@ -228,5 +229,13 @@ export class StoragePcComponent implements OnInit, OnDestroy {
       this.pickerModalRef?.close();
       this.pickerModalRef = null;
       this.assignTarget = null;
+    }
+
+    openEvolutionDetail(pokemon: PokemonItem): void {
+      const ref = this.modalService.open(EvolutionLineModalComponent, {
+        centered: true,
+        modalDialogClass: 'evolution-line-modal-dialog',
+      });
+      ref.componentInstance.pokemonId = pokemon.pokemonId;
     }
 }

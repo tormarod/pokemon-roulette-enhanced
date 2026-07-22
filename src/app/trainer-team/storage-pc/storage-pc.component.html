@@ -24,10 +24,13 @@
                   cdkDrag>
               <img class="img-fluid"
                    [src]="getSprite(pokemon)"
+                   role="button"
+                   style="cursor: pointer;"
                    placement="bottom"
                    container="body"
                    [ngbTooltip]="pokemonInfoTooltip"
-                   [tooltipContext]="{ pokemon: pokemon }">
+                   [tooltipContext]="{ pokemon: pokemon }"
+                   (click)="openEvolutionDetail(pokemon)">
               @if (isNewExperienceMode && idx === markedIndex) {
                 <span class="marked-badge" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}" triggers="hover click">
                   {{ 'trainer.team.marked' | translate }}
@@ -66,11 +69,14 @@
           <img [src]="getSprite(pokemon)"
                class="img-fluid"
                [class.fainted-sprite]="pokemon.fainted || pokemon.retreatLocked"
+               role="button"
+               style="cursor: pointer;"
                placement="bottom"
                container="body"
                [ngbTooltip]="pokemonInfoTooltip"
-               triggers="hover click"
-               [tooltipContext]="{ pokemon: pokemon }">
+               triggers="hover"
+               [tooltipContext]="{ pokemon: pokemon }"
+               (click)="openEvolutionDetail(pokemon)">
           @if (pokemon.fainted) {
             <span class="fainted-badge"
                   placement="bottom"

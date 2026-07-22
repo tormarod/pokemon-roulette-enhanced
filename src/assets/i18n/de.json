@@ -3152,6 +3152,11 @@
     },
     "mega": "⚡ Mega-Entwickelt"
   },
+  "evolutionModal": {
+    "megaFormSuffix": "Mega Form",
+    "megaBadge": "MEGA EVOLUTION",
+    "megaLocked": "Requires a mega stone to Mega Evolve."
+  },
   "pokemonType": {
     "normal": "Normal",
     "fighting": "Kampf",
@@ -3174,6 +3179,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_15_0": "Version 3.15.0",
   "v3_14_1": "Version 3.14.1",
   "v3_14_0": "Version 3.14.0",
   "v3_13_0": "Version 3.13.0",
@@ -3193,6 +3199,9 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_15_0": {
+      "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."
+    },
     "v3_14_1": {
       "0": "🧪 Potions can no longer be used in rival battles — like Team Rocket fights, rivals now play out without them. Potions stay reserved for Gym, Elite Four, and Champion battles.",
       "1": "🪙 Tightened the Market economy: lower per-run stock across the board and about 10% less coin income, so a run's supplies actually run dry and the Restock action becomes a real decision instead of something you never need."

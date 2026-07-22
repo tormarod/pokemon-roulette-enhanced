@@ -14,16 +14,17 @@ Last updated: 2026-07-22
 
 ## Open items
 
-### Toll Booth as an avoidable mini-battle (threat variety, not a Toll fix)
+### PokedexDetailModalComponent Mega-form stats don't update
 
-Idea floated 2026-07-22: instead of a flat toll, Toll Booth triggers a **battle**
-first and the coin/danger effect lands **only if you lose** (win = pass free). Not
-adopted in `docs/plans/economy-market-reconciliation.md` Phase 4 (which just softens
-the spike): it **reopens Q4's "threats stay no-choice" rule**, doesn't fix the
-market-spending trap unless winning waives the toll, and is real scope (whose team?
-power scaling? reward on win?). Park as a **threat-variety** concept — an
-"avoidable-encounter threat" type — to design separately if we ever want threats
-with agency. Decision record: `economy-market-reconciliation.md` R2.
+In the Pokédex browser's detail modal (`pokedex-detail-modal.component.ts`),
+selecting a Mega form doesn't update the displayed power. Root cause:
+`alternateForms`'s mega-form mapping converts a mega `PokemonItem` to a
+`PokemonForm`, but `PokemonForm` has no `power` field to carry it, so
+`detailsPower` silently falls back to the base Pokémon's power. Pre-existing,
+unrelated to the new evolution-line modal (`evolution-line-modal.component.ts`),
+which has its own correct, separate Mega power handling and doesn't touch this
+component. Low priority — only affects the Pokédex browser's stat readout for
+Mega forms, not battle math.
 
 ### Re-evaluate late-game catch value after the endgame rebalance
 

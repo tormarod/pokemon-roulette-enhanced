@@ -11,12 +11,15 @@ import { MarkedTargetService } from '../../services/marked-target-service/marked
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { AbilityId } from '../../services/ability-service/abilities-data';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { EvolutionLineModalComponent } from '../../pokedex/evolution-line-modal/evolution-line-modal.component';
 
 describe('StoragePcComponent', () => {
   let component: StoragePcComponent;
   let fixture: ComponentFixture<StoragePcComponent>;
   let trainerService: TrainerService;
   let httpSpy: jasmine.SpyObj<HttpClient>;
+  let modalServiceSpy: jasmine.SpyObj<NgbModal>;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 25,
@@ -31,6 +34,7 @@ describe('StoragePcComponent', () => {
 
   beforeEach(async () => {
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
+    modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open', 'dismissAll']);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -40,7 +44,8 @@ describe('StoragePcComponent', () => {
       ],
       providers: [
         provideIcons({ bootstrapPcDisplayHorizontal }),
-        {provide: HttpClient, useValue: httpSpyObj }
+        {provide: HttpClient, useValue: httpSpyObj },
+        { provide: NgbModal, useValue: modalServiceSpy }
       ]
     })
     .compileComponents();
@@ -314,6 +319,24 @@ describe('StoragePcComponent', () => {
       expect(cards[1].classList.contains('cdk-drag-disabled')).toBeFalse();
 
       viewRef.destroy();
+    });
+  });
+
+  // ── Evolution-line modal entry point ─────────────────────────────────────
+
+  describe('openEvolutionDetail', () => {
+    it('opens EvolutionLineModalComponent with the clicked Pokémon id', () => {
+      const mockModalRef = { componentInstance: {} as any };
+      modalServiceSpy.open.and.returnValue(mockModalRef as any);
+      const pokemon = makeTestPokemon({ pokemonId: 25 });
+
+      component.openEvolutionDetail(pokemon);
+
+      expect(modalServiceSpy.open).toHaveBeenCalledWith(
+        EvolutionLineModalComponent,
+        jasmine.objectContaining({ modalDialogClass: 'evolution-line-modal-dialog' })
+      );
+      expect(mockModalRef.componentInstance.pokemonId).toBe(25);
     });
   });
 });
