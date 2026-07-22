@@ -265,6 +265,21 @@ describe('GymBattleRouletteComponent', () => {
       expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(9);
     });
 
+    it('should scale the x-attack bonus with the current round', () => {
+      trainerService.addToTeam(makeTestPokemon({ power: 4 }));
+      (component as any).trainerItems = [
+        { name: 'x-attack', text: 'items.x-attack.name', fillStyle: 'red', weight: 1, description: '', sprite: '' }
+      ];
+      component.currentLeader = { name: 'Brock', sprite: '', quotes: [] } as GymLeader;
+      component.currentRound = 3;
+
+      component.onPrepConfirmed({ leadIndex: 0, xAttackUsed: true });
+
+      const odds: WheelItem[] = (component as any).victoryOdds;
+      // base(1) + power(4) + xAttackBonus(meanPower=4 + round=3 = 7) = 12
+      expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.gym.yes').length).toBe(12);
+    });
+
 
     it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {
       battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });

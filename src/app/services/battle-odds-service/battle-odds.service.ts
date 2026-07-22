@@ -52,6 +52,19 @@ export class BattleOddsService {
     private abilityService: AbilityService,
   ) {}
 
+  /**
+   * The Yes-ticket bonus a committed X-Attack grants in New Experience Mode:
+   * the team's mean power (its historical value) plus a flat round-scaled term
+   * so the boost keeps pace with the round-threat No tickets late-game. `round`
+   * is leadersDefeatedAmount (integer, cumulative across the run). Returns 0 for
+   * an empty team. Classic mode does NOT use this — see plusModifiers().
+   */
+  xAttackBonus(team: PokemonItem[], round: number): number {
+    if (!team.length) return 0;
+    const meanPower = team.reduce((sum, p) => sum + p.power, 0) / team.length;
+    return meanPower + round;
+  }
+
   computeOdds(input: BattleOddsInput): BattleOddsBreakdown {
     const { team, opponentTypes, baseNoCount, currentRound } = input;
     const teamPower = team.reduce((s, p) => s + p.power, 0);

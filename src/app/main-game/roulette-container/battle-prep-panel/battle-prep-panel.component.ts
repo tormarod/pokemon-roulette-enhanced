@@ -59,14 +59,14 @@ export class BattlePrepPanelComponent implements OnChanges {
       this.oddsPreview = null;
       return;
     }
-    const meanPower = this.team.reduce((sum, p) => sum + p.power, 0) / this.team.length;
     this.oddsPreview = this.battleOddsService.computeOdds({
       team: this.team,
       opponentTypes: this.opponentTypes ?? [],
       baseNoCount: this.baseNoCount,
       currentRound: this.currentRound,
       leadIndex: this.selectedLeadIndex,
-      xAttackBonus: this.xAttackSelected ? meanPower : 0,
+      xAttackBonus: this.xAttackSelected
+        ? this.battleOddsService.xAttackBonus(this.team, this.currentRound) : 0,
       classicPlusModifiers: 0,
       badOmen: this.battleDebuffService.currentDebuff,
       abilitiesActive: this.gameStateService.isNewExperienceMode,

@@ -3164,6 +3164,8 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_10_0": "Version 3.10.0",
+  "v3_9_0": "Version 3.9.0",
   "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
   "v3_6_0": "Version 3.6.0",
@@ -3176,6 +3178,13 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_10_0": {
+      "0": "⚔️ X Attack is stronger in tougher fights — its power boost now scales with how far you've progressed."
+    },
+    "v3_9_0": {
+      "0": "🚲 The Market now sells a Bicycle — a pricier, guaranteed extra threat-free adventure step, previously only found on the adventure wheel.",
+      "1": "🪙 Potion, Super Potion, and Hyper Potion cost more, but are correctly tiered now (each bigger potion beats buying the equivalent in smaller ones); the random Ability Capsule got cheaper."
+    },
     "v3_8_0": {
       "0": "🚧 Three new adventure threats: Toll Booth drains Coins (or spikes the Danger meter if you can't fully pay), Scouting Report gives your next opponent a type edge against your strongest Pokémon, and PC Lockout freezes withdrawals and deposits until your next battle.",
       "1": "📈 Threats you draw are now filtered to skip anything that would have no effect on your current roster, and safe adventure steps recover the Danger meter a bit faster.",

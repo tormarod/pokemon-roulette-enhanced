@@ -54,13 +54,14 @@ export function foundCoinsReward(): number {
  * locked in the plan's balance phase.
  */
 export const MARKET_PRICES = {
-  'potion': 15,
-  'super-potion': 30,
-  'hyper-potion': 50,
-  'x-attack': 25,
+  'potion': 25,
+  'super-potion': 40,
+  'hyper-potion': 55,
+  'x-attack': 15,
   'rare-candy': 40,
-  'revive': 60,
-  'ability-capsule': 50,
+  'revive': 50,
+  'ability-capsule': 35,
+  'bicycle': 120,
 } as const; // tunable
 
 export type MarketEntryId = keyof typeof MARKET_PRICES;
