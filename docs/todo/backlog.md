@@ -14,6 +14,17 @@ Last updated: 2026-07-22
 
 ## Open items
 
+### Toll Booth as an avoidable mini-battle (threat variety, not a Toll fix)
+
+Idea floated 2026-07-22: instead of a flat toll, Toll Booth triggers a **battle**
+first and the coin/danger effect lands **only if you lose** (win = pass free). Not
+adopted in `docs/plans/economy-market-reconciliation.md` Phase 4 (which just softens
+the spike): it **reopens Q4's "threats stay no-choice" rule**, doesn't fix the
+market-spending trap unless winning waives the toll, and is real scope (whose team?
+power scaling? reward on win?). Park as a **threat-variety** concept — an
+"avoidable-encounter threat" type — to design separately if we ever want threats
+with agency. Decision record: `economy-market-reconciliation.md` R2.
+
 ### Re-evaluate late-game catch value after the endgame rebalance
 
 Once your team is six power-3s, `catchPokemon` (reward-pool weight 5, the biggest)
@@ -22,18 +33,18 @@ matters if you swap it into the 6-member team (battle odds read only the team).
 Deferred, **not** a fix now: the PC bench has real value for per-opponent matchup
 swaps (opponent preview + type math), and the 3-pick adventure draw already lets a
 player skip an unwanted catch. But that bench value scales with the matchup unit,
-so **once `docs/plans/game-design-holistic-review.md` Phase 1 (the endgame
+so **once `docs/plans/endgame-rebalance.md` Phase 1 (the endgame
 matchup-unit doubling) ships, re-check whether late catches still feel stale.** If
 they do, options: re-weight the reward pool away from catch once the team is full,
 or offer a swap prompt when a caught mon is a genuine upgrade. Decision record:
-`docs/plans/game-design-holistic-review.md` Q3.
+`docs/plans/endgame-rebalance.md` Q3.
 
 ### team-synergy ability rewards mono-type teams (coverage tension)
 
 `synchronize` (`team-synergy`, +value Yes per same-type teammate,
 `abilities-data.ts`) pays out most on a mono-type team — which is exactly what the
 matchup math punishes against varied opponents. Currently treated as a legitimate
-high-risk build choice, **not** a bug (see `game-design-holistic-review.md` Phase 2
+high-risk build choice, **not** a bug (see `endgame-rebalance.md` Phase 2
 note). Revisit only if playtest shows a mono-type synergy stack is degenerately
 strong (or dead) after the ability-magnitude pass.
 
