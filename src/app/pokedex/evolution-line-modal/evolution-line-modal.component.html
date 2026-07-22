@@ -53,8 +53,8 @@
         <button type="button" class="evo-tile evo-tile-mega evo-reveal"
                 [class.evo-tile-selected]="isSelected(megaStages[0])"
                 [class.evo-tile-glow]="isSelected(megaStages[0]) && !megaStages[0].locked"
+                [class.evo-tile-locked]="megaStages[0].locked"
                 [style.animation-delay.ms]="revealDelayMs(megaStages[0])"
-                [disabled]="megaStages[0].locked"
                 (click)="selectStage(megaStages[0])">
           <span class="evo-tile-ring evo-ring-mega">
             <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(megaStages[0].pokemonId)"
@@ -73,8 +73,8 @@
               <button type="button" class="evo-tile evo-tile-branch evo-tile-mega evo-reveal"
                       [class.evo-tile-selected]="isSelected(stage)"
                       [class.evo-tile-glow]="isSelected(stage) && !stage.locked"
+                      [class.evo-tile-locked]="stage.locked"
                       [style.animation-delay.ms]="revealDelayMs(stage)"
-                      [disabled]="stage.locked"
                       (click)="selectStage(stage)">
                 <span class="evo-tile-ring evo-ring-mega">
                   <img class="evo-sprite" loading="lazy" [src]="displaySpriteUrl(stage.pokemonId)"
@@ -112,9 +112,9 @@
       @if (selectedStage.isMega) {
         <div class="evo-mega-tag">{{ 'evolutionModal.megaBadge' | translate }}</div>
       }
-      @if (selectedStage.isMega && selectedStage.locked) {
-        <div class="evo-locked-note">{{ 'evolutionModal.megaLocked' | translate }}</div>
-      }
+      <div class="evo-locked-note" [class.evo-locked-note-hidden]="!selectedStage.isMega">
+        {{ 'evolutionModal.megaLocked' | translate }}
+      </div>
     </div>
   }
 </div>
