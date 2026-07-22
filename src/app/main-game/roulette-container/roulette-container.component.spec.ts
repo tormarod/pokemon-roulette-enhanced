@@ -578,7 +578,7 @@ describe('RouletteContainerComponent', () => {
       // get equal steal weight, whatever bias is pending.
       trainerService.restorePendingTypeBiases({
         toward: [{ type: 'water', mode: 'soft' }],
-        away: [],
+        honey: [],
       });
       trainerService.addToTeam({ ...makePokemon(1), power: 3, type1: 'water' });
       trainerService.addToTeam({ ...makePokemon(2), power: 3, type1: 'fire' });
@@ -705,9 +705,7 @@ describe('RouletteContainerComponent', () => {
 
   describe('handleTypeBiasItemUse / continueWithType', () => {
     const HONEY: any = { name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
-    const REPEL: any = { name: 'repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
     const POKE_RADAR: any = { name: 'poke-radar', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
-    const MAX_REPEL: any = { name: 'max-repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
 
     it('re-queues the current state, removes the item, and opens the type picker', () => {
       spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
@@ -720,65 +718,82 @@ describe('RouletteContainerComponent', () => {
       expect(component.getGameState()).toBe('select-from-type-list');
     });
 
-    it('sets a soft toward bias for Honey', () => {
+    it('adds a Honey use for the chosen type instead of a toward bias', () => {
       (component as any).handleTypeBiasItemUse(HONEY);
-      component.continueWithType('water');
+      component.continueWithType(['water']);
 
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
-    });
-
-    it('sets a soft away bias for Repel', () => {
-      (component as any).handleTypeBiasItemUse(REPEL);
-      component.continueWithType('fire');
-
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'fire', mode: 'soft' }]);
+      expect(trainerService.currentPendingTypeBiases.honey).toEqual([['water']]);
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
 
     it('sets a hard toward bias for Poké Radar', () => {
       (component as any).handleTypeBiasItemUse(POKE_RADAR);
-      component.continueWithType('grass');
+      component.continueWithType(['grass']);
 
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'grass', mode: 'hard' }]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
     });
 
-    it('sets a hard away bias for Max Repel', () => {
-      (component as any).handleTypeBiasItemUse(MAX_REPEL);
-      component.continueWithType('electric');
-
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'electric', mode: 'hard' }]);
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
-    });
-
-    it('keeps both a toward and an away bias active at the same time when both items are used', () => {
+    it('stacks a second Honey use as an additional entry instead of overwriting the first', () => {
       (component as any).handleTypeBiasItemUse(HONEY);
-      component.continueWithType('water');
-      (component as any).handleTypeBiasItemUse(MAX_REPEL);
-      component.continueWithType('electric');
-
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([{ type: 'electric', mode: 'hard' }]);
-    });
-
-    it('stacks a second Honey use as an additional toward entry instead of overwriting the first', () => {
+      component.continueWithType(['water']);
       (component as any).handleTypeBiasItemUse(HONEY);
-      component.continueWithType('water');
-      (component as any).handleTypeBiasItemUse(HONEY);
-      component.continueWithType('electric');
+      component.continueWithType(['electric']);
 
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual([
-        { type: 'water', mode: 'soft' },
-        { type: 'electric', mode: 'soft' }
-      ]);
+      expect(trainerService.currentPendingTypeBiases.honey).toEqual([['water'], ['electric']]);
     });
 
     it('does nothing if continueWithType is called with no pending item', () => {
-      component.continueWithType('psychic');
+      component.continueWithType(['psychic']);
 
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEST-03a: handleThreatShieldUse (Repel / Max Repel)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe('handleThreatShieldUse', () => {
+    const REPEL: any = { name: 'repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    const MAX_REPEL: any = { name: 'max-repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
+    let dangerMeterService: DangerMeterService;
+
+    beforeEach(() => {
+      dangerMeterService = TestBed.inject(DangerMeterService);
+      gameStateService.resetGameState(true);
+    });
+
+    it('grants 1 threat shield for Repel and removes the item', () => {
+      spyOn(trainerService, 'removeItem');
+
+      (component as any).handleThreatShieldUse(REPEL);
+
+      expect(dangerMeterService.currentShieldedSteps).toBe(1);
+      expect(trainerService.removeItem).toHaveBeenCalledWith(REPEL);
+    });
+
+    it('grants 3 threat shields for Max Repel', () => {
+      (component as any).handleThreatShieldUse(MAX_REPEL);
+
+      expect(dangerMeterService.currentShieldedSteps).toBe(3);
+    });
+
+    it('is a no-op outside New Experience mode', () => {
+      gameStateService.resetGameState(false);
+      spyOn(trainerService, 'removeItem');
+
+      (component as any).handleThreatShieldUse(REPEL);
+
+      expect(dangerMeterService.currentShieldedSteps).toBe(0);
+      expect(trainerService.removeItem).not.toHaveBeenCalled();
+    });
+
+    it('does not repeat the current state — it is a bonus action', () => {
+      spyOn(gameStateService, 'repeatCurrentState');
+
+      (component as any).handleThreatShieldUse(REPEL);
+
+      expect(gameStateService.repeatCurrentState).not.toHaveBeenCalled();
     });
   });
 
@@ -790,52 +805,75 @@ describe('RouletteContainerComponent', () => {
     const HONEY: any = { name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: '' };
 
     const openFakeModal = () => {
-      const selectedTypeEvent = new EventEmitter<any>();
+      const selectedTypesEvent = new EventEmitter<any>();
       let closeCalled = false;
       const modalRef: any = {
-        componentInstance: { selectedTypeEvent },
+        componentInstance: { selectedTypesEvent },
         result: Promise.resolve(),
         close: () => { closeCalled = true; }
       };
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve(modalRef));
-      return { selectedTypeEvent, isClosed: () => closeCalled };
+      return { selectedTypesEvent, isClosed: () => closeCalled, modalRef };
     };
 
     it('opens a modal picker instead of leaving the screen when on catch-pokemon', async () => {
       (component as any).currentGameState = 'catch-pokemon';
       spyOn(gameStateService, 'repeatCurrentState').and.callThrough();
-      const { selectedTypeEvent } = openFakeModal();
+      const { selectedTypesEvent } = openFakeModal();
 
       (component as any).handleTypeBiasItemUse(HONEY);
       await Promise.resolve();
 
       expect(modalQueueService.open).toHaveBeenCalled();
       expect(gameStateService.repeatCurrentState).not.toHaveBeenCalled();
-      selectedTypeEvent.unsubscribe();
+      selectedTypesEvent.unsubscribe();
+    });
+
+    it('sets maxSelections to HONEY_MAX_TYPES (3) on the modal for Honey', async () => {
+      (component as any).currentGameState = 'catch-pokemon';
+      const { modalRef, selectedTypesEvent } = openFakeModal();
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(modalRef.componentInstance.maxSelections).toBe(3);
+      selectedTypesEvent.unsubscribe();
     });
 
     it('applies the bias, removes the item, and closes the modal on type selection', async () => {
       (component as any).currentGameState = 'trade-pokemon';
       spyOn(trainerService, 'removeItem');
-      const { selectedTypeEvent, isClosed } = openFakeModal();
+      const { selectedTypesEvent, isClosed } = openFakeModal();
 
       (component as any).handleTypeBiasItemUse(HONEY);
       await Promise.resolve();
-      selectedTypeEvent.emit('water');
+      selectedTypesEvent.emit(['water']);
 
       expect(trainerService.removeItem).toHaveBeenCalledWith(HONEY);
-      expect(trainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'water', mode: 'soft' }]);
+      expect(trainerService.currentPendingTypeBiases.honey).toEqual([['water']]);
       expect(isClosed()).toBeTrue();
+    });
+
+    it('applies all selected types when Honey is used with 3 types', async () => {
+      (component as any).currentGameState = 'trade-pokemon';
+      const { selectedTypesEvent } = openFakeModal();
+
+      (component as any).handleTypeBiasItemUse(HONEY);
+      await Promise.resolve();
+      selectedTypesEvent.emit(['fire', 'water', 'grass']);
+
+      expect(trainerService.currentPendingTypeBiases.honey).toEqual([['fire', 'water', 'grass']]);
     });
 
     it('does not change GameState when applying a bias in place', async () => {
       (component as any).currentGameState = 'find-fossil';
-      const { selectedTypeEvent } = openFakeModal();
+      const { selectedTypesEvent } = openFakeModal();
       const stateBefore = component.getGameState();
 
       (component as any).handleTypeBiasItemUse(HONEY);
       await Promise.resolve();
-      selectedTypeEvent.emit('fire');
+      selectedTypesEvent.emit(['fire']);
 
       expect(component.getGameState()).toBe(stateBefore);
     });
@@ -864,7 +902,6 @@ describe('RouletteContainerComponent', () => {
       component.capturePokemon(bulbasaur);
 
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
     });
 
     it('legendaryCaptureChance() clears any pending bias', () => {
@@ -878,11 +915,11 @@ describe('RouletteContainerComponent', () => {
 
     it('paradoxCaptureChance() clears any pending bias', () => {
       const bulbasaur = pokemonService.getPokemonById(1)!;
-      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
+      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
 
       component.paradoxCaptureChance(bulbasaur);
 
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
+      expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
 
     it('performTrade() clears any pending bias', () => {
@@ -896,15 +933,13 @@ describe('RouletteContainerComponent', () => {
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
     });
 
-    it('clears a hard-mode bias (Poké Radar / Max Repel) exactly the same as a soft one', () => {
+    it('clears a hard-mode bias (Poké Radar) the same as a soft one', () => {
       const bulbasaur = pokemonService.getPokemonById(1)!;
       trainerService.setTowardBias({ type: 'grass', mode: 'hard' });
-      trainerService.setAwayBias({ type: 'fire', mode: 'hard' });
 
       component.capturePokemon(bulbasaur);
 
       expect(trainerService.currentPendingTypeBiases.toward).toEqual([]);
-      expect(trainerService.currentPendingTypeBiases.away).toEqual([]);
     });
 
     it('does not let a bias used on one wheel carry over to a second wheel later in the same stretch', () => {
@@ -1234,20 +1269,40 @@ describe('RouletteContainerComponent', () => {
       expect(modalQueueService.open).toHaveBeenCalled();
     });
 
-    it('balance 0: pays nothing, applies the max spike tier (fully unpaid)', () => {
+    it('balance 0: pays nothing, applies the max spike tier (fully unpaid, R2: cap cut 15→5)', () => {
       expect(trainerService.getCoins()).toBe(0);
       spyOn(component, 'doNothing').and.callThrough();
 
       component.tollBooth();
 
       expect(trainerService.getCoins()).toBe(0);
-      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(15);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(5);
       expect(component.doNothing).toHaveBeenCalled();
     });
 
     it('balance just under toll: pays what it can, applies the smallest spike tier', () => {
       // round 0 -> toll = 15; balance 14 -> unpaid 1/15 ≈ 0.067 <= 1/3
       trainerService.addCoins(14);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(2);
+    });
+
+    it('mid unpaid fraction applies the middle spike tier', () => {
+      // round 0 -> toll = 15; balance 8 -> unpaid 7/15 ≈ 0.467, > 1/3 and <= 2/3
+      trainerService.addCoins(8);
+
+      component.tollBooth();
+
+      expect(trainerService.getCoins()).toBe(0);
+      expect(dangerMeterService.applySpike).toHaveBeenCalledWith(3);
+    });
+
+    it('round 8, badly short: toll 39, pay 10, spike capped at the new ceiling of 5', () => {
+      gameStateService.restoreState('adventure-continues', ['adventure-continues'], 8);
+      trainerService.addCoins(10);
 
       component.tollBooth();
 

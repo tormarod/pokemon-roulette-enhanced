@@ -4,11 +4,23 @@
         <button
             type="button"
             class="btn type-choice-button"
+            [class.selected]="isSelected(typeData.key)"
             [style.background-color]="getTypeFillStyle(typeData.key)"
-            (click)="selectType(typeData.key)">
+            (click)="toggleType(typeData.key)">
             <img [src]="getTypeIconUrl(typeData.key)" [alt]="typeData.key" height="24">
             <span>{{ 'pokemonType.' + typeData.key | translate }}</span>
         </button>
     }
 </div>
-<div class="roulette-action-row"></div>
+<div class="roulette-action-row">
+    @if (maxSelections > 1) {
+        <span class="selection-count">{{ selected.length }}/{{ maxSelections }}</span>
+        <button
+            type="button"
+            class="btn confirm-button"
+            [disabled]="selected.length === 0"
+            (click)="confirm()">
+            {{ 'game.main.roulette.typeBias.confirm' | translate }}
+        </button>
+    }
+</div>

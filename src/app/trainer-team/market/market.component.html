@@ -26,16 +26,21 @@
     <p class="market-subtitle">{{ 'market.subtitle' | translate }}</p>
     <ul class="market-list">
       @for (entry of stock; track entry.id) {
-        <li class="market-row" [class.market-row-locked]="!canAfford(entry)">
+        <li class="market-row" [class.market-row-locked]="!canBuy(entry)">
           <img class="market-sprite" [src]="entry.sprite" [alt]="entry.labelKey | translate" height="48" (error)="onSpriteError($event)">
           <div class="market-info">
             <span class="market-name">{{ entry.labelKey | translate }}</span>
             <span class="market-desc">{{ entry.descriptionKey | translate }}</span>
+            @if ((remaining[entry.id] ?? 0) > 0) {
+              <span class="market-stock-left">{{ 'market.stockLeft' | translate: { count: remaining[entry.id] } }}</span>
+            } @else {
+              <span class="market-sold-out">{{ 'market.soldOut' | translate }}</span>
+            }
           </div>
           <span class="market-price" aria-hidden="true">🪙 {{ entry.price }}</span>
           <button type="button"
                   class="btn btn-sm btn-primary market-buy"
-                  [disabled]="!canAfford(entry)"
+                  [disabled]="!canBuy(entry)"
                   [attr.aria-label]="(entry.labelKey | translate) + ' — ' + entry.price"
                   (click)="buy(entry)">
             {{ 'market.buy' | translate }}
@@ -43,8 +48,51 @@
         </li>
       }
     </ul>
+    <div class="market-restock">
+      @if (canRestock) {
+        <button type="button" class="btn btn-sm btn-outline-warning market-restock-btn"
+                [disabled]="!isAvailable || !canAffordRestock()"
+                (click)="openRestockConfirm()">
+          {{ 'market.restock' | translate: { price: restockPrice } }}
+        </button>
+      } @else {
+        <span class="market-restock-exhausted">{{ 'market.restockExhausted' | translate }}</span>
+      }
+    </div>
+    @if (sellable.length > 0) {
+      <hr>
+      <h3 class="market-section-title">{{ 'market.sell' | translate }}</h3>
+      <ul class="market-list">
+        @for (group of sellable; track group.name) {
+          <li class="market-row" [class.market-row-locked]="!isAvailable">
+            <img class="market-sprite" [src]="group.sprite" [alt]="group.labelKey | translate" height="48" (error)="onSpriteError($event)">
+            <div class="market-info">
+              <span class="market-name">{{ group.labelKey | translate }} @if (group.count > 1) { <span class="market-count">×{{ group.count }}</span> }</span>
+            </div>
+            <span class="market-price" aria-hidden="true">🪙 {{ group.value }}</span>
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary market-sell"
+                    [disabled]="!isAvailable"
+                    [attr.aria-label]="(group.labelKey | translate) + ' — ' + ('market.sell' | translate)"
+                    (click)="sell(group)">
+              {{ 'market.sellButton' | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-primary" (click)="closeModal()">{{ 'market.close' | translate }}</button>
+  </div>
+</ng-template>
+
+<ng-template #restockConfirmModal let-modal>
+  <div class="modal-body">
+    <p>{{ 'market.restockConfirmMessage' | translate: { price: restockPrice } }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="confirmRestock(); modal.close()">{{ 'market.restockConfirmYes' | translate }}</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">{{ 'market.restockConfirmNo' | translate }}</button>
   </div>
 </ng-template>

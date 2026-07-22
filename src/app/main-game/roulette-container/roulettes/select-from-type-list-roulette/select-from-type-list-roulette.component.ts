@@ -40,9 +40,13 @@ const TYPE_FILL_STYLES: Record<PokemonType, string> = {
 })
 export class SelectFromTypeListRouletteComponent {
   @Input() screenTitle = 'game.main.roulette.typeBias.which';
-  @Output() selectedTypeEvent = new EventEmitter<PokemonType>();
+  /** 1 = instant single pick (Poké Radar/Max Repel UX); >1 = toggle-to-select with a Confirm button (Honey). */
+  @Input() maxSelections = 1;
+  @Output() selectedTypesEvent = new EventEmitter<PokemonType[]>();
 
   readonly types: PokemonTypeData[] = pokemonTypeData;
+
+  selected: PokemonType[] = [];
 
   getTypeIconUrl(type: PokemonType): string {
     return getTypeIconUrl(type);
@@ -52,7 +56,31 @@ export class SelectFromTypeListRouletteComponent {
     return TYPE_FILL_STYLES[type];
   }
 
-  selectType(type: PokemonType): void {
-    this.selectedTypeEvent.emit(type);
+  isSelected(type: PokemonType): boolean {
+    return this.selected.includes(type);
+  }
+
+  toggleType(type: PokemonType): void {
+    if (this.maxSelections === 1) {
+      this.selectedTypesEvent.emit([type]);
+      return;
+    }
+
+    const index = this.selected.indexOf(type);
+    if (index !== -1) {
+      this.selected.splice(index, 1);
+      return;
+    }
+    if (this.selected.length >= this.maxSelections) {
+      return;
+    }
+    this.selected.push(type);
+  }
+
+  confirm(): void {
+    if (this.selected.length === 0) {
+      return;
+    }
+    this.selectedTypesEvent.emit([...this.selected]);
   }
 }

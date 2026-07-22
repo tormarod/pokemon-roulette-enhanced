@@ -36,8 +36,10 @@ export class ItemsComponent implements OnInit, OnDestroy {
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
   @Output() typeBiasItemInterrupt = new EventEmitter<ItemItem>();
   @Output() linkCableInterrupt = new EventEmitter<ItemItem>();
+  @Output() threatShieldInterrupt = new EventEmitter<ItemItem>();
 
-  private static readonly TYPE_BIAS_ITEM_NAMES = new Set(['honey', 'poke-radar', 'repel', 'max-repel']);
+  private static readonly TYPE_BIAS_ITEM_NAMES = new Set(['honey', 'poke-radar']);
+  private static readonly THREAT_SHIELD_ITEM_NAMES = new Set(['repel', 'max-repel']);
 
   darkMode!: Observable<boolean>;
   isDark = false;
@@ -61,6 +63,8 @@ export class ItemsComponent implements OnInit, OnDestroy {
         this.megaStoneInterrupt.emit(item);
       } else if (item.name === 'link-cable') {
         this.linkCableInterrupt.emit(item);
+      } else if (ItemsComponent.THREAT_SHIELD_ITEM_NAMES.has(item.name)) {
+        this.threatShieldInterrupt.emit(item);
       } else if (ItemsComponent.TYPE_BIAS_ITEM_NAMES.has(item.name)) {
         this.typeBiasItemInterrupt.emit(item);
       }

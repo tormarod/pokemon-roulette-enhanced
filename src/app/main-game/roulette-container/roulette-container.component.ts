@@ -57,8 +57,10 @@ import { megaStoneNamesForBaseId, pokemonMegaForms } from '../../services/traine
 import { MegaEvolutionAnimationModalComponent } from './roulettes/mega-evolution-animation-modal/mega-evolution-animation-modal.component';
 import { SelectFromItemListRouletteComponent } from './roulettes/select-from-item-list-roulette/select-from-item-list-roulette.component';
 import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-type-list-roulette/select-from-type-list-roulette.component';
+import { HONEY_MAX_TYPES } from '../../services/trainer-service/apply-type-bias';
 import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
+import { ThreatShieldService } from '../../services/threat-shield-service/threat-shield.service';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { GenerationService } from '../../services/generation-service/generation.service';
 import { GenerationItem } from '../../interfaces/generation-item';
@@ -134,6 +136,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     private megaStoneSubscription?: Subscription;
     private typeBiasItemSubscription?: Subscription;
     private linkCableSubscription?: Subscription;
+    private threatShieldSubscription?: Subscription;
     private pendingTypeBiasItem: ItemItem | null = null;
 
     constructor(
@@ -153,6 +156,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private megaStoneService: MegaStoneService,
       private typeBiasItemService: TypeBiasItemService,
       private linkCableService: LinkCableService,
+      private threatShieldService: ThreatShieldService,
       private generationService: GenerationService,
       private statsService: StatsService,
       private battleDebuffService: BattleDebuffService,
@@ -225,6 +229,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.linkCableSubscription = this.linkCableService.linkCableTrigger$.subscribe((item) => {
       this.handleLinkCable(item);
     });
+
+    this.threatShieldSubscription = this.threatShieldService.threatShieldTrigger$.subscribe((item) => {
+      this.handleThreatShieldUse(item);
+    });
   }
 
   ngOnDestroy(): void {
@@ -232,6 +240,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaStoneSubscription?.unsubscribe();
     this.typeBiasItemSubscription?.unsubscribe();
     this.linkCableSubscription?.unsubscribe();
+    this.threatShieldSubscription?.unsubscribe();
   }
 
   handleRareCandyEvolution(rareCandy: ItemItem): void {
@@ -771,9 +780,12 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       backdrop: 'static'
     });
 
-    const subscription = modalRef.componentInstance.selectedTypeEvent.subscribe((type: PokemonType) => {
+    modalRef.componentInstance.maxSelections = item.name === 'honey' ? HONEY_MAX_TYPES : 1;
+    modalRef.componentInstance.screenTitle = this.typeBiasScreenTitleFor(item);
+
+    const subscription = modalRef.componentInstance.selectedTypesEvent.subscribe((types: PokemonType[]) => {
       this.trainerService.removeItem(item);
-      this.applyBiasForItem(item, type);
+      this.applyBiasForItem(item, types);
       modalRef.close();
     });
 
@@ -784,7 +796,20 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     return getTypeIconUrl(type);
   }
 
-  continueWithType(type: PokemonType): void {
+  /** Honey allows up to 3 types (see HONEY_MAX_TYPES); Poké Radar/Max Repel stay single-pick. */
+  get honeyPendingMaxSelections(): number {
+    return this.pendingTypeBiasItem?.name === 'honey' ? HONEY_MAX_TYPES : 1;
+  }
+
+  get pendingTypeBiasScreenTitle(): string {
+    return this.pendingTypeBiasItem ? this.typeBiasScreenTitleFor(this.pendingTypeBiasItem) : 'game.main.roulette.typeBias.which';
+  }
+
+  private typeBiasScreenTitleFor(item: ItemItem): string {
+    return item.name === 'honey' ? 'game.main.roulette.typeBias.whichHoney' : 'game.main.roulette.typeBias.which';
+  }
+
+  continueWithType(types: PokemonType[]): void {
     this.finishCurrentState();
 
     const item = this.pendingTypeBiasItem;
@@ -793,21 +818,35 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.applyBiasForItem(item, type);
+    this.applyBiasForItem(item, types);
   }
 
   /**
-   * Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
-   * from it. Each use appends an entry (see TrainerService) rather than
-   * overwriting, so repeated uses stack instead of replacing each other.
+   * Honey boosts TOWARD up to 3 chosen types (target-share, see TrainerService.addHoneyUse);
+   * Poké Radar boosts TOWARD a single type (hard filter). Each use appends an entry rather
+   * than overwriting, so repeated uses stack instead of replacing each other.
    */
-  private applyBiasForItem(item: ItemItem, type: PokemonType): void {
-    const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
-    if (item.name === 'honey' || item.name === 'poke-radar') {
-      this.trainerService.setTowardBias({ type, mode });
-    } else {
-      this.trainerService.setAwayBias({ type, mode });
+  private applyBiasForItem(item: ItemItem, types: PokemonType[]): void {
+    if (item.name === 'honey') {
+      this.trainerService.addHoneyUse(types);
+      return;
     }
+    this.trainerService.setTowardBias({ type: types[0], mode: 'hard' });
+  }
+
+  /**
+   * Repel/Max Repel: a bonus action, not a substitute for the player's normal
+   * turn — no repeatCurrentState(), it just mutates the danger meter and lets
+   * play continue. NE-only safety net in case the item somehow surfaces in
+   * Classic (getRegularItems() already filters it out there).
+   */
+  private handleThreatShieldUse(item: ItemItem): void {
+    if (!this.gameStateService.isNewExperienceMode) {
+      return;
+    }
+    const count = item.name === 'max-repel' ? 3 : 1;
+    this.dangerMeterService.addThreatShield(count);
+    this.trainerService.removeItem(item);
   }
 
   /**
@@ -1043,7 +1082,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     const unpaidFraction = (toll - paid) / toll;
     let spike = 0;
     if (unpaidFraction > 0) {
-      spike = unpaidFraction <= 1 / 3 ? 5 : unpaidFraction <= 2 / 3 ? 10 : 15;
+      spike = unpaidFraction <= 1 / 3 ? 2 : unpaidFraction <= 2 / 3 ? 3 : 5;
       this.dangerMeterService.applySpike(spike);
     }
     this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.tollBooth.title');

@@ -32,15 +32,17 @@ export class TypeMatchupService {
   }
 
   /**
-   * Per-net-score-point unit, in wheel tickets: a quarter of the Pokémon's own
-   * power, rounded up, uncapped. Two mutually-favorable type pairs (e.g. Water
-   * vs Fire: SE and resists, netScore 2) reproduces the old flat "strong"
-   * magnitude of ceil(power/2) for even powers. Never zero — even a power-1
-   * Pokémon's matchup always matters. Depends only on the Pokémon itself,
-   * never on team size or other roster members.
+   * Per-net-score-point unit, in wheel tickets: half of the Pokémon's own
+   * power, rounded up, uncapped (doubled from the original quarter-power unit —
+   * see docs/plans/endgame-rebalance.md Lever B — so type-countering the
+   * opponent pays off more). Two mutually-favorable type pairs (e.g. Water vs
+   * Fire: SE and resists, netScore 2) reproduces the Pokémon's own power for
+   * even powers. Never zero — even a power-1 Pokémon's matchup always matters.
+   * Depends only on the Pokémon itself, never on team size or other roster
+   * members.
    */
   getMemberDelta(member: PokemonItem): number {
-    return Math.ceil(member.power / 4);
+    return Math.ceil(member.power / 2);
   }
 
   private getMemberTypes(member: PokemonItem): PokemonType[] {

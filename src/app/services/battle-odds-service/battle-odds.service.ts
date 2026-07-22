@@ -4,7 +4,7 @@ import { PokemonType } from '../../interfaces/pokemon-type';
 import { TypeMatchupService } from '../type-matchup-service/type-matchup.service';
 import { AbilityService } from '../ability-service/ability.service';
 
-export const ROUND_THREAT_MULT = 1.5;
+export const ROUND_THREAT_MULT = 1.25;
 
 export interface BattleOddsBreakdown {
   yesTickets: number;

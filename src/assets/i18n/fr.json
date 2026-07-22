@@ -340,8 +340,7 @@
       "activeBias": {
         "softToward": "Orienté vers",
         "hardToward": "Garanti",
-        "softAway": "Éloigné de",
-        "hardAway": "Exclu"
+        "honey": "Boost Miellée :"
       },
       "opponentPreview": {
         "label": "À suivre :",
@@ -632,7 +631,9 @@
           "which": "Quel Pokémon Échanger?"
         },
         "typeBias": {
-          "which": "Quel type?"
+          "which": "Quel type?",
+          "whichHoney": "Quels types ? (jusqu'à 3)",
+          "confirm": "Confirmer"
         },
         "mega": {
           "who": "Qui recevra une Méga-Pierre?",
@@ -706,6 +707,15 @@
     "subtitle": "Dépense tes pièces pour renforcer ton équipe.",
     "buy": "Acheter",
     "close": "Fermer",
+    "sell": "Vendre",
+    "sellButton": "Vendre",
+    "soldOut": "Épuisé",
+    "stockLeft": "{{count}} restant(s)",
+    "restock": "Réapprovisionner — 🪙 {{price}}",
+    "restockExhausted": "Plus de réapprovisionnement disponible",
+    "restockConfirmMessage": "Réapprovisionner le Marché à son stock plein pour 🪙 {{price}} ?",
+    "restockConfirmYes": "Réapprovisionner",
+    "restockConfirmNo": "Annuler",
     "capsule": {
       "name": "Capsule de Talent",
       "description": "Une Capsule de Talent aléatoire — attribue-la à un membre de l'équipe dans le PC pour un avantage permanent."
@@ -715,7 +725,7 @@
     "title": "Objets",
     "potion": {
       "name": "Potion",
-      "description": "La Potion te permet de rejouer si tu perds un combat d'Arène!"
+      "description": "La Potion te permet de rejouer si tu perds n'importe quel combat!"
     },
     "rare-candy": {
       "name": "Super Bonbon",
@@ -727,7 +737,7 @@
     },
     "super-potion": {
       "name": "Super Potion",
-      "description": "La Super Potion te permet de rejouer jusqu'à deux fois si tu perds un combat d'Arène!"
+      "description": "La Super Potion te permet de rejouer jusqu'à deux fois si tu perds n'importe quel combat!"
     },
     "x-attack": {
       "name": "Attaque +",
@@ -739,7 +749,7 @@
     },
     "hyper-potion": {
       "name": "Hyper Potion",
-      "description": "L'Hyper Potion te permet de rejouer jusqu'à trois fois si tu perds un combat d'Arène!"
+      "description": "L'Hyper Potion te permet de rejouer jusqu'à trois fois si tu perds n'importe quel combat!"
     },
     "escape-rope": {
       "name": "Corde Sortie",
@@ -747,11 +757,11 @@
     },
     "honey": {
       "name": "Miellée",
-      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers un type choisi — se cumule en cas de réutilisation, et fonctionne sur une roue déjà affichée!"
+      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers jusqu'à 3 types de ton choix — la roue s'incline pour que tes choix en représentent environ 55% (répartis entre eux). Fonctionne sur une roue déjà affichée, et se cumule (jusqu'à ~75%) en cas de réutilisation."
     },
     "repel": {
       "name": "Repousse",
-      "description": "Utilise Repousse pour éloigner ton prochain Pokémon sauvage d'un type choisi — se cumule en cas de réutilisation, et fonctionne sur une roue déjà affichée!"
+      "description": "Utilise Repousse pour rendre ta prochaine étape d'aventure sans danger — passe une rencontre en toute sécurité. (Mode Nouvelle Expérience uniquement.)"
     },
     "poke-radar": {
       "name": "PokéRadar",
@@ -759,7 +769,7 @@
     },
     "max-repel": {
       "name": "Max Repousse",
-      "description": "Max Repousse exclut totalement un type choisi de ton prochain Pokémon sauvage, et fonctionne sur une roue déjà affichée!"
+      "description": "Utilise Max Repousse pour rendre tes 3 prochaines étapes d'aventure sans danger. (Mode Nouvelle Expérience uniquement.)"
     },
     "link-cable": {
       "name": "Câble Link",
@@ -3164,6 +3174,10 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_14_0": "Version 3.14.0",
+  "v3_13_0": "Version 3.13.0",
+  "v3_12_0": "Version 3.12.0",
+  "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
   "v3_8_0": "Version 3.8.0",
@@ -3178,6 +3192,27 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_14_0": {
+      "0": "🎯 Find Item and the Market are now disjoint — Find Item never hands you something you could just buy, leaving it concentrated on find-only gadgets and a rare Bicycle.",
+      "1": "🚲 The Bicycle is no longer sold in the Market — it's a lucky find again on the Find Item wheel.",
+      "2": "🪙 You can now sell held items back for coins from a new Sell section in the Market.",
+      "3": "📦 The Market now has a limited per-run stock — buying depletes it, and it doesn't refill on its own. A costly, escalating, capped Restock action is the only way to top it back up.",
+      "4": "🚧 The Toll Booth threat's Danger-meter spike is softer when you come up short — it still bites, just not as hard."
+    },
+    "v3_13_0": {
+      "0": "🛡️ Repel and Max Repel reworked into New Experience-only threat-avoidance items: Repel keeps your very next adventure step threat-free, Max Repel covers the next 3 — instead of steering your next catch away from a type.",
+      "1": "⏳ A Repel/Max Repel shield only delays danger, it never defuses it — the Danger meter keeps climbing underneath even while you walk safely past a threat."
+    },
+    "v3_12_0": {
+      "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
+      "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",
+      "2": "🏪 Honey is now sold in the Market for 45 coins."
+    },
+    "v3_11_0": {
+      "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
+      "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",
+      "2": "✨ Ability effects got stronger to keep pace with the bigger type-matchup swings — most flat Yes/No bonuses and the scale-with-advantage/disadvantage caps are bigger now."
+    },
     "v3_10_0": {
       "0": "⚔️ X Attack is stronger in tougher fights — its power boost now scales with how far you've progressed."
     },

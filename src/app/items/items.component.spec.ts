@@ -32,14 +32,24 @@ describe('ItemsComponent', () => {
 
   const makeItem = (name: string) => ({ name, text: '', fillStyle: '', weight: 1, description: '', sprite: '' } as any);
 
-  it('should emit typeBiasItemInterrupt for honey, poke-radar, repel, and max-repel', () => {
+  it('should emit typeBiasItemInterrupt for honey and poke-radar', () => {
     spyOn(component.typeBiasItemInterrupt, 'emit');
 
-    for (const name of ['honey', 'poke-radar', 'repel', 'max-repel']) {
+    for (const name of ['honey', 'poke-radar']) {
       component.useItem(makeItem(name));
     }
 
-    expect(component.typeBiasItemInterrupt.emit).toHaveBeenCalledTimes(4);
+    expect(component.typeBiasItemInterrupt.emit).toHaveBeenCalledTimes(2);
+  });
+
+  it('should emit threatShieldInterrupt for repel and max-repel', () => {
+    spyOn(component.threatShieldInterrupt, 'emit');
+
+    for (const name of ['repel', 'max-repel']) {
+      component.useItem(makeItem(name));
+    }
+
+    expect(component.threatShieldInterrupt.emit).toHaveBeenCalledTimes(2);
   });
 
   it('should emit linkCableInterrupt for link-cable', () => {
@@ -55,6 +65,7 @@ describe('ItemsComponent', () => {
     spyOn(component.linkCableInterrupt, 'emit');
     spyOn(component.rareCandyInterrupt, 'emit');
     spyOn(component.megaStoneInterrupt, 'emit');
+    spyOn(component.threatShieldInterrupt, 'emit');
 
     component.useItem(makeItem('potion'));
 
@@ -62,6 +73,7 @@ describe('ItemsComponent', () => {
     expect(component.linkCableInterrupt.emit).not.toHaveBeenCalled();
     expect(component.rareCandyInterrupt.emit).not.toHaveBeenCalled();
     expect(component.megaStoneInterrupt.emit).not.toHaveBeenCalled();
+    expect(component.threatShieldInterrupt.emit).not.toHaveBeenCalled();
   });
 
   it('should build the hover tooltip from both the item name and its description', () => {

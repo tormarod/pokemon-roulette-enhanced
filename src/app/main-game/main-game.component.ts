@@ -16,8 +16,7 @@ import { DarkModeService } from '../services/dark-mode-service/dark-mode.service
 import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PendingTypeBiases, TypeBiasEntry } from '../services/trainer-service/trainer.service';
-import { cancelOpposingSoftCounts, countByType } from '../services/trainer-service/apply-type-bias';
+import { TypeBiasEntry } from '../services/trainer-service/trainer.service';
 import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { RouletteContainerComponent } from './roulette-container/roulette-container.component';
@@ -26,12 +25,19 @@ import { RareCandyService } from '../services/rare-candy-service/rare-candy.serv
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
+import { ThreatShieldService } from '../services/threat-shield-service/threat-shield.service';
 import { SettingsService } from '../services/settings-service/settings.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
 interface GroupedBias {
   type: PokemonType;
   mode: 'soft' | 'hard';
+  count: number;
+}
+
+interface HoneyBiasGroup {
+  type: PokemonType;
+  /** Number of pending Honey uses contributing to the target-share (shared across every type in this use's set). */
   count: number;
 }
 
@@ -68,6 +74,7 @@ export class MainGameComponent implements OnInit {
     private megaStoneService: MegaStoneService,
     private typeBiasItemService: TypeBiasItemService,
     private linkCableService: LinkCableService,
+    private threatShieldService: ThreatShieldService,
     private settingsService: SettingsService,
     private runPersistenceService: RunPersistenceService) {
       this.darkMode = this.themeService.isDark$;
@@ -76,7 +83,7 @@ export class MainGameComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   wheelSpinning: boolean = false;
   groupedTowardBiases: GroupedBias[] = [];
-  groupedAwayBiases: GroupedBias[] = [];
+  groupedHoneyBiases: HoneyBiasGroup[] = [];
   itemsAvailable: boolean = false;
 
   ngOnInit(): void {
@@ -87,9 +94,8 @@ export class MainGameComponent implements OnInit {
     });
 
     this.trainerService.getPendingTypeBiasesObservable().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(biases => {
-      const display = this.computeDisplayBiases(biases);
-      this.groupedTowardBiases = display.toward;
-      this.groupedAwayBiases = display.away;
+      this.groupedTowardBiases = this.groupByType(biases.toward);
+      this.groupedHoneyBiases = this.groupHoneyBiases(biases.honey);
     });
 
     // 'start-adventure' is pushed exactly once, at run setup, and never re-pushed — so as
@@ -103,39 +109,13 @@ export class MainGameComponent implements OnInit {
     });
   }
 
-  getBiasTypeIconUrl(bias: GroupedBias): string {
+  getBiasTypeIconUrl(bias: GroupedBias | HoneyBiasGroup): string {
     return getTypeIconUrl(bias.type);
   }
 
-  getBiasLabelKey(bias: GroupedBias, direction: 'toward' | 'away'): string {
+  getBiasLabelKey(bias: GroupedBias): string {
     const modeKey = bias.mode === 'hard' ? 'hard' : 'soft';
-    const directionKey = direction === 'toward' ? 'Toward' : 'Away';
-    return `game.main.activeBias.${modeKey}${directionKey}`;
-  }
-
-  /**
-   * Mirrors the cancellation applyTypeBias() actually performs (see
-   * apply-type-bias.ts) so the badges never show a "boosted toward Fire" and
-   * a "steered away from Fire" at the same time when they'd net to nothing.
-   * Hard-mode entries don't stack/cancel (a guarantee is already absolute),
-   * so only soft entries go through cancelOpposingSoftCounts().
-   */
-  private computeDisplayBiases(biases: PendingTypeBiases): { toward: GroupedBias[]; away: GroupedBias[] } {
-    const { toward: netTowardSoftCounts, away: netAwaySoftCounts } = cancelOpposingSoftCounts(
-      countByType(biases.toward.filter(e => e.mode === 'soft')),
-      countByType(biases.away.filter(e => e.mode === 'soft'))
-    );
-
-    return {
-      toward: [
-        ...this.groupByType(biases.toward.filter(e => e.mode === 'hard')),
-        ...this.countsToGroupedBias(netTowardSoftCounts)
-      ],
-      away: [
-        ...this.groupByType(biases.away.filter(e => e.mode === 'hard')),
-        ...this.countsToGroupedBias(netAwaySoftCounts)
-      ]
-    };
+    return `game.main.activeBias.${modeKey}Toward`;
   }
 
   private groupByType(entries: TypeBiasEntry[]): GroupedBias[] {
@@ -152,8 +132,10 @@ export class MainGameComponent implements OnInit {
     return [...grouped.values()];
   }
 
-  private countsToGroupedBias(counts: Map<PokemonType, number>): GroupedBias[] {
-    return [...counts.entries()].map(([type, count]) => ({ type, mode: 'soft' as const, count }));
+  /** One badge per type across all pending Honey uses; count is the shared use count (see HONEY_STACK_CAP in apply-type-bias.ts). */
+  private groupHoneyBiases(honey: PokemonType[][]): HoneyBiasGroup[] {
+    const types = new Set(honey.flat());
+    return [...types].map(type => ({ type, count: honey.length }));
   }
   
   darkMode!: Observable<boolean>;
@@ -194,6 +176,14 @@ export class MainGameComponent implements OnInit {
     }
 
     this.linkCableService.triggerLinkCable(item);
+  }
+
+  threatShieldInterrupt(item: ItemItem): void {
+    if (this.wheelSpinning || !this.itemsAvailable) {
+      return;
+    }
+
+    this.threatShieldService.triggerThreatShield(item);
   }
 
   resetGame(): void {

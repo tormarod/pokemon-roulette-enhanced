@@ -45,22 +45,22 @@ describe('AbilityService', () => {
 
   // ── §4a base roster (existing effects) ──────────────────────────────────
 
-  it('thick-fat: flat -1 No, regardless of delta', () => {
+  it('thick-fat: flat -2 No, regardless of delta', () => {
     withDelta(5);
-    expect(service.applyTeamAbilities([mon('thick-fat')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -1, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('thick-fat')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
   });
 
-  it('guts: flat +2 Yes', () => {
-    expect(service.applyTeamAbilities([mon('guts')], [])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+  it('guts: flat +3 Yes', () => {
+    expect(service.applyTeamAbilities([mon('guts')], [])).toEqual({ yesBonus: 3, noBonus: 0, extraRetry: false });
   });
 
-  it('static: flat +1 Yes', () => {
-    expect(service.applyTeamAbilities([mon('static')], [])).toEqual({ yesBonus: 1, noBonus: 0, extraRetry: false });
+  it('static: flat +2 Yes', () => {
+    expect(service.applyTeamAbilities([mon('static')], [])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
   });
 
-  it('rough-skin: +1 Yes only if delta positive', () => {
+  it('rough-skin: +2 Yes only if delta positive', () => {
     withDelta(3);
-    expect(service.applyTeamAbilities([mon('rough-skin')], ['fire'])).toEqual({ yesBonus: 1, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('rough-skin')], ['fire'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
 
     withDelta(-3);
     expect(service.applyTeamAbilities([mon('rough-skin')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
@@ -79,17 +79,17 @@ describe('AbilityService', () => {
     expect(service.applyTeamAbilities([mon('levitate')], ['ghost'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
-  it('blaze: +2 Yes only if delta positive', () => {
+  it('blaze: +3 Yes only if delta positive', () => {
     withDelta(1);
-    expect(service.applyTeamAbilities([mon('blaze')], ['grass'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('blaze')], ['grass'])).toEqual({ yesBonus: 3, noBonus: 0, extraRetry: false });
 
     withDelta(-1);
     expect(service.applyTeamAbilities([mon('blaze')], ['grass'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
-  it('torrent: -2 No only if delta negative', () => {
+  it('torrent: -3 No only if delta negative', () => {
     withDelta(-1);
-    expect(service.applyTeamAbilities([mon('torrent')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('torrent')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -3, extraRetry: false });
 
     withDelta(1);
     expect(service.applyTeamAbilities([mon('torrent')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
@@ -113,7 +113,7 @@ describe('AbilityService', () => {
   });
 
   it('multiple abilities on the team stack additively', () => {
-    expect(service.applyTeamAbilities([mon('guts'), mon('intimidate')], [])).toEqual({ yesBonus: 2, noBonus: -1, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('guts'), mon('intimidate')], [])).toEqual({ yesBonus: 3, noBonus: -2, extraRetry: false });
   });
 
   // ── §4b + §4c new mechanics ─────────────────────────────────────────────
@@ -175,12 +175,12 @@ describe('AbilityService', () => {
       .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
-  it('sheer-force (scale-with-advantage): +delta Yes when advantaged, capped at 3', () => {
+  it('sheer-force (scale-with-advantage): +delta Yes when advantaged, capped at 4', () => {
     withDelta(2);
     expect(service.applyTeamAbilities([mon('sheer-force')], ['ground'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
 
-    withDelta(5); // capped at value (3)
-    expect(service.applyTeamAbilities([mon('sheer-force')], ['ground'])).toEqual({ yesBonus: 3, noBonus: 0, extraRetry: false });
+    withDelta(5); // capped at value (4)
+    expect(service.applyTeamAbilities([mon('sheer-force')], ['ground'])).toEqual({ yesBonus: 4, noBonus: 0, extraRetry: false });
 
     withDelta(-4); // disadvantage => no effect
     expect(service.applyTeamAbilities([mon('sheer-force')], ['ground'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
@@ -189,12 +189,12 @@ describe('AbilityService', () => {
     expect(service.applyTeamAbilities([mon('sheer-force')], [])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
-  it('comeback (scale-with-disadvantage): +|delta| Yes when disadvantaged, capped at 3', () => {
+  it('comeback (scale-with-disadvantage): +|delta| Yes when disadvantaged, capped at 4', () => {
     withDelta(-2);
     expect(service.applyTeamAbilities([mon('comeback')], ['dark'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
 
-    withDelta(-5); // capped at value (3)
-    expect(service.applyTeamAbilities([mon('comeback')], ['dark'])).toEqual({ yesBonus: 3, noBonus: 0, extraRetry: false });
+    withDelta(-5); // capped at value (4)
+    expect(service.applyTeamAbilities([mon('comeback')], ['dark'])).toEqual({ yesBonus: 4, noBonus: 0, extraRetry: false });
 
     withDelta(4); // advantage => no effect
     expect(service.applyTeamAbilities([mon('comeback')], ['dark'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });

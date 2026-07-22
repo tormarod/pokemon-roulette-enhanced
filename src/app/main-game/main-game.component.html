@@ -45,23 +45,24 @@
                         (rareCandyInterrupt)="rareCandyInterrupt($event)"
                         (megaStoneInterrupt)="megaStoneInterrupt($event)"
                         (typeBiasItemInterrupt)="typeBiasItemInterrupt($event)"
-                        (linkCableInterrupt)="linkCableInterrupt($event)">
+                        (linkCableInterrupt)="linkCableInterrupt($event)"
+                        (threatShieldInterrupt)="threatShieldInterrupt($event)">
                     </app-items>
                     @for (bias of groupedTowardBiases; track bias.type + bias.mode) {
                         <div class="active-bias-indicator">
                             <img [src]="getBiasTypeIconUrl(bias)" [alt]="bias.type" height="20">
                             <span>
-                                {{ getBiasLabelKey(bias, 'toward') | translate }} {{ 'pokemonType.' + bias.type | translate }}
+                                {{ getBiasLabelKey(bias) | translate }} {{ 'pokemonType.' + bias.type | translate }}
                                 @if (bias.mode === 'soft' && bias.count > 1) { ×{{ bias.count }} }
                             </span>
                         </div>
                     }
-                    @for (bias of groupedAwayBiases; track bias.type + bias.mode) {
+                    @for (bias of groupedHoneyBiases; track bias.type) {
                         <div class="active-bias-indicator">
                             <img [src]="getBiasTypeIconUrl(bias)" [alt]="bias.type" height="20">
                             <span>
-                                {{ getBiasLabelKey(bias, 'away') | translate }} {{ 'pokemonType.' + bias.type | translate }}
-                                @if (bias.mode === 'soft' && bias.count > 1) { ×{{ bias.count }} }
+                                {{ 'game.main.activeBias.honey' | translate }} {{ 'pokemonType.' + bias.type | translate }}
+                                @if (bias.count > 1) { ×{{ bias.count }} }
                             </span>
                         </div>
                     }

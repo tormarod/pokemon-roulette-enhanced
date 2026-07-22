@@ -67,7 +67,9 @@
   }
   @case ('select-from-type-list') {
     <app-select-from-type-list-roulette
-        (selectedTypeEvent)="continueWithType($event)">
+        [maxSelections]="honeyPendingMaxSelections"
+        [screenTitle]="pendingTypeBiasScreenTitle"
+        (selectedTypesEvent)="continueWithType($event)">
     </app-select-from-type-list-roulette>
   }
   @case ('select-form') {

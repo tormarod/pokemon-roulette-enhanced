@@ -23,11 +23,10 @@ export interface TypeBiasEntry {
 }
 
 /**
- * "Toward" (Honey/Poké Radar) and "away" (Repel/Max Repel) are independent —
- * using one doesn't consume or overwrite the other. Each direction is a list:
- * every item use appends an entry rather than replacing one, so multiple
- * uses (same type or different types) all stay active and stack — see
- * applyTypeBias() for how the list turns into a weight multiplier.
+ * "Toward" (Honey/Poké Radar) is a list: every item use appends an entry
+ * rather than replacing one, so multiple uses (same type or different
+ * types) all stay active and stack — see applyTypeBias() for how the list
+ * turns into a weight multiplier.
  *
  * Lifetime: single-wheel-use. A pending bias weights exactly one obtain
  * wheel's resolution (whichever comes next, or the one already on screen —
@@ -37,10 +36,11 @@ export interface TypeBiasEntry {
  */
 export interface PendingTypeBiases {
   toward: TypeBiasEntry[];
-  away: TypeBiasEntry[];
+  /** One entry per pending Honey use; each entry is the (1-3) types chosen for that use. See applyTypeBias() for how these turn into a target-share weight. */
+  honey: PokemonType[][];
 }
 
-const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: [], away: [] };
+const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: [], honey: [] };
 
 @Injectable({
   providedIn: 'root'
@@ -263,10 +263,11 @@ export class TrainerService implements OnDestroy {
     });
   }
 
-  setAwayBias(entry: TypeBiasEntry): void {
+  /** Each use appends its chosen type set — repeated uses stack (see HONEY_STACK_CAP in apply-type-bias.ts). */
+  addHoneyUse(types: PokemonType[]): void {
     this.updatePendingTypeBiases({
       ...this.pendingTypeBiases,
-      away: [...this.pendingTypeBiases.away, entry]
+      honey: [...this.pendingTypeBiases.honey, types]
     });
   }
 

@@ -1,3 +1,6 @@
+import { isMegaStoneItemName } from '../../services/items-service/mega-stone-names';
+import { isAbilityCapsuleName } from '../../services/items-service/ability-capsule-names';
+
 /**
  * Central tuning dials for the New-Experience coin economy (see
  * docs/plans/economy-and-market.md). All values are proposed starting points —
@@ -61,7 +64,56 @@ export const MARKET_PRICES = {
   'rare-candy': 40,
   'revive': 50,
   'ability-capsule': 35,
-  'bicycle': 120,
+  'honey': 45,
 } as const; // tunable
 
 export type MarketEntryId = keyof typeof MARKET_PRICES;
+
+/** Fraction of the Market buy price paid back when selling a Market-sold item. */
+export const SELL_RATE = 0.4; // tunable
+/** Flat coin value for selling a find-only gadget (never sold by the Market). */
+export const GADGET_SELL_VALUE = 5; // tunable
+
+/**
+ * Coins paid for selling a held item, or `undefined` if it can't be sold
+ * (mega stones — build pieces, not economy fodder). Market-sold items
+ * (including ability capsules, priced via the synthetic `ability-capsule`
+ * entry) sell for `SELL_RATE` of their buy price; everything else (find-only
+ * gadgets) sells for the flat `GADGET_SELL_VALUE`. Always strictly less than
+ * the buy price, so there's no buy/sell arbitrage loop.
+ */
+/**
+ * Per-run Market stock caps (`MarketStockService`). Every entry starts at
+ * capacity; buying decrements; stock does NOT auto-refill on round advance —
+ * the only refill is the paid Restock action. Keys must cover every
+ * `MarketEntryId` (`MARKET_PRICES`).
+ */
+export const MARKET_STOCK: Record<MarketEntryId, number> = {
+  'potion': 3,
+  'super-potion': 2,
+  'hyper-potion': 1,
+  'x-attack': 5,
+  'rare-candy': 3,
+  'revive': 1,
+  'ability-capsule': 5,
+  'honey': 3,
+}; // tunable
+
+/** Paid Restock pricing: `restockPrice(n) = RESTOCK_BASE + RESTOCK_STEP * n`. */
+export const RESTOCK_BASE = 60; // tunable
+export const RESTOCK_STEP = 40; // tunable
+/** Hard cap on how many times Restock can be used in a single run. */
+export const RESTOCK_MAX_USES = 3; // tunable
+
+export function sellValue(itemName: string): number | undefined {
+  if (isMegaStoneItemName(itemName)) {
+    return undefined;
+  }
+  if (isAbilityCapsuleName(itemName)) {
+    return Math.floor(MARKET_PRICES['ability-capsule'] * SELL_RATE);
+  }
+  if (itemName in MARKET_PRICES) {
+    return Math.floor(MARKET_PRICES[itemName as MarketEntryId] * SELL_RATE);
+  }
+  return GADGET_SELL_VALUE;
+}

@@ -12,7 +12,9 @@ import { ItemSpriteService, ITEM_SPRITE_FALLBACK } from '../../services/item-spr
 import { BattlePrepService } from '../../services/battle-prep-service/battle-prep.service';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { ItemName, RegularItemName } from '../../services/items-service/item-names';
-import { MARKET_PRICES, MarketEntryId } from '../../main-game/roulette-container/economy-config';
+import { MARKET_PRICES, MarketEntryId, sellValue } from '../../main-game/roulette-container/economy-config';
+import { ItemItem } from '../../interfaces/item-item';
+import { MarketStockService } from '../../services/market-stock-service/market-stock.service';
 
 interface MarketEntry {
   id: MarketEntryId;
@@ -21,6 +23,14 @@ interface MarketEntry {
   labelKey: string;
   descriptionKey: string;
   price: number;
+  sprite: string;
+}
+
+interface SellableGroup {
+  name: ItemName;
+  labelKey: string;
+  count: number;
+  value: number;
   sprite: string;
 }
 
@@ -51,17 +61,21 @@ export class MarketComponent implements OnInit, OnDestroy {
               private itemsService: ItemsService,
               private itemSpriteService: ItemSpriteService,
               private battlePrepService: BattlePrepService,
-              private soundFxService: SoundFxService) {
+              private soundFxService: SoundFxService,
+              private marketStockService: MarketStockService) {
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
 
   @ViewChild('marketModal', { static: true }) marketModal!: TemplateRef<any>;
+  @ViewChild('restockConfirmModal', { static: true }) restockConfirmModal!: TemplateRef<any>;
 
   darkMode!: Observable<boolean>;
   coins = 0;
   wheelSpinning = false;
   currentGameState!: GameState;
   stock: MarketEntry[] = [];
+  sellable: SellableGroup[] = [];
+  remaining: Partial<Record<MarketEntryId, number>> = {};
   itemFoundAudio!: SoundFxHandle;
   /** True once the pre-battle prep is confirmed (spin imminent/underway). */
   private prepCommitted = false;
@@ -93,6 +107,12 @@ export class MarketComponent implements OnInit, OnDestroy {
     }));
     this.subscriptions.add(this.battlePrepService.getPendingPrepObservable().subscribe(prep => {
       this.prepCommitted = prep !== null;
+    }));
+    this.subscriptions.add(this.trainerService.getItemsObservable().subscribe(items => {
+      this.sellable = this.buildSellableGroups(items);
+    }));
+    this.subscriptions.add(this.marketStockService.getStateObservable().subscribe(state => {
+      this.remaining = state.remaining;
     }));
   }
 
@@ -135,7 +155,14 @@ export class MarketComponent implements OnInit, OnDestroy {
     return this.coins >= entry.price;
   }
 
+  canBuy(entry: MarketEntry): boolean {
+    return this.canAfford(entry) && (this.remaining[entry.id] ?? 0) > 0;
+  }
+
   buy(entry: MarketEntry): void {
+    if (!this.canBuy(entry)) {
+      return;
+    }
     if (!this.trainerService.spendCoins(entry.price)) {
       return;
     }
@@ -144,7 +171,71 @@ export class MarketComponent implements OnInit, OnDestroy {
     } else {
       this.trainerService.addToItems(this.randomCapsule());
     }
+    this.marketStockService.consume(entry.id);
     void this.soundFxService.playSoundFx(this.itemFoundAudio, 0.25);
+  }
+
+  /** Current escalating restock price (`RESTOCK_BASE + RESTOCK_STEP * timesRestocked`). */
+  get restockPrice(): number {
+    return this.marketStockService.restockPrice();
+  }
+
+  get canRestock(): boolean {
+    return this.marketStockService.canRestock();
+  }
+
+  canAffordRestock(): boolean {
+    return this.coins >= this.restockPrice;
+  }
+
+  openRestockConfirm(): void {
+    if (!this.isAvailable || !this.canRestock || !this.canAffordRestock()) {
+      return;
+    }
+    this.modalService.open(this.restockConfirmModal, { centered: true, size: 'sm' });
+  }
+
+  confirmRestock(): void {
+    if (!this.trainerService.spendCoins(this.restockPrice)) {
+      return;
+    }
+    this.marketStockService.restockAll();
+  }
+
+  sell(group: SellableGroup): void {
+    if (!this.isAvailable) {
+      return;
+    }
+    const item = this.trainerService.getItems().find(held => held.name === group.name);
+    if (!item) {
+      return;
+    }
+    this.trainerService.removeItem(item);
+    this.trainerService.addCoins(group.value);
+    void this.soundFxService.playSoundFx(this.itemFoundAudio, 0.25);
+  }
+
+  private buildSellableGroups(items: ItemItem[]): SellableGroup[] {
+    const groups = new Map<ItemName, SellableGroup>();
+    for (const item of items) {
+      const value = sellValue(item.name);
+      if (value === undefined) {
+        continue;
+      }
+      const existing = groups.get(item.name);
+      if (existing) {
+        existing.count++;
+      } else {
+        groups.set(item.name, {
+          name: item.name,
+          labelKey: `items.${item.name}.name`,
+          count: 1,
+          value,
+          sprite: item.sprite || ''
+        });
+      }
+    }
+    return Array.from(groups.values());
   }
 
   private randomCapsule() {
@@ -156,11 +247,11 @@ export class MarketComponent implements OnInit, OnDestroy {
     const items: Array<{ id: MarketEntryId; itemName: RegularItemName }> = [
       { id: 'potion', itemName: 'potion' },
       { id: 'super-potion', itemName: 'super-potion' },
+      { id: 'honey', itemName: 'honey' },
       { id: 'hyper-potion', itemName: 'hyper-potion' },
       { id: 'x-attack', itemName: 'x-attack' },
       { id: 'rare-candy', itemName: 'rare-candy' },
       { id: 'revive', itemName: 'revive' },
-      { id: 'bicycle', itemName: 'bicycle' },
     ];
 
     this.stock = items.map(({ id, itemName }) => {

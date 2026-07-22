@@ -117,52 +117,59 @@ describe('MainGameComponent', () => {
     expect(typeBiasItemService.triggerTypeBiasItem).not.toHaveBeenCalled();
   });
 
-  // ── Bias badges reflect the same cancellation as the wheel math ─────────
+  // ── Bias badges reflect pending toward/Honey biases ──────────────────────
 
   describe('active bias badges', () => {
-    it('shows a single badge for a plain soft-toward bias', () => {
-      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
-      fixture.detectChanges();
-
-      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
-      expect(component.groupedAwayBiases).toEqual([]);
-    });
-
-    it('shows no badge at all when an equal Honey and Repel on the same type fully cancel', () => {
-      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
-      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
-      fixture.detectChanges();
-
-      expect(component.groupedTowardBiases).toEqual([]);
-      expect(component.groupedAwayBiases).toEqual([]);
-    });
-
-    it('shows only the uncancelled excess when Honey/Repel counts differ on the same type', () => {
-      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
-      trainerService.setTowardBias({ type: 'fire', mode: 'soft' });
-      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
-      fixture.detectChanges();
-
-      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
-      expect(component.groupedAwayBiases).toEqual([]);
-    });
-
-    it('does not cancel a toward and an away bias on different types', () => {
-      trainerService.setTowardBias({ type: 'water', mode: 'soft' });
-      trainerService.setAwayBias({ type: 'fire', mode: 'soft' });
-      fixture.detectChanges();
-
-      expect(component.groupedTowardBiases).toEqual([{ type: 'water', mode: 'soft', count: 1 }]);
-      expect(component.groupedAwayBiases).toEqual([{ type: 'fire', mode: 'soft', count: 1 }]);
-    });
-
-    it('does not cancel hard-mode entries on the same type', () => {
+    it('shows a single badge for a plain hard-toward bias', () => {
       trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
-      trainerService.setAwayBias({ type: 'fire', mode: 'hard' });
       fixture.detectChanges();
 
       expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
-      expect(component.groupedAwayBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
+    });
+
+    it('stacks a second toward bias on the same type into one badge with count 2', () => {
+      trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
+      trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'hard', count: 2 }]);
+    });
+
+    it('shows separate badges for toward biases on different types', () => {
+      trainerService.setTowardBias({ type: 'water', mode: 'hard' });
+      trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
+      fixture.detectChanges();
+
+      expect(component.groupedTowardBiases.sort((a, b) => a.type.localeCompare(b.type))).toEqual([
+        { type: 'fire', mode: 'hard', count: 1 },
+        { type: 'water', mode: 'hard', count: 1 }
+      ]);
+    });
+
+    it('shows a Honey badge for a pending Honey use, independent of toward', () => {
+      trainerService.addHoneyUse(['fire']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases).toEqual([{ type: 'fire', count: 1 }]);
+      expect(component.groupedTowardBiases).toEqual([]);
+    });
+
+    it('shows the shared use count on every type badge when a Honey use covers multiple types', () => {
+      trainerService.addHoneyUse(['fire', 'water']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases.sort((a, b) => a.type.localeCompare(b.type))).toEqual([
+        { type: 'fire', count: 1 },
+        { type: 'water', count: 1 }
+      ]);
+    });
+
+    it('bumps the Honey badge count when a second Honey use stacks', () => {
+      trainerService.addHoneyUse(['fire']);
+      trainerService.addHoneyUse(['fire']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases).toEqual([{ type: 'fire', count: 2 }]);
     });
   });
 });

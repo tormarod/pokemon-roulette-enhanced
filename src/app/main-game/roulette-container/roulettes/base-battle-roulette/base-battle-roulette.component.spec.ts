@@ -141,7 +141,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 8, type1: 'water' }));
     component.testOpponentTypes = ['fire'];
     component.recalc();
-    expect(component.matchupAdvantageDelta).toBe(4); // netScore(2) * unit(ceil(8/4)=2)
+    expect(component.matchupAdvantageDelta).toBe(8); // netScore(2) * unit(ceil(8/2)=4)
   });
 
   it('still gives a low-power Pokémon a real, non-zero delta (never 0)', () => {
@@ -168,13 +168,13 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
 
     trainerService.addToTeam(weakOne);
     component.recalc();
-    expect(component.matchupDisadvantageDelta).toBe(2); // netScore(2) * unit(ceil(4/4)=1)
+    expect(component.matchupDisadvantageDelta).toBe(4); // netScore(2) * unit(ceil(4/2)=2)
 
     trainerService.addToTeam(strongOne);
     component.recalc();
     // weakOne's own penalty is unchanged by strongOne joining the team
-    expect(component.matchupDisadvantageDelta).toBe(2);
-    expect(component.matchupAdvantageDelta).toBe(2); // netScore(2) * unit(ceil(1/4)=1)
+    expect(component.matchupDisadvantageDelta).toBe(4);
+    expect(component.matchupAdvantageDelta).toBe(2); // netScore(2) * unit(ceil(1/2)=1)
 
     trainerService.resetTeam();
     trainerService.addToTeam(strongOne);
@@ -193,8 +193,8 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(component.matchupSuperEffectiveTypes).toEqual(['poison']);
     expect(component.matchupResistTypes).toEqual(['poison']);
     expect(component.matchupDisadvantageTypes).toEqual(['water', 'ground']);
-    expect(component.matchupAdvantageDelta).toBe(2);
-    expect(component.matchupDisadvantageDelta).toBe(4); // 2 members * (netScore(2) * unit(1))
+    expect(component.matchupAdvantageDelta).toBe(4); // netScore(2) * unit(ceil(3/2)=2)
+    expect(component.matchupDisadvantageDelta).toBe(8); // 2 members * (netScore(2) * unit(ceil(3/2)=2))
   });
 
   // ── hasPotions: worst-to-best consumption order ────────────────────────────
