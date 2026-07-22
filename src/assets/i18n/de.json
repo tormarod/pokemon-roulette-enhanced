@@ -3164,6 +3164,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
   "v3_8_0": "Version 3.8.0",
   "v3_7_0": "Version 3.7.0",
@@ -3177,6 +3178,9 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_10_0": {
+      "0": "⚔️ X Attack is stronger in tougher fights — its power boost now scales with how far you've progressed."
+    },
     "v3_9_0": {
       "0": "🚲 The Market now sells a Bicycle — a pricier, guaranteed extra threat-free adventure step, previously only found on the adventure wheel.",
       "1": "🪙 Potion, Super Potion, and Hyper Potion cost more, but are correctly tiered now (each bigger potion beats buying the equivalent in smaller ones); the random Ability Capsule got cheaper."

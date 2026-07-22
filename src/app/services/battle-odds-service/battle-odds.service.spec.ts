@@ -88,6 +88,20 @@ describe('BattleOddsService', () => {
     expect(odds.yes.xAttack).toBe(4);
   });
 
+  it('xAttackBonus() returns 0 for an empty team', () => {
+    expect(service.xAttackBonus([], 5)).toBe(0);
+  });
+
+  it('xAttackBonus() returns just the mean power at round 0', () => {
+    const team = [makeTestPokemon({ power: 4 }), makeTestPokemon({ power: 4 })];
+    expect(service.xAttackBonus(team, 0)).toBe(4);
+  });
+
+  it('xAttackBonus() adds the round on top of the mean power', () => {
+    const team = [makeTestPokemon({ power: 4 }), makeTestPokemon({ power: 4 })];
+    expect(service.xAttackBonus(team, 5)).toBe(9); // mean(4) + round(5)
+  });
+
   it('folds an active ability effect into a distinct ability field, separate from typeDisadvantage', () => {
     const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'torrent' })]; // weak vs fire, torrent: soak-if-negative -2
     const odds = service.computeOdds({

@@ -224,4 +224,18 @@ describe('BattlePrepPanelComponent', () => {
 
     expect(withXAttack).toBeGreaterThan(withoutXAttack);
   });
+
+  it('scales the x-attack preview bonus with currentRound', () => {
+    component.team = [makePokemon({ power: 4 })];
+    component.items = [makeItem({ name: 'x-attack' })];
+    component.baseNoCount = 1;
+    component.currentRound = 3;
+    fixture.detectChanges();
+
+    component.selectLead(0);
+    component.toggleXAttack();
+
+    // base(1) + power(4) + xAttackBonus(meanPower=4 + round=3 = 7) = 12
+    expect(component.oddsPreview?.yesTickets).toBe(12);
+  });
 });

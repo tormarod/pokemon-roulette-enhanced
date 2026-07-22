@@ -290,7 +290,8 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected calcVictoryOdds(): void {
     const prep = this.gameStateService.isNewExperienceMode
       ? this.battlePrepService.getPendingPrep() : null;
-    const xAttackBonus = prep?.xAttackUsed ? this.meanTeamPower() : 0;
+    const xAttackBonus = prep?.xAttackUsed
+      ? this.battleOddsService.xAttackBonus(this.trainerTeam, this.currentRound) : 0;
     this.victoryOdds = this.buildVictoryOdds(
       this.effectiveOpponentTypes, this.textPrefix, this.baseNoCount, this.currentRound,
       prep?.leadIndex, xAttackBonus
@@ -335,10 +336,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.battleDebuffService.clearDebuff();
     this.scoutingReportService.clearType();
     this.pcLockService.clearLock();
-  }
-
-  private meanTeamPower(): number {
-    return this.trainerTeam.reduce((sum, p) => sum + p.power, 0) / this.trainerTeam.length;
   }
 
   protected openPresentationModal(): void {

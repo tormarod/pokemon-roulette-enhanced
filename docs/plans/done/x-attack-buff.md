@@ -1,6 +1,6 @@
 # Plan: Buff X-Attack (round-scaled bonus)
 
-**Status:** Not started.
+**Status:** Done (shipped in v3.10.0).
 **Scope:** New Experience Mode only. Classic mode's passive X-Attack is deliberately left unchanged (see Decision 2).
 **Out of scope:** Market/drop pricing of X-Attack and Potions — a separate agent owns `economy-config.ts` pricing. Do **not** touch `MARKET_PRICES` in this work.
 
