@@ -171,7 +171,13 @@ body.theme-starters .achievement-tile {
 
 /* ── Evolution line modal (strips Bootstrap's default modal chrome so our
    own card styling — see evolution-line-modal.component.css — shows through) ── */
-.evolution-line-modal-dialog { max-width: min(680px, 92vw); }
+.evolution-line-modal-dialog {
+  /* Bootstrap's .modal-dialog is a block box, which stretches to max-width
+     by default even for narrow content — shrink-wrap it instead, still
+     capped so wide evolution lines (e.g. Pikachu's branches) don't overflow. */
+  width: fit-content;
+  max-width: min(920px, 92vw);
+}
 .evolution-line-modal-dialog .modal-content {
   background: transparent;
   border: none;

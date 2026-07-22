@@ -1,7 +1,13 @@
 # Plan: Evolution-line modal (redesign, v2)
 
-**Status:** All phases implemented (Phases 0–5). Pending manual in-app spot-check by
-the user and a decision on committing.
+**Status:** All phases implemented (Phases 0–5), merged in #50. Post-merge tweaks from
+in-app review (#51 and after): locked Mega tiles are now selectable (padlock stays purely
+visual), the "Requires a mega stone..." note is always rendered (visibility-toggled, not
+structurally added/removed) so the card never resizes when switching stages, and it now
+shows for unlocked Megas too. The modal's max-width was raised from `min(680px, 92vw)`
+to `min(920px, 92vw)` (`styles.css`) so wide branch layouts (e.g. Pikachu → Raichu/Raichu-Alola
+→ Mega X/Y) fit on one row on desktop instead of wrapping awkwardly, while still capping to
+92vw on narrow/mobile viewports.
 **Target version:** `3.15.0` (MINOR — new player-facing UI feature/screen)
 **Supersedes:** an earlier v1 draft that embedded the evolution strip inside
 `PokedexDetailModalComponent`. v1's Phases 1–3 were implemented, then scrapped after in-app review
