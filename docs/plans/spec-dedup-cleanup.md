@@ -268,7 +268,7 @@ more coverage, the `undefined` case). Do not touch
 
 ## Checklist
 
-- [ ] Phase 1 — battle roulette spec dedup (1a-1d)
+- [x] Phase 1 — battle roulette spec dedup (1a-1d)
 - [ ] Phase 2 — `roulette-container.component.spec.ts` merge pairs (1-7)
 - [ ] Phase 3 — `getMemberAbilityName` cross-file duplicate
 - [ ] Full suite green after each phase
