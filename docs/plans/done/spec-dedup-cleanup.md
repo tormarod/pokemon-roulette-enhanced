@@ -2,7 +2,7 @@
 
 Status: **Approved — ready to execute.**
 Owner: tormarod
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 ## Why
 
@@ -34,6 +34,15 @@ were found on re-verification because that file grew between the audit and
 this plan being written). **Re-run each `grep -n "it('"` shown per step before
 editing** in case the file has moved on again since — anchor on test titles,
 not line numbers, if they've drifted.
+
+**Re-verified 2026-07-22 against `origin/main` (commit `3c79f3a`) — no drift.**
+Every referenced test in all three phases still sits at the exact title *and*
+line number stated below; nothing needs renumbering. Since this plan was
+committed the only spec change was the Running Shoes→Bicycle rename
+(`fa68cb2`, net-zero lines in a `describe('bicycle bonus step')` block that is
+not one of Phase 2's seven threats), so it does not affect any step here. The
+"anchor on titles, re-grep before editing" rule above still stands as
+cheap insurance, but as of this date the numbers are current.
 
 ## Ground rules for every step
 
@@ -259,8 +268,8 @@ more coverage, the `undefined` case). Do not touch
 
 ## Checklist
 
-- [ ] Phase 1 — battle roulette spec dedup (1a-1d)
-- [ ] Phase 2 — `roulette-container.component.spec.ts` merge pairs (1-7)
-- [ ] Phase 3 — `getMemberAbilityName` cross-file duplicate
-- [ ] Full suite green after each phase
-- [ ] Move this file to `docs/plans/done/` once all three phases ship
+- [x] Phase 1 — battle roulette spec dedup (1a-1d)
+- [x] Phase 2 — `roulette-container.component.spec.ts` merge pairs (1-7)
+- [x] Phase 3 — `getMemberAbilityName` cross-file duplicate
+- [x] Full suite green after each phase
+- [x] Move this file to `docs/plans/done/` once all three phases ship

@@ -1009,15 +1009,11 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('shows a "nothing found" modal without throwing when the inventory is empty', () => {
-      expect(() => component.itemTheft()).not.toThrow();
-      expect(modalQueueService.open).toHaveBeenCalled();
-    });
-
-    it('resolves the state (does not get stuck) either way', () => {
       spyOn(component, 'doNothing').and.callThrough();
 
-      component.itemTheft();
+      expect(() => component.itemTheft()).not.toThrow();
 
+      expect(modalQueueService.open).toHaveBeenCalled();
       expect(component.doNothing).toHaveBeenCalled();
     });
   });
@@ -1038,12 +1034,14 @@ describe('RouletteContainerComponent', () => {
     it('with team >= 2 → marks one team index and shows a modal', () => {
       trainerService.addToTeam(makePokemon(1));
       trainerService.addToTeam(makePokemon(2));
+      spyOn(component, 'doNothing').and.callThrough();
 
       component.markedTarget();
 
       expect(markedTargetService.currentMarkedIndex).not.toBeNull();
       expect([0, 1]).toContain(markedTargetService.currentMarkedIndex as number);
       expect(modalQueueService.open).toHaveBeenCalled();
+      expect(component.doNothing).toHaveBeenCalled();
     });
 
     it('with team < 2 → does nothing (never marks the only Pokemon)', () => {
@@ -1054,16 +1052,6 @@ describe('RouletteContainerComponent', () => {
 
       expect(component.doNothing).toHaveBeenCalled();
       expect(markedTargetService.currentMarkedIndex).toBeNull();
-    });
-
-    it('resolves the state (does not get stuck) either way', () => {
-      trainerService.addToTeam(makePokemon(1));
-      trainerService.addToTeam(makePokemon(2));
-      spyOn(component, 'doNothing').and.callThrough();
-
-      component.markedTarget();
-
-      expect(component.doNothing).toHaveBeenCalled();
     });
   });
 
@@ -1128,17 +1116,12 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('sets a pending battle debuff and shows a modal', () => {
-      component.badOmen();
-
-      expect(battleDebuffService.currentDebuff).toBeGreaterThan(0);
-      expect(modalQueueService.open).toHaveBeenCalled();
-    });
-
-    it('resolves the state', () => {
       spyOn(component, 'doNothing').and.callThrough();
 
       component.badOmen();
 
+      expect(battleDebuffService.currentDebuff).toBeGreaterThan(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
       expect(component.doNothing).toHaveBeenCalled();
     });
   });
@@ -1187,17 +1170,12 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('sets a pending catch escape chance and shows a modal', () => {
-      component.pokeballMalfunction();
-
-      expect(catchRiskService.currentEscapeChance).toBeGreaterThan(0);
-      expect(modalQueueService.open).toHaveBeenCalled();
-    });
-
-    it('resolves the state', () => {
       spyOn(component, 'doNothing').and.callThrough();
 
       component.pokeballMalfunction();
 
+      expect(catchRiskService.currentEscapeChance).toBeGreaterThan(0);
+      expect(modalQueueService.open).toHaveBeenCalled();
       expect(component.doNothing).toHaveBeenCalled();
     });
 
@@ -1258,11 +1236,13 @@ describe('RouletteContainerComponent', () => {
 
     it('balance 0: pays nothing, applies the max spike tier (fully unpaid)', () => {
       expect(trainerService.getCoins()).toBe(0);
+      spyOn(component, 'doNothing').and.callThrough();
 
       component.tollBooth();
 
       expect(trainerService.getCoins()).toBe(0);
       expect(dangerMeterService.applySpike).toHaveBeenCalledWith(15);
+      expect(component.doNothing).toHaveBeenCalled();
     });
 
     it('balance just under toll: pays what it can, applies the smallest spike tier', () => {
@@ -1273,14 +1253,6 @@ describe('RouletteContainerComponent', () => {
 
       expect(trainerService.getCoins()).toBe(0);
       expect(dangerMeterService.applySpike).toHaveBeenCalledWith(5);
-    });
-
-    it('resolves the state either way', () => {
-      spyOn(component, 'doNothing').and.callThrough();
-
-      component.tollBooth();
-
-      expect(component.doNothing).toHaveBeenCalled();
     });
   });
 
@@ -1309,6 +1281,7 @@ describe('RouletteContainerComponent', () => {
     it('sets a type super-effective against the highest-power member (team + PC combined)', () => {
       trainerService.addToTeam(makePokemon(1, 1, 'water'));
       trainerService.commitTeamAndStorage(trainerService.getTeam(), [makePokemon(2, 99, 'grass')]);
+      spyOn(component, 'doNothing').and.callThrough();
 
       component.scoutingReport();
 
@@ -1316,14 +1289,6 @@ describe('RouletteContainerComponent', () => {
       expect(scoutingReportService.currentType).not.toBeNull();
       expect(['fire', 'ice', 'poison', 'flying', 'bug']).toContain(scoutingReportService.currentType as string);
       expect(modalQueueService.open).toHaveBeenCalled();
-    });
-
-    it('resolves the state either way', () => {
-      trainerService.addToTeam(makePokemon(1, 1, 'water'));
-      spyOn(component, 'doNothing').and.callThrough();
-
-      component.scoutingReport();
-
       expect(component.doNothing).toHaveBeenCalled();
     });
   });
@@ -1344,11 +1309,13 @@ describe('RouletteContainerComponent', () => {
     it('with total >= 2 → locks the PC and shows a modal', () => {
       trainerService.addToTeam(makePokemon(1));
       trainerService.addToTeam(makePokemon(2));
+      spyOn(component, 'doNothing').and.callThrough();
 
       component.pcLockout();
 
       expect(pcLockService.isLocked).toBeTrue();
       expect(modalQueueService.open).toHaveBeenCalled();
+      expect(component.doNothing).toHaveBeenCalled();
     });
 
     it('with exactly 1 total (team + PC) → does nothing, lock stays false', () => {
@@ -1359,16 +1326,6 @@ describe('RouletteContainerComponent', () => {
 
       expect(component.doNothing).toHaveBeenCalled();
       expect(pcLockService.isLocked).toBeFalse();
-    });
-
-    it('resolves the state either way', () => {
-      trainerService.addToTeam(makePokemon(1));
-      trainerService.addToTeam(makePokemon(2));
-      spyOn(component, 'doNothing').and.callThrough();
-
-      component.pcLockout();
-
-      expect(component.doNothing).toHaveBeenCalled();
     });
   });
 

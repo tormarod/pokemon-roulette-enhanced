@@ -189,11 +189,6 @@ describe('StoragePcComponent', () => {
       expect(owned[0].abilityId).toBe('blaze');
     });
 
-    it('getMemberAbilityName returns the ability i18n name key (or null)', () => {
-      expect(component.getMemberAbilityName(makeTestPokemon({ ability: 'sturdy' }))).toBe('abilities.sturdy.name');
-      expect(component.getMemberAbilityName(makeTestPokemon())).toBeNull();
-    });
-
     it('assignAbility sets the ability, consumes the capsule, and persists', () => {
       trainerService.addToTeam(makeTestPokemon());
       component.trainerTeam = trainerService.getTeam();
