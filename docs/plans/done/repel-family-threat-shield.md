@@ -1,6 +1,6 @@
 # Repel & Max Repel → New-Experience threat-avoidance items
 
-**Status:** Not started. Phases are checkpointed — stop for owner review after each.
+**Status:** Done — all 4 phases shipped (v3.13.0).
 
 ## Decisions (locked with owner)
 

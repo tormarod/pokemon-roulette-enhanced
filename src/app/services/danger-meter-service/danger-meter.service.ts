@@ -14,6 +14,13 @@ export interface DangerMeterState {
    * step in rollStep; persisted so a reload mid-burst can't leak a threat in.
    */
   guaranteedRewardSteps: number;
+  /**
+   * Player-triggered threat shields from Repel/Max Repel. Unlike
+   * `guaranteedRewardSteps`, a shielded step is delay-only: it skips the
+   * threat and lets danger climb toward `base(round)` but never cools it —
+   * a spike is never refunded.
+   */
+  shieldedSteps: number;
 }
 
 const INIT_DANGER_PERCENT = 5;
@@ -40,7 +47,8 @@ export class DangerMeterService {
   private state = new BehaviorSubject<DangerMeterState>({
     dangerPercent: INIT_DANGER_PERCENT,
     consecutiveThreats: 0,
-    guaranteedRewardSteps: 0
+    guaranteedRewardSteps: 0,
+    shieldedSteps: 0
   });
 
   dangerPercent$: Observable<number> = this.state.pipe(
@@ -64,6 +72,10 @@ export class DangerMeterService {
     return this.state.value.guaranteedRewardSteps;
   }
 
+  get currentShieldedSteps(): number {
+    return this.state.value.shieldedSteps;
+  }
+
   /** base(round) = min(CAP, BASE + CURVE * round^2) — the ceiling danger recovers up to. */
   private base(round: number): number {
     return Math.min(DangerMeterService.CAP, DangerMeterService.BASE + DangerMeterService.CURVE * round * round);
@@ -81,6 +93,20 @@ export class DangerMeterService {
   rollStep(round: number): AdventureStepType {
     const current = this.state.value;
 
+    // Player-triggered threat shield (Repel/Max Repel). Consume one and skip
+    // the threat roll entirely. Delay-only: danger still climbs toward
+    // base(round), but Math.max ensures it is never lowered — a spike is
+    // never refunded by walking past an encounter.
+    if (current.shieldedSteps > 0) {
+      this.state.next({
+        dangerPercent: Math.max(current.dangerPercent, this.recoverTo(round)),
+        consecutiveThreats: 0,
+        guaranteedRewardSteps: current.guaranteedRewardSteps,
+        shieldedSteps: current.shieldedSteps - 1
+      });
+      return 'reward';
+    }
+
     // Guaranteed threat-free step (granted by multitask). Consume one and skip
     // the threat roll entirely, but still recover danger so the meter keeps
     // climbing through the burst.
@@ -88,13 +114,14 @@ export class DangerMeterService {
       this.state.next({
         dangerPercent: this.recoverTo(round),
         consecutiveThreats: 0,
-        guaranteedRewardSteps: current.guaranteedRewardSteps - 1
+        guaranteedRewardSteps: current.guaranteedRewardSteps - 1,
+        shieldedSteps: 0
       });
       return 'reward';
     }
 
     if (current.consecutiveThreats >= DangerMeterService.PITY) {
-      this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0 });
+      this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0, shieldedSteps: 0 });
       return 'reward';
     }
 
@@ -103,12 +130,13 @@ export class DangerMeterService {
       this.state.next({
         dangerPercent: Math.max(DangerMeterService.FLOOR, current.dangerPercent - DangerMeterService.RELIEF),
         consecutiveThreats: current.consecutiveThreats + 1,
-        guaranteedRewardSteps: 0
+        guaranteedRewardSteps: 0,
+        shieldedSteps: 0
       });
       return 'threat';
     }
 
-    this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0 });
+    this.state.next({ dangerPercent: this.recoverTo(round), consecutiveThreats: 0, guaranteedRewardSteps: 0, shieldedSteps: 0 });
     return 'reward';
   }
 
@@ -123,6 +151,15 @@ export class DangerMeterService {
   }
 
   /**
+   * Grants `count` player-triggered threat shields (Repel/Max Repel). Additive,
+   * so using Repel again while one is still active stacks the remaining count.
+   */
+  addThreatShield(count: number): void {
+    const current = this.state.value;
+    this.state.next({ ...current, shieldedSteps: current.shieldedSteps + count });
+  }
+
+  /**
    * "Spooked" threat: undoes most of rollStep's automatic threat relief. Not capped by
    * base(round) — a punishment, not a recovery. `amount` lets other threats (e.g. `tollBooth`'s
    * overdraft) request a smaller spike than the default.
@@ -132,25 +169,30 @@ export class DangerMeterService {
     this.state.next({
       dangerPercent: Math.min(100, current.dangerPercent + amount),
       consecutiveThreats: current.consecutiveThreats,
-      guaranteedRewardSteps: current.guaranteedRewardSteps
+      guaranteedRewardSteps: current.guaranteedRewardSteps,
+      shieldedSteps: current.shieldedSteps
     });
   }
 
   /**
    * True once the next roll can't be a threat (for the UI's shielded state):
-   * either the hard pity is about to trigger, or a multitask burst has queued
-   * guaranteed threat-free steps.
+   * either the hard pity is about to trigger, a multitask burst has queued
+   * guaranteed threat-free steps, or a Repel/Max Repel shield is active.
    */
   isNextStepGuaranteedSafe(): boolean {
     const current = this.state.value;
-    return current.guaranteedRewardSteps > 0 || current.consecutiveThreats >= DangerMeterService.PITY - 1;
+    return (
+      current.shieldedSteps > 0 ||
+      current.guaranteedRewardSteps > 0 ||
+      current.consecutiveThreats >= DangerMeterService.PITY - 1
+    );
   }
 
   resetForNewRun(): void {
-    this.state.next({ dangerPercent: INIT_DANGER_PERCENT, consecutiveThreats: 0, guaranteedRewardSteps: 0 });
+    this.state.next({ dangerPercent: INIT_DANGER_PERCENT, consecutiveThreats: 0, guaranteedRewardSteps: 0, shieldedSteps: 0 });
   }
 
-  restore(dangerPercent: number, consecutiveThreats: number, guaranteedRewardSteps = 0): void {
-    this.state.next({ dangerPercent, consecutiveThreats, guaranteedRewardSteps });
+  restore(dangerPercent: number, consecutiveThreats: number, guaranteedRewardSteps = 0, shieldedSteps = 0): void {
+    this.state.next({ dangerPercent, consecutiveThreats, guaranteedRewardSteps, shieldedSteps });
   }
 }

@@ -34,6 +34,7 @@ export interface SavedRun {
   dangerPercent: number;
   consecutiveThreats: number;
   guaranteedRewardSteps: number;
+  shieldedSteps: number;
   pendingAdventure: PendingAdventureDraw | null;
   pendingBattleDebuff: number;
   markedTeamIndex: number | null;
@@ -117,6 +118,7 @@ export class RunPersistenceService {
         dangerPercent: dangerMeterState.dangerPercent,
         consecutiveThreats: dangerMeterState.consecutiveThreats,
         guaranteedRewardSteps: dangerMeterState.guaranteedRewardSteps,
+        shieldedSteps: dangerMeterState.shieldedSteps,
         pendingAdventure,
         pendingBattleDebuff,
         markedTeamIndex,
@@ -207,7 +209,7 @@ export class RunPersistenceService {
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
     this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
     this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
-    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0);
+    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0, run.shieldedSteps ?? 0);
     this.adventureDrawService.restoreDraw(run.pendingAdventure ?? null);
     this.battleDebuffService.restoreDebuff(run.pendingBattleDebuff ?? 0);
     this.markedTargetService.restoreMark(run.markedTeamIndex ?? null);
@@ -218,10 +220,9 @@ export class RunPersistenceService {
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
-    const record = (value ?? {}) as { toward?: unknown; away?: unknown; honey?: unknown };
+    const record = (value ?? {}) as { toward?: unknown; honey?: unknown };
     return {
       toward: this.normalizeBiasDirection(record.toward),
-      away: this.normalizeBiasDirection(record.away),
       honey: Array.isArray(record.honey) ? record.honey.filter(Array.isArray) : []
     };
   }
@@ -265,6 +266,7 @@ export class RunPersistenceService {
       (run.dangerPercent === undefined || typeof run.dangerPercent === 'number') &&
       (run.consecutiveThreats === undefined || typeof run.consecutiveThreats === 'number') &&
       (run.guaranteedRewardSteps === undefined || typeof run.guaranteedRewardSteps === 'number') &&
+      (run.shieldedSteps === undefined || typeof run.shieldedSteps === 'number') &&
       (run.pendingAdventure === undefined || run.pendingAdventure === null || typeof run.pendingAdventure === 'object') &&
       (run.pendingBattleDebuff === undefined || typeof run.pendingBattleDebuff === 'number') &&
       (run.markedTeamIndex === undefined || run.markedTeamIndex === null || typeof run.markedTeamIndex === 'number') &&

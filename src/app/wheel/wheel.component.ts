@@ -180,12 +180,8 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       this.wheelCtx.fillStyle = item.fillStyle;
       this.wheelCtx.fill();
 
-      // Type-bias visual feedback (V2 B3): dim slices being steered away from,
-      // outline slices being boosted toward — so the effect reads before spinning.
-      if (item.dimmed) {
-        this.wheelCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-        this.wheelCtx.fill();
-      }
+      // Type-bias visual feedback (V2 B3): outline slices being boosted toward —
+      // so the effect reads before spinning.
       if (item.highlighted) {
         this.wheelCtx.lineWidth = 3;
         this.wheelCtx.strokeStyle = '#FFD700';

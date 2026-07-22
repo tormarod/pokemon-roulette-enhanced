@@ -340,8 +340,6 @@
       "activeBias": {
         "softToward": "Orientado hacia",
         "hardToward": "Garantizado",
-        "softAway": "Alejado de",
-        "hardAway": "Excluido",
         "honey": "Impulso de Miel:"
       },
       "opponentPreview": {
@@ -754,7 +752,7 @@
     },
     "repel": {
       "name": "Repelente",
-      "description": "Usa Repelente para alejar tu próximo Pokémon salvaje de un tipo elegido — se acumula si se usa de nuevo, ¡y funciona en una ruleta que ya está en pantalla!"
+      "description": "Usa Repelente para mantener tu próximo paso de aventura libre de amenazas — pasa a salvo junto a un encuentro. (Solo en modo Nueva Experiencia.)"
     },
     "poke-radar": {
       "name": "PokéRadar",
@@ -762,7 +760,7 @@
     },
     "max-repel": {
       "name": "Repelente Max",
-      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próximo Pokémon salvaje, y funciona en una ruleta que ya está en pantalla!"
+      "description": "Usa Repelente Max para mantener tus próximos 3 pasos de aventura libres de amenazas. (Solo en modo Nueva Experiencia.)"
     },
     "link-cable": {
       "name": "Cable Link",
@@ -3167,6 +3165,7 @@
   },
   "v2_1_0": "Versión 2.1.0",
   "v2_2_0": "Versión 2.2.0",
+  "v3_13_0": "Version 3.13.0",
   "v3_12_0": "Version 3.12.0",
   "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
@@ -3183,6 +3182,10 @@
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v3_13_0": {
+      "0": "🛡️ Repel and Max Repel reworked into New Experience-only threat-avoidance items: Repel keeps your very next adventure step threat-free, Max Repel covers the next 3 — instead of steering your next catch away from a type.",
+      "1": "⏳ A Repel/Max Repel shield only delays danger, it never defuses it — the Danger meter keeps climbing underneath even while you walk safely past a threat."
+    },
     "v3_12_0": {
       "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
       "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",

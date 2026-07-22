@@ -41,11 +41,15 @@ export class ItemsService {
   /**
    * Revive only exists in New Experience mode — it revives a fainted
    * Pokémon, and fainting itself is a New Experience-only mechanic (see
-   * game-balance-v4). Classic mode never finds it, regardless of weight.
+   * game-balance-v4). Repel/Max Repel shield adventure steps from the New
+   * Experience-only danger meter, so they're equally meaningless in Classic.
+   * Classic mode never finds any of these, regardless of weight.
    */
+  private static readonly NE_ONLY_ITEM_NAMES = new Set<RegularItemName>(['revive', 'repel', 'max-repel']);
+
   getRegularItems(): ItemItem[] {
     return Object.values(this.regularItemsData)
-      .filter(item => item.name !== 'revive' || this.gameStateService.isNewExperienceMode);
+      .filter(item => !ItemsService.NE_ONLY_ITEM_NAMES.has(item.name as RegularItemName) || this.gameStateService.isNewExperienceMode);
   }
 
   getMegaStones(): ItemItem[] {

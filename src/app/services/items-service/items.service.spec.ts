@@ -27,6 +27,18 @@ describe('ItemsService', () => {
     expect(service.getRegularItems().some(item => item.name === 'revive')).toBeTrue();
   });
 
+  it('excludes repel/max-repel from regular items in Classic mode', () => {
+    gameStateService.restoreNewExperienceMode(false);
+    expect(service.getRegularItems().some(item => item.name === 'repel')).toBeFalse();
+    expect(service.getRegularItems().some(item => item.name === 'max-repel')).toBeFalse();
+  });
+
+  it('includes repel/max-repel in regular items in New Experience mode', () => {
+    gameStateService.restoreNewExperienceMode(true);
+    expect(service.getRegularItems().some(item => item.name === 'repel')).toBeTrue();
+    expect(service.getRegularItems().some(item => item.name === 'max-repel')).toBeTrue();
+  });
+
   it('exposes one ability capsule per assignable ability (30), each carrying an abilityId', () => {
     const capsules = service.getAbilityCapsules();
     expect(capsules.length).toBe(30);

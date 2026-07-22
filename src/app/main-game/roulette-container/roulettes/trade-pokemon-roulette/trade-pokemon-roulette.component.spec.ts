@@ -4,7 +4,6 @@ import { TradePokemonRouletteComponent } from './trade-pokemon-roulette.componen
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
-import { TOWARD_SOFT_BASE_MULTIPLIER } from '../../../../services/trainer-service/apply-type-bias';
 
 describe('TradePokemonRouletteComponent', () => {
   let component: TradePokemonRouletteComponent;
@@ -35,11 +34,11 @@ describe('TradePokemonRouletteComponent', () => {
 
   it('recomputes the candidate pool live when a bias item is used while this wheel is on screen', () => {
     const before = component.nationalDexPokemon.find(p => p.type1 === 'water' || p.type2 === 'water')!;
-    expect(before.weight).toBe(1);
 
-    trainerService.setTowardBias({ type: 'water', mode: 'soft' });
+    trainerService.setTowardBias({ type: 'water', mode: 'hard' });
 
-    const after = component.nationalDexPokemon.find(p => p.pokemonId === before.pokemonId)!;
-    expect(after.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
+    const after = component.nationalDexPokemon;
+    expect(after.every(p => p.type1 === 'water' || p.type2 === 'water')).toBeTrue();
+    expect(after.some(p => p.pokemonId === before.pokemonId)).toBeTrue();
   });
 });

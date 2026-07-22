@@ -60,6 +60,7 @@ import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-typ
 import { HONEY_MAX_TYPES } from '../../services/trainer-service/apply-type-bias';
 import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
+import { ThreatShieldService } from '../../services/threat-shield-service/threat-shield.service';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { GenerationService } from '../../services/generation-service/generation.service';
 import { GenerationItem } from '../../interfaces/generation-item';
@@ -135,6 +136,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     private megaStoneSubscription?: Subscription;
     private typeBiasItemSubscription?: Subscription;
     private linkCableSubscription?: Subscription;
+    private threatShieldSubscription?: Subscription;
     private pendingTypeBiasItem: ItemItem | null = null;
 
     constructor(
@@ -154,6 +156,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       private megaStoneService: MegaStoneService,
       private typeBiasItemService: TypeBiasItemService,
       private linkCableService: LinkCableService,
+      private threatShieldService: ThreatShieldService,
       private generationService: GenerationService,
       private statsService: StatsService,
       private battleDebuffService: BattleDebuffService,
@@ -226,6 +229,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.linkCableSubscription = this.linkCableService.linkCableTrigger$.subscribe((item) => {
       this.handleLinkCable(item);
     });
+
+    this.threatShieldSubscription = this.threatShieldService.threatShieldTrigger$.subscribe((item) => {
+      this.handleThreatShieldUse(item);
+    });
   }
 
   ngOnDestroy(): void {
@@ -233,6 +240,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.megaStoneSubscription?.unsubscribe();
     this.typeBiasItemSubscription?.unsubscribe();
     this.linkCableSubscription?.unsubscribe();
+    this.threatShieldSubscription?.unsubscribe();
   }
 
   handleRareCandyEvolution(rareCandy: ItemItem): void {
@@ -815,20 +823,30 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   /**
    * Honey boosts TOWARD up to 3 chosen types (target-share, see TrainerService.addHoneyUse);
-   * Poké Radar boosts TOWARD a single type; Repel/Max Repel steer AWAY from one. Each use
-   * appends an entry rather than overwriting, so repeated uses stack instead of replacing each other.
+   * Poké Radar boosts TOWARD a single type (hard filter). Each use appends an entry rather
+   * than overwriting, so repeated uses stack instead of replacing each other.
    */
   private applyBiasForItem(item: ItemItem, types: PokemonType[]): void {
     if (item.name === 'honey') {
       this.trainerService.addHoneyUse(types);
       return;
     }
-    const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
-    if (item.name === 'poke-radar') {
-      this.trainerService.setTowardBias({ type: types[0], mode });
-    } else {
-      this.trainerService.setAwayBias({ type: types[0], mode });
+    this.trainerService.setTowardBias({ type: types[0], mode: 'hard' });
+  }
+
+  /**
+   * Repel/Max Repel: a bonus action, not a substitute for the player's normal
+   * turn — no repeatCurrentState(), it just mutates the danger meter and lets
+   * play continue. NE-only safety net in case the item somehow surfaces in
+   * Classic (getRegularItems() already filters it out there).
+   */
+  private handleThreatShieldUse(item: ItemItem): void {
+    if (!this.gameStateService.isNewExperienceMode) {
+      return;
     }
+    const count = item.name === 'max-repel' ? 3 : 1;
+    this.dangerMeterService.addThreatShield(count);
+    this.trainerService.removeItem(item);
   }
 
   /**

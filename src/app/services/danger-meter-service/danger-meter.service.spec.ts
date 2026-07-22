@@ -14,10 +14,11 @@ describe('DangerMeterService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should default to dangerPercent 5, consecutiveThreats 0, guaranteedRewardSteps 0', () => {
+  it('should default to dangerPercent 5, consecutiveThreats 0, guaranteedRewardSteps 0, shieldedSteps 0', () => {
     expect(service.currentDangerPercent).toBe(5);
     expect(service.currentConsecutiveThreats).toBe(0);
     expect(service.currentGuaranteedRewardSteps).toBe(0);
+    expect(service.currentShieldedSteps).toBe(0);
   });
 
   it('rollStep should return "threat" and apply relief when the roll is below dangerPercent', () => {
@@ -147,21 +148,79 @@ describe('DangerMeterService', () => {
   });
 
   it('resetForNewRun should restore the initial state', () => {
-    service.restore(70, 2, 3);
+    service.restore(70, 2, 3, 2);
 
     service.resetForNewRun();
 
     expect(service.currentDangerPercent).toBe(5);
     expect(service.currentConsecutiveThreats).toBe(0);
     expect(service.currentGuaranteedRewardSteps).toBe(0);
+    expect(service.currentShieldedSteps).toBe(0);
   });
 
   it('restore should set all fields without side effects', () => {
-    service.restore(42, 2, 3);
+    service.restore(42, 2, 3, 4);
 
     expect(service.currentDangerPercent).toBe(42);
     expect(service.currentConsecutiveThreats).toBe(2);
     expect(service.currentGuaranteedRewardSteps).toBe(3);
+    expect(service.currentShieldedSteps).toBe(4);
+  });
+
+  // ── Threat shield (Repel/Max Repel) ─────────────────────────────────────
+
+  it('addThreatShield should grant shielded steps additively', () => {
+    service.addThreatShield(1);
+    service.addThreatShield(3);
+    expect(service.currentShieldedSteps).toBe(4);
+  });
+
+  it('a shielded rollStep should return "reward" and consume one shielded step', () => {
+    service.addThreatShield(1);
+    spyOn(Math, 'random').and.returnValue(0.01); // would normally be a threat
+
+    const step = service.rollStep(0);
+
+    expect(step).toBe('reward');
+    expect(service.currentShieldedSteps).toBe(0);
+  });
+
+  it('a shielded rollStep should never lower a spiked danger meter (delay-only, never defuse)', () => {
+    service.restore(40, 0, 0); // above base(0) = 5, simulating a post-spike state
+    service.addThreatShield(1);
+
+    service.rollStep(0);
+
+    expect(service.currentDangerPercent).toBe(40); // held, not cooled toward base(0)
+  });
+
+  it('a shielded rollStep should still climb danger toward base(round) when below it', () => {
+    service.restore(5, 0, 0);
+    service.addThreatShield(1);
+
+    service.rollStep(3); // base(3) = 50, recovery capped at +15
+
+    expect(service.currentDangerPercent).toBe(20);
+  });
+
+  it('shielded steps should be consumed before guaranteedRewardSteps', () => {
+    service.addThreatShield(1);
+    service.addGuaranteedRewardSteps(1);
+    spyOn(Math, 'random').and.returnValue(0.01);
+
+    service.rollStep(0);
+
+    expect(service.currentShieldedSteps).toBe(0);
+    expect(service.currentGuaranteedRewardSteps).toBe(1); // untouched by the shielded step
+  });
+
+  it('isNextStepGuaranteedSafe should be true while shielded steps remain', () => {
+    expect(service.isNextStepGuaranteedSafe()).toBe(false);
+    service.addThreatShield(1);
+    expect(service.isNextStepGuaranteedSafe()).toBe(true);
+    spyOn(Math, 'random').and.returnValue(0.99);
+    service.rollStep(0); // consumes the shielded step
+    expect(service.isNextStepGuaranteedSafe()).toBe(false);
   });
 
   it('dangerPercent$ should emit the current dangerPercent on subscribe and on change', () => {
