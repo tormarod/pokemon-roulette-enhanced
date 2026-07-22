@@ -2,7 +2,7 @@
 
 Status: **Approved — ready to execute.**
 Owner: tormarod
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 ## Why
 
@@ -34,6 +34,15 @@ were found on re-verification because that file grew between the audit and
 this plan being written). **Re-run each `grep -n "it('"` shown per step before
 editing** in case the file has moved on again since — anchor on test titles,
 not line numbers, if they've drifted.
+
+**Re-verified 2026-07-22 against `origin/main` (commit `3c79f3a`) — no drift.**
+Every referenced test in all three phases still sits at the exact title *and*
+line number stated below; nothing needs renumbering. Since this plan was
+committed the only spec change was the Running Shoes→Bicycle rename
+(`fa68cb2`, net-zero lines in a `describe('bicycle bonus step')` block that is
+not one of Phase 2's seven threats), so it does not affect any step here. The
+"anchor on titles, re-grep before editing" rule above still stands as
+cheap insurance, but as of this date the numbers are current.
 
 ## Ground rules for every step
 
