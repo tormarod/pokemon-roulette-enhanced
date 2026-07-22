@@ -33,8 +33,9 @@ seams:
   The wheel is honest — this is a *balance* problem, addressed by **Phase 1**
   (lower the round multiplier + reward type-countering more).
 - **The Market was bolted onto a reward set designed before coins existed.** Find
-  Item overlaps the Market (~36% of its wheel by weight is stuff you can just
-  buy), unwanted items can't convert back to coins, and one threat (Toll Booth)
+  Item overlaps the Market (nearly half of its wheel by weight — ~47% — is stuff
+  you can just buy, now that Bicycle is a Market item too), unwanted items can't
+  convert back to coins, and one threat (Toll Booth)
   weaponises the economy against the player. These are the "old reward loop meets
   new economy" seams (Phases 3–5).
 
@@ -230,23 +231,26 @@ playtest.
 ## Phase 3 — Find Item ↔ Market disjoint inventories
 
 **Why:** the Find Item card (reward-pool weight 2) rolls all 14 regular items,
-~36% of which (by weight) are the six consumables the Market already sells on
-demand — so a Find Item pick can feel like a dud, and the player can't steer toward
-the find-only gadgets that are the card's real value. Disjoint inventories mean
-Find Item **always** hands you something the Market never stocks.
+~47% of which (by weight) are the seven items the Market already sells on demand
+(the six consumables **plus Bicycle**, added to the Market in PR #47) — so a Find
+Item pick can feel like a dud, and the player can't steer toward the find-only
+gadgets that are the card's real value. Disjoint inventories mean Find Item
+**always** hands you something the Market never stocks.
 
 **Current system:**
 - `FindItemRouletteComponent`
   (`.../roulettes/find-item-roulette/find-item-roulette.component.ts:31`) builds its
   wheel from `ItemsService.getRegularItems()` (all 14, minus Revive in Classic).
 - Market stock (`market.component.ts:156`) = `potion, super-potion, hyper-potion,
-  x-attack, rare-candy, revive` + random capsule.
+  x-attack, rare-candy, revive, bicycle` + random capsule.
 
 **Change (New Experience only; Classic unchanged — it has no Market):**
 - [ ] Add `ItemsService.getFindableItems()`: in New Experience, return
-  `getRegularItems()` filtered to exclude the Market-sold consumable names,
-  leaving the gadgets (`bicycle, exp-share, escape-rope, honey, repel, poke-radar,
-  max-repel, link-cable`). In Classic, return `getRegularItems()` unchanged.
+  `getRegularItems()` filtered to exclude the Market-sold item names (the six
+  consumables **and `bicycle`**), leaving the gadgets (`exp-share, escape-rope,
+  honey, repel, poke-radar, max-repel, link-cable`). In Classic, return
+  `getRegularItems()` unchanged. Keep the exclusion list derived from the Market
+  stock so the two can't silently drift apart if the Market changes again.
 - [ ] Point `FindItemRouletteComponent`'s constructor at `getFindableItems()`.
 - [ ] Update `find-item-roulette.component.spec.ts` and any `items.service.spec.ts`
   assertion. `npm run test:local` green. Checkpoint.
@@ -276,8 +280,8 @@ confirm sell value < buy price.)
 - [ ] Add `SELL_RATE = 0.4` and `GADGET_SELL_VALUE = 5` (coins) to
   `economy-config.ts`, plus `sellValue(itemName)`: Market consumables →
   `floor(MARKET_PRICES[id] × SELL_RATE)`; gadgets → `GADGET_SELL_VALUE`.
-  Recommendation baked in: ability capsules sellable at `floor(50 × SELL_RATE)`;
-  mega stones **not** sellable (build pieces).
+  Recommendation baked in: ability capsules sellable at `floor(35 × SELL_RATE)=14`
+  (capsule price is 35 as of PR #47); mega stones **not** sellable (build pieces).
 - [ ] Add a "Sell" section to the Market modal listing held sellable items (dedup
   by name with a count), each with a sell button → `removeItem` +
   `addCoins(sellValue)`. Reuse the affordable/disabled styling and the
@@ -285,8 +289,8 @@ confirm sell value < buy price.)
 - [ ] `market.component.spec.ts` cases (sell removes item + credits coins; disabled
   in combat). `npm run test:local` green. Checkpoint.
 
-**Acceptance:** selling a Potion yields `floor(15×0.4)=6` coins and removes it;
-selling is unavailable during a battle spin / committed prep.
+**Acceptance:** selling a Potion (price 25 as of PR #47) yields `floor(25×0.4)=10`
+coins and removes it; selling is unavailable during a battle spin / committed prep.
 
 ---
 
@@ -374,10 +378,10 @@ wording makes players undervalue the most important consumable.
    after. **Floor intact:** round-0 battle still yields `noTickets = baseNoCount`.
 6. **Abilities (Phase 2, if bumped).** A `flat-yes` ability's `value` matches the
    locked target; `ability.service.spec.ts` recomputed and green.
-7. **Find Item disjoint (Phase 3).** New Experience → wheel contains only `bicycle,
-   exp-share, escape-rope, honey, repel, poke-radar, max-repel, link-cable`; no
-   Market consumables. Classic → unchanged.
-8. **Sell (Phase 4).** Hold a Potion, coins = C → sell → coins = `C + 6`, Potion
+7. **Find Item disjoint (Phase 3).** New Experience → wheel contains only
+   `exp-share, escape-rope, honey, repel, poke-radar, max-repel, link-cable`; no
+   Market-sold item (including no Bicycle). Classic → unchanged.
+8. **Sell (Phase 4).** Hold a Potion, coins = C → sell → coins = `C + 10`, Potion
    gone. During committed prep → Sell buttons disabled.
 9. **Toll Booth, recommended (Phase 5).** coins = 100 → toll = `ceil(100×0.4)=40`,
    coins → 60, **no** Danger spike. coins = 0 → `tollBooth` not in the draw.
