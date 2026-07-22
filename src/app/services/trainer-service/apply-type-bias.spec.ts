@@ -1,6 +1,7 @@
-import { applyTypeBias, TOWARD_SOFT_BASE_MULTIPLIER, AWAY_SOFT_BASE_MULTIPLIER } from './apply-type-bias';
+import { applyTypeBias, TOWARD_SOFT_BASE_MULTIPLIER, AWAY_SOFT_BASE_MULTIPLIER, HONEY_TARGET_SHARE, HONEY_STACK_CAP } from './apply-type-bias';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PendingTypeBiases } from './trainer.service';
+import { PokemonType } from '../../interfaces/pokemon-type';
 
 describe('applyTypeBias', () => {
   const pokemon: PokemonItem[] = [
@@ -15,20 +16,46 @@ describe('applyTypeBias', () => {
     { pokemonId: 999, text: 'pokemon.electric-water', fillStyle: 'teal', sprite: null, shiny: false, power: 1, weight: 1, type1: 'electric', type2: 'water' }
   ];
 
-  const noBias: PendingTypeBiases = { toward: [], away: [] };
+  const noBias: PendingTypeBiases = { toward: [], away: [], honey: [] };
+
+  /** Builds a pool of `total` mons where exactly `fireCount` are pure Fire and the rest are pure Water. */
+  function makePool(total: number, fireCount: number): PokemonItem[] {
+    const pool: PokemonItem[] = [];
+    for (let i = 0; i < total; i++) {
+      const isFire = i < fireCount;
+      pool.push({
+        pokemonId: i,
+        text: `pokemon.${i}`,
+        fillStyle: isFire ? 'red' : 'blue',
+        sprite: null,
+        shiny: false,
+        power: 1,
+        weight: 1,
+        type1: isFire ? 'fire' : 'water',
+        type2: null
+      });
+    }
+    return pool;
+  }
+
+  function setShareOf(result: PokemonItem[], types: Set<PokemonType>): number {
+    const totalWeight = result.reduce((sum, p) => sum + p.weight, 0);
+    const kWeight = result.filter(p => p.type1 != null && types.has(p.type1)).reduce((sum, p) => sum + p.weight, 0);
+    return kWeight / totalWeight;
+  }
 
   it('passes the pool through unchanged when no bias is active', () => {
     expect(applyTypeBias(pokemon, noBias)).toEqual(pokemon);
   });
 
   it('hard-filters to matching type for a toward bias', () => {
-    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'hard' }], away: [] };
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'hard' }], away: [], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId)).toEqual([4]);
   });
 
   it('hard-filters out matching type for an away bias', () => {
-    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'fire', mode: 'hard' }] };
+    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'fire', mode: 'hard' }], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId)).toEqual([1, 7]);
   });
@@ -36,20 +63,21 @@ describe('applyTypeBias', () => {
   it('combines hard toward and hard away filters', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'water', mode: 'hard' }],
-      away: [{ type: 'fire', mode: 'hard' }]
+      away: [{ type: 'fire', mode: 'hard' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId)).toEqual([7]);
   });
 
   it('falls back to the unfiltered pool when a hard filter would empty it', () => {
-    const biases: PendingTypeBiases = { toward: [{ type: 'electric', mode: 'hard' }], away: [] };
+    const biases: PendingTypeBiases = { toward: [{ type: 'electric', mode: 'hard' }], away: [], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId)).toEqual([1, 4, 7]);
   });
 
   it('boosts weight of matching pokemon for a soft toward bias', () => {
-    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'soft' }], away: [] };
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'soft' }], away: [], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
     expect(result.find(p => p.pokemonId === 1)!.weight).toBe(1);
@@ -57,7 +85,7 @@ describe('applyTypeBias', () => {
   });
 
   it('reduces weight of matching pokemon for a soft away bias', () => {
-    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'fire', mode: 'soft' }] };
+    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'fire', mode: 'soft' }], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(AWAY_SOFT_BASE_MULTIPLIER);
     expect(result.find(p => p.pokemonId === 1)!.weight).toBe(1);
@@ -67,7 +95,8 @@ describe('applyTypeBias', () => {
   it('combines soft toward and soft away weight adjustments on different types', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'water', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 7)!.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
@@ -78,7 +107,8 @@ describe('applyTypeBias', () => {
   it('stacks two soft-toward uses of the same type linearly (base x n)', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
-      away: []
+      away: [],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER * 2);
@@ -87,7 +117,8 @@ describe('applyTypeBias', () => {
   it('stacks two soft-away uses of the same type linearly (base / n)', () => {
     const biases: PendingTypeBiases = {
       toward: [],
-      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(AWAY_SOFT_BASE_MULTIPLIER / 2);
@@ -96,7 +127,8 @@ describe('applyTypeBias', () => {
   it('applies two different soft-toward types independently, multiplying together for a dual-type match', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'electric', mode: 'soft' }, { type: 'water', mode: 'soft' }],
-      away: []
+      away: [],
+      honey: []
     };
     const result = applyTypeBias(dualTypePokemon, biases);
     expect(result.find(p => p.pokemonId === 181)!.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
@@ -107,7 +139,8 @@ describe('applyTypeBias', () => {
   it('ORs multiple hard-toward types instead of intersecting them', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'hard' }, { type: 'water', mode: 'hard' }],
-      away: []
+      away: [],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId).sort()).toEqual([4, 7]);
@@ -116,7 +149,8 @@ describe('applyTypeBias', () => {
   it('treats a repeated hard-toward use of the same type as a no-op (Set dedupes)', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'hard' }, { type: 'fire', mode: 'hard' }],
-      away: []
+      away: [],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.map(p => p.pokemonId)).toEqual([4]);
@@ -131,7 +165,8 @@ describe('applyTypeBias', () => {
   it('fully cancels a single soft-toward and single soft-away use on the same type', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(1);
@@ -140,7 +175,8 @@ describe('applyTypeBias', () => {
   it('cancels equal-count stacks on the same type, regardless of stack size', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.weight).toBe(1);
@@ -149,7 +185,8 @@ describe('applyTypeBias', () => {
   it('leaves only the uncancelled excess in effect when counts differ on the same type', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     // 3 toward - 1 away cancelled = 2 net toward uses.
@@ -159,7 +196,8 @@ describe('applyTypeBias', () => {
   it('leaves only the uncancelled excess on the away side when it outnumbers toward', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }, { type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     // 3 away - 1 toward cancelled = 2 net away uses.
@@ -169,7 +207,8 @@ describe('applyTypeBias', () => {
   it('does not cancel toward/away uses on different types', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'water', mode: 'soft' }],
-      away: [{ type: 'fire', mode: 'soft' }]
+      away: [{ type: 'fire', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 7)!.weight).toBe(TOWARD_SOFT_BASE_MULTIPLIER);
@@ -179,7 +218,8 @@ describe('applyTypeBias', () => {
   it('does not cancel hard-mode entries on the same type', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'fire', mode: 'hard' }],
-      away: [{ type: 'fire', mode: 'hard' }]
+      away: [{ type: 'fire', mode: 'hard' }],
+      honey: []
     };
     const result = applyTypeBias(pokemon, biases);
     // Hard-toward filters to Fire only, then hard-away would filter Fire out —
@@ -191,7 +231,7 @@ describe('applyTypeBias', () => {
   // ── V2 B3: wheel-slice highlight/dim visual tagging ────────────────────
 
   it('tags matching items as highlighted for a soft toward bias', () => {
-    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'soft' }], away: [] };
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'soft' }], away: [], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 4)!.highlighted).toBeTrue();
     expect(result.find(p => p.pokemonId === 1)!.highlighted).toBeFalsy();
@@ -199,14 +239,14 @@ describe('applyTypeBias', () => {
   });
 
   it('tags matching items as dimmed for a soft away bias', () => {
-    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'water', mode: 'soft' }] };
+    const biases: PendingTypeBiases = { toward: [], away: [{ type: 'water', mode: 'soft' }], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.find(p => p.pokemonId === 7)!.dimmed).toBeTrue();
     expect(result.find(p => p.pokemonId === 1)!.dimmed).toBeFalsy();
   });
 
   it('tags matching items as highlighted for a hard toward bias too', () => {
-    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'hard' }], away: [] };
+    const biases: PendingTypeBiases = { toward: [{ type: 'fire', mode: 'hard' }], away: [], honey: [] };
     const result = applyTypeBias(pokemon, biases);
     expect(result.every(p => p.highlighted)).toBeTrue();
   });
@@ -219,7 +259,8 @@ describe('applyTypeBias', () => {
   it('does not tag an item as both highlighted and dimmed unless it matches both a toward and an away type', () => {
     const biases: PendingTypeBiases = {
       toward: [{ type: 'electric', mode: 'soft' }],
-      away: [{ type: 'water', mode: 'soft' }]
+      away: [{ type: 'water', mode: 'soft' }],
+      honey: []
     };
     const result = applyTypeBias(dualTypePokemon, biases);
     expect(result.find(p => p.pokemonId === 181)!.highlighted).toBeTrue();
@@ -229,5 +270,62 @@ describe('applyTypeBias', () => {
     // electric-water matches both an active toward type and an active away type.
     expect(result.find(p => p.pokemonId === 999)!.highlighted).toBeTrue();
     expect(result.find(p => p.pokemonId === 999)!.dimmed).toBeTrue();
+  });
+
+  // ── Honey target-share ──────────────────────────────────────────────────
+
+  it('a single Honey use holds the chosen type at ~55% of the wheel regardless of pool size', () => {
+    const smallPool = makePool(20, 3);
+    const largePool = makePool(100, 8);
+    const biases: PendingTypeBiases = { toward: [], away: [], honey: [['fire']] };
+
+    const smallResult = applyTypeBias(smallPool, biases);
+    const largeResult = applyTypeBias(largePool, biases);
+
+    expect(setShareOf(smallResult, new Set(['fire']))).toBeCloseTo(HONEY_TARGET_SHARE, 6);
+    expect(setShareOf(largeResult, new Set(['fire']))).toBeCloseTo(HONEY_TARGET_SHARE, 6);
+  });
+
+  it('two Honey uses on different types push the combined set share toward ~70%', () => {
+    // A third, un-targeted type (grass) is required so the K/non-K split is meaningful —
+    // a pool made only of the two Honey-targeted types has no non-K remainder to redistribute from.
+    const pool: PokemonItem[] = [
+      ...makePool(20, 10), // 10 fire, 10 water
+      ...Array.from({ length: 30 }, (_, i) => ({
+        pokemonId: 1000 + i, text: `pokemon.grass${i}`, fillStyle: 'green', sprite: null,
+        shiny: false, power: 1, weight: 1, type1: 'grass', type2: null
+      } as PokemonItem))
+    ];
+    const biases: PendingTypeBiases = { toward: [], away: [], honey: [['fire'], ['water']] };
+
+    const result = applyTypeBias(pool, biases);
+
+    const expectedShare = HONEY_STACK_CAP * (1 - Math.pow(1 - HONEY_TARGET_SHARE / HONEY_STACK_CAP, 2));
+    expect(setShareOf(result, new Set(['fire', 'water']))).toBeCloseTo(expectedShare, 6);
+    expect(expectedShare).toBeCloseTo(0.697, 2);
+  });
+
+  it('never lets stacked Honey uses push the set share above the 75% ceiling', () => {
+    const pool = makePool(60, 5);
+    const honeyUses: PokemonType[][] = Array.from({ length: 8 }, () => ['fire']);
+    const biases: PendingTypeBiases = { toward: [], away: [], honey: honeyUses };
+
+    const result = applyTypeBias(pool, biases);
+
+    expect(setShareOf(result, new Set(['fire']))).toBeLessThanOrEqual(HONEY_STACK_CAP + 1e-9);
+    expect(setShareOf(result, new Set(['fire']))).toBeCloseTo(HONEY_STACK_CAP, 2);
+  });
+
+  it('is a no-op when the Honey type is entirely absent from the pool', () => {
+    const biases: PendingTypeBiases = { toward: [], away: [], honey: [['electric']] };
+    const result = applyTypeBias(pokemon, biases);
+    expect(result.every(p => p.weight === 1)).toBeTrue();
+  });
+
+  it('highlights Honey-matching mons the same way a toward bias does', () => {
+    const biases: PendingTypeBiases = { toward: [], away: [], honey: [['fire']] };
+    const result = applyTypeBias(pokemon, biases);
+    expect(result.find(p => p.pokemonId === 4)!.highlighted).toBeTrue();
+    expect(result.find(p => p.pokemonId === 1)!.highlighted).toBeFalsy();
   });
 });

@@ -98,7 +98,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -136,7 +136,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -168,7 +168,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true },
       dangerPercent: 5,
@@ -208,7 +208,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -242,7 +242,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 30,
@@ -282,7 +282,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -317,7 +317,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -357,7 +357,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -389,7 +389,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -427,7 +427,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -459,7 +459,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -497,7 +497,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -529,7 +529,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -567,7 +567,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -599,7 +599,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -637,7 +637,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -669,7 +669,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -707,7 +707,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -737,7 +737,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -775,7 +775,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
     };
     localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
 
@@ -809,7 +809,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [], away: [] },
+      pendingTypeBiases: { toward: [], away: [], honey: [] },
       newExperienceMode: true,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -878,7 +878,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'female',
       generationId: 3,
-      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [] },
+      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [], honey: [] },
       newExperienceMode: false,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -918,7 +918,7 @@ describe('RunPersistenceService', () => {
     trainerService.setTowardBias({ type: 'fire', mode: 'hard' });
 
     const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
-    expect(stored.pendingTypeBiases).toEqual({ toward: [{ type: 'fire', mode: 'hard' }], away: [] });
+    expect(stored.pendingTypeBiases).toEqual({ toward: [{ type: 'fire', mode: 'hard' }], away: [], honey: [] });
   });
 
   it('should restore both pending type biases from a saved run on construction', () => {
@@ -932,7 +932,7 @@ describe('RunPersistenceService', () => {
       trainerBadges: [],
       gender: 'male',
       generationId: 1,
-      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [{ type: 'grass', mode: 'hard' }] },
+      pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], away: [{ type: 'grass', mode: 'hard' }], honey: [] },
       newExperienceMode: false,
       pendingBattlePrep: null,
       dangerPercent: 5,
@@ -1010,6 +1010,69 @@ describe('RunPersistenceService', () => {
     const restoredTrainerService = TestBed.inject(TrainerService);
     expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'fire', mode: 'soft' }]);
     expect(restoredTrainerService.currentPendingTypeBiases.away).toEqual([]);
+  });
+
+  it('should restore pending Honey uses from a saved run on construction', () => {
+    const savedRun: SavedRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [], honey: [['fire', 'water']] },
+      newExperienceMode: false,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.currentPendingTypeBiases.honey).toEqual([['fire', 'water']]);
+  });
+
+  it('should treat a saved run with no honey field as having none, without throwing', () => {
+    const legacyRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 0,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], away: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(() => {
+      TestBed.resetTestingModule();
+      configureFreshTestBed();
+      TestBed.inject(RunPersistenceService);
+    }).not.toThrow();
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.currentPendingTypeBiases.honey).toEqual([]);
   });
 
   it('should discard a corrupt saved run and fall back to a fresh run without throwing', () => {

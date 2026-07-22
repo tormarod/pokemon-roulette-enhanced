@@ -35,6 +35,12 @@ interface GroupedBias {
   count: number;
 }
 
+interface HoneyBiasGroup {
+  type: PokemonType;
+  /** Number of pending Honey uses contributing to the target-share (shared across every type in this use's set). */
+  count: number;
+}
+
 @Component({
   selector: 'app-main-game',
   imports: [
@@ -77,6 +83,7 @@ export class MainGameComponent implements OnInit {
   wheelSpinning: boolean = false;
   groupedTowardBiases: GroupedBias[] = [];
   groupedAwayBiases: GroupedBias[] = [];
+  groupedHoneyBiases: HoneyBiasGroup[] = [];
   itemsAvailable: boolean = false;
 
   ngOnInit(): void {
@@ -90,6 +97,7 @@ export class MainGameComponent implements OnInit {
       const display = this.computeDisplayBiases(biases);
       this.groupedTowardBiases = display.toward;
       this.groupedAwayBiases = display.away;
+      this.groupedHoneyBiases = this.groupHoneyBiases(biases.honey);
     });
 
     // 'start-adventure' is pushed exactly once, at run setup, and never re-pushed — so as
@@ -103,7 +111,7 @@ export class MainGameComponent implements OnInit {
     });
   }
 
-  getBiasTypeIconUrl(bias: GroupedBias): string {
+  getBiasTypeIconUrl(bias: GroupedBias | HoneyBiasGroup): string {
     return getTypeIconUrl(bias.type);
   }
 
@@ -154,6 +162,12 @@ export class MainGameComponent implements OnInit {
 
   private countsToGroupedBias(counts: Map<PokemonType, number>): GroupedBias[] {
     return [...counts.entries()].map(([type, count]) => ({ type, mode: 'soft' as const, count }));
+  }
+
+  /** One badge per type across all pending Honey uses; count is the shared use count (see HONEY_STACK_CAP in apply-type-bias.ts). */
+  private groupHoneyBiases(honey: PokemonType[][]): HoneyBiasGroup[] {
+    const types = new Set(honey.flat());
+    return [...types].map(type => ({ type, count: honey.length }));
   }
   
   darkMode!: Observable<boolean>;

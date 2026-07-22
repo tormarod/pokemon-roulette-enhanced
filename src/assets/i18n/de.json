@@ -341,7 +341,8 @@
         "softToward": "Verstärkt zu",
         "hardToward": "Garantiert",
         "softAway": "Gelenkt weg von",
-        "hardAway": "Ausgeschlossen"
+        "hardAway": "Ausgeschlossen",
+        "honey": "Honig-Boost:"
       },
       "opponentPreview": {
         "label": "Als Nächstes:",
@@ -632,7 +633,9 @@
           "which": "Welches Pokémon wird getauscht?"
         },
         "typeBias": {
-          "which": "Welcher Typ?"
+          "which": "Welcher Typ?",
+          "whichHoney": "Welche Typen? (bis zu 3)",
+          "confirm": "Bestätigen"
         },
         "mega": {
           "who": "Wer erhält einen Mega-Stein?",
@@ -747,7 +750,7 @@
     },
     "honey": {
       "name": "Honig",
-      "description": "Nutze Honig, um dein nächstes wildes Pokémon zu einem gewählten Typ hin zu verschieben — stapelt sich bei erneuter Nutzung und wirkt auch auf ein bereits angezeigtes Rad!"
+      "description": "Nutze Honig, um dein nächstes wildes Pokémon zu bis zu 3 gewählten Typen hin zu lenken — das Rad kippt so, dass deine Auswahl etwa 55% davon ausmacht (aufgeteilt auf sie). Wirkt auch auf ein bereits angezeigtes Rad und stapelt sich (bis zu ~75%) bei erneuter Nutzung."
     },
     "repel": {
       "name": "Repellent",
@@ -3164,6 +3167,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_12_0": "Version 3.12.0",
   "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
@@ -3179,6 +3183,11 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_12_0": {
+      "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
+      "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",
+      "2": "🏪 Honey is now sold in the Market for 45 coins."
+    },
     "v3_11_0": {
       "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
       "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",

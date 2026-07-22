@@ -26,11 +26,12 @@ Three plans touch the Market/bias code — keep the ownership boundaries clean:
 
 - **This plan** — Find Item ↔ Market disjoint, sell-for-coins, Market stock system,
   Toll Booth, potion text.
-- **`docs/plans/honey-target-share-market.md`** — reworks Honey into a ~55%
+- **`docs/plans/honey-target-share-market.md`** — reworked Honey into a ~55%
   target-share bias **and sells it in the Market** (price 45). **Owns "Honey in the
-  Market."** This plan must **not** re-add Honey to the Market. Because Phase 1's
-  findable set is *derived* from Market stock, once the Honey plan ships Honey drops
-  out of Find Item automatically.
+  Market."** **Shipped** — Honey is already a Market entry. This plan must **not**
+  re-add Honey to the Market. Because Phase 1's findable set is *derived* from
+  Market stock, once Phase 1 here ships it will automatically exclude Honey from
+  Find Item too.
 - **`docs/plans/repel-family-threat-shield.md`** — **Repel/Max Repel stop being
   catch-steering** and become New-Experience threat-avoidance items (skip the next N
   adventure threats); it also deletes the type-bias "away" branch. So Repel/Max Repel
@@ -83,24 +84,24 @@ gadgets that are the card's real value. Disjoint inventories mean Find Item
 the type advantage the endgame-rebalance plan now rewards more. Concentrating Find
 Item onto gadgets makes hitting that card more likely to yield it — so this phase
 quietly supports the "you must build advantage" bet, not just declutters the wheel.
-**Sibling-plan notes:** `honey` becomes *buyable* via `honey-target-share-market.md`,
-so once that ships it leaves the findable set automatically (the exclusion is derived
-from Market stock). `repel`/`max-repel` stay findable but are being repurposed to
-threat-avoidance by `repel-family-threat-shield.md` — no longer coverage tools, just
-other gadgets on the wheel.
+**Sibling-plan notes:** `honey` is now *buyable* via `honey-target-share-market.md`
+(shipped) — it has already left the findable set once this phase's exclusion list is
+derived from Market stock (see below). `repel`/`max-repel` stay findable but are
+being repurposed to threat-avoidance by `repel-family-threat-shield.md` — no longer
+coverage tools, just other gadgets on the wheel.
 
 **Current system:**
 - `FindItemRouletteComponent`
   (`.../roulettes/find-item-roulette/find-item-roulette.component.ts:31`) builds its
   wheel from `ItemsService.getRegularItems()` (all 14, minus Revive in Classic).
-- Market stock (`market.component.ts:156`) = `potion, super-potion, hyper-potion,
-  x-attack, rare-candy, revive, bicycle` + random capsule.
+- Market stock (`market.component.ts:156`) = `potion, super-potion, honey,
+  hyper-potion, x-attack, rare-candy, revive, bicycle` + random capsule.
 
 **Change (New Experience only; Classic unchanged — it has no Market):**
 - [ ] Add `ItemsService.getFindableItems()`: in New Experience, return
   `getRegularItems()` filtered to exclude the Market-sold item names (the six
-  consumables **and `bicycle`**), leaving the gadgets (`exp-share, escape-rope,
-  honey, repel, poke-radar, max-repel, link-cable`). In Classic, return
+  consumables, **`honey`, and `bicycle`**), leaving the gadgets (`exp-share,
+  escape-rope, repel, poke-radar, max-repel, link-cable`). In Classic, return
   `getRegularItems()` unchanged. Keep the exclusion list derived from the Market
   stock so the two can't silently drift apart if the Market changes again.
 - [ ] Point `FindItemRouletteComponent`'s constructor at `getFindableItems()`.
@@ -121,8 +122,8 @@ every item at least *something* and gives the economy a second, player-driven
 faucet. (No arbitrage: you buy high and sell low, and items aren't a coin faucet —
 confirm sell value < buy price.)
 
-**Not here:** making Honey buyable is owned by `honey-target-share-market.md`, not
-this phase — don't add it in the Market here.
+**Not here:** making Honey buyable was owned by `honey-target-share-market.md`
+(shipped) — don't re-add it in the Market here.
 
 **Current system:**
 - `TrainerService.removeItem(item)` (`trainer.service.ts:469`), `addCoins()`
@@ -183,11 +184,11 @@ escalating, capped Market restock"):**
 **Recommended values (baked in, owner confirms in 3a — flag if any feel off):**
 ```
 MARKET_STOCK      = { potion:5, super-potion:3, hyper-potion:2, x-attack:3,
-                      rare-candy:2, revive:2, ability-capsule:2, bicycle:1 }
+                      rare-candy:2, revive:2, ability-capsule:2, bicycle:1, honey:3 }
 RESTOCK_BASE = 60   RESTOCK_STEP = 40   RESTOCK_MAX_USES = 3   // → 60/100/140, max 3×
 ```
-(If `honey-target-share-market.md` has shipped, it adds `honey` to the Market — give
-it a `MARKET_STOCK['honey']`, recommend 3; the two plans coordinate on the key set.)
+(`honey-target-share-market.md` has shipped and added `honey` to `MARKET_PRICES` —
+`MARKET_STOCK['honey']` above, recommended 3, closes out that coordination.)
 
 **Loss-stakes tie-in (Q2):** this *is* the "potion availability" lever the game leaves
 for loss-feel. Caps must stay generous enough that the endgame isn't unwinnable, and
@@ -339,12 +340,10 @@ mislead about when they help.)
 ## Acceptance tests (input → expected)
 
 1. **Find Item disjoint (Phase 1).** After Phase 1, New Experience → wheel contains
-   only `exp-share, escape-rope, honey, repel, poke-radar, max-repel, link-cable`; no
-   Market-sold item (including no Bicycle). Classic → unchanged. **Cross-plan:** once
-   `honey-target-share-market.md` makes Honey Market-sold, the same Market-derived
-   exclusion drops `honey` too (→ `exp-share, escape-rope, repel, poke-radar,
-   max-repel, link-cable`); whichever of the two plans ships second re-runs this
-   assertion.
+   only `exp-share, escape-rope, repel, poke-radar, max-repel, link-cable`; no
+   Market-sold item (including no Bicycle, no Honey — `honey-target-share-market.md`
+   has already made Honey Market-sold, so the Market-derived exclusion drops it too).
+   Classic → unchanged.
 2. **Sell (Phase 2).** Hold a Potion, coins = C → sell → coins = `C + 10`, Potion
    gone. During committed prep → Sell buttons disabled.
 3. **Market stock (Phase 3).** Buy 5 Potions (cap) → 6th is "Sold out"; clearing a

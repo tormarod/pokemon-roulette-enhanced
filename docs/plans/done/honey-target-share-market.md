@@ -1,6 +1,8 @@
 # Honey rework (target-share, up to 3 types) + Honey in Market
 
-**Status:** Not started. Phases are checkpointed — stop for owner review after each.
+**Status:** All phases done (shipped as v3.12.0, since v3.11.0 was already used by `endgame-rebalance.md`).
+
+**Note (post-Phase-1):** MainGameComponent's toward/away bias badge strip (not in the original "current system" section below) needed a matching update — Honey moving off `toward` onto its own `honey` field meant it would silently stop showing any badge. Owner chose to add a parallel `groupedHoneyBiases`/`game.main.activeBias.honey` badge (`main-game.component.ts`/`.html`, all 6 locales) so a pending Honey use stays visible before a wheel is on screen. Phase 2 must keep this working when Honey moves to multi-type: `groupHoneyBiases()` already unions all types across all pending uses, so no shape change needed there, just re-verify.
 
 ## Decisions (locked with owner)
 
@@ -53,7 +55,7 @@ Target-share formula (base weight is 1 per Pokémon): to make the chosen set K o
 
 ---
 
-## Phase 1 — Bias engine: add target-share Honey (additive; Repel/Max Repel untouched)
+## Phase 1 — Bias engine: add target-share Honey (additive; Repel/Max Repel untouched) — DONE
 
 Purely **additive** to the type-bias engine — it does **not** remove the soft/away machinery (Repel still uses soft-away, Max Repel still uses hard-away; both are removed in `repel-family-threat-shield.md`). Honey is wired single-type here (reusing the existing single-pick UI); multi-select is Phase 2 — single-type Honey already gets the 55% target-share buff.
 
@@ -114,7 +116,9 @@ private applyBiasForItem(item: ItemItem, type: PokemonType): void {
 
 ---
 
-## Phase 2 — Multi-select type picker (Honey: up to 3 types)
+## Phase 2 — Multi-select type picker (Honey: up to 3 types) — DONE
+
+**Note (post-Phase-2):** the plain white `box-shadow` ring specced for the selected state was invisible against this modal's white background (verified in-browser) — replaced with a green checkmark badge (`::after` content), which stays legible regardless of button/modal color.
 
 **`SelectFromTypeListRouletteComponent`:**
 - Add `@Input() maxSelections = 1;` and `@Output() selectedTypesEvent = new EventEmitter<PokemonType[]>();` Keep `selectedTypeEvent` removed/replaced — migrate callers to the array output.
@@ -144,7 +148,7 @@ private applyBiasForItem(item: ItemItem, type: PokemonType): void {
 
 ---
 
-## Phase 3 — Market: sell Honey
+## Phase 3 — Market: sell Honey — DONE
 
 - `economy-config.ts` `MARKET_PRICES`: add `'honey': 45,` (tunable). This makes `'honey'` a valid `MarketEntryId` automatically.
 - `market.component.ts` `buildStock` (156): add `{ id: 'honey', itemName: 'honey' }` to the `items` array.
@@ -157,7 +161,9 @@ private applyBiasForItem(item: ItemItem, type: PokemonType): void {
 
 ---
 
-## Phase 4 — Release notes, version bump, docs
+## Phase 4 — Release notes, version bump, docs — DONE
+
+**Note (post-Phase-4):** shipped as **v3.12.0**, not v3.11.0 as originally written — that number was already consumed by `endgame-rebalance.md`'s "Rebalance endgame battle math" release before this plan's Phase 4 ran.
 
 - `package.json`: `3.10.0` → `3.11.0`.
 - `src/app/data/release-notes.ts`: newest-first `v3_11_0` entry with `whatsNew.v3_11_0.*` keys covering: Honey reworked (up to 3 types, ~55% wheel share, buyable in the Market).

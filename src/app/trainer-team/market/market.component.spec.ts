@@ -45,6 +45,19 @@ describe('MarketComponent', () => {
     expect(component.stock.length).toBe(Object.keys(MARKET_PRICES).length);
     expect(entry('potion').price).toBe(MARKET_PRICES['potion']);
     expect(entry('ability-capsule').price).toBe(MARKET_PRICES['ability-capsule']);
+    expect(entry('honey').price).toBe(MARKET_PRICES['honey']);
+    expect(entry('honey').itemName).toBe('honey');
+  });
+
+  it('buying Honey spends coins and bags it, same as any other regular item', () => {
+    trainerService.addCoins(100);
+    const before = trainerService.getItems().length;
+
+    component.buy(entry('honey'));
+
+    expect(trainerService.getCoins()).toBe(100 - MARKET_PRICES['honey']);
+    expect(trainerService.getItems().length).toBe(before + 1);
+    expect(trainerService.hasItem('honey')).toBeTrue();
   });
 
   it('canAfford reflects the current balance', () => {

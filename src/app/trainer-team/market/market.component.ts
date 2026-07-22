@@ -156,6 +156,7 @@ export class MarketComponent implements OnInit, OnDestroy {
     const items: Array<{ id: MarketEntryId; itemName: RegularItemName }> = [
       { id: 'potion', itemName: 'potion' },
       { id: 'super-potion', itemName: 'super-potion' },
+      { id: 'honey', itemName: 'honey' },
       { id: 'hyper-potion', itemName: 'hyper-potion' },
       { id: 'x-attack', itemName: 'x-attack' },
       { id: 'rare-candy', itemName: 'rare-candy' },

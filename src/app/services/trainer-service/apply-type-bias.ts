@@ -5,6 +5,11 @@ import { PendingTypeBiases, TypeBiasEntry } from './trainer.service';
 export const TOWARD_SOFT_BASE_MULTIPLIER = 10;
 export const AWAY_SOFT_BASE_MULTIPLIER = 0.1;
 
+/** Honey target-share tuning: single use targets 55% of the wheel; stacking approaches but never reaches 75% (see applyTypeBias()). */
+export const HONEY_TARGET_SHARE = 0.55;
+export const HONEY_STACK_CAP = 0.75;
+export const HONEY_MAX_TYPES = 3;
+
 /**
  * A hard filter that would empty the pool is skipped (falls back to the
  * unfiltered pool) rather than ever soft-locking the wheel. Multiple hard
@@ -14,7 +19,7 @@ export const AWAY_SOFT_BASE_MULTIPLIER = 0.1;
  * first, see cancelOpposingSoftCounts().
  */
 export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases): PokemonItem[] {
-  const { toward, away } = biases;
+  const { toward, away, honey } = biases;
   let result = pokemon;
 
   const hardTowardTypes = new Set(toward.filter(e => e.mode === 'hard').map(e => e.type));
@@ -42,7 +47,19 @@ export function applyTypeBias(pokemon: PokemonItem[], biases: PendingTypeBiases)
     result = result.map(p => applySoftWeight(p, towardSoftCounts, awaySoftCounts));
   }
 
-  const towardTypes = new Set([...hardTowardTypes, ...towardSoftCounts.keys()]);
+  const honeyTypes = new Set(honey.flat());
+  const n = honey.length;
+  if (n > 0 && honeyTypes.size > 0) {
+    const S = HONEY_STACK_CAP * (1 - Math.pow(1 - HONEY_TARGET_SHARE / HONEY_STACK_CAP, n));
+    const countK = result.filter(p => matchesAnyType(p, honeyTypes)).length;
+    const nonK = result.length - countK;
+    if (countK > 0 && nonK > 0) {
+      const w = (S / (1 - S)) * (nonK / countK);
+      result = result.map(p => matchesAnyType(p, honeyTypes) ? { ...p, weight: w } : p);
+    }
+  }
+
+  const towardTypes = new Set([...hardTowardTypes, ...towardSoftCounts.keys(), ...honeyTypes]);
   const awayTypes = new Set([...hardAwayTypes, ...awaySoftCounts.keys()]);
   if (towardTypes.size > 0 || awayTypes.size > 0) {
     result = result.map(p => tagBiasVisuals(p, towardTypes, awayTypes));

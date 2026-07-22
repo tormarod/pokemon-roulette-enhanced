@@ -138,6 +138,16 @@ describe('TrainerService', () => {
   it('should have no pending type biases by default', () => {
     expect(service.currentPendingTypeBiases.toward).toEqual([]);
     expect(service.currentPendingTypeBiases.away).toEqual([]);
+    expect(service.currentPendingTypeBiases.honey).toEqual([]);
+  });
+
+  it('should append a Honey use with its chosen types, independent of toward/away', () => {
+    service.addHoneyUse(['fire']);
+    expect(service.currentPendingTypeBiases.honey).toEqual([['fire']]);
+
+    service.addHoneyUse(['water', 'electric']);
+    expect(service.currentPendingTypeBiases.honey).toEqual([['fire'], ['water', 'electric']]);
+    expect(service.currentPendingTypeBiases.toward).toEqual([]);
   });
 
   it('should set and clear the toward and away biases independently', () => {
@@ -164,16 +174,19 @@ describe('TrainerService', () => {
     ]);
   });
 
-  it('should clear both pending type biases automatically once a battle state is reached', () => {
+  it('should clear all pending type biases automatically once a battle state is reached', () => {
     service.setTowardBias({ type: 'grass', mode: 'soft' });
     service.setAwayBias({ type: 'fire', mode: 'hard' });
+    service.addHoneyUse(['water']);
     expect(service.currentPendingTypeBiases.toward.length).toBeGreaterThan(0);
     expect(service.currentPendingTypeBiases.away.length).toBeGreaterThan(0);
+    expect(service.currentPendingTypeBiases.honey.length).toBeGreaterThan(0);
 
     emitGameState('gym-battle');
 
     expect(service.currentPendingTypeBiases.toward).toEqual([]);
     expect(service.currentPendingTypeBiases.away).toEqual([]);
+    expect(service.currentPendingTypeBiases.honey).toEqual([]);
   });
 
   it('should keep pending type biases across non-battle states within the same stretch', () => {

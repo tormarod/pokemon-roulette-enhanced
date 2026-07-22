@@ -65,6 +65,15 @@
                             </span>
                         </div>
                     }
+                    @for (bias of groupedHoneyBiases; track bias.type) {
+                        <div class="active-bias-indicator">
+                            <img [src]="getBiasTypeIconUrl(bias)" [alt]="bias.type" height="20">
+                            <span>
+                                {{ 'game.main.activeBias.honey' | translate }} {{ 'pokemonType.' + bias.type | translate }}
+                                @if (bias.count > 1) { ×{{ bias.count }} }
+                            </span>
+                        </div>
+                    }
                 </div>
             }
         </div>

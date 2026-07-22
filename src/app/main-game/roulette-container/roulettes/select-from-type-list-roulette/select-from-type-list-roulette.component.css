@@ -12,6 +12,7 @@
 }
 
 .type-choice-button {
+  position: relative;
   padding: 12px 8px;
   border: 2px solid #333;
   border-radius: 10px;
@@ -28,6 +29,57 @@
 .type-choice-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* A plain white ring is invisible against this modal's white background —
+   a checkmark badge stays legible regardless of the button/modal colors. */
+.type-choice-button.selected {
+  border-color: #2e7d32;
+}
+
+.type-choice-button.selected::after {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: #2e7d32;
+  color: white;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roulette-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.selection-count {
+  font-weight: bold;
+}
+
+.confirm-button {
+  padding: 8px 20px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  font-weight: bold;
+  background-color: #4caf50;
+  color: white !important;
+}
+
+.confirm-button:disabled {
+  background-color: #888;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

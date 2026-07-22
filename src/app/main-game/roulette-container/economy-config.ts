@@ -62,6 +62,7 @@ export const MARKET_PRICES = {
   'revive': 50,
   'ability-capsule': 35,
   'bicycle': 120,
+  'honey': 45,
 } as const; // tunable
 
 export type MarketEntryId = keyof typeof MARKET_PRICES;

@@ -341,7 +341,8 @@
         "softToward": "Orienté vers",
         "hardToward": "Garanti",
         "softAway": "Éloigné de",
-        "hardAway": "Exclu"
+        "hardAway": "Exclu",
+        "honey": "Boost Miellée :"
       },
       "opponentPreview": {
         "label": "À suivre :",
@@ -632,7 +633,9 @@
           "which": "Quel Pokémon Échanger?"
         },
         "typeBias": {
-          "which": "Quel type?"
+          "which": "Quel type?",
+          "whichHoney": "Quels types ? (jusqu'à 3)",
+          "confirm": "Confirmer"
         },
         "mega": {
           "who": "Qui recevra une Méga-Pierre?",
@@ -747,7 +750,7 @@
     },
     "honey": {
       "name": "Miellée",
-      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers un type choisi — se cumule en cas de réutilisation, et fonctionne sur une roue déjà affichée!"
+      "description": "Utilise la Miellée pour orienter ton prochain Pokémon sauvage vers jusqu'à 3 types de ton choix — la roue s'incline pour que tes choix en représentent environ 55% (répartis entre eux). Fonctionne sur une roue déjà affichée, et se cumule (jusqu'à ~75%) en cas de réutilisation."
     },
     "repel": {
       "name": "Repousse",
@@ -3164,6 +3167,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_12_0": "Version 3.12.0",
   "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
@@ -3179,6 +3183,11 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v3_12_0": {
+      "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
+      "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",
+      "2": "🏪 Honey is now sold in the Market for 45 coins."
+    },
     "v3_11_0": {
       "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
       "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",

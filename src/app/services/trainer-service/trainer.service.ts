@@ -38,9 +38,11 @@ export interface TypeBiasEntry {
 export interface PendingTypeBiases {
   toward: TypeBiasEntry[];
   away: TypeBiasEntry[];
+  /** One entry per pending Honey use; each entry is the (1-3) types chosen for that use. See applyTypeBias() for how these turn into a target-share weight. */
+  honey: PokemonType[][];
 }
 
-const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: [], away: [] };
+const NO_PENDING_TYPE_BIASES: PendingTypeBiases = { toward: [], away: [], honey: [] };
 
 @Injectable({
   providedIn: 'root'
@@ -267,6 +269,14 @@ export class TrainerService implements OnDestroy {
     this.updatePendingTypeBiases({
       ...this.pendingTypeBiases,
       away: [...this.pendingTypeBiases.away, entry]
+    });
+  }
+
+  /** Each use appends its chosen type set — repeated uses stack (see HONEY_STACK_CAP in apply-type-bias.ts). */
+  addHoneyUse(types: PokemonType[]): void {
+    this.updatePendingTypeBiases({
+      ...this.pendingTypeBiases,
+      honey: [...this.pendingTypeBiases.honey, types]
     });
   }
 

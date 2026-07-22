@@ -164,5 +164,31 @@ describe('MainGameComponent', () => {
       expect(component.groupedTowardBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
       expect(component.groupedAwayBiases).toEqual([{ type: 'fire', mode: 'hard', count: 1 }]);
     });
+
+    it('shows a Honey badge for a pending Honey use, independent of toward/away', () => {
+      trainerService.addHoneyUse(['fire']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases).toEqual([{ type: 'fire', count: 1 }]);
+      expect(component.groupedTowardBiases).toEqual([]);
+    });
+
+    it('shows the shared use count on every type badge when a Honey use covers multiple types', () => {
+      trainerService.addHoneyUse(['fire', 'water']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases.sort((a, b) => a.type.localeCompare(b.type))).toEqual([
+        { type: 'fire', count: 1 },
+        { type: 'water', count: 1 }
+      ]);
+    });
+
+    it('bumps the Honey badge count when a second Honey use stacks', () => {
+      trainerService.addHoneyUse(['fire']);
+      trainerService.addHoneyUse(['fire']);
+      fixture.detectChanges();
+
+      expect(component.groupedHoneyBiases).toEqual([{ type: 'fire', count: 2 }]);
+    });
   });
 });

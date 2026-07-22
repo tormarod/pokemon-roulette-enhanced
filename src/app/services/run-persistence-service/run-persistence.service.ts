@@ -218,10 +218,11 @@ export class RunPersistenceService {
   }
 
   private normalizePendingTypeBiases(value: unknown): PendingTypeBiases {
-    const record = (value ?? {}) as { toward?: unknown; away?: unknown };
+    const record = (value ?? {}) as { toward?: unknown; away?: unknown; honey?: unknown };
     return {
       toward: this.normalizeBiasDirection(record.toward),
-      away: this.normalizeBiasDirection(record.away)
+      away: this.normalizeBiasDirection(record.away),
+      honey: Array.isArray(record.honey) ? record.honey.filter(Array.isArray) : []
     };
   }
 

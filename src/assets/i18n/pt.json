@@ -341,7 +341,8 @@
         "softToward": "Direcionado para",
         "hardToward": "Garantido",
         "softAway": "Afastado de",
-        "hardAway": "Excluído"
+        "hardAway": "Excluído",
+        "honey": "Bônus de Mel:"
       },
       "opponentPreview": {
         "label": "A seguir:",
@@ -632,7 +633,9 @@
           "which": "Qual Pokémon será trocado?"
         },
         "typeBias": {
-          "which": "Qual tipo?"
+          "which": "Qual tipo?",
+          "whichHoney": "Quais tipos? (até 3)",
+          "confirm": "Confirmar"
         },
         "mega": {
           "who": "Quem vai receber uma Mega Pedra?",
@@ -747,7 +750,7 @@
     },
     "honey": {
       "name": "Mel",
-      "description": "Use Mel para direcionar seu próximo Pokémon selvagem para um tipo escolhido — acumula se usado novamente, e funciona numa roda já em tela!"
+      "description": "Use Mel para direcionar seu próximo Pokémon selvagem para até 3 tipos escolhidos por você — a roda se inclina para que suas escolhas ocupem cerca de 55% dela (divididos entre eles). Funciona numa roda já em tela, e acumula (até ~75%) se usado novamente."
     },
     "repel": {
       "name": "Repelente",
@@ -3164,6 +3167,7 @@
   },
   "v2_1_0": "Versão 2.1.0",
   "v2_2_0": "Versão 2.2.0",
+  "v3_12_0": "Version 3.12.0",
   "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
@@ -3179,6 +3183,11 @@
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v3_12_0": {
+      "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
+      "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",
+      "2": "🏪 Honey is now sold in the Market for 45 coins."
+    },
     "v3_11_0": {
       "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
       "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",

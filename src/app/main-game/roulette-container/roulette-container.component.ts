@@ -57,6 +57,7 @@ import { megaStoneNamesForBaseId, pokemonMegaForms } from '../../services/traine
 import { MegaEvolutionAnimationModalComponent } from './roulettes/mega-evolution-animation-modal/mega-evolution-animation-modal.component';
 import { SelectFromItemListRouletteComponent } from './roulettes/select-from-item-list-roulette/select-from-item-list-roulette.component';
 import { SelectFromTypeListRouletteComponent } from './roulettes/select-from-type-list-roulette/select-from-type-list-roulette.component';
+import { HONEY_MAX_TYPES } from '../../services/trainer-service/apply-type-bias';
 import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
@@ -771,9 +772,12 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       backdrop: 'static'
     });
 
-    const subscription = modalRef.componentInstance.selectedTypeEvent.subscribe((type: PokemonType) => {
+    modalRef.componentInstance.maxSelections = item.name === 'honey' ? HONEY_MAX_TYPES : 1;
+    modalRef.componentInstance.screenTitle = this.typeBiasScreenTitleFor(item);
+
+    const subscription = modalRef.componentInstance.selectedTypesEvent.subscribe((types: PokemonType[]) => {
       this.trainerService.removeItem(item);
-      this.applyBiasForItem(item, type);
+      this.applyBiasForItem(item, types);
       modalRef.close();
     });
 
@@ -784,7 +788,20 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     return getTypeIconUrl(type);
   }
 
-  continueWithType(type: PokemonType): void {
+  /** Honey allows up to 3 types (see HONEY_MAX_TYPES); Poké Radar/Max Repel stay single-pick. */
+  get honeyPendingMaxSelections(): number {
+    return this.pendingTypeBiasItem?.name === 'honey' ? HONEY_MAX_TYPES : 1;
+  }
+
+  get pendingTypeBiasScreenTitle(): string {
+    return this.pendingTypeBiasItem ? this.typeBiasScreenTitleFor(this.pendingTypeBiasItem) : 'game.main.roulette.typeBias.which';
+  }
+
+  private typeBiasScreenTitleFor(item: ItemItem): string {
+    return item.name === 'honey' ? 'game.main.roulette.typeBias.whichHoney' : 'game.main.roulette.typeBias.which';
+  }
+
+  continueWithType(types: PokemonType[]): void {
     this.finishCurrentState();
 
     const item = this.pendingTypeBiasItem;
@@ -793,20 +810,24 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.applyBiasForItem(item, type);
+    this.applyBiasForItem(item, types);
   }
 
   /**
-   * Honey/Poké Radar boost TOWARD the chosen type; Repel/Max Repel steer AWAY
-   * from it. Each use appends an entry (see TrainerService) rather than
-   * overwriting, so repeated uses stack instead of replacing each other.
+   * Honey boosts TOWARD up to 3 chosen types (target-share, see TrainerService.addHoneyUse);
+   * Poké Radar boosts TOWARD a single type; Repel/Max Repel steer AWAY from one. Each use
+   * appends an entry rather than overwriting, so repeated uses stack instead of replacing each other.
    */
-  private applyBiasForItem(item: ItemItem, type: PokemonType): void {
+  private applyBiasForItem(item: ItemItem, types: PokemonType[]): void {
+    if (item.name === 'honey') {
+      this.trainerService.addHoneyUse(types);
+      return;
+    }
     const mode = item.name === 'poke-radar' || item.name === 'max-repel' ? 'hard' : 'soft';
-    if (item.name === 'honey' || item.name === 'poke-radar') {
-      this.trainerService.setTowardBias({ type, mode });
+    if (item.name === 'poke-radar') {
+      this.trainerService.setTowardBias({ type: types[0], mode });
     } else {
-      this.trainerService.setAwayBias({ type, mode });
+      this.trainerService.setAwayBias({ type: types[0], mode });
     }
   }
 
