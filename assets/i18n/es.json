@@ -340,8 +340,7 @@
       "activeBias": {
         "softToward": "Orientado hacia",
         "hardToward": "Garantizado",
-        "softAway": "Alejado de",
-        "hardAway": "Excluido"
+        "honey": "Impulso de Miel:"
       },
       "opponentPreview": {
         "label": "A continuación:",
@@ -632,7 +631,9 @@
           "which": "¿Qué Pokémon cambiar?"
         },
         "typeBias": {
-          "which": "¿Qué tipo?"
+          "which": "¿Qué tipo?",
+          "whichHoney": "¿Qué tipos? (hasta 3)",
+          "confirm": "Confirmar"
         },
         "mega": {
           "who": "¿Quién recibirá una Mega Piedra?",
@@ -706,6 +707,15 @@
     "subtitle": "Gasta tus monedas para reforzar tu equipo.",
     "buy": "Comprar",
     "close": "Cerrar",
+    "sell": "Vender",
+    "sellButton": "Vender",
+    "soldOut": "Agotado",
+    "stockLeft": "Quedan {{count}}",
+    "restock": "Reabastecer — 🪙 {{price}}",
+    "restockExhausted": "No quedan reabastecimientos",
+    "restockConfirmMessage": "¿Reabastecer el Mercado al máximo por 🪙 {{price}}?",
+    "restockConfirmYes": "Reabastecer",
+    "restockConfirmNo": "Cancelar",
     "capsule": {
       "name": "Cápsula de Habilidad",
       "description": "Una Cápsula de Habilidad aleatoria: asígnala a un miembro del equipo en el PC para una ventaja permanente."
@@ -715,7 +725,7 @@
     "title": "Objetos",
     "potion": {
       "name": "Poción",
-      "description": "¡La Poción te permite volver a girar si pierdes un combate de Gimnasio!"
+      "description": "¡La Poción te permite volver a girar si pierdes cualquier combate!"
     },
     "rare-candy": {
       "name": "Caramelo Raro",
@@ -727,7 +737,7 @@
     },
     "super-potion": {
       "name": "Superpoción",
-      "description": "¡La Superpoción te permite volver a girar hasta dos veces si pierdes un combate de Gimnasio!"
+      "description": "¡La Superpoción te permite volver a girar hasta dos veces si pierdes cualquier combate!"
     },
     "x-attack": {
       "name": "Ataque X",
@@ -739,7 +749,7 @@
     },
     "hyper-potion": {
       "name": "Hiperpoción",
-      "description": "¡La Hiperpoción te permite volver a girar hasta tres veces si pierdes un combate de Gimnasio!\n\n"
+      "description": "¡La Hiperpoción te permite volver a girar hasta tres veces si pierdes cualquier combate!"
     },
     "escape-rope": {
       "name": "Cuerda Huida",
@@ -747,11 +757,11 @@
     },
     "honey": {
       "name": "Miel",
-      "description": "Usa Miel para orientar tu próximo Pokémon salvaje hacia un tipo elegido — se acumula si se usa de nuevo, ¡y funciona en una ruleta que ya está en pantalla!"
+      "description": "Usa Miel para orientar tu próximo Pokémon salvaje hacia hasta 3 tipos que elijas — la ruleta se inclina para que tu elección ocupe cerca del 55% de ella (repartido entre ellos). Funciona en una ruleta que ya está en pantalla, y se acumula (hasta ~75%) si se usa de nuevo."
     },
     "repel": {
       "name": "Repelente",
-      "description": "Usa Repelente para alejar tu próximo Pokémon salvaje de un tipo elegido — se acumula si se usa de nuevo, ¡y funciona en una ruleta que ya está en pantalla!"
+      "description": "Usa Repelente para mantener tu próximo paso de aventura libre de amenazas — pasa a salvo junto a un encuentro. (Solo en modo Nueva Experiencia.)"
     },
     "poke-radar": {
       "name": "PokéRadar",
@@ -759,7 +769,7 @@
     },
     "max-repel": {
       "name": "Repelente Max",
-      "description": "¡El Repelente Max excluye por completo un tipo elegido de tu próximo Pokémon salvaje, y funciona en una ruleta que ya está en pantalla!"
+      "description": "Usa Repelente Max para mantener tus próximos 3 pasos de aventura libres de amenazas. (Solo en modo Nueva Experiencia.)"
     },
     "link-cable": {
       "name": "Cable Link",
@@ -3164,6 +3174,10 @@
   },
   "v2_1_0": "Versión 2.1.0",
   "v2_2_0": "Versión 2.2.0",
+  "v3_14_0": "Version 3.14.0",
+  "v3_13_0": "Version 3.13.0",
+  "v3_12_0": "Version 3.12.0",
+  "v3_11_0": "Version 3.11.0",
   "v3_10_0": "Version 3.10.0",
   "v3_9_0": "Version 3.9.0",
   "v3_8_0": "Version 3.8.0",
@@ -3178,6 +3192,27 @@
     "title": "Novedades",
     "dismiss": "Entendido",
     "settingsEntry": "Novedades",
+    "v3_14_0": {
+      "0": "🎯 Find Item and the Market are now disjoint — Find Item never hands you something you could just buy, leaving it concentrated on find-only gadgets and a rare Bicycle.",
+      "1": "🚲 The Bicycle is no longer sold in the Market — it's a lucky find again on the Find Item wheel.",
+      "2": "🪙 You can now sell held items back for coins from a new Sell section in the Market.",
+      "3": "📦 The Market now has a limited per-run stock — buying depletes it, and it doesn't refill on its own. A costly, escalating, capped Restock action is the only way to top it back up.",
+      "4": "🚧 The Toll Booth threat's Danger-meter spike is softer when you come up short — it still bites, just not as hard."
+    },
+    "v3_13_0": {
+      "0": "🛡️ Repel and Max Repel reworked into New Experience-only threat-avoidance items: Repel keeps your very next adventure step threat-free, Max Repel covers the next 3 — instead of steering your next catch away from a type.",
+      "1": "⏳ A Repel/Max Repel shield only delays danger, it never defuses it — the Danger meter keeps climbing underneath even while you walk safely past a threat."
+    },
+    "v3_12_0": {
+      "0": "🍯 Honey reworked: instead of a flat bonus, it now tilts your next wild Pokémon wheel so your chosen type(s) make up about 55% of it — recomputed live so the effect holds steady whether the pool is small or large.",
+      "1": "🎯 Honey can now target up to 3 types at once (split across them), and stacks toward a 75% ceiling if used again — Poké Radar stays the only route to a guaranteed catch.",
+      "2": "🏪 Honey is now sold in the Market for 45 coins."
+    },
+    "v3_11_0": {
+      "0": "🎯 Type-countering the opponent pays off more in the late game — the bonus from a favorable type matchup doubled, while late-round difficulty scaling eased, so Elite Four and Champion battles are a real fight instead of a coin flip.",
+      "1": "⚠️ The same system cuts both ways — a badly mismatched team now pays a steeper price too, so bringing the wrong types into the endgame hurts more than before.",
+      "2": "✨ Ability effects got stronger to keep pace with the bigger type-matchup swings — most flat Yes/No bonuses and the scale-with-advantage/disadvantage caps are bigger now."
+    },
     "v3_10_0": {
       "0": "⚔️ X Attack is stronger in tougher fights — its power boost now scales with how far you've progressed."
     },
