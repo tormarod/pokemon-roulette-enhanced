@@ -2,7 +2,8 @@
 
 Status: **Not started.**
 Owner: tormarod
-Last updated: 2026-07-22 (split out of the former `game-design-holistic-review.md`)
+Last updated: 2026-07-22 (split out of the former `game-design-holistic-review.md`;
+Bicycle pulled from the Market to Find-Item-only)
 
 > One of two plans carved from the 2026-07-22 holistic review. **This plan is the
 > economy half** — reconcile the coin Market with a reward set designed before coins
@@ -13,12 +14,14 @@ Last updated: 2026-07-22 (split out of the former `game-design-holistic-review.m
 ## Why (the diagnosis)
 
 **The Market was bolted onto a reward set designed before coins existed.** Find Item
-overlaps the Market (nearly half of its wheel by weight — ~47% — is stuff you can just
-buy, now that Bicycle is a Market item too), unwanted items can't convert back to
-coins, the Market has infinite stock so coins barely constrain you, and one threat
-(Toll Booth) weaponises the economy against the player. These are the "old reward loop
-meets new economy" seams — Phase 1 (Find Item disjoint), Phase 2 (sell), Phase 3
-(stock), Phase 4 (Toll Booth), plus a Phase 5 potion-text legibility fix.
+overlaps the Market (much of its wheel is stuff you can just buy — the six consumables,
+now Honey, and Bicycle since PR #47), unwanted items can't convert back to coins, the
+Market has infinite stock so coins barely constrain you, one item that doesn't belong
+(Bicycle — a *permanent* held multiplier) is sold alongside the consumables, and one
+threat (Toll Booth) weaponises the economy against the player. These are the "old
+reward loop meets new economy" seams — Phase 1 (Find Item disjoint, which also pulls
+Bicycle back to find-only), Phase 2 (sell), Phase 3 (stock), Phase 4 (Toll Booth), plus
+a Phase 5 potion-text legibility fix.
 
 ## Sibling-plan coordination (read before touching any Market/bias phase)
 
@@ -65,6 +68,21 @@ Poke Radar) and the Honey plan (buyable Honey) are what make that true.
   reward-card restock: scarcity by default, with a costly Market restock as the
   guaranteed relief valve (so no pure-RNG brick-the-run failure mode) and a real coin
   sink. Numbers in Phase 3.
+- **Market composition — consumed/assigned staples + the Honey lever only; no
+  permanent held items.** Bicycle is a *permanent* held multiplier (one buy grants an
+  extra threat-free adventure step every round for the rest of the run — see
+  `roulette-container.component.ts:370`), so it's the one non-consumable in the shop,
+  it works against the stock-system's scarcity (a buy-once item that then *generates*
+  resources), and keeping it found preserves run variety in a luck-based game. It is
+  **pulled out of the Market and returned to Find-Item-only** (Phase 1), which also
+  removes the stock-system's Bicycle carve-out. **Guardrail (prevents future
+  saturation):** the Market carries items you *use up or assign* — potions, X-Attack,
+  Rare Candy, Revive, the ability capsule — plus the deliberate **Honey** coverage
+  lever (R1). Permanent held items and new situational gadgets default to **Find
+  Item**. ("Consumables only" as a literal rule was rejected: almost every item is
+  single-use — the steering/threat items too — so it would either drag Poke Radar /
+  Repel / Max Repel *into* the Market or exile Honey; the real axis is "predictable
+  staple / build piece" vs "situational or permanent gadget you keep.")
 
 Checkpoint after each phase — do not run several in one stretch.
 
@@ -72,12 +90,14 @@ Checkpoint after each phase — do not run several in one stretch.
 
 ## Phase 1 — Find Item ↔ Market disjoint inventories
 
-**Why:** the Find Item card (reward-pool weight 2) rolls all 14 regular items,
-~47% of which (by weight) are the seven items the Market already sells on demand
-(the six consumables **plus Bicycle**, added to the Market in PR #47) — so a Find
-Item pick can feel like a dud, and the player can't steer toward the find-only
-gadgets that are the card's real value. Disjoint inventories mean Find Item
-**always** hands you something the Market never stocks.
+**Why:** the Find Item card (reward-pool weight 2) rolls all 14 regular items, many of
+which the Market already sells on demand (the six consumables, now Honey, and Bicycle
+since PR #47) — so a Find Item pick can feel like a dud, and the player can't steer
+toward the find-only gadgets that are the card's real value. This phase makes the two
+inventories disjoint: it **pulls Bicycle back out of the Market to find-only** (see the
+Market-composition decision above), then filters the Find Item wheel to the set the
+Market never stocks. Result: Find Item **always** hands you a gadget or the
+Bicycle power-item — never a consumable you could just buy.
 
 **Synergy with the endgame-rebalance plan:** the find-only gadgets include the
 *type-steering* tool `poke-radar` (the hard-guarantee route) that lets a player build
@@ -88,28 +108,40 @@ quietly supports the "you must build advantage" bet, not just declutters the whe
 (shipped) — it has already left the findable set once this phase's exclusion list is
 derived from Market stock (see below). `repel`/`max-repel` stay findable but are
 being repurposed to threat-avoidance by `repel-family-threat-shield.md` — no longer
-coverage tools, just other gadgets on the wheel.
+coverage tools, just other gadgets on the wheel. `bicycle` is **added back** to the
+findable set here (it leaves the Market — see the change list), so it's once again a
+rare found power-item.
 
 **Current system:**
 - `FindItemRouletteComponent`
   (`.../roulettes/find-item-roulette/find-item-roulette.component.ts:31`) builds its
   wheel from `ItemsService.getRegularItems()` (all 14, minus Revive in Classic).
-- Market stock (`market.component.ts:156`) = `potion, super-potion, honey,
-  hyper-potion, x-attack, rare-candy, revive, bicycle` + random capsule.
+- Market stock (`market.component.ts:156`) currently = `potion, super-potion, honey,
+  hyper-potion, x-attack, rare-candy, revive, bicycle` + random capsule. Bicycle price
+  lives in `MARKET_PRICES` / `MarketEntryId` (`economy-config.ts:56`).
 
 **Change (New Experience only; Classic unchanged — it has no Market):**
+- [ ] **Remove `bicycle` from the Market** — drop it from `MarketComponent.buildStock`
+  (`market.component.ts:156`) and remove its `'bicycle'` key from `MARKET_PRICES`
+  (`economy-config.ts:56`), so `MarketEntryId` no longer includes it. Keep the item
+  definition in `items-data.ts` (it's still a findable/holdable item). It now sells for
+  the flat gadget rate in Phase 2 (`GADGET_SELL_VALUE`), not a Market-price fraction.
 - [ ] Add `ItemsService.getFindableItems()`: in New Experience, return
   `getRegularItems()` filtered to exclude the Market-sold item names (the six
-  consumables, **`honey`, and `bicycle`**), leaving the gadgets (`exp-share,
-  escape-rope, repel, poke-radar, max-repel, link-cable`). In Classic, return
-  `getRegularItems()` unchanged. Keep the exclusion list derived from the Market
-  stock so the two can't silently drift apart if the Market changes again.
+  consumables **and `honey`** — `bicycle` is **no longer** Market-sold, so it stays
+  findable), leaving the gadgets (`exp-share, escape-rope, repel, poke-radar,
+  max-repel, link-cable, bicycle`). In Classic, return `getRegularItems()` unchanged.
+  Keep the exclusion list **derived from the Market stock** so the two can't silently
+  drift apart — with Bicycle removed from stock, it drops out of the exclusion
+  automatically.
 - [ ] Point `FindItemRouletteComponent`'s constructor at `getFindableItems()`.
-- [ ] Update `find-item-roulette.component.spec.ts` and any `items.service.spec.ts`
-  assertion. `npm run test:local` green. Checkpoint.
+- [ ] Update `find-item-roulette.component.spec.ts`, `items.service.spec.ts`, and
+  `market.component.spec.ts` (Bicycle no longer in the shop). `npm run test:local`
+  green. Checkpoint.
 
-**Acceptance:** in New Experience, the Find Item wheel never shows a Market
-consumable; in Classic, the wheel is identical to today.
+**Acceptance:** in New Experience, the Find Item wheel never shows a Market consumable
+(or Honey), **but can roll Bicycle**; the Market no longer lists Bicycle; in Classic,
+the wheel is identical to today.
 
 ---
 
@@ -175,8 +207,8 @@ escalating, capped Market restock"):**
   - **Hard cap per run:** `RESTOCK_MAX_USES = 3`. After the cap the Restock row is
     disabled ("No restocks left"). So total buyable over a run is bounded:
     `capacity + RESTOCK_MAX_USES × (capacity consumed)` — genuinely scarce.
-- **Bicycle is excluded from restock** (one-time gadget): capacity 1, and once bought
-  it stays sold-out for the run (restock never re-grants it).
+- Every Market entry is a consumable / assignable now (Bicycle was pulled to Find-Item
+  in Phase 1), so there's no permanent-item carve-out — the whole stock refills.
 - New-Experience only (Classic has no Market/coins). Restock is a Market row, so it's
   gated by the Market's existing `isNewExperienceMode` + `isAvailable` (closed during
   combat/committed prep) — a restock can't react to a shown loss, same as any buy.
@@ -184,7 +216,7 @@ escalating, capped Market restock"):**
 **Recommended values (baked in, owner confirms in 3a — flag if any feel off):**
 ```
 MARKET_STOCK      = { potion:5, super-potion:3, hyper-potion:2, x-attack:3,
-                      rare-candy:2, revive:2, ability-capsule:2, bicycle:1, honey:3 }
+                      rare-candy:2, revive:2, ability-capsule:2, honey:3 }
 RESTOCK_BASE = 60   RESTOCK_STEP = 40   RESTOCK_MAX_USES = 3   // → 60/100/140, max 3×
 ```
 (`honey-target-share-market.md` has shipped and added `honey` to `MARKET_PRICES` —
@@ -213,8 +245,8 @@ owner-confirms.
   service `src/app/services/market-stock-service/market-stock.service.ts` holding a
   `BehaviorSubject` of `{ remaining: Record<MarketEntryId, number>; timesRestocked:
   number }`. Methods: `getStateObservable()`, `getRemaining(id)`, `consume(id)`
-  (decrement, guard > 0), `restockAll()` (each restockable id → `cap[id]`; skip
-  `bicycle`; increment `timesRestocked`), `restockPrice()` (`RESTOCK_BASE +
+  (decrement, guard > 0), `restockAll()` (each id → `cap[id]`; increment
+  `timesRestocked`), `restockPrice()` (`RESTOCK_BASE +
   RESTOCK_STEP × timesRestocked`), `canRestock()` (`timesRestocked < RESTOCK_MAX_USES`),
   `resetForNewRun()` (all ids → cap, `timesRestocked = 0`), `restore(record)` (merge
   persisted `remaining` over the caps so a missing key defaults to cap; restore
@@ -225,7 +257,7 @@ owner-confirms.
   payload (`:104`) and `PersistedRun`; restore in `restoreRun`; add a validation
   clause. Hook `resetForNewRun()` into the same new-run path the other services reset
   from. **Specs:** consume decrements & floors at 0; `restockAll` refills to cap
-  (never above), skips bicycle, and increments the counter; `restockPrice` escalates
+  (never above) and increments the counter; `restockPrice` escalates
   60/100/140; `canRestock` false after 3; `marketStock` round-trips through
   persistence and missing fields restore to caps / 0. **Stop for owner to confirm the
   caps + restock price/cap.** Checkpoint.
@@ -250,9 +282,9 @@ owner-confirms.
 **Acceptance:**
 - Start a run → buy 5 Potions → the 6th is "Sold out"; clearing a round does **not**
   refill it.
-- Restock #1 costs 60 → all consumables back to capacity (Bicycle **not** re-granted),
-  Potions = 5 again; the Restock price now reads 100, then 140; after the 3rd it shows
-  "No restocks left" and is disabled.
+- Restock #1 costs 60 → all consumables back to capacity, Potions = 5 again; the
+  Restock price now reads 100, then 140; after the 3rd it shows "No restocks left" and
+  is disabled.
 - Reload after buying 3 Potions and 1 restock → still 2 Potions remaining and
   `timesRestocked = 1` (price still 100) — reload refreshes nothing. Classic → no stock
   limits, no Restock row.
@@ -321,15 +353,18 @@ mislead about when they help.)
 ## Phase 6 — Docs, version, release notes
 
 - [ ] **README `Economy & the Market` section** — Find Item now disjoint from the
-  Market; sell-for-coins; the Market stock system (finite per-run stock + a costly,
-  capped restock); Toll Booth's shortfall spike softened (cap 15→5, still a threat).
-  (Honey-in-Market is documented by `honey-target-share-market.md`.)
+  Market (and Bicycle moved back out of the Market to a lucky find); the Market is
+  consumed/assigned staples + Honey only; sell-for-coins; the Market stock system
+  (finite per-run stock + a costly, capped restock); Toll Booth's shortfall spike
+  softened (cap 15→5, still a threat). (Honey-in-Market is documented by
+  `honey-target-share-market.md`.)
 - [ ] Bump `package.json` `version` (confirm current first) and add a newest-first
   `RELEASE_NOTES` entry (`src/app/data/release-notes.ts`) with
   `whatsNew.v<x>_<y>_<z>.*` keys + a `v<x>_<y>_<z>` label in **all six** locale
   files (`en` real, others English placeholder). Call out: Find Item no longer dumps
-  Market items; you can sell items for coins; the Market now has limited stock with a
-  costly restock; the softer Toll Booth spike.
+  Market items; Bicycle is a lucky find again (no longer buyable); you can sell items
+  for coins; the Market now has limited stock with a costly restock; the softer Toll
+  Booth spike.
 - [ ] **If this ships in the same release as `endgame-rebalance.md`** (or the Honey /
   Repel plans), fold all into one What's-New entry / one version bump rather than
   bumping multiple times — coordinate whichever plan lands second.
@@ -340,17 +375,17 @@ mislead about when they help.)
 ## Acceptance tests (input → expected)
 
 1. **Find Item disjoint (Phase 1).** After Phase 1, New Experience → wheel contains
-   only `exp-share, escape-rope, repel, poke-radar, max-repel, link-cable`; no
-   Market-sold item (including no Bicycle, no Honey — `honey-target-share-market.md`
-   has already made Honey Market-sold, so the Market-derived exclusion drops it too).
-   Classic → unchanged.
+   `exp-share, escape-rope, repel, poke-radar, max-repel, link-cable, bicycle`; no
+   Market-sold item (no consumable, no Honey — Honey is Market-sold, so the
+   Market-derived exclusion drops it). **Bicycle IS in the wheel** (removed from the
+   Market) and the Market no longer lists it. Classic → unchanged.
 2. **Sell (Phase 2).** Hold a Potion, coins = C → sell → coins = `C + 10`, Potion
    gone. During committed prep → Sell buttons disabled.
 3. **Market stock (Phase 3).** Buy 5 Potions (cap) → 6th is "Sold out"; clearing a
-   round does **not** refill it. Restock #1 costs 60 → all consumables back to cap
-   (Bicycle not re-granted); price then reads 100, 140; after the 3rd → "No restocks
-   left", disabled. Reload after buying 3 Potions + 1 restock → still 2 Potions and
-   `timesRestocked = 1` (price 100). Classic → no stock limits, no Restock row.
+   round does **not** refill it. Restock #1 costs 60 → all stock back to cap; price
+   then reads 100, 140; after the 3rd → "No restocks left", disabled. Reload after
+   buying 3 Potions + 1 restock → still 2 Potions and `timesRestocked = 1` (price 100).
+   Classic → no stock limits, no Restock row.
 4. **Toll Booth (Phase 4).** At `round=8` toll = `15+3×8 = 39`. With coins = 100 →
    pay 39, coins → 61, no shortfall so no spike. With coins = 10 → pay 10, unpaid
    fraction ≈ 0.74 → spike = **5** (was capped at 15). The toll still fires and still
