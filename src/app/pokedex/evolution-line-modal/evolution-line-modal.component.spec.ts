@@ -104,11 +104,51 @@ describe('EvolutionLineModalComponent', () => {
     expect(component.megaStages[0].locked).toBeFalse();
   });
 
-  it('selectStage is a no-op on a locked stage', () => {
+  it('selectStage still selects a locked stage, so its stats can be viewed', () => {
     setup(venusaurLine, {});
-    const before = component.selectedId;
     component.selectStage(component.megaStages[0]);
-    expect(component.selectedId).toBe(before);
+    expect(component.selectedId).toBe(component.megaStages[0].pokemonId);
+    expect(component.selectedStage.locked).toBeTrue();
+  });
+
+  it('a locked mega tile is clickable (not disabled) and carries the locked visual class', () => {
+    setup(venusaurLine, {});
+    fixture.detectChanges();
+    const lockedTile = fixture.nativeElement.querySelector('.evo-tile-mega');
+    expect(lockedTile.disabled).toBeFalsy();
+    expect(lockedTile.classList.contains('evo-tile-locked')).toBeTrue();
+
+    lockedTile.click();
+    expect(component.selectedId).toBe(component.megaStages[0].pokemonId);
+  });
+
+  it('always renders the mega note (visibility-toggled) so the card never resizes when it applies', () => {
+    setup(venusaurLine, {});
+    fixture.detectChanges();
+
+    // Base form selected: note present in the DOM but hidden.
+    const noteWhenBase = fixture.nativeElement.querySelector('.evo-locked-note');
+    expect(noteWhenBase).not.toBeNull();
+    expect(noteWhenBase.classList.contains('evo-locked-note-hidden')).toBeTrue();
+
+    // Locked mega selected: same element, now visible.
+    component.selectStage(component.megaStages[0]);
+    fixture.detectChanges();
+    const noteWhenLocked = fixture.nativeElement.querySelector('.evo-locked-note');
+    expect(noteWhenLocked).not.toBeNull();
+    expect(noteWhenLocked.classList.contains('evo-locked-note-hidden')).toBeFalse();
+    expect(getComputedStyle(noteWhenLocked).visibility).toBe('visible');
+  });
+
+  it('also shows the note for an UNLOCKED mega, not just a locked one', () => {
+    setup(venusaurLine, { '3': { won: true, sprite: null, mega: true } });
+    component.selectStage(component.megaStages[0]);
+    fixture.detectChanges();
+
+    expect(component.selectedStage.locked).toBeFalse();
+    const note = fixture.nativeElement.querySelector('.evo-locked-note');
+    expect(note.classList.contains('evo-locked-note-hidden')).toBeFalse();
+    expect(getComputedStyle(note).visibility).toBe('visible');
   });
 
   it('a species with two mega forms uses the branch-spine layout', () => {

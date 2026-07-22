@@ -105,7 +105,6 @@ export class EvolutionLineModalComponent implements OnInit {
   }
 
   selectStage(stage: EvolutionStageView): void {
-    if (stage.locked) return;
     this.selectedId = stage.pokemonId;
   }
 

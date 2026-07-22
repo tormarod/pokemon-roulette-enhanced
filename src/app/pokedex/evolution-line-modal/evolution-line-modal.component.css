@@ -6,7 +6,12 @@
 .evo-light { background: #f5f6fa; color: #2d3436; }
 .evo-dark  { background: #232629; color: #dfe6e9; }
 
-.evo-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+/* contain: inline-size makes this row's own content (which varies with the
+   selected stage — name length, "Mega Form" suffix) NOT count toward the
+   modal's shrink-wrap width (see .evolution-line-modal-dialog in styles.css);
+   only .evo-row's content (stable across stage selection) drives the card's
+   width, so it never resizes as the player clicks between stages. */
+.evo-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; contain: inline-size; width: 100%; }
 .evo-dex-label { font-size: 11px; opacity: 0.6; letter-spacing: 0.04em; }
 .evo-name { font-size: 22px; font-weight: 700; color: inherit; }
 .evo-close {
@@ -23,7 +28,7 @@
   border: none; background: none; padding: 6px; display: flex; flex-direction: column;
   align-items: center; gap: 4px; cursor: pointer; border-radius: 12px; color: inherit;
 }
-.evo-tile:disabled { cursor: not-allowed; opacity: 0.55; }
+.evo-tile-locked { opacity: 0.55; }
 .evo-tile-branch { flex-direction: row; align-items: center; gap: 10px; }
 
 .evo-tile-ring {
@@ -68,7 +73,10 @@
 
 .evo-divider { border: none; height: 1px; background: rgba(128, 128, 128, 0.35); margin: 14px 0 16px; }
 
-.evo-stats { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+/* Same reasoning as .evo-header above: this block's content (types, mega
+   badge, locked note) varies with the selected stage, so it's excluded from
+   the modal's shrink-wrap width via containment — only .evo-row sets it. */
+.evo-stats { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; contain: inline-size; width: 100%; }
 .evo-stats-types { display: flex; gap: 6px; }
 .evo-type-icon { width: 64px; height: auto; }
 .evo-stats-power { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
@@ -82,7 +90,10 @@
   background: linear-gradient(135deg, #ffe9a8, #ffd257); border: 1px solid #333;
   border-radius: 6px; padding: 4px 8px;
 }
-.evo-locked-note { font-size: 11px; opacity: 0.7; }
+/* Always rendered (see the template) so its line height is reserved even when inapplicable —
+   keeps the card from resizing as the player switches between stages. */
+.evo-locked-note { width: 100%; font-size: 11px; opacity: 0.7; }
+.evo-locked-note-hidden { visibility: hidden; }
 
 /* Reveal animations (final values — see "Design source of truth" note on the animation revision) */
 .evo-reveal { opacity: 0; animation: stage-reveal 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
