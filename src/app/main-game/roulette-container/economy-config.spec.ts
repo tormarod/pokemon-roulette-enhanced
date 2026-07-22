@@ -6,13 +6,14 @@ import {
   CARD_COIN_MAX,
   WIN_BASE,
   WIN_PER_ROUND,
+  INCOME_SCALE,
 } from './economy-config';
 
 describe('economy-config', () => {
-  it('battleWinReward is WIN_BASE at round 0 and scales per round', () => {
-    expect(battleWinReward(0)).toBe(WIN_BASE);
-    expect(battleWinReward(4)).toBe(WIN_BASE + 4 * WIN_PER_ROUND);
-    expect(battleWinReward(12)).toBe(WIN_BASE + 12 * WIN_PER_ROUND);
+  it('battleWinReward income-scales the round-0 base and the per-round slope', () => {
+    expect(battleWinReward(0)).toBe(Math.round(WIN_BASE * INCOME_SCALE));
+    expect(battleWinReward(4)).toBe(Math.round((WIN_BASE + 4 * WIN_PER_ROUND) * INCOME_SCALE));
+    expect(battleWinReward(12)).toBe(Math.round((WIN_BASE + 12 * WIN_PER_ROUND) * INCOME_SCALE));
   });
 
   it('randInt stays within the inclusive bounds', () => {

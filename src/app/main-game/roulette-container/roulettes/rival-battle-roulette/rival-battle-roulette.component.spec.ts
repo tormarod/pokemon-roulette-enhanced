@@ -154,8 +154,24 @@ describe('RivalBattleRouletteComponent', () => {
 
       component.onItemSelected(0);
 
-      // retries goes from 1 to 0, hits the potion check with no potion available → emits false
+      // retries goes from 1 to 0; rival never consults potions → emits false
       expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
+    });
+
+    it('should NOT spend an available potion on a losing rival spin (potions are gym/E4/champion only)', () => {
+      (component as any).trainerItems = [
+        { name: 'potion', text: 'items.potion.name', fillStyle: 'purple', weight: 1, description: '', sprite: '' }
+      ];
+      (component as any).retries = 1;
+      (component as any).victoryOdds = [
+        { text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 },
+      ];
+      spyOn(component.battleResultEvent, 'emit');
+
+      component.onItemSelected(0);
+
+      expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false); // loss is final
+      expect((component as any).trainerItems.length).toBe(1); // potion untouched
     });
 
     it('should skip the prep panel and go straight to the wheel on reload after Confirm (anti-reroll)', () => {

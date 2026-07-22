@@ -68,7 +68,7 @@ import { GymLeader } from '../../interfaces/gym-leader';
 import { gymLeadersByGeneration } from './roulettes/gym-battle-roulette/gym-leaders-by-generation';
 import { eliteFourByGeneration } from './roulettes/elite-four-battle-roulette/elite-four-by-generation';
 import { championByGeneration } from './roulettes/champion-battle-roulette/champion-by-generation';
-import { battleWinReward, cardCoinReward, foundCoinsReward, PASSIVE_PER_ROUND } from './economy-config';
+import { battleWinReward, cardCoinReward, foundCoinsReward, passiveRoundStipend } from './economy-config';
 import { StatsService } from '../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
 import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
@@ -548,7 +548,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     }
     let coins = battleWinReward(this.leadersDefeatedAmount);
     if (advancesRound) {
-      coins += PASSIVE_PER_ROUND;
+      coins += passiveRoundStipend();
     }
     this.trainerService.addCoins(coins);
   }
