@@ -22,18 +22,18 @@ matters if you swap it into the 6-member team (battle odds read only the team).
 Deferred, **not** a fix now: the PC bench has real value for per-opponent matchup
 swaps (opponent preview + type math), and the 3-pick adventure draw already lets a
 player skip an unwanted catch. But that bench value scales with the matchup unit,
-so **once `docs/plans/game-design-holistic-review.md` Phase 0 (the
-`round-threat-rebalance` matchup-unit doubling) ships, re-check whether late catches
-still feel stale.** If they do, options: re-weight the reward pool away from catch
-once the team is full, or offer a swap prompt when a caught mon is a genuine
-upgrade. Decision record: `docs/plans/game-design-holistic-review.md` Q3.
+so **once `docs/plans/game-design-holistic-review.md` Phase 1 (the endgame
+matchup-unit doubling) ships, re-check whether late catches still feel stale.** If
+they do, options: re-weight the reward pool away from catch once the team is full,
+or offer a swap prompt when a caught mon is a genuine upgrade. Decision record:
+`docs/plans/game-design-holistic-review.md` Q3.
 
 ### team-synergy ability rewards mono-type teams (coverage tension)
 
 `synchronize` (`team-synergy`, +value Yes per same-type teammate,
 `abilities-data.ts`) pays out most on a mono-type team — which is exactly what the
 matchup math punishes against varied opponents. Currently treated as a legitimate
-high-risk build choice, **not** a bug (see `game-design-holistic-review.md` Phase 1
+high-risk build choice, **not** a bug (see `game-design-holistic-review.md` Phase 2
 note). Revisit only if playtest shows a mono-type synergy stack is degenerately
 strong (or dead) after the ability-magnitude pass.
 
@@ -43,7 +43,7 @@ Capsules are looted/bought at random from all 30, so landing one that synergises
 with a specific team's types is unlikely, and assignment is a chore for a small
 odds nudge. Possible directions (undecided): a small pick-from-N capsule choice
 instead of a single random award, or biasing the capsule draw toward the team's
-types. Low priority — revisit after the Phase 1 magnitude pass, which changes how
+types. Low priority — revisit after the Phase 2 magnitude pass, which changes how
 much a capsule is worth in the first place.
 
 ### Shiny animation could default to skipped
