@@ -160,6 +160,7 @@ export class MarketComponent implements OnInit, OnDestroy {
       { id: 'x-attack', itemName: 'x-attack' },
       { id: 'rare-candy', itemName: 'rare-candy' },
       { id: 'revive', itemName: 'revive' },
+      { id: 'bicycle', itemName: 'bicycle' },
     ];
 
     this.stock = items.map(({ id, itemName }) => {
