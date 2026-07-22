@@ -9,6 +9,8 @@ import { TrainerService } from '../services/trainer-service/trainer.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { PokemonItem } from '../interfaces/pokemon-item';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { EvolutionLineModalComponent } from '../pokedex/evolution-line-modal/evolution-line-modal.component';
 
 describe('TrainerTeamComponent', () => {
   let component: TrainerTeamComponent;
@@ -17,6 +19,7 @@ describe('TrainerTeamComponent', () => {
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
   let markedTargetService: MarkedTargetService;
+  let modalServiceSpy: jasmine.SpyObj<NgbModal>;
 
   const makeTestPokemon = (overrides: Partial<PokemonItem> = {}): PokemonItem => ({
     pokemonId: 25,
@@ -31,6 +34,7 @@ describe('TrainerTeamComponent', () => {
 
   beforeEach(async () => {
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
+    modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open', 'dismissAll']);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -40,7 +44,8 @@ describe('TrainerTeamComponent', () => {
       ],
       providers: [
         provideIcons({ bootstrapPcDisplayHorizontal, bootstrapBook }),
-        {provide: HttpClient, useValue: httpSpyObj }
+        {provide: HttpClient, useValue: httpSpyObj },
+        { provide: NgbModal, useValue: modalServiceSpy }
       ]
     })
     .compileComponents();
@@ -110,6 +115,29 @@ describe('TrainerTeamComponent', () => {
 
       expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
       expect(fixture.nativeElement.querySelector('.ability-badge')).toBeFalsy();
+    });
+  });
+
+  // ── Evolution-line modal entry point ─────────────────────────────────────
+
+  describe('openEvolutionDetail', () => {
+    it('opens EvolutionLineModalComponent with the clicked Pokémon id', () => {
+      const mockModalRef = { componentInstance: {} as any };
+      modalServiceSpy.open.and.returnValue(mockModalRef as any);
+      const pokemon = makeTestPokemon({ pokemonId: 25 });
+
+      component.openEvolutionDetail(pokemon);
+
+      expect(modalServiceSpy.open).toHaveBeenCalledWith(
+        EvolutionLineModalComponent,
+        jasmine.objectContaining({ modalDialogClass: 'evolution-line-modal-dialog' })
+      );
+      expect(mockModalRef.componentInstance.pokemonId).toBe(25);
+    });
+
+    it('is a no-op when no Pokémon is present at the slot', () => {
+      component.openEvolutionDetail(undefined);
+      expect(modalServiceSpy.open).not.toHaveBeenCalled();
     });
   });
 });

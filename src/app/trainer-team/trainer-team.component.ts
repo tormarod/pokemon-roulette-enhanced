@@ -4,7 +4,7 @@ import { PokemonItem } from '../interfaces/pokemon-item';
 import { Observable, Subscription } from 'rxjs';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { BadgesComponent } from "./badges/badges.component";
 import { Badge } from '../interfaces/badge';
 import { TrainerService } from '../services/trainer-service/trainer.service';
@@ -17,6 +17,7 @@ import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { AbilityService } from '../services/ability-service/ability.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
+import { EvolutionLineModalComponent } from '../pokedex/evolution-line-modal/evolution-line-modal.component';
 
 @Component({
   selector: 'app-trainer-team',
@@ -35,7 +36,8 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
               private themeService: ThemeService,
               private markedTargetService: MarkedTargetService,
               private abilityService: AbilityService,
-              private gameStateService: GameStateService) { }
+              private gameStateService: GameStateService,
+              private modalService: NgbModal) { }
 
   trainer!: { sprite: string; };
   trainerTeam!: PokemonItem[];
@@ -160,6 +162,15 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     }
 
     this.megaStoneInterrupt.emit(megaStone);
+  }
+
+  openEvolutionDetail(pokemon: PokemonItem | undefined): void {
+    if (!pokemon) return;
+    const ref = this.modalService.open(EvolutionLineModalComponent, {
+      centered: true,
+      modalDialogClass: 'evolution-line-modal-dialog',
+    });
+    ref.componentInstance.pokemonId = pokemon.pokemonId;
   }
 
   private getHeldMegaStoneItem(pokemon: PokemonItem | undefined) {

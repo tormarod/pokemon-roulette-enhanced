@@ -56,4 +56,45 @@ describe('EvolutionService', () => {
     expect(alolaRaichu.type1).toBe('electric');
     expect(alolaRaichu.type2).toBe('psychic');
   });
+
+  describe('getEvolutionLine', () => {
+    it('should return the full 3-stage line for Bulbasaur', () => {
+      const line = service.getEvolutionLine(1);
+      expect(line.map(col => col.map(p => p.pokemonId))).toEqual([[1], [2], [3]]);
+      expect(service.hasEvolutionLine(1)).toBeTrue();
+    });
+
+    it('should return the identical line when viewed from a mid-line species', () => {
+      const line = service.getEvolutionLine(2);
+      expect(line.map(col => col.map(p => p.pokemonId))).toEqual([[1], [2], [3]]);
+    });
+
+    it('should include all eeveelutions in a single branching column', () => {
+      const line = service.getEvolutionLine(133);
+      expect(line[0].map(p => p.pokemonId)).toEqual([133]);
+      expect(line[1].length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should return a single column for a non-evolving species', () => {
+      const line = service.getEvolutionLine(128);
+      expect(line.map(col => col.map(p => p.pokemonId))).toEqual([[128]]);
+      expect(service.hasEvolutionLine(128)).toBeFalse();
+    });
+
+    it('should include both Ninjask and Shedinja for Nincada', () => {
+      const line = service.getEvolutionLine(290);
+      expect(line[1].map(p => p.pokemonId)).toEqual(jasmine.arrayContaining([291, 292]));
+    });
+
+    it('should include the Alolan Raichu form-alias branch for Pikachu', () => {
+      // Pichu (172) is a pre-evolution of Pikachu (25), so Pikachu sits at
+      // depth 1 and its evolutions (Raichu/Alolan Raichu) sit at depth 2.
+      const line = service.getEvolutionLine(25);
+      const pikachuColumn = line.findIndex(col => col.some(p => p.pokemonId === 25));
+      const evolutionIds = line[pikachuColumn + 1].map(p => p.pokemonId);
+      expect(evolutionIds).toContain(26);
+      expect(evolutionIds).toContain(10100);
+      line[pikachuColumn + 1].forEach(mon => expect(mon).toBeDefined());
+    });
+  });
 });

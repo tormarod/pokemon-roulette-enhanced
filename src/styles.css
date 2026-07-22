@@ -168,3 +168,12 @@ body.theme-starters .achievement-tile {
   width: 4rem;
   height: auto;
 }
+
+/* ── Evolution line modal (strips Bootstrap's default modal chrome so our
+   own card styling — see evolution-line-modal.component.css — shows through) ── */
+.evolution-line-modal-dialog { max-width: min(680px, 92vw); }
+.evolution-line-modal-dialog .modal-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
