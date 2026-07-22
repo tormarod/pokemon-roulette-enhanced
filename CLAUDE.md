@@ -66,6 +66,11 @@ Local runs are fast and reliable (~10s for the full suite, clean exit). `karma.c
 - This is a fork tracking an upstream project; the `README.md` "New features added on top of the original" list is the changelog of fork-specific work — update it when adding a new user-facing feature.
 - Attribution for the fork lives in the in-app Credits (`src/app/credits`) and Coffee (`src/app/coffee`) pages, not just the README.
 - **Player-facing releases need in-app "What's New" release notes, not just the README.** When shipping a user-facing feature, bump the `version` in `package.json`, add a newest-first entry to `RELEASE_NOTES` (`src/app/data/release-notes.ts`) with `whatsNew.v<major>_<minor>_<patch>.*` note keys, and add those keys plus a `v<x>_<y>_<z>` version label to **all six** locale files (`src/assets/i18n/*.json`) — `en` real, others English placeholder if not translated. `CURRENT_VERSION` derives from the top `RELEASE_NOTES` entry, and the modal shows any entry newer than the visitor's last-seen version. Don't rewrite the notes of an already-shipped version — add a new entry instead.
+- **Version bumps follow app-semver — don't bump MINOR for everything.** The version is really an ordered cursor for the What's New modal, but keep it disciplined so numbers don't gallop (the 3.0→3.14 run bumped MINOR for balance tweaks and bug fixes, which is what to avoid):
+  - **MAJOR** — a mode-defining overhaul (e.g. New Experience Mode was 3.0.0). Rare.
+  - **MINOR** — a genuinely new mechanic, screen, item, or system; or a rework that changes what an existing mechanic *does*.
+  - **PATCH** — balance/odds/pricing tweaks, bug fixes, small UX polish, adding an existing item to an existing system. Multiple small changes in a batch = one patch bump, not several minors.
+  - **Never renumber an already-shipped version.** Players' stored `last-seen-version` (`pokemon-roulette-last-seen-version` in `localStorage`) is stamped to the highest shipped number; renumbering history downward would suppress the modal for existing installs until releases climb back past it. To re-baseline, only ever go *up* (e.g. a one-time MAJOR bump), never down.
 
 ## Working with the user
 
