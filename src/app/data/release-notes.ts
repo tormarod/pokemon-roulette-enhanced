@@ -12,6 +12,8 @@ export const RELEASE_NOTES: ReleaseNotes[] = [
     date: '2026-07-23',
     noteKeys: [
       'whatsNew.v3_15_1.0',
+      'whatsNew.v3_15_1.1',
+      'whatsNew.v3_15_1.2',
     ],
   },
   {

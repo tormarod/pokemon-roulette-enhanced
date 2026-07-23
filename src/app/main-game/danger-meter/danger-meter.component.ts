@@ -51,6 +51,17 @@ export class DangerMeterComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Full-range gradient trick (2e Status Header): the green→yellow→red
+   * gradient always spans the whole 0–100% track, so the visible fill shows
+   * the correct color band for its actual value — the fill is `dangerPercent%`
+   * wide, so stretching the background to `10000 / dangerPercent%` of the fill
+   * makes it exactly track-width.
+   */
+  get gradientBackgroundSize(): string {
+    return (10000 / Math.max(this.dangerPercent, 1)).toFixed(0) + '% 100%';
+  }
+
   get colorClass(): string {
     if (this.dangerPercent >= 60) {
       return 'danger-high';

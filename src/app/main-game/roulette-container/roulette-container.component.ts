@@ -61,7 +61,7 @@ import { HONEY_MAX_TYPES } from '../../services/trainer-service/apply-type-bias'
 import { TypeBiasItemService } from '../../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../../services/link-cable-service/link-cable.service';
 import { ThreatShieldService } from '../../services/threat-shield-service/threat-shield.service';
-import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
+import { PokemonType } from '../../interfaces/pokemon-type';
 import { GenerationService } from '../../services/generation-service/generation.service';
 import { GenerationItem } from '../../interfaces/generation-item';
 import { GymLeader } from '../../interfaces/gym-leader';
@@ -72,7 +72,8 @@ import { battleWinReward, cardCoinReward, foundCoinsReward, passiveRoundStipend 
 import { StatsService } from '../../services/stats-service/stats.service';
 import { BattleDebuffService } from '../../services/battle-debuff-service/battle-debuff.service';
 import { DangerMeterService } from '../../services/danger-meter-service/danger-meter.service';
-import { DangerMeterComponent } from '../danger-meter/danger-meter.component';
+import { RunStatusHeaderComponent } from '../run-status-header/run-status-header.component';
+import { ROULETTE_SCREEN_TITLES } from './roulette-screen-titles';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { CatchRiskService } from '../../services/catch-risk-service/catch-risk.service';
 import { ScoutingReportService } from '../../services/scouting-report-service/scouting-report.service';
@@ -121,7 +122,7 @@ const MALFUNCTION_ESCAPE_CHANCE = 0.35;
     ChampionBattleRouletteComponent,
     EndGameComponent,
     GameOverComponent,
-    DangerMeterComponent
+    RunStatusHeaderComponent
 ],
   templateUrl: './roulette-container.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -344,6 +345,39 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       return false;
     }
     return !this.gameStateService.getStateStack().includes('start-adventure');
+  }
+
+  /**
+   * Screen title shown as the status-header card's prompt line (2e) — every
+   * roulette screen's former on-screen <h1> lives here now. Static titles come
+   * from ROULETTE_SCREEN_TITLES; the select-from-*-list screens use the
+   * container-owned runtime title strings instead. Null (battles, terminal
+   * screens) means no prompt line.
+   */
+  get statusPrompt(): { keys: string[]; suffix: string | null } | null {
+    switch (this.currentGameState) {
+      case 'select-from-pokemon-list':
+      case 'select-from-item-list':
+        return this.customWheelTitle ? { keys: [this.customWheelTitle], suffix: null } : null;
+      case 'select-from-type-list':
+        return this.pendingTypeBiasScreenTitle ? { keys: [this.pendingTypeBiasScreenTitle], suffix: null } : null;
+    }
+    const entry = ROULETTE_SCREEN_TITLES[this.currentGameState];
+    if (!entry) {
+      return null;
+    }
+    let suffix: string | null = null;
+    if (entry.withGenerationSuffix && this.generation) {
+      suffix = `(${this.generation.text})`;
+    } else if (entry.withRegionSuffix && this.generation) {
+      suffix = `${this.generation.region}!`;
+    }
+    return { keys: entry.keys, suffix };
+  }
+
+  /** The card renders whenever it has any content — opponent, danger meter, or a screen title. */
+  get showStatusHeader(): boolean {
+    return this.showOpponentPreview || this.showDangerMeter || !!this.statusPrompt;
   }
 
   multitaskCounter: number = 0;
@@ -790,10 +824,6 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     });
 
     modalRef.result.finally(() => subscription.unsubscribe());
-  }
-
-  getTypeIconUrl(type: PokemonType): string {
-    return getTypeIconUrl(type);
   }
 
   /** Honey allows up to 3 types (see HONEY_MAX_TYPES); Poké Radar/Max Repel stay single-pick. */

@@ -1,19 +1,9 @@
-@if (showOpponentPreview && previewOpponent) {
-  <div class="opponent-preview">
-    <span class="opponent-preview-label">{{ 'game.main.opponentPreview.label' | translate }}</span>
-    <span class="opponent-preview-name">{{ previewOpponent.name | translate }}</span>
-    <div class="opponent-preview-types">
-      @for (type of previewOpponent.types; track type) {
-        <img [src]="getTypeIconUrl(type)" [alt]="type" height="24">
-      }
-    </div>
-    @if ((previewOpponent.types ?? []).length > 1) {
-      <span class="opponent-preview-note">{{ 'game.main.opponentPreview.oneOf' | translate }}</span>
-    }
-  </div>
-}
-@if (showDangerMeter) {
-  <app-danger-meter />
+@if (showStatusHeader) {
+  <app-run-status-header
+      [opponent]="previewOpponent"
+      [showDanger]="showDangerMeter"
+      [promptKeys]="statusPrompt?.keys ?? []"
+      [promptSuffix]="statusPrompt?.suffix ?? null" />
 }
 @switch (getGameState()) {
   @case ('game-start') {

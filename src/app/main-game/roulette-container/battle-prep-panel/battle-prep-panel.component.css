@@ -33,7 +33,8 @@
 }
 
 .battle-prep-card {
-    width: min(620px, 94vw);
+    /* Uniform width shared with the status-header, wheel, and adventure cards. */
+    width: min(480px, 94vw);
     box-sizing: border-box;
     margin: 16px auto;
     background: var(--bp-card-bg);

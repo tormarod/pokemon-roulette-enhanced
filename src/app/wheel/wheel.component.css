@@ -35,8 +35,9 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    width: fit-content;
-    max-width: 94vw;
+    /* Uniform width shared with the status-header and adventure cards. */
+    width: 100%;
+    max-width: min(480px, 94vw);
     box-sizing: border-box;
     margin: 16px auto;
     padding: 22px;

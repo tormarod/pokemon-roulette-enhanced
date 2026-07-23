@@ -1,0 +1,31 @@
+<div class="status-card" [ngClass]="(isDark$ | async) ? 'status-card-dark' : 'status-card-light'">
+    @if (opponent) {
+        <div class="status-next-up">
+            <span class="status-next-label">{{ 'game.main.opponentPreview.label' | translate }}</span>
+            <span class="status-next-name">{{ opponent.name | translate }}</span>
+            <div class="status-next-types">
+                @for (type of opponent.types; track type) {
+                    <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                }
+            </div>
+            @if ((opponent.types ?? []).length > 1) {
+                <span class="status-next-note">{{ 'game.main.opponentPreview.oneOf' | translate }}</span>
+            }
+        </div>
+    }
+    @if (showDanger) {
+        <app-danger-meter />
+    }
+    @if (promptKeys.length) {
+        <!-- Spans in a wrapping flex row with a word-sized gap: Angular strips
+             inter-element whitespace, so spacing must come from CSS, not text. -->
+        <div class="status-prompt">
+            @for (key of promptKeys; track key) {
+                <span>{{ key | translate }}</span>
+            }
+            @if (promptSuffix) {
+                <span>{{ promptSuffix }}</span>
+            }
+        </div>
+    }
+</div>

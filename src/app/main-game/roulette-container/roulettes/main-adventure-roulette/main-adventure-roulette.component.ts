@@ -1,24 +1,29 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe, NgClass } from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { WheelItem } from '../../../../interfaces/wheel-item';
 import { EventSource } from '../../../EventSource';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
+import { ThemeService } from '../../../../services/theme-service/theme.service';
 import { AdventureStepType, DangerMeterService } from '../../../../services/danger-meter-service/danger-meter.service';
 import { AdventureDrawService } from '../../../../services/adventure-draw-service/adventure-draw.service';
-import { Subscription } from 'rxjs';
+import { softenWheelColor } from '../../../../utils/wheel-palette';
+import { Observable, Subscription } from 'rxjs';
 
 interface AdventureCandidate {
   id: string;
   textKey: string;
   fillStyle: string;
   weight: number;
+  /** Flat glyph id for the reward-row swatch. Threat candidates omit it — they auto-route and never render. */
+  icon?: string;
 }
 
 @Component({
   selector: 'app-main-adventure-roulette',
-  imports: [WheelComponent, TranslatePipe],
+  imports: [WheelComponent, TranslatePipe, AsyncPipe, NgClass],
   templateUrl: './main-adventure-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-adventure-roulette.component.css'
@@ -30,8 +35,13 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     private gameStateService: GameStateService,
     private dangerMeterService: DangerMeterService,
     private adventureDrawService: AdventureDrawService,
+    private themeService: ThemeService,
   ) {
+    this.isDark$ = this.themeService.isDark$;
   }
+
+  /** Binary dark/light card, same precedent as WheelComponent's wheel-card. */
+  isDark$: Observable<boolean>;
 
   @Input() respinReason!: string;
   @Input() excludedThreatIds: string[] = [];
@@ -98,32 +108,39 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   isNewExperienceMode = false;
   candidates: AdventureCandidate[] = [];
   stepType: AdventureStepType | null = null;
+  /** Index of the committed pick (drives the selected/dimmed row states); null until a row is picked. */
+  pickedIndex: number | null = null;
+
+  /** Row-swatch accent: same harmonized hex the wheel uses for this candidate's slice. */
+  accentOf(candidate: AdventureCandidate): string {
+    return softenWheelColor(candidate.fillStyle);
+  }
 
   private readonly rewardPool: AdventureCandidate[] = [
-    { id: 'catchPokemon', textKey: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
-    { id: 'battleTrainer', textKey: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 2 },
+    { id: 'catchPokemon', textKey: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5, icon: 'pokeball' },
+    { id: 'battleTrainer', textKey: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 2, icon: 'swords' },
     // New Experience repurposes this card as a coin bundle (real Market exists);
     // the id stays `buyPotions` so routing is unchanged, only the label differs.
-    { id: 'buyPotions', textKey: 'game.main.roulette.adventure.actions.foundCoins', fillStyle: 'darkgoldenrod', weight: 0.5 },
-    { id: 'catchTwoPokemon', textKey: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 2 },
-    { id: 'visitDaycare', textKey: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1 },
-    { id: 'teamRocket', textKey: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2 },
-    { id: 'mysteriousEgg', textKey: 'game.main.roulette.adventure.actions.mysteriousEgg', fillStyle: 'deeppink', weight: 1 },
-    { id: 'legendaryEncounter', textKey: 'game.main.roulette.adventure.actions.legendaryEncounter', fillStyle: 'crimson', weight: 1 },
-    { id: 'tradePokemon', textKey: 'game.main.roulette.adventure.actions.tradePokemon', fillStyle: 'darkorange', weight: 1 },
-    { id: 'findItem', textKey: 'game.main.roulette.adventure.actions.findItem', fillStyle: 'darkgoldenrod', weight: 2 },
+    { id: 'buyPotions', textKey: 'game.main.roulette.adventure.actions.foundCoins', fillStyle: 'darkgoldenrod', weight: 0.5, icon: 'coins' },
+    { id: 'catchTwoPokemon', textKey: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 2, icon: 'pokeball-double' },
+    { id: 'visitDaycare', textKey: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1, icon: 'house' },
+    { id: 'teamRocket', textKey: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2, icon: 'rocket' },
+    { id: 'mysteriousEgg', textKey: 'game.main.roulette.adventure.actions.mysteriousEgg', fillStyle: 'deeppink', weight: 1, icon: 'egg' },
+    { id: 'legendaryEncounter', textKey: 'game.main.roulette.adventure.actions.legendaryEncounter', fillStyle: 'crimson', weight: 1, icon: 'star' },
+    { id: 'tradePokemon', textKey: 'game.main.roulette.adventure.actions.tradePokemon', fillStyle: 'darkorange', weight: 1, icon: 'swap' },
+    { id: 'findItem', textKey: 'game.main.roulette.adventure.actions.findItem', fillStyle: 'darkgoldenrod', weight: 2, icon: 'bag' },
     // New Experience only (lives in rewardPool, never baseActions) — awards an ability capsule.
-    { id: 'findAbilityCapsule', textKey: 'game.main.roulette.adventure.actions.findAbilityCapsule', fillStyle: 'mediumvioletred', weight: 2 },
-    { id: 'exploreCave', textKey: 'game.main.roulette.adventure.actions.exploreCave', fillStyle: 'green', weight: 1 },
-    { id: 'snorlaxEncounter', textKey: 'game.main.roulette.adventure.actions.snorlaxEncounter', fillStyle: 'darkcyan', weight: 1 },
-    { id: 'multitask', textKey: 'game.main.roulette.adventure.actions.multitask', fillStyle: 'blue', weight: 1 },
-    { id: 'goFishing', textKey: 'game.main.roulette.adventure.actions.goFishing', fillStyle: 'purple', weight: 1 },
-    { id: 'findFossil', textKey: 'game.main.roulette.adventure.actions.findFossil', fillStyle: 'deeppink', weight: 1 },
-    { id: 'battleRival', textKey: 'game.main.roulette.adventure.actions.battleRival', fillStyle: 'black', weight: 1 },
+    { id: 'findAbilityCapsule', textKey: 'game.main.roulette.adventure.actions.findAbilityCapsule', fillStyle: 'mediumvioletred', weight: 2, icon: 'capsule' },
+    { id: 'exploreCave', textKey: 'game.main.roulette.adventure.actions.exploreCave', fillStyle: 'green', weight: 1, icon: 'cave' },
+    { id: 'snorlaxEncounter', textKey: 'game.main.roulette.adventure.actions.snorlaxEncounter', fillStyle: 'darkcyan', weight: 1, icon: 'moon' },
+    { id: 'multitask', textKey: 'game.main.roulette.adventure.actions.multitask', fillStyle: 'blue', weight: 1, icon: 'panes' },
+    { id: 'goFishing', textKey: 'game.main.roulette.adventure.actions.goFishing', fillStyle: 'purple', weight: 1, icon: 'fish' },
+    { id: 'findFossil', textKey: 'game.main.roulette.adventure.actions.findFossil', fillStyle: 'deeppink', weight: 1, icon: 'bone' },
+    { id: 'battleRival', textKey: 'game.main.roulette.adventure.actions.battleRival', fillStyle: 'black', weight: 1, icon: 'bolt' },
   ];
 
   private readonly areaZeroCandidate: AdventureCandidate = {
-    id: 'areaZero', textKey: 'game.main.roulette.adventure.actions.areaZero', fillStyle: 'darkslateblue', weight: 1
+    id: 'areaZero', textKey: 'game.main.roulette.adventure.actions.areaZero', fillStyle: 'darkslateblue', weight: 1, icon: 'portal'
   };
 
   /**
@@ -230,12 +247,14 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
     if (!draw || draw.picked !== null) {
       return;
     }
+    this.pickedIndex = index;
     // Commit the pick the instant it's made — anti-reroll, mirrors PendingSpinService.
     this.adventureDrawService.commitPick(index);
     this.routeCandidate(draw.candidates[index]);
   }
 
   private initializeDraw(): void {
+    this.pickedIndex = null;
     const existing = this.adventureDrawService.getPendingDraw();
     if (existing) {
       this.stepType = existing.stepType;

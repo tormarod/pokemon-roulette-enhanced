@@ -399,7 +399,8 @@
         },
         "adventure": {
           "title": "What do you do between Gyms?",
-          "chooseOne": "Choose one:",
+          "chooseOne": "Choose one",
+          "chooseOnePrompt": "Pick your next move",
           "actions": {
             "catchPokemon": "Catch a Pokemon",
             "battleTrainer": "Trainer Battle",
@@ -3209,7 +3210,9 @@
     "dismiss": "Got it",
     "settingsEntry": "What's New",
     "v3_15_1": {
-      "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card."
+      "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card.",
+      "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
+      "2": "🧭 Run context got its own status card: the upcoming opponent and the Danger meter (now a green→yellow→red gradient bar) sit together above each screen, which now carries every screen's title too."
     },
     "v3_15_0": {
       "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."

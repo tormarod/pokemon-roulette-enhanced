@@ -158,13 +158,26 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     // inside a padded card, often with a projected header above it.
     const wheelScale = window.innerWidth <= this.mobileBreakpoint ? 0.62 : 0.42;
 
-    this.canvasHeight = viewportMin * wheelScale;
+    // Hard cap so the card matches the 480px status-header/adventure cards:
+    // 480 card − 2×22 padding = 436 inner, minus the 40px pointer canvas and
+    // the 40px centering margin (.canvas-container) leaves ~356 — cap at 340.
+    this.canvasHeight = Math.min(viewportMin * wheelScale, 340);
     this.wheelWidth = this.canvasHeight;
     this.fontSize = this.wheelWidth / 24;
 
-    if (this.items.length >= 32) {
+    // Tiered caps: crowded wheels need progressively smaller labels so
+    // neighbouring slice texts stop overlapping (e.g. the 151-slice Gen 1
+    // catch wheel — at 340px the per-slice arc there is only ~6px).
+    const count = this.items.length;
+    if (count >= 128) {
+      this.fontSize = Math.min(this.fontSize, 6);
+    } else if (count >= 96) {
+      this.fontSize = Math.min(this.fontSize, 7);
+    } else if (count >= 64) {
+      this.fontSize = Math.min(this.fontSize, 8);
+    } else if (count >= 32) {
       this.fontSize = Math.min(this.fontSize, 10);
-    } else if (this.items.length >= 16) {
+    } else if (count >= 16) {
       this.fontSize = Math.min(this.fontSize, 14);
     }
   }

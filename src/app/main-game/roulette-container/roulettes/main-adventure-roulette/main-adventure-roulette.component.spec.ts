@@ -166,11 +166,11 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     fixture.detectChanges();
   };
 
-  it('should render 3 pick cards instead of the wheel', () => {
+  it('should render 3 pick rows instead of the wheel', () => {
     spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
 
-    expect(fixture.nativeElement.querySelectorAll('button.adventure-card').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('button.adventure-row').length).toBe(3);
     expect(fixture.debugElement.query(By.directive(WheelComponent))).toBeFalsy();
   });
 
@@ -282,7 +282,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     // asserting the draw was consumed.
     expect(component.stepType).toBe('threat');
     expect(component.candidates.length).toBe(0);
-    expect(fixture.nativeElement.querySelectorAll('button.adventure-card').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('button.adventure-row').length).toBe(0);
 
     await Promise.resolve();
 

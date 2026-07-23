@@ -1,7 +1,8 @@
-<div class="roulette-header">
-    <h1 class="title">{{ 'game.main.roulette.elite.prep.title' | translate }}</h1>
-    <p class="respin-reason">{{ respinReason | translate}}</p>
-</div>
+<!-- The screen title lives in the status-header card above (ROULETTE_SCREEN_TITLES);
+     only the occasional respin reason remains on the screen. -->
+@if (respinReason) {
+    <p class="respin-reason">{{ respinReason | translate }}</p>
+}
 <app-wheel  #wheel
             [items]="actions"
             (selectedItemEvent)="onItemSelected($event)">
