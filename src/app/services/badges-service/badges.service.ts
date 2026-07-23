@@ -37,4 +37,9 @@ export class BadgesService {
 
     return of(badge);
   }
+
+  /** Total badges obtainable for a generation (5 for gens 7/8, 8 otherwise) — sizes the badge-pip row. */
+  getTotalBadgeCount(generation: GenerationItem): number {
+    return this.badgesByGeneration[generation.id]?.length ?? 8;
+  }
 }

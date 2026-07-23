@@ -80,7 +80,7 @@ describe('TrainerTeamComponent', () => {
       markedTargetService.setMark(0);
       fixture.detectChanges();
 
-      const tiles = fixture.nativeElement.querySelectorAll('.pokemon-container');
+      const tiles = fixture.nativeElement.querySelectorAll('.roster-slot');
       expect(tiles[0].querySelector('.marked-badge')).toBeTruthy();
       expect(tiles[1].querySelector('.marked-badge')).toBeFalsy();
     });
@@ -92,13 +92,18 @@ describe('TrainerTeamComponent', () => {
       expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
     });
 
-    it('shows the ability badge for a team member with an assigned ability', () => {
+    it('shows the ability popover, on hover, for a team member with an assigned ability', () => {
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, ability: 'sturdy' }));
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector('.ability-badge');
-      expect(badge).toBeTruthy();
-      expect(badge.textContent).toContain('abilities.sturdy.name');
+      expect(fixture.nativeElement.querySelector('.roster-popover')).toBeFalsy();
+
+      component.setHoveredMember(0);
+      fixture.detectChanges();
+
+      const popover = fixture.nativeElement.querySelector('.roster-popover-name');
+      expect(popover).toBeTruthy();
+      expect(popover.textContent).toContain('abilities.sturdy.name');
     });
 
     it('getMemberAbilityName returns the ability i18n name key (or null)', () => {
@@ -107,14 +112,15 @@ describe('TrainerTeamComponent', () => {
       expect(component.getMemberAbilityName(undefined)).toBeNull();
     });
 
-    it('hides marked/ability badges in Classic mode even if the underlying data is set', () => {
+    it('hides marked badge / ability popover in Classic mode even if the underlying data is set', () => {
       gameStateService.restoreNewExperienceMode(false);
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, ability: 'sturdy' }));
       markedTargetService.setMark(0);
+      component.setHoveredMember(0);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
-      expect(fixture.nativeElement.querySelector('.ability-badge')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('.roster-popover')).toBeFalsy();
     });
   });
 

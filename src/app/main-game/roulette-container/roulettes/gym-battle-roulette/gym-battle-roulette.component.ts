@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
@@ -30,9 +30,6 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
 
   gymLeadersByGeneration = gymLeadersByGeneration;
 
-  @ViewChild('presentationModalRef', { static: true }) declare presentationModalRef: TemplateRef<unknown>;
-  @ViewChild('itemUsedModalRef', { static: true }) declare itemUsedModalRef: TemplateRef<unknown>;
-
   @Input() fromLeader!: number;
   @Output() fromLeaderChange = new EventEmitter<number>();
 
@@ -58,5 +55,24 @@ export class GymBattleRouletteComponent extends BaseBattleRouletteComponent {
     return (g === 5 && (r === 0 || r === 7))
         || (g === 7 && (r === 2 || r === 4))
         || (g === 8 && (r === 3 || r === 5));
+  }
+
+  protected override openPresentationModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.gym.against')} ${this.translate.instant(this.currentLeader.name)}!`,
+      images: [{ src: Array.isArray(this.currentLeader.sprite) ? this.currentLeader.sprite[0] : this.currentLeader.sprite, alt: this.translate.instant(this.currentLeader.name) }],
+      lines: this.currentLeader.quotes.map(q => this.translate.instant(q)),
+      buttons: [{ label: this.translate.instant('game.main.roulette.gym.go'), variant: 'primary' }],
+      size: 'lg'
+    });
+  }
+
+  protected override openItemUsedModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.gym.used')} ${this.translate.instant(this.currentItem.text)}!`,
+      images: [{ src: this.currentItem.sprite }],
+      lines: [this.translate.instant(this.currentItem.description)],
+      size: 'md'
+    });
   }
 }

@@ -1,0 +1,44 @@
+<div class="modal-body event-popup-body">
+  @if (title) {
+    <h1 class="event-popup-title">{{ title }}</h1>
+    <div class="event-popup-underline"></div>
+  }
+  <div class="event-popup-row">
+    @if (images[0]) {
+      <div class="event-popup-tile">
+        @if (images[0].emoji) {
+          <span class="event-popup-tile-emoji" [style.font-size.px]="images[0].height ?? 96" aria-hidden="true">{{ images[0].emoji }}</span>
+        } @else {
+          <img [src]="images[0].src" [alt]="images[0].alt ?? ''" [style.height.px]="images[0].height ?? 128">
+        }
+      </div>
+    }
+    @if (lines.length || hintLine) {
+      <div class="event-popup-message">
+        @for (line of lines; track $index) {
+          <p>{{ line }}</p>
+        }
+        @if (hintLine) {
+          <p class="event-popup-hint">{{ hintLine }}</p>
+        }
+      </div>
+    }
+    @if (images[1]) {
+      <div class="event-popup-tile">
+        @if (images[1].emoji) {
+          <span class="event-popup-tile-emoji" [style.font-size.px]="images[1].height ?? 96" aria-hidden="true">{{ images[1].emoji }}</span>
+        } @else {
+          <img [src]="images[1].src" [alt]="images[1].alt ?? ''" [style.height.px]="images[1].height ?? 128">
+        }
+      </div>
+    }
+  </div>
+</div>
+<div class="modal-footer event-popup-footer">
+  @for (button of buttons; track $index; let i = $index) {
+    <button type="button"
+            class="event-popup-button"
+            [class.event-popup-button-secondary]="button.variant === 'secondary'"
+            (click)="onButtonClick(i)">{{ button.label }}</button>
+  }
+</div>

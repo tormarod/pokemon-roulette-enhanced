@@ -1,13 +1,11 @@
 <div class="pokedex-cell clickable"
      [class.won]="isWon"
      [class.not-captured]="!isCaptured"
-  [ngClass]="(darkMode | async) ? 'border' : ''"
+     [class.dark-cell]="(darkMode | async) === true"
      [class.light-cell]="(darkMode | async) !== true"
      [ngbTooltip]="pokemonText | translate"
      placement="bottom"
      (click)="onCellClick()">
-
-  <span class="number-badge">{{ formatPokemonNumber(pokemonId) }}</span>
 
   @if (spriteUrl) {
     <img [src]="spriteUrl"
@@ -15,4 +13,5 @@
          class="cell-img"
          alt="Pokémon sprite">
   }
+  <span class="number-badge">{{ formatPokemonNumber(pokemonId) }}</span>
 </div>

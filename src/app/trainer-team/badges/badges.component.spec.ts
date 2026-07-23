@@ -2,9 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BadgesComponent } from './badges.component';
 import { Badge } from '../../interfaces/badge';
-import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('BadgesComponent', () => {
   let component: BadgesComponent;
@@ -12,14 +11,13 @@ describe('BadgesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommonModule, NgbTooltipModule],
+      imports: [CommonModule, TranslateModule.forRoot()],
       declarations: []
     }).compileComponents();
 
     fixture = TestBed.createComponent(BadgesComponent);
     component = fixture.componentInstance;
     component.trainerBadges = [] as Badge[];
-    component.darkMode = of(false);
     fixture.detectChanges();
   });
 
@@ -27,4 +25,3 @@ describe('BadgesComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-

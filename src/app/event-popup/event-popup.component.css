@@ -1,0 +1,119 @@
+.event-popup-body {
+  text-align: center;
+  padding: 4px;
+}
+
+.event-popup-title {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.event-popup-underline {
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: #f9ca24;
+  margin: 0 auto 20px;
+}
+
+.event-popup-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.event-popup-tile {
+  flex: 0 0 auto;
+  border-radius: 12px;
+  box-sizing: border-box;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid; /* color set by body.theme-* .event-popup-modal .event-popup-tile in styles.css */
+}
+
+.event-popup-tile img {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.event-popup-tile-emoji {
+  line-height: 1;
+}
+
+.event-popup-message {
+  flex: 1 1 200px;
+  max-width: 320px;
+  text-align: left;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  background: rgba(128, 128, 128, 0.08);
+  border: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.event-popup-message p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.event-popup-message p:last-child {
+  margin-bottom: 0;
+}
+
+.event-popup-hint {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.event-popup-footer {
+  justify-content: center;
+  gap: 16px;
+}
+
+.event-popup-button {
+  border: none;
+  border-radius: 999px;
+  padding: 11px 30px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #f9ca24;
+  color: #5c4400;
+}
+
+.event-popup-button:hover {
+  background: #f0bd12;
+}
+
+.event-popup-button-secondary {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+}
+
+.event-popup-button-secondary:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+/* Below this width .event-popup-row's flex-wrap otherwise puts one tile next
+   to the message and strands the second tile alone on its own line (uneven,
+   looks broken) — stack top-tile/message/bottom-tile vertically instead. */
+@media (max-width: 480px) {
+  .event-popup-row {
+    flex-direction: column;
+  }
+
+  .event-popup-message {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 280px;
+  }
+}

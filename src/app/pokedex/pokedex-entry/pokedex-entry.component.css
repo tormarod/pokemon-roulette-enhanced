@@ -1,63 +1,74 @@
+/* Square dex tile — sprite on top, dex number below (Pokédex Modal Redesign).
+   Rendered as a normal child inside the modal's own DOM subtree (no CDK
+   portal), so component-scoped classes reach it fine; dark/light is toggled
+   the same way trainer-team's other pre-redesign components already did,
+   rather than duplicating a body.theme-* rule for no reason. */
 .pokedex-cell {
   position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid;
   cursor: default;
-  flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 3px;
   overflow: hidden;
-}
-
-.pokedex-cell.light-cell {
-  border-color: rgba(0, 0, 0, 0.35);
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
 }
 
 .pokedex-cell.clickable {
   cursor: pointer;
 }
 
+.pokedex-cell.light-cell {
+  background: rgba(0, 0, 0, 0.035);
+  border-color: rgba(51, 51, 51, 0.22);
+}
+
+.pokedex-cell.dark-cell {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Won-the-game-with ring — gold accent, constant across both themes (same
+   token as the PC Storage held-mega-stone dot / Market's gold pills). */
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 3px 1px rgba(255, 215, 0, 0.32);
+    box-shadow: 0 0 6px 1px rgba(249, 202, 36, 0.45);
   }
   50% {
-    box-shadow: 0 0 7px 2px rgba(255, 215, 0, 0.58);
+    box-shadow: 0 0 10px 2px rgba(249, 202, 36, 0.75);
   }
 }
 
 .pokedex-cell.won {
-  border-color: gold !important;
+  border-width: 2px;
+  border-color: #f9ca24;
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .pokedex-cell.not-captured .cell-img {
-  filter: grayscale(100%) brightness(0.65);
-  opacity: 0.75;
-}
-
-.number-badge {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  font-size: 8px;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(0, 0, 0, 0.45);
-  padding: 0 2px;
-  border-radius: 2px;
-  z-index: 2;
-  pointer-events: none;
+  opacity: 0.55;
+  filter: grayscale(1);
 }
 
 .cell-img {
-  width: 100%;
-  height: 100%;
+  width: 76%;
+  height: 76%;
   object-fit: contain;
   display: block;
   image-rendering: pixelated;
+}
+
+.number-badge {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
 }

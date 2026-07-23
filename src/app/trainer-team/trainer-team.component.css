@@ -1,36 +1,291 @@
+/* Binary dark/light card, matching the wheel/battle-prep-panel precedent
+   (CSS custom properties on theme classes; NEVER body.theme-* here —
+   emulated encapsulation makes those silently fail in component CSS).
+   The --panel-* vars also inherit down into nested child components
+   (app-badges, app-storage-pc, app-pokedex, app-market) — custom properties
+   pierce Angular's emulated encapsulation because they inherit via the DOM. */
+
+.panel-dark {
+  --panel-card-bg: #232629;
+  --panel-card-border: #333;
+  --panel-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
+  --panel-text: #dfe6e9;
+  --panel-tile-bg: rgba(255, 255, 255, 0.06);
+  --panel-tile-border: rgba(255, 255, 255, 0.18);
+}
+
+.panel-light {
+  --panel-card-bg: #f5f6fa;
+  --panel-card-border: #ccc;
+  --panel-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  --panel-text: #2d3436;
+  --panel-tile-bg: rgba(0, 0, 0, 0.035);
+  --panel-tile-border: rgba(51, 51, 51, 0.22);
+}
+
 .trainer-team-box {
-  background-color: rgba(211, 211, 211, 0.5);
-}
-
-.white-shadow {
-  box-shadow: 0 0 0.5em 0 white;
-}
-
-.black-border {
-  border: 1px solid #333;
-}
-
-.trainer-sprite {
-  padding: 0px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px;
+  color: var(--panel-text);
+}
+
+.panel-card {
+  background: var(--panel-card-bg);
+  border: 1px solid var(--panel-card-border);
+  border-radius: 14px;
+  box-shadow: var(--panel-card-shadow);
+  box-sizing: border-box;
+  /* Popovers (badges, roster ability) are absolute children — must not be clipped. */
+  overflow: visible;
+}
+
+/* Utility rail */
+
+.utility-rail {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  padding: 14px 18px;
+}
+
+.trainer-tile {
+  width: 64px;
+  flex: none;
+  border-radius: 12px;
+  border: 1px solid var(--panel-tile-border);
+  background: var(--panel-tile-bg);
+  display: flex;
   align-items: center;
-
-  img {
-    width: 100%;
-  }
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.pokemon-container {
-  padding: 0px;
-  aspect-ratio: 1;
+.trainer-tile-img {
+  width: 80%;
+  height: auto;
+}
+
+.utility-middle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.utility-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* app-storage-pc/app-pokedex are unstyled custom elements — make each an equal-
+   width flex item so their inner pill buttons (width:100% in their own CSS,
+   see storage-pc/pokedex.component.css) end up the same width as each other. */
+.utility-buttons > * {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+.utility-right {
+  width: 120px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Coin pill (New Experience only). Carries its own amber background + dark
+   text so it stays legible on the semi-transparent light box in both the
+   light and dark page themes. */
+.coin-pill {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe9a8, #ffd257);
+  color: #5c4400;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: help;
+}
 
-  img {
-    animation: pokemon-show 0.5s ease-in-out;
+.coin-icon {
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+.coin-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.coin-label {
+  font-size: 0.7em;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.coin-gain {
+  position: absolute;
+  right: 6px;
+  top: -0.9em;
+  color: #1b7a2f;
+  font-weight: 800;
+  font-size: 0.85em;
+  pointer-events: none;
+  animation: coin-gain-float 1.5s ease-out forwards;
+}
+
+.coin-pill:has(.coin-gain) {
+  animation: coin-pulse 0.5s ease-out;
+}
+
+@keyframes coin-gain-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1.4em);
   }
 }
 
+@keyframes coin-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Roster grid */
+
+/* Columns cap at 107px (the PC bench card's own measured size — see
+   .pokemon-storage-card in storage-pc.component.css, itself a percentage of
+   its modal's width) but can still shrink below that on narrow containers,
+   so tiles stay percentage-driven/responsive instead of a rigid pixel size,
+   while bunching together (justify-content: center) instead of stretching
+   across the panel like a plain 1fr grid would. */
+.roster-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 107px));
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+}
+
+.roster-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roster-tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid var(--panel-tile-border);
+  background: var(--panel-tile-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.roster-sprite {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  animation: pokemon-show 0.5s ease-in-out;
+}
+
+.roster-types {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.type-chip {
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.roster-power {
+  font-size: 10px;
+  text-align: center;
+  opacity: 0.6;
+  font-weight: 700;
+}
+
+.roster-popover {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 50%;
+  width: 160px;
+  background: var(--panel-card-bg);
+  border: 1px solid var(--panel-card-border);
+  border-radius: 10px;
+  box-shadow: var(--panel-card-shadow);
+  padding: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: roster-popover-pop 0.15s ease-out both;
+}
+
+.roster-popover-name {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.roster-popover-desc {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+@keyframes roster-popover-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.92) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+/* Corner-overlay badges (opposite the mega-stone slot) for New Experience Mode
+   per-Pokémon status — kept as compact overlays rather than PC storage's
+   stacked block-line badges, since these tiles are tight fixed squares with
+   no room below the sprite. */
 .mega-stone-overlay {
   position: absolute;
   right: 4px;
@@ -61,10 +316,6 @@
   border-radius: 999px;
 }
 
-/* Corner-overlay badges (opposite the mega-stone slot) for New Experience Mode
-   per-Pokémon status — kept as compact overlays rather than PC storage's
-   stacked block-line badges, since these tiles are tight fixed squares with
-   no room below the sprite. */
 .marked-badge {
   position: absolute;
   left: 4px;
@@ -77,101 +328,6 @@
   padding: 1px 4px;
   z-index: 2;
   cursor: help;
-}
-
-.ability-badge {
-  position: absolute;
-  right: 4px;
-  top: 4px;
-  max-width: 60%;
-  font-size: 9px;
-  font-weight: bold;
-  color: #2d3436;
-  background: #ffffff;
-  border: 1px solid #333;
-  border-radius: 3px;
-  padding: 1px 4px;
-  z-index: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: help;
-}
-
-/* Coin counter (New Experience only). Carries its own amber background + dark
-   text so it stays legible on the semi-transparent light box in both the light
-   and dark page themes; the border/shadow class toggle matches its siblings. */
-.coin-counter {
-  position: relative;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4em;
-  padding: 0.3em 0.75em;
-  background: linear-gradient(135deg, #ffe9a8, #ffd257);
-  color: #5c4400;
-  font-weight: 600;
-  cursor: help;
-  width: fit-content;
-}
-
-.coin-counter .coin-icon {
-  font-size: 1.1em;
-  line-height: 1;
-}
-
-.coin-counter .coin-amount {
-  font-size: 1.15em;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.coin-counter .coin-label {
-  font-size: 0.85em;
-  opacity: 0.75;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-/* "+N" floater that rises and fades on each gain, plus a brief pulse of the pill. */
-.coin-counter .coin-gain {
-  position: absolute;
-  right: 0.5em;
-  top: -0.2em;
-  color: #1b7a2f;
-  font-weight: 800;
-  font-size: 0.95em;
-  pointer-events: none;
-  animation: coin-gain-float 1.5s ease-out forwards;
-}
-
-.coin-counter:has(.coin-gain) {
-  animation: coin-pulse 0.5s ease-out;
-}
-
-@keyframes coin-gain-float {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-1.4em);
-  }
-}
-
-@keyframes coin-pulse {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
 
 @keyframes pokemon-show {

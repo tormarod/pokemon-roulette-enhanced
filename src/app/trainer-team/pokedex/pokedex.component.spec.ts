@@ -98,8 +98,15 @@ describe('PokedexComponent', () => {
     component.onEntryClicked({ pokemonId: 25, entry });
     expect(modalServiceSpy.open).toHaveBeenCalledWith(
       PokedexDetailModalComponent,
-      jasmine.objectContaining({ size: 'md' })
+      jasmine.objectContaining({ modalDialogClass: 'pokedex-detail-modal-dialog' })
     );
     expect(mockModalRef.componentInstance.pokemonId).toBe(25);
+  });
+
+  it('DETAIL-01: onEntryClicked passes the active tab\'s full dex id list for Prev/Next', () => {
+    const mockModalRef = { componentInstance: {} as any };
+    modalServiceSpy.open.and.returnValue(mockModalRef as any);
+    component.onEntryClicked({ pokemonId: 1, entry: undefined });
+    expect(mockModalRef.componentInstance.dexIds).toEqual(component.activeIds);
   });
 });

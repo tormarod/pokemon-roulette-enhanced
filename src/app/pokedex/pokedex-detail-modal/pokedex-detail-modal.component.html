@@ -1,66 +1,72 @@
-<div class="modal-header" [ngClass]="(darkMode | async) ? 'bg-dark text-white' : ''">
-  <h5 class="modal-title">{{ formatPokemonNumber(pokemonId) }}</h5>
-  <button type="button" class="btn-close"
-    [ngClass]="(darkMode | async) ? 'btn-close-white' : ''"
-    (click)="activeModal.dismiss()" aria-label="Close"></button>
-</div>
-<div class="modal-body text-center" [ngClass]="(darkMode | async) ? 'bg-dark text-white' : ''">
+<div class="pd-root" [ngClass]="(darkMode | async) ? 'pd-dark' : 'pd-light'">
+  <div class="pd-header">
+    <div class="pd-dex-label">{{ formatPokemonNumber(pokemonId) }}</div>
+    <button type="button" class="pd-close" (click)="activeModal.dismiss()" aria-label="Close">×</button>
+  </div>
 
-  <!-- Official artwork -->
-  <img [src]="displayUrl"
-       loading="lazy"
-       class="img-fluid mx-auto mb-3 d-block"
-       [alt]="pokemonNameKey | translate"
-       (error)="onArtworkError()">
+  <div class="pd-sprite-panel" [class.pd-sprite-panel-won]="isWon">
+    @if (isWon) {
+      <span class="pd-won-badge">{{ 'pokedex.wonBadge' | translate }}</span>
+    }
 
-  <table class="table table-sm align-middle mb-2" [ngClass]="(darkMode | async) ? 'table-dark' : ''">
-    <tbody>
-      <tr>
-        <th scope="row" class="text-start detail-label">{{ 'detail.name' | translate }}</th>
-        <td class="fw-semibold">{{ detailsNameKey | translate }}</td>
-      </tr>
-      <tr>
-        <th scope="row" class="text-start detail-label">{{ 'detail.types' | translate }}</th>
-        <td>
-          <div class="type-icons-wrap">
-            @for (type of detailsTypes; track type) {
-              <img class="pokemon-type-icon"
-                   [src]="getTypeIconUrl(type)"
-                   [alt]="type"
-                   loading="lazy">
-            }
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th scope="row" class="text-start detail-label">{{ 'detail.power' | translate }}</th>
-        <td>{{ detailsPower }}</td>
-      </tr>
-    </tbody>
-  </table>
+    @if (canStep) {
+      <button type="button" class="pd-nav pd-nav-prev" (click)="onPrev()" aria-label="Previous">‹</button>
+      <button type="button" class="pd-nav pd-nav-next" (click)="onNext()" aria-label="Next">›</button>
+    }
 
-  @if (!entry) {
-    <p class="text-muted small mb-2">{{ 'pokedex.notCaptured' | translate }}</p>
-  }
+    <img [src]="displayUrl"
+         loading="lazy"
+         class="pd-sprite"
+         [alt]="pokemonNameKey | translate"
+         (error)="onArtworkError()">
+  </div>
+
+  <div class="pd-stats">
+    <div class="pd-stat-row">
+      <span class="pd-stat-label">{{ 'detail.name' | translate }}</span>
+      <span class="pd-stat-value">{{ detailsNameKey | translate }}</span>
+    </div>
+    <div class="pd-stat-row">
+      <span class="pd-stat-label">{{ 'detail.types' | translate }}</span>
+      <div class="pd-type-icons">
+        @for (type of detailsTypes; track type) {
+          <img class="pd-type-icon" [src]="getTypeIconUrl(type)" [alt]="type" loading="lazy">
+        }
+      </div>
+    </div>
+    <div class="pd-stat-row">
+      <span class="pd-stat-label">{{ 'detail.power' | translate }}</span>
+      <div class="pd-power">
+        <div class="pd-power-pips">
+          @for (filled of powerPipFilled; track $index) {
+            <span class="pd-pip" [class.pd-pip-filled]="filled"></span>
+          }
+        </div>
+        <span class="pd-stat-value">{{ detailsPower }}</span>
+      </div>
+    </div>
+    <div class="pd-stat-row pd-stat-row-last">
+      <span class="pd-stat-label">{{ 'detail.status' | translate }}</span>
+      <span class="pd-status" [class.pd-status-won]="isWon" [class.pd-status-caught]="isCaptured && !isWon">
+        {{ statusLabelKey | translate }}
+      </span>
+    </div>
+  </div>
 
   @if (hasShinyToggle) {
-    <button class="btn btn-sm mb-2"
-            [ngClass]="showShiny ? 'btn-warning' : 'btn-outline-warning'"
-            (click)="showShiny = !showShiny">
+    <button type="button" class="pd-pill-toggle" [class.pd-pill-toggle-active]="showShiny" (click)="showShiny = !showShiny">
       {{ showShiny ? ('detail.shiny.on' | translate) : ('detail.shiny.off' | translate) }}
     </button>
   }
 
   @if (hasAlternateForms) {
-    <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+    <div class="pd-form-list">
       @for (form of alternateForms; track form.pokemonId) {
-        <button class="btn btn-sm"
-                [ngClass]="selectedFormId === form.pokemonId ? 'btn-primary' : 'btn-outline-secondary'"
+        <button type="button" class="pd-pill-toggle" [class.pd-pill-toggle-active]="selectedFormId === form.pokemonId"
                 (click)="selectForm(form.pokemonId)">
           {{ form.text | translate }}
         </button>
       }
     </div>
   }
-
 </div>

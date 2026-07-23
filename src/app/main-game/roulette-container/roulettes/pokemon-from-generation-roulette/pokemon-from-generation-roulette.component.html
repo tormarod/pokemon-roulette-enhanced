@@ -1,8 +1,3 @@
-<div class="roulette-header"><h1 class="title">
-    {{ 'game.main.roulette.catch.which' | translate }}
-    {{ 'game.main.roulette.catch.pkmn' | translate }}
-    <br/>({{ generation.text }})
-</h1></div>
 <app-wheel  #wheel
             [items]="pokemon"
             (selectedItemEvent)="onItemSelected($event)">

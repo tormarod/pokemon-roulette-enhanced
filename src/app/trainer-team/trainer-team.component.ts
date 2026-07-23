@@ -13,7 +13,7 @@ import { PokedexComponent } from "./pokedex/pokedex.component";
 import { MarketComponent } from "./market/market.component";
 import {TranslatePipe} from '@ngx-translate/core';
 import { ItemItem } from '../interfaces/item-item';
-import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
+import { PokemonType, pokemonTypeColors } from '../interfaces/pokemon-type';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { AbilityService } from '../services/ability-service/ability.service';
 import { GameStateService } from '../services/game-state-service/game-state.service';
@@ -43,6 +43,8 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   trainerTeam!: PokemonItem[];
   trainerBadges!: Badge[];
   markedIndex: number | null = null;
+  /** Roster tile currently hovered — drives the ability-only popover (see getMemberAbilityName). */
+  hoveredMemberIndex: number | null = null;
 
   /** Market currency balance (New Experience only). */
   coins = 0;
@@ -132,8 +134,12 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
     return [pokemon.type1, pokemon.type2].filter((type): type is PokemonType => !!type);
   }
 
-  getTypeIconUrl(type: PokemonType): string {
-    return getTypeIconUrl(type);
+  getTypeColor(type: PokemonType): string {
+    return pokemonTypeColors[type];
+  }
+
+  setHoveredMember(index: number | null): void {
+    this.hoveredMemberIndex = index;
   }
 
   getSprite(pokemon: PokemonItem): string {

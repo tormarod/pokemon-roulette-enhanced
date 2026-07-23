@@ -1,5 +1,4 @@
-<button type="button" class="btn" [ngClass]="(darkMode | async) ? 'btn-outline-light' : 'btn-outline-dark'"
-  (click)="showPCModal()">
+<button type="button" class="panel-pill-btn" (click)="showPCModal()">
   <ng-icon name="bootstrapPcDisplayHorizontal"></ng-icon>
   {{ 'trainer.storage.access' | translate }}
 </button>
@@ -9,124 +8,124 @@
     @if (pcLocked) {
       <div class="pc-lock-banner">{{ 'trainer.storage.pcLocked' | translate }}</div>
     }
-    <h2>{{ 'trainer.storage.team' | translate }}</h2>
-    <div  id="trainerTeam"
-          cdkDropList
-          cdkDropListOrientation="mixed"
-          [cdkDropListData]="trainerTeam"
-          class="pokemon-storage-grid"
-          (cdkDropListDropped)="drop($event)"
-          [cdkDropListEnterPredicate]="teamIsFullPredicate">
-          @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
-            <div  class="pokemon-storage-card shadow"
-                  [class.marked-card]="isNewExperienceMode && idx === markedIndex"
-                  [cdkDragDisabled]="(isNewExperienceMode && idx === markedIndex) || pcLocked"
-                  cdkDrag>
-              <img class="img-fluid"
-                   [src]="getSprite(pokemon)"
+    <div class="pc-section">
+      <h2 class="pc-section-label">{{ 'trainer.storage.team' | translate }}</h2>
+      <div  id="trainerTeam"
+            cdkDropList
+            cdkDropListOrientation="mixed"
+            [cdkDropListData]="trainerTeam"
+            class="pokemon-storage-grid"
+            (cdkDropListDropped)="drop($event)"
+            [cdkDropListEnterPredicate]="teamIsFullPredicate">
+            @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
+              <div  class="pokemon-storage-card"
+                    [class.marked-card]="isNewExperienceMode && idx === markedIndex"
+                    [cdkDragDisabled]="(isNewExperienceMode && idx === markedIndex) || pcLocked"
+                    cdkDrag>
+                <div class="pc-tile">
+                  <img class="pc-tile-sprite"
+                       [src]="getSprite(pokemon)"
+                       draggable="false"
+                       role="button"
+                       style="cursor: pointer;"
+                       placement="bottom"
+                       container="body"
+                       [ngbTooltip]="pokemonInfoTooltip"
+                       [tooltipContext]="{ pokemon: pokemon }"
+                       (click)="openEvolutionDetail(pokemon)">
+                  @if (isNewExperienceMode && idx === markedIndex) {
+                    <span class="pc-dot pc-dot-marked" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}" triggers="hover click"></span>
+                  }
+                  @if (hasMegaStone(pokemon)) {
+                    <span class="pc-dot pc-dot-mega" placement="bottom" ngbTooltip="{{ 'trainer.storage.heldMegaStone' | translate }}" triggers="hover click"></span>
+                  }
+                  @if (isNewExperienceMode) {
+                    @if (getMemberAbilityName(pokemon); as abilityName) {
+                      <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
+                    }
+                  }
+                </div>
+                @if (isNewExperienceMode && ownedCapsules().length) {
+                  <div class="pc-tile-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="openAbilityPicker(pokemon)">
+                      {{ 'trainer.storage.assignAbility' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+      </div>
+    </div>
+    <div class="pc-section">
+      <h2 class="pc-section-label">{{ 'trainer.storage.stored' | translate }}</h2>
+      <div  id="storedPokemon"
+            cdkDropList
+            cdkDropListOrientation="mixed"
+            [cdkDropListData]="storedPokemon"
+            class="pokemon-storage-grid pc-grid-dropzone"
+            (cdkDropListDropped)="drop($event)"
+            [cdkDropListEnterPredicate]="lastPokemonPredicate">
+        @for (pokemon of storedPokemon; track pokemon) {
+          <div  class="pokemon-storage-card"
+                [class.fainted-card]="pokemon.fainted || pokemon.retreatLocked"
+                [cdkDragData]="pokemon"
+                [cdkDragDisabled]="!!pokemon.fainted || !!pokemon.retreatLocked || pcLocked"
+                cdkDrag>
+            <div class="pc-tile" [class.pc-tile-fainted]="pokemon.fainted || pokemon.retreatLocked">
+              <img [src]="getSprite(pokemon)"
+                   class="pc-tile-sprite"
+                   [class.pc-tile-sprite-fainted]="pokemon.fainted || pokemon.retreatLocked"
+                   draggable="false"
                    role="button"
                    style="cursor: pointer;"
                    placement="bottom"
                    container="body"
                    [ngbTooltip]="pokemonInfoTooltip"
+                   triggers="hover"
                    [tooltipContext]="{ pokemon: pokemon }"
                    (click)="openEvolutionDetail(pokemon)">
-              @if (isNewExperienceMode && idx === markedIndex) {
-                <span class="marked-badge" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}" triggers="hover click">
-                  {{ 'trainer.team.marked' | translate }}
-                </span>
+              @if (pokemon.fainted) {
+                <span class="pc-dot pc-dot-fainted" placement="bottom" ngbTooltip="{{ 'trainer.storage.faintedTooltip' | translate }}" triggers="hover click"></span>
+              }
+              @if (pokemon.retreatLocked) {
+                <span class="pc-dot pc-dot-retreat" placement="bottom" ngbTooltip="{{ 'trainer.storage.retreatLockedTooltip' | translate }}" triggers="hover click"></span>
+              }
+              @if (hasMegaStone(pokemon)) {
+                <span class="pc-dot pc-dot-mega" placement="bottom" ngbTooltip="{{ 'trainer.storage.heldMegaStone' | translate }}" triggers="hover click"></span>
               }
               @if (isNewExperienceMode) {
                 @if (getMemberAbilityName(pokemon); as abilityName) {
-                  <span class="ability-badge"
-                        placement="bottom"
-                        ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}"
-                        triggers="hover click">{{ abilityName | translate }}</span>
-                }
-                @if (ownedCapsules().length) {
-                  <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">
-                    {{ 'trainer.storage.assignAbility' | translate }}
-                  </button>
+                  <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
                 }
               }
             </div>
-          }
-    </div>
-    <h2>{{ 'trainer.storage.stored' | translate }}</h2>
-    <div  id="storedPokemon"
-          cdkDropList
-          cdkDropListOrientation="mixed"
-          [cdkDropListData]="storedPokemon"
-          class="pokemon-storage-grid"
-          (cdkDropListDropped)="drop($event)"
-          [cdkDropListEnterPredicate]="lastPokemonPredicate">
-      @for (pokemon of storedPokemon; track pokemon) {
-        <div  class="pokemon-storage-card shadow"
-              [class.fainted-card]="pokemon.fainted || pokemon.retreatLocked"
-              [cdkDragData]="pokemon"
-              [cdkDragDisabled]="!!pokemon.fainted || !!pokemon.retreatLocked || pcLocked"
-              cdkDrag>
-          <img [src]="getSprite(pokemon)"
-               class="img-fluid"
-               [class.fainted-sprite]="pokemon.fainted || pokemon.retreatLocked"
-               role="button"
-               style="cursor: pointer;"
-               placement="bottom"
-               container="body"
-               [ngbTooltip]="pokemonInfoTooltip"
-               triggers="hover"
-               [tooltipContext]="{ pokemon: pokemon }"
-               (click)="openEvolutionDetail(pokemon)">
-          @if (pokemon.fainted) {
-            <span class="fainted-badge"
-                  placement="bottom"
-                  ngbTooltip="{{ 'trainer.storage.faintedTooltip' | translate }}"
-                  triggers="hover click">{{ 'trainer.storage.fainted' | translate }}</span>
-            @if (hasRevive()) {
-              <button type="button" class="btn btn-sm btn-outline-primary revive-button" (click)="revivePokemon(pokemon)">
-                {{ 'trainer.storage.revive' | translate }}
-              </button>
+            @if ((pokemon.fainted && hasRevive()) || (isNewExperienceMode && !pokemon.fainted && ownedCapsules().length)) {
+              <div class="pc-tile-actions">
+                @if (pokemon.fainted && hasRevive()) {
+                  <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="revivePokemon(pokemon)">
+                    {{ 'trainer.storage.revive' | translate }}
+                  </button>
+                }
+                @if (isNewExperienceMode && !pokemon.fainted && ownedCapsules().length) {
+                  <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="openAbilityPicker(pokemon)">
+                    {{ 'trainer.storage.assignAbility' | translate }}
+                  </button>
+                }
+              </div>
             }
-          }
-          @if (pokemon.retreatLocked) {
-            <span class="fainted-badge"
-                  placement="bottom"
-                  ngbTooltip="{{ 'trainer.storage.retreatLockedTooltip' | translate }}"
-                  triggers="hover click">{{ 'trainer.storage.retreatLocked' | translate }}</span>
-          }
-          @if (isNewExperienceMode) {
-            @if (getMemberAbilityName(pokemon); as abilityName) {
-              <span class="ability-badge"
-                    placement="bottom"
-                    ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}"
-                    triggers="hover click">{{ abilityName | translate }}</span>
-            }
-            @if (!pokemon.fainted && ownedCapsules().length) {
-              <button type="button" class="btn btn-sm btn-outline-primary assign-ability-button" (click)="openAbilityPicker(pokemon)">
-                {{ 'trainer.storage.assignAbility' | translate }}
-              </button>
-            }
-          }
-        </div>
-      }
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="logOut()">{{ 'trainer.storage.logout' | translate }}</button>
-  </div>
-</ng-template>
-
-<ng-template #pcInfoModal let-modal>
-  <div class="modal-body">
-      <h1>{{ infoModalTitle | translate}}</h1>
-      <div class="explain-panel">
-          <div class="message">
-              <p>{{ infoModalMessage | translate}}</p>
           </div>
+        }
       </div>
-  </div>
-  <div class="modal-footer">
-      <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
+    </div>
+    <div class="pc-footer-row">
+      <div class="pc-legend">
+        <div class="pc-legend-item"><span class="pc-legend-dot pc-legend-dot-marked"></span>{{ 'trainer.team.marked' | translate }}</div>
+        <div class="pc-legend-item"><span class="pc-legend-dot pc-legend-dot-fainted"></span>{{ 'trainer.storage.fainted' | translate }}</div>
+        <div class="pc-legend-item"><span class="pc-legend-dot pc-legend-dot-retreat"></span>{{ 'trainer.storage.retreatLockedLegend' | translate }}</div>
+        <div class="pc-legend-item"><span class="pc-legend-dot pc-legend-dot-mega"></span>{{ 'trainer.storage.heldMegaStone' | translate }}</div>
+      </div>
+      <button type="button" class="pc-logout-btn" (click)="logOut()">{{ 'trainer.storage.logout' | translate }}</button>
+    </div>
   </div>
 </ng-template>
 

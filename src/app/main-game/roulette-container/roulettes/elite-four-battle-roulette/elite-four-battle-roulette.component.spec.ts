@@ -124,16 +124,16 @@ describe('EliteFourBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(3); // base(1) + power(2)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(4);  // elite's base(2) + delta(2)
 
-    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
-    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    const negLabel = fixture.nativeElement.querySelector('.battle-prep-matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.battle-prep-matchup-delta-negative');
     expect(negLabel).not.toBeNull();
-    expect(negDelta.textContent.trim()).toBe('-2');
+    expect(negDelta.textContent.trim()).toContain('-2');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────
 
   it('should reset retries to 3 and consume hyper-potion on exhausted spin', () => {
-    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
     (component as any).trainerItems = [HYPER_POTION_ITEM];
     (component as any).victoryOdds = [
       { text: 'game.main.roulette.elite.no', fillStyle: 'crimson', weight: 1 },
@@ -151,7 +151,7 @@ describe('EliteFourBattleRouletteComponent', () => {
   // ── getCurrentElite: Gen 8 multi-elite handling ───────────────────────────
 
   it('should emit fromEliteChange for Gen 8 at a multi-elite round (round % 4 === 0)', (done) => {
-    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
 
     (component as any).generation = { id: 8, text: 'Gen 8', region: 'Galar', fillStyle: 'purple', weight: 1 };
     component.currentRound = 0; // 0 % 4 === 0 → multi-elite path
@@ -169,7 +169,7 @@ describe('EliteFourBattleRouletteComponent', () => {
 
   describe('New Experience mode', () => {
     beforeEach(() => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
       gameStateService.resetGameState(true);
       trainerService.resetTeam();
     });

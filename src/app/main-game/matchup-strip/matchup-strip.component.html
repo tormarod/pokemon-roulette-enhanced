@@ -18,12 +18,19 @@
                 <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.xAttack' | translate }}: +{{ odds.yes.xAttack | number:'1.0-1' }}</span>
             }
         </div>
+        <div class="matchup-divider"></div>
     }
-    <div class="matchup-icons-row">
-        @for (type of opponentTypes; track $index) {
-            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
-        }
+    <div class="matchup-opponent-row">
+        <span class="matchup-eyebrow">{{ 'game.main.roulette.matchup.opponent' | translate }}</span>
+        <div class="matchup-icons-row">
+            @for (type of opponentTypes; track $index) {
+                <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+            }
+        </div>
     </div>
+    @if (advantageDelta > 0 || disadvantageDelta > 0) {
+        <div class="matchup-divider"></div>
+    }
     @if (advantageDelta > 0) {
         <div class="matchup-section">
             @if (superEffectiveTypes.length) {
@@ -42,18 +49,21 @@
                     }
                 </div>
             }
-            <span class="matchup-delta matchup-delta-positive">+{{ advantageDelta }}</span>
+            <span class="matchup-readout matchup-delta matchup-delta-positive">{{ 'game.main.roulette.matchup.advantage' | translate }} +{{ advantageDelta }}</span>
         </div>
     }
     @if (disadvantageDelta > 0) {
+        @if (advantageDelta > 0) {
+            <div class="matchup-divider"></div>
+        }
         <div class="matchup-section">
             <span class="matchup-label matchup-label-negative">{{ 'game.main.roulette.matchup.weak' | translate }}</span>
             <div class="matchup-icons-row">
                 @for (type of weakTypes; track $index) {
                     <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
                 }
-                <span class="matchup-delta matchup-delta-negative">-{{ disadvantageDelta }}</span>
             </div>
+            <span class="matchup-readout matchup-delta matchup-delta-negative">{{ 'game.main.roulette.matchup.weak' | translate }} -{{ disadvantageDelta }}</span>
         </div>
     }
 </div>

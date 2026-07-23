@@ -5,6 +5,7 @@ import { NgIconsModule, provideIcons } from '@ng-icons/core';
 import { bootstrapController, bootstrapCupHotFill, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StatsComponent } from './stats.component';
 import { StatsService } from '../services/stats-service/stats.service';
 import { TrainerService } from '../services/trainer-service/trainer.service';
@@ -93,31 +94,40 @@ describe('StatsComponent', () => {
   });
 
   describe('reset control', () => {
+    let modalService: NgbModal;
+
+    beforeEach(() => {
+      modalService = TestBed.inject(NgbModal);
+    });
+
     it('should not reset stats just by opening the confirm modal', () => {
       statsService.recordRunStart(1, 1);
       statsService.recordRunEnd(false, 3);
+      spyOn(modalService, 'open').and.returnValue({ componentInstance: {}, result: new Promise(() => {}) } as any);
 
       component.showResetConfirmModal();
 
       expect(statsService.current.runsPlayed).toBe(1);
     });
 
-    it('should reset stats and close the modal on confirm', () => {
+    it('should reset stats when the confirm button (index 0) is chosen', async () => {
       statsService.recordRunStart(1, 1);
       statsService.recordRunEnd(false, 3);
+      spyOn(modalService, 'open').and.returnValue({ componentInstance: {}, result: Promise.resolve(0) } as any);
 
       component.showResetConfirmModal();
-      component.confirmReset();
+      await Promise.resolve();
 
       expect(statsService.current.runsPlayed).toBe(0);
     });
 
-    it('should leave stats untouched if the reset is cancelled', () => {
+    it('should leave stats untouched if the reset is cancelled', async () => {
       statsService.recordRunStart(1, 1);
       statsService.recordRunEnd(false, 3);
+      spyOn(modalService, 'open').and.returnValue({ componentInstance: {}, result: Promise.reject('dismiss') } as any);
 
       component.showResetConfirmModal();
-      component.closeModal();
+      await Promise.resolve().catch(() => {});
 
       expect(statsService.current.runsPlayed).toBe(1);
     });

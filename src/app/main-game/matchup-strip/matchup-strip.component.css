@@ -1,9 +1,48 @@
+/* Tile sub-panel matching the battle-prep panel's "Matchup" card, restyled per
+   the 2a Universal Wheel handoff. The --wheel-* custom properties are defined
+   by the wheel card this strip is projected into (custom properties inherit
+   through the DOM despite Angular's emulated encapsulation); the fallbacks
+   keep today's light-theme colors if the strip is ever used standalone. */
+
+/* The host element defaults to display:inline, which would collapse the
+   width:100% chain from the wheel card down to the tile — make it a block
+   that fills the projected header. */
+:host {
+    display: block;
+    width: 100%;
+}
+
 .matchup-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--wheel-tile-bg, rgba(0, 0, 0, 0.035));
+    border: 1px solid var(--wheel-tile-border, rgba(51, 51, 51, 0.22));
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.matchup-divider {
+    height: 1px;
+    width: 100%;
+    background: var(--wheel-tile-border, rgba(51, 51, 51, 0.22));
+}
+
+/* Opponent label stacked above its type icons. */
+.matchup-opponent-row {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 4px 0;
+}
+
+.matchup-eyebrow {
+    font-size: 10px;
+    opacity: 0.55;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .matchup-icons-row {
@@ -15,43 +54,52 @@
     flex-wrap: wrap;
 }
 
-.matchup-label {
-    font-size: small;
-    text-align: center;
-}
-
 .matchup-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 5px;
+}
+
+.matchup-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: center;
 }
 
 .matchup-label-positive {
-    color: #2e7d32;
+    color: var(--wheel-positive, #2e7d32);
 }
 
 .matchup-label-negative {
-    color: #c62828;
+    color: var(--wheel-negative, #c62828);
 }
 
 .matchup-delta {
     font-size: small;
     font-weight: bold;
-    margin-left: 2px;
 }
 
 .matchup-delta-positive {
-    color: #2e7d32;
+    color: var(--wheel-positive, #2e7d32);
 }
 
 .matchup-delta-negative {
-    color: #c62828;
+    color: var(--wheel-negative, #c62828);
+}
+
+.matchup-readout {
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
 }
 
 .odds-winchance {
     font-size: medium;
     font-weight: bold;
+    text-align: center;
 }
 
 .odds-breakdown {

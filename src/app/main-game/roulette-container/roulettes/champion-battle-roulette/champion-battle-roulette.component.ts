@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { championByGeneration } from './champion-by-generation';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -30,9 +30,6 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
 
   championByGeneration = championByGeneration;
 
-  @ViewChild('presentationModalRef', { static: true }) declare presentationModalRef: TemplateRef<unknown>;
-  @ViewChild('itemUsedModalRef', { static: true }) declare itemUsedModalRef: TemplateRef<unknown>;
-
   @Output() fromChampionChange = new EventEmitter<number>();
 
   currentChampion: GymLeader = { name: '', sprite: '', quotes: [''] };
@@ -50,5 +47,24 @@ export class ChampionBattleRouletteComponent extends BaseBattleRouletteComponent
         i => this.fromChampionChange.emit(i)
       );
     }
+  }
+
+  protected override openPresentationModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.champion.champion')} ${this.translate.instant(this.currentChampion.name)}!`,
+      images: [{ src: Array.isArray(this.currentChampion.sprite) ? this.currentChampion.sprite[0] : this.currentChampion.sprite, alt: this.translate.instant(this.currentChampion.name) }],
+      lines: this.currentChampion.quotes.map(q => this.translate.instant(q)),
+      buttons: [{ label: this.translate.instant('game.main.roulette.champion.go'), variant: 'primary' }],
+      size: 'lg'
+    });
+  }
+
+  protected override openItemUsedModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.champion.use')} ${this.translate.instant(this.currentItem.text)}!`,
+      images: [{ src: this.currentItem.sprite }],
+      lines: [this.translate.instant(this.currentItem.description)],
+      size: 'md'
+    });
   }
 }

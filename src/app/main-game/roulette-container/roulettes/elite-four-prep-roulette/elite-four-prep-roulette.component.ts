@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {TranslatePipe} from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { WheelItem } from '../../../../interfaces/wheel-item';
 import { EventSource } from '../../../EventSource';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
+import { EventPopupComponent } from '../../../../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-elite-four-prep-roulette',
@@ -16,17 +16,20 @@ import { ModalQueueService } from '../../../../services/modal-queue-service/moda
 export class EliteFourPrepRouletteComponent implements OnInit {
 
   constructor(
-    private modalService: NgbModal,
-    private modalQueueService: ModalQueueService
+    private modalQueueService: ModalQueueService,
+    private translateService: TranslateService
   ) { }
 
-  @ViewChild('victoryRoadModal', { static: true }) victoryRoadModal!: TemplateRef<any>;
-
-  ngOnInit(): void {
-    this.modalQueueService.open(this.victoryRoadModal, {
-      centered: true,
-      size: 'lg'
-    });
+  async ngOnInit(): Promise<void> {
+    const modalRef = await this.modalQueueService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = this.translateService.instant('game.main.roulette.elite.prep.victoryRoad');
+    modalRef.componentInstance.images = [{ src: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/494.png', alt: 'Good Luck!' }];
+    modalRef.componentInstance.lines = [
+      this.translateService.instant('game.main.roulette.elite.prep.congrats'),
+      this.translateService.instant('game.main.roulette.elite.prep.defeated'),
+      this.translateService.instant('game.main.roulette.elite.prep.ready')
+    ];
+    modalRef.componentInstance.buttons = [{ label: this.translateService.instant('game.main.roulette.elite.prep.go'), variant: 'primary' }];
   }
 
   @Input() respinReason!: string;
@@ -74,9 +77,5 @@ export class EliteFourPrepRouletteComponent implements OnInit {
       default:
         break;
     }
-  }
-
-  closeModal(): void {
-    this.modalService.dismissAll();
   }
 }

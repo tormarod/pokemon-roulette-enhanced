@@ -1,6 +1,6 @@
-import { Directive, EventEmitter, Input, Output, OnInit, OnDestroy, TemplateRef, inject } from '@angular/core';
+import { Directive, EventEmitter, Input, Output, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subscription, take } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
@@ -23,6 +23,9 @@ import { GymLeader } from '../../../../interfaces/gym-leader';
 import { PokemonType, getTypeIconUrl } from '../../../../interfaces/pokemon-type';
 import { interleaveOdds } from '../../../../utils/odd-utils';
 import { BattleOddsService, BattleOddsBreakdown } from '../../../../services/battle-odds-service/battle-odds.service';
+import { EventPopupComponent } from '../../../../event-popup/event-popup.component';
+import { EventPopupImage } from '../../../../interfaces/event-popup-image';
+import { EventPopupButtonConfig } from '../../../../interfaces/event-popup-button';
 
 @Directive()
 export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
@@ -72,10 +75,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
   // ── Template-method hooks ──────────────────────────────────────────────
   // Placeholder defaults for now; each becomes real per-subclass state as gym/
-  // elite-four/rival/champion migrate onto the base. `presentationModalRef`/
-  // `itemUsedModalRef` are plain fields (not accessors) so a migrated
-  // subclass's @ViewChild-decorated field can shadow them directly — TS
-  // forbids a property from overriding an accessor.
+  // elite-four/rival/champion migrate onto the base.
   protected readonly battleKey: string = '';
   protected readonly textPrefix: string = '';
   protected readonly baseNoCount: number = 0;
@@ -87,8 +87,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     if (!scouted) return this.opponentTypes;
     return [...(this.opponentTypes ?? []), scouted];
   }
-  protected presentationModalRef!: TemplateRef<unknown>;
-  protected itemUsedModalRef!: TemplateRef<unknown>;
   protected setCurrentOpponent(_opponent: GymLeader): void {}
   protected prepareOpponentForRound(): void {}
 
@@ -125,10 +123,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.gameSubscription?.unsubscribe();
     this.generationSubscription?.unsubscribe();
     this.teamSubscription?.unsubscribe();
-  }
-
-  closeModal(): void {
-    this.modalService.dismissAll();
   }
 
   getTypeIconUrl(type: PokemonType): string {
@@ -200,7 +194,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const yesOdds: WheelItem[] = [];
     for (let i = 0; i < odds.yesTickets; i++) {
-      yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
+      yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1, resultKind: 'victory' });
     }
 
     if (types.length) {
@@ -222,7 +216,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const noOdds: WheelItem[] = [];
     for (let i = 0; i < odds.noTickets; i++) {
-      noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
+      noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1, resultKind: 'defeat' });
     }
 
     return interleaveOdds(yesOdds, noOdds);
@@ -290,7 +284,12 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     const committed = !!pending && pending.battleKey === this.battleKey;
     this.prepPhase = this.gameStateService.isNewExperienceMode && !committed;
     this.calcVictoryOdds();
-    this.openPresentationModal();
+    // Deferred one microtask tick so a variant round's resolveOpponentVariant()
+    // (queued during prepareOpponentForRound(), above) always resolves currentLeader
+    // to its single-variant name/sprite/quotes *before* this snapshot-based popup
+    // reads it — unlike the old live-bound ng-template, EventPopupComponent gets a
+    // one-time @Input snapshot that never catches up if opened too early.
+    queueMicrotask(() => this.openPresentationModal());
   }
 
   /** Rebuilds victoryOdds from current team, items, and opponent data. */
@@ -345,13 +344,28 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.pcLockService.clearLock();
   }
 
-  protected openPresentationModal(): void {
-    this.modalQueueService.open(this.presentationModalRef, { centered: true, size: 'lg' });
+  /** Shared open logic for both battle popups — subclasses supply their own content via openPresentationModal/openItemUsedModal. */
+  protected async openEventPopup(config: {
+    title: string;
+    images?: EventPopupImage[];
+    lines?: string[];
+    buttons?: EventPopupButtonConfig[];
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+  }): Promise<NgbModalRef> {
+    const modalRef = await this.modalQueueService.open(EventPopupComponent, {
+      centered: true,
+      size: config.size ?? 'lg',
+      windowClass: 'event-popup-modal'
+    });
+    modalRef.componentInstance.title = config.title;
+    modalRef.componentInstance.images = config.images ?? [];
+    modalRef.componentInstance.lines = config.lines ?? [];
+    modalRef.componentInstance.buttons = config.buttons ?? [{ label: this.translate.instant('common.ok'), variant: 'primary' }];
+    return modalRef;
   }
 
-  protected openItemUsedModal(): void {
-    this.modalQueueService.open(this.itemUsedModalRef, { centered: true, size: 'md' });
-  }
+  protected abstract openPresentationModal(): void;
+  protected abstract openItemUsedModal(): void;
 
   /**
    * Shared multi-variant resolver (gym trio/duo rounds, gen-8 elite, gen-7

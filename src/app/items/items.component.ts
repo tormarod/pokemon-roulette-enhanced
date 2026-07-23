@@ -1,20 +1,41 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
-import { ThemeService } from '../services/theme-service/theme.service';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
+import { ItemItem } from '../interfaces/item-item';
 import { Observable, Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ItemItem } from '../interfaces/item-item';
-import { CommonModule } from '@angular/common';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
+import { ThemeService } from '../services/theme-service/theme.service';
 import { TrainerService } from '../services/trainer-service/trainer.service';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import { isMegaStoneItemName } from '../services/items-service/item-names';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { isMegaStoneItemName, isAbilityCapsuleName } from '../services/items-service/item-names';
 import { ITEM_SPRITE_FALLBACK } from '../services/item-sprite-service/item-sprite.service';
+import { getItemCategory, ItemCategory } from '../services/items-service/item-category';
+
+interface CategorizedItemEntry {
+  item: ItemItem;
+  /** Index into trainerItems — identifies this exact owned instance for hover/click. */
+  index: number;
+}
+
+interface ItemCategoryGroup {
+  id: ItemCategory;
+  labelKey: string;
+  entries: CategorizedItemEntry[];
+}
+
+const CATEGORY_LABEL_KEYS: Record<ItemCategory, string> = {
+  battle: 'items.category.battleAids',
+  field: 'items.category.fieldItems',
+  mega: 'items.category.megaStones',
+  capsule: 'items.category.abilityCapsules',
+};
+
+/** Fixed display order for the 2x2 category grid — empty categories are filtered out, not left blank. */
+const CATEGORY_ORDER: ItemCategory[] = ['battle', 'field', 'mega', 'capsule'];
 
 @Component({
   selector: 'app-items',
-  imports: [CommonModule,
-    NgbTooltipModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './items.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './items.component.css'
@@ -43,6 +64,8 @@ export class ItemsComponent implements OnInit, OnDestroy {
 
   darkMode!: Observable<boolean>;
   isDark = false;
+  /** Index (into trainerItems) currently hovered — drives the name/description popover. */
+  hoveredItemIndex: number | null = null;
   private itemsSubscription!: Subscription;
 
   ngOnInit(): void {
@@ -71,13 +94,27 @@ export class ItemsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getItemSprite(index: number): string {
-    const item = this.trainerItems[index];
-    if (!item) {
-      // Empty slot — keep the transparent placeholder, not an item icon.
-      return './place-holder-pixel.png';
-    }
-    // Present item whose sprite never resolved: show the common-item fallback.
+  /** Owned items grouped into the 4 display categories, empty categories omitted. */
+  get categories(): ItemCategoryGroup[] {
+    const groups: Record<ItemCategory, CategorizedItemEntry[]> = { battle: [], field: [], mega: [], capsule: [] };
+    (this.trainerItems ?? []).forEach((item, index) => {
+      groups[getItemCategory(item.name)].push({ item, index });
+    });
+    return CATEGORY_ORDER
+      .filter(id => groups[id].length > 0)
+      .map(id => ({ id, labelKey: CATEGORY_LABEL_KEYS[id], entries: groups[id] }));
+  }
+
+  isCapsule(item: ItemItem): boolean {
+    return isAbilityCapsuleName(item.name);
+  }
+
+  /** Ability capsules have no per-ability sprite — a flat two-tone pill colored by the ability's flavor type instead. */
+  getCapsuleGlyphBackground(item: ItemItem): string {
+    return `linear-gradient(to right, #fff 50%, ${item.fillStyle} 50%)`;
+  }
+
+  getItemSprite(item: ItemItem): string {
     return item.sprite ? item.sprite : ITEM_SPRITE_FALLBACK;
   }
 
@@ -89,13 +126,15 @@ export class ItemsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getItemText(index: number): string {
-    const item = this.trainerItems[index];
-    if (item) {
-      const name = this.translateService.instant(item.text);
-      const description = this.translateService.instant(item.description);
-      return `${name} — ${description}`;
-    }
-    return 'Empty';
+  getItemName(item: ItemItem): string {
+    return this.translateService.instant(item.text);
+  }
+
+  getItemDescription(item: ItemItem): string {
+    return this.translateService.instant(item.description);
+  }
+
+  setHoveredItem(index: number | null): void {
+    this.hoveredItemIndex = index;
   }
 }

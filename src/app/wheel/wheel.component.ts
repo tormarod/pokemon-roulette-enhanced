@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
 import { WheelItem } from '../interfaces/wheel-item';
+import { softenWheelColor } from '../utils/wheel-palette';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
 import { Observable } from 'rxjs';
@@ -45,15 +46,20 @@ export class WheelComponent implements AfterViewInit, OnChanges {
   totalRotations!: number;
   duration = Math.floor(Math.random() * (2000)) + 3000;
   finalRotation = 0;
-  pointerStrokeColor = 'blue';
-  pointerFillColor = 'yellow';
   winningNumber!: number;
   currentSegment: string = '-';
+  /** Index of the resolved winning item; null while unspun/spinning. Drives the result chip. */
+  resolvedIndex: number | null = null;
   clickAudio!: SoundFxHandle;
 
   private translatedItems: WheelItem[] = [];
   private readonly mobileBreakpoint = 768;
   private destroyRef = inject(DestroyRef);
+
+  /** The winning item once a spin has resolved (null otherwise). */
+  get resolvedItem(): WheelItem | null {
+    return this.resolvedIndex !== null ? this.items[this.resolvedIndex] ?? null : null;
+  }
 
   constructor(
     private darkModeService: DarkModeService,
@@ -107,6 +113,10 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     }
 
     this.winningNumber = resolvedIndex;
+    // Defer the chip reveal by one microtask: this method runs synchronously
+    // inside ngAfterViewInit's change-detection pass, and flipping the
+    // template-bound resolvedIndex mid-pass would trigger NG0100.
+    queueMicrotask(() => this.resolvedIndex = resolvedIndex);
     this.spinning = false;
     this.selectedItemEvent.emit(this.winningNumber);
     this.gameStateService.setWheelSpinning(false);
@@ -124,6 +134,9 @@ export class WheelComponent implements AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] && !changes['items'].firstChange) {
+      // New odds = new roll: clear the previous result chip and live readout.
+      this.resolvedIndex = null;
+      this.currentSegment = '-';
       this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.preprocessTranslations();
         this.drawWheel();
@@ -141,15 +154,30 @@ export class WheelComponent implements AfterViewInit, OnChanges {
 
   private updateWheelDimensions(): void {
     const viewportMin = Math.min(window.innerHeight, window.innerWidth);
-    const wheelScale = window.innerWidth <= this.mobileBreakpoint ? 0.70 : 0.50;
+    // Slightly smaller than the pre-card era (0.70/0.50): the wheel now sits
+    // inside a padded card, often with a projected header above it.
+    const wheelScale = window.innerWidth <= this.mobileBreakpoint ? 0.62 : 0.42;
 
-    this.canvasHeight = viewportMin * wheelScale;
+    // Hard cap so the card matches the 480px status-header/adventure cards:
+    // 480 card − 2×22 padding = 436 inner, minus the 40px pointer canvas and
+    // the 40px centering margin (.canvas-container) leaves ~356 — cap at 340.
+    this.canvasHeight = Math.min(viewportMin * wheelScale, 340);
     this.wheelWidth = this.canvasHeight;
     this.fontSize = this.wheelWidth / 24;
 
-    if (this.items.length >= 32) {
+    // Tiered caps: crowded wheels need progressively smaller labels so
+    // neighbouring slice texts stop overlapping (e.g. the 151-slice Gen 1
+    // catch wheel — at 340px the per-slice arc there is only ~6px).
+    const count = this.items.length;
+    if (count >= 128) {
+      this.fontSize = Math.min(this.fontSize, 6);
+    } else if (count >= 96) {
+      this.fontSize = Math.min(this.fontSize, 7);
+    } else if (count >= 64) {
+      this.fontSize = Math.min(this.fontSize, 8);
+    } else if (count >= 32) {
       this.fontSize = Math.min(this.fontSize, 10);
-    } else if (this.items.length >= 16) {
+    } else if (count >= 16) {
       this.fontSize = Math.min(this.fontSize, 14);
     }
   }
@@ -158,14 +186,12 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     const centerX = this.wheelCanvas.width / 2;
     const centerY = this.wheelCanvas.height / 2;
     const radius = (this.wheelCanvas.width / 2);
-    const segRadius = radius * 0.90;  // leave outer 10% for border ring (WHEEL-02)
+    const s = radius / 112;           // scale factor vs. the 260px design prototype
+    const segRadius = 102 * s;        // segments run almost to the gold ring
 
     const totalWeight = this.getTotalWeights();
     const arcSize = (2 * Math.PI) / (totalWeight);
     this.wheelCtx.clearRect(0, 0, this.wheelCanvas.width, this.wheelCanvas.height);
-
-    // Border ring first — behind segments (WHEEL-02)
-    this.drawBorderRing(centerX, centerY, radius);
 
     let startAngle = rotation;
     for (let index = 0; index < this.translatedItems.length; index++) {
@@ -177,11 +203,16 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       this.wheelCtx.beginPath();
       this.wheelCtx.arc(centerX, centerY, segRadius, startAngle, endAngle);
       this.wheelCtx.lineTo(centerX, centerY);
-      this.wheelCtx.fillStyle = item.fillStyle;
+      this.wheelCtx.fillStyle = softenWheelColor(item.fillStyle);
       this.wheelCtx.fill();
 
-      // Type-bias visual feedback (V2 B3): outline slices being boosted toward —
-      // so the effect reads before spinning.
+      // Subtle divider between slices (reads especially on the interleaved battle wheels)
+      this.wheelCtx.lineWidth = Math.max(1, s);
+      this.wheelCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      this.wheelCtx.stroke();
+
+      // Type-bias visual feedback (V2 B3): gold outline on slices being boosted
+      // toward — so the effect reads before spinning.
       if (item.highlighted) {
         this.wheelCtx.lineWidth = 3;
         this.wheelCtx.strokeStyle = '#FFD700';
@@ -189,124 +220,139 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       }
 
       if (this.translatedItems.length < 160) {
-        /** Draw the text */
+        /** Draw the text: thin black outline first keeps labels legible over any fill */
         this.wheelCtx.save();
         this.wheelCtx.translate(centerX, centerY);
         this.wheelCtx.rotate(startAngle + segmentSize / 2);
-        this.wheelCtx.fillStyle = '#fff';
-        this.wheelCtx.font = this.fontSize + 'px Arial';
+        this.wheelCtx.font = '700 ' + this.fontSize + 'px system-ui, sans-serif';
         this.wheelCtx.textAlign = 'right';
-        this.wheelCtx.fillText(item.text, segRadius - 7, 5);
+        this.wheelCtx.lineWidth = Math.max(1, this.fontSize * 0.09);
+        this.wheelCtx.strokeStyle = '#000';
+        this.wheelCtx.lineJoin = 'round';
+        this.wheelCtx.strokeText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
+        this.wheelCtx.fillStyle = '#fff';
+        this.wheelCtx.fillText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
         this.wheelCtx.restore();
       }
 
       startAngle = endAngle;
     }
 
-    // Pokéball on top — last draw call (WHEEL-01)
-    const pbRadius = window.innerWidth <= this.mobileBreakpoint ? radius * 0.15 : radius * 0.10;
-    this.drawPokeball(centerX, centerY, pbRadius);
+    // Ring drawn AFTER segments so the gold stroke sits on top of slice edges,
+    // then the hub badge on top of everything (WHEEL-01/WHEEL-02)
+    this.drawBorderRing(centerX, centerY, radius);
+    this.drawHub(centerX, centerY, radius);
   }
 
   private drawBorderRing(cx: number, cy: number, radius: number): void {
     const ctx = this.wheelCtx;
-    const segRadius = radius * 0.90;
-    const ringWidth = radius - segRadius;
-    const ringMidR  = segRadius + ringWidth / 2;
+    const s = radius / 112;
 
-    const gradient = ctx.createRadialGradient(cx, cy, segRadius, cx, cy, radius);
-    gradient.addColorStop(0.0,  '#2C1A0A');
-    gradient.addColorStop(0.4,  '#8B6914');
-    gradient.addColorStop(0.75, '#DAA520');
-    gradient.addColorStop(1.0,  '#FFD700');
-
+    // Single flat gold ring
     ctx.beginPath();
-    ctx.arc(cx, cy, ringMidR, 0, Math.PI * 2);
-    ctx.lineWidth   = ringWidth;
-    ctx.strokeStyle = gradient;
+    ctx.arc(cx, cy, radius - 3 * s, 0, Math.PI * 2);
+    ctx.lineWidth = 5 * s;
+    ctx.strokeStyle = '#f9ca24';
     ctx.stroke();
 
-    // thin black outer edge
+    // Hairline outer edge
     ctx.beginPath();
     ctx.arc(cx, cy, radius - 0.5, 0, Math.PI * 2);
-    ctx.lineWidth   = 1;
-    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(51, 51, 51, 0.5)';
     ctx.stroke();
   }
 
-  private drawPokeball(cx: number, cy: number, pbRadius: number): void {
+  /**
+   * Center hub badge: white backing disc with a gold accent ring sitting flush
+   * against it (ring inner edge lands exactly on the disc edge — no gap), flat
+   * pokeball glyph inside. Radii are fixed ratios of the 112px design-prototype
+   * radius, so mobile and desktop wheels get proportionally identical hubs.
+   */
+  private drawHub(cx: number, cy: number, radius: number): void {
     const ctx = this.wheelCtx;
+    const s = radius / 112;
+    const hubR = 28 * s;
+    const ringLW = 4 * s;
 
-    // Red upper half
+    // Gold accent ring, flush against the disc
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(cx, cy, pbRadius, 0, Math.PI, true);
-    ctx.closePath();
-    ctx.fillStyle = '#CC0000';
+    ctx.arc(cx, cy, hubR + ringLW / 2, 0, Math.PI * 2);
+    ctx.lineWidth = ringLW;
+    ctx.strokeStyle = '#f9ca24';
+    ctx.shadowColor = 'rgba(249, 202, 36, 0.55)';
+    ctx.shadowBlur = 10 * s;
+    ctx.stroke();
+    ctx.restore();
+
+    // White backing disc
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 6 * s;
     ctx.fill();
-
-    // White lower half
+    ctx.restore();
     ctx.beginPath();
-    ctx.arc(cx, cy, pbRadius, 0, Math.PI, false);
-    ctx.closePath();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fill();
-
-    // Black outer ring
-    ctx.beginPath();
-    ctx.arc(cx, cy, pbRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = pbRadius * 0.12;
+    ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+    ctx.lineWidth = 1.5 * s;
+    ctx.strokeStyle = '#333333';
     ctx.stroke();
 
-    // Black belt
-    const beltHW = pbRadius * 0.12;
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(cx - pbRadius, cy - beltHW, pbRadius * 2, beltHW * 2);
-
-    // Button: black outer circle
-    const btnRadius = pbRadius * 0.28;
-    ctx.beginPath();
-    ctx.arc(cx, cy, btnRadius, 0, Math.PI * 2);
-    ctx.fillStyle = '#000000';
+    // Flat pokeball glyph
+    const r = 15 * s;
+    ctx.beginPath();                          // top half, red
+    ctx.arc(cx, cy, r, 0, Math.PI, true);
+    ctx.closePath();
+    ctx.fillStyle = '#e74c3c';
     ctx.fill();
-
-    // Button: grey inner fill
-    ctx.beginPath();
-    ctx.arc(cx, cy, btnRadius * 0.65, 0, Math.PI * 2);
-    ctx.fillStyle = '#DDDDDD';
+    ctx.beginPath();                          // bottom half, white
+    ctx.arc(cx, cy, r, 0, Math.PI, false);
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
+    ctx.fillStyle = '#000000';                // belt band
+    ctx.fillRect(cx - r, cy - 1.5 * s, r * 2, 3 * s);
+    ctx.beginPath();                          // glyph outline
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.lineWidth = 1.5 * s;
+    ctx.strokeStyle = '#333333';
+    ctx.stroke();
+    ctx.beginPath();                          // center button
+    ctx.arc(cx, cy, 4.5 * s, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.lineWidth = Math.max(1, s);
+    ctx.strokeStyle = '#333333';
+    ctx.stroke();
   }
 
   drawPointer(): void {
-    this.pointerCtx.clearRect(0, 0, this.pointerCanvas.width, this.pointerCanvas.height);
-    this.pointerCtx.save();
+    const ctx = this.pointerCtx;
+    ctx.clearRect(0, 0, this.pointerCanvas.width, this.pointerCanvas.height);
+    ctx.save();
 
-    const pw = this.pointerCanvas.width;
-    const ph = this.pointerCanvas.height;
-    const cw = this.cursorWidth;        // 40
-    const bx = pw - cw;
-    const by = ph / 2 - cw / 2;
+    const pw = this.pointerCanvas.width;   // cursorWidth = 40
+    const midY = this.pointerCanvas.height / 2;
 
-    this.pointerCtx.beginPath();
-    this.pointerCtx.moveTo(bx,  by + cw*0.5);
-    this.pointerCtx.lineTo(bx + cw*0.5,  by + cw);
-    this.pointerCtx.lineTo(bx + cw*0.45,  by + cw*0.75);
-    this.pointerCtx.lineTo(bx + cw*0.65,  by + cw*0.85);
-    this.pointerCtx.lineTo(bx + cw*0.65,  by + cw*0.65);
-    this.pointerCtx.lineTo(bx + cw,  by + cw*0.75);
-    this.pointerCtx.lineTo(bx + cw,  by + cw*0.50);
-    this.pointerCtx.lineTo(bx + cw*0.40,  by + cw*0.50);
-    this.pointerCtx.lineTo(bx + cw*0.50,  by + cw*0.65);
-    this.pointerCtx.lineTo(bx,  by + cw*0.5);
-    this.pointerCtx.closePath();
+    ctx.beginPath();
+    ctx.moveTo(2, midY);                   // tip, pointing left into the wheel
+    ctx.lineTo(pw * 0.75, midY - 13);
+    ctx.lineTo(pw * 0.75, midY + 13);
+    ctx.closePath();
 
-    this.pointerCtx.fillStyle   = '#FFD700';
-    this.pointerCtx.fill();
-    this.pointerCtx.strokeStyle = '#1a1a00';
-    this.pointerCtx.lineWidth   = 1.5;
-    this.pointerCtx.stroke();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 5;
+    ctx.fillStyle = '#f9ca24';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#7a5b00';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
-    this.pointerCtx.restore();
+    ctx.restore();
   }
 
   spinWheel(): void {
@@ -325,6 +371,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       : Math.floor(Math.random() * 2000) + 3000;
 
     this.spinning = true;
+    this.resolvedIndex = null;
     this.gameStateService.setWheelSpinning(this.spinning);
 
 
@@ -375,6 +422,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       requestAnimationFrame(this.animate.bind(this));
     } else {
       this.spinning = false;
+      this.resolvedIndex = this.winningNumber;
       this.selectedItemEvent.emit(this.winningNumber);
       this.gameStateService.setWheelSpinning(false);
       this.pendingSpinService.clearPendingSpin();

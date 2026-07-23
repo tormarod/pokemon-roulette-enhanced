@@ -397,7 +397,7 @@ describe('RouletteContainerComponent', () => {
   describe('chooseWhoWillEvolve — zero evolvable pokemon', () => {
     beforeEach(() => {
       spyOn(trainerService, 'getPokemonThatCanEvolve').and.returnValue([]);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('gym-battle → buyPotions()', () => {
@@ -561,7 +561,7 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('with team < 2 → opens teamRocketFailsModal', () => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
 
       component.stealPokemon();
 
@@ -1014,7 +1014,7 @@ describe('RouletteContainerComponent', () => {
 
   describe('teamRocketAmbush', () => {
     beforeEach(() => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('shows a modal and transitions into the shared Team Rocket encounter', () => {
@@ -1031,7 +1031,7 @@ describe('RouletteContainerComponent', () => {
     beforeEach(() => {
       trainerService.resetItems();
       trainerService.getItems().slice().forEach(item => trainerService.removeItem(item));
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('removes one item from the inventory and shows a modal', () => {
@@ -1063,7 +1063,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       markedTargetService = TestBed.inject(MarkedTargetService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('with team >= 2 → marks one team index and shows a modal', () => {
@@ -1098,7 +1098,7 @@ describe('RouletteContainerComponent', () => {
     });
 
     beforeEach(() => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('with team >= 2 → transitions to select-from-pokemon-list, weighted toward weaker members, and shows a modal', () => {
@@ -1147,7 +1147,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       battleDebuffService = TestBed.inject(BattleDebuffService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('sets a pending battle debuff and shows a modal', () => {
@@ -1166,7 +1166,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       dangerMeterService = TestBed.inject(DangerMeterService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('spikes the Danger meter, leaves consecutiveThreats unchanged, and shows a modal', () => {
@@ -1201,7 +1201,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       catchRiskService = TestBed.inject(CatchRiskService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('sets a pending catch escape chance and shows a modal', () => {
@@ -1255,7 +1255,7 @@ describe('RouletteContainerComponent', () => {
     beforeEach(() => {
       dangerMeterService = TestBed.inject(DangerMeterService);
       spyOn(dangerMeterService, 'applySpike').and.callThrough();
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('balance >= toll: pays the full toll, no spike', () => {
@@ -1321,7 +1321,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       scoutingReportService = TestBed.inject(ScoutingReportService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('with an empty roster → does nothing, sets no type', () => {
@@ -1358,7 +1358,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       pcLockService = TestBed.inject(PcLockService);
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ result: Promise.resolve() } as any));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
     it('with total >= 2 → locks the PC and shows a modal', () => {

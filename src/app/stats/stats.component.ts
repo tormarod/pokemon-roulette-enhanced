@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy, ElementRef, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -16,6 +16,7 @@ import { PokemonService } from '../services/pokemon-service/pokemon.service';
 import { GenerationService } from '../services/generation-service/generation.service';
 import { GenerationItem } from '../interfaces/generation-item';
 import { getTypeIconUrl, PokemonType } from '../interfaces/pokemon-type';
+import { EventPopupComponent } from '../event-popup/event-popup.component';
 
 export const BATTLE_TYPES: BattleType[] = ['gym', 'rival', 'eliteFour', 'champion'];
 
@@ -46,8 +47,6 @@ export class StatsComponent {
   private readonly selectedGenerationId$: BehaviorSubject<number>;
   generationSummary$: Observable<PlayerGenerationStatsSummary>;
 
-  @ViewChild('resetStatsModal', { static: true }) resetStatsModal!: TemplateRef<any>;
-  @ViewChild('sectionResetModal', { static: true }) sectionResetModal!: TemplateRef<any>;
   @ViewChild('importFileInput') importFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('shareCard') shareCard?: ElementRef<HTMLElement>;
 
@@ -89,37 +88,39 @@ export class StatsComponent {
   }
 
   showResetConfirmModal(): void {
-    this.modalService.open(this.resetStatsModal, {
-      centered: true,
-      size: 'lg'
-    });
-  }
-
-  confirmReset(): void {
-    this.statsService.reset();
-    this.closeModal();
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = this.translate.instant('stats.reset.title');
+    modalRef.componentInstance.lines = [this.translate.instant('stats.reset.warning')];
+    modalRef.componentInstance.buttons = [
+      { label: this.translate.instant('stats.reset.confirm'), variant: 'primary' },
+      { label: this.translate.instant('stats.reset.cancel'), variant: 'secondary' }
+    ];
+    modalRef.result.then((index: number) => {
+      if (index === 0) {
+        this.statsService.reset();
+      }
+    }, () => {});
   }
 
   showSectionResetConfirm(section: ResettableSection): void {
     this.pendingResetSection = section;
-    this.modalService.open(this.sectionResetModal, {
-      centered: true,
-      size: 'lg'
-    });
-  }
-
-  confirmSectionReset(): void {
-    switch (this.pendingResetSection) {
-      case 'luck': this.statsService.resetLuckStats(); break;
-      case 'runHistory': this.statsService.resetRunHistory(); break;
-      case 'achievements': this.statsService.resetAchievements(); break;
-    }
-    this.pendingResetSection = null;
-    this.closeModal();
-  }
-
-  closeModal(): void {
-    this.modalService.dismissAll();
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = this.translate.instant(`stats.reset.section.${section}.title`);
+    modalRef.componentInstance.lines = [this.translate.instant(`stats.reset.section.${section}.warning`)];
+    modalRef.componentInstance.buttons = [
+      { label: this.translate.instant('stats.reset.confirm'), variant: 'primary' },
+      { label: this.translate.instant('stats.reset.cancel'), variant: 'secondary' }
+    ];
+    modalRef.result.then((index: number) => {
+      if (index === 0) {
+        switch (this.pendingResetSection) {
+          case 'luck': this.statsService.resetLuckStats(); break;
+          case 'runHistory': this.statsService.resetRunHistory(); break;
+          case 'achievements': this.statsService.resetAchievements(); break;
+        }
+      }
+      this.pendingResetSection = null;
+    }, () => { this.pendingResetSection = null; });
   }
 
   exportProfile(): void {

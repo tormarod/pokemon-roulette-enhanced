@@ -1,17 +1,3 @@
-<div class="roulette-header">
-    <h1 class="title">{{ 'game.main.roulette.champion.victory' | translate }}</h1>
-    <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
-    @if (currentChampion?.types?.length) {
-        <app-matchup-strip
-            [opponentTypes]="effectiveOpponentTypes ?? []"
-            [superEffectiveTypes]="matchupSuperEffectiveTypes"
-            [resistTypes]="matchupResistTypes"
-            [weakTypes]="matchupDisadvantageTypes"
-            [advantageDelta]="matchupAdvantageDelta"
-            [disadvantageDelta]="matchupDisadvantageDelta"
-            [odds]="prepPhase ? null : currentOdds" />
-    }
-</div>
 @if (prepPhase) {
     <app-battle-prep-panel
         [team]="trainerTeam"
@@ -20,46 +6,33 @@
         [forcedIndex]="markedTargetService.currentMarkedIndex"
         [baseNoCount]="baseNoCount"
         [currentRound]="currentRound"
+        [eyebrowLabel]="'game.main.roulette.champion.eyebrow' | translate"
+        [battleTitle]="'game.main.roulette.champion.victory' | translate"
+        [superEffectiveTypes]="matchupSuperEffectiveTypes"
+        [resistTypes]="matchupResistTypes"
+        [weakTypes]="matchupDisadvantageTypes"
+        [advantageDelta]="matchupAdvantageDelta"
+        [disadvantageDelta]="matchupDisadvantageDelta"
         (confirmed)="onPrepConfirmed($event)" />
 } @else {
     <app-wheel
         #wheel
         [items]="victoryOdds"
         (selectedItemEvent)="onItemSelected($event)">
+        <div wheel-card-header class="wheel-card-header">
+            <h1 class="title">{{ 'game.main.roulette.champion.victory' | translate }}</h1>
+            <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
+            @if (currentChampion?.types?.length) {
+                <app-matchup-strip
+                    [opponentTypes]="effectiveOpponentTypes ?? []"
+                    [superEffectiveTypes]="matchupSuperEffectiveTypes"
+                    [resistTypes]="matchupResistTypes"
+                    [weakTypes]="matchupDisadvantageTypes"
+                    [advantageDelta]="matchupAdvantageDelta"
+                    [disadvantageDelta]="matchupDisadvantageDelta"
+                    [odds]="currentOdds" />
+            }
+        </div>
     </app-wheel>
 }
 <div class="roulette-action-row"></div>
-
-<ng-template #presentationModalRef let-modal>
-    <div class="modal-body">
-        <h1>{{ 'game.main.roulette.champion.champion' | translate }} {{ currentChampion.name | translate }}!</h1>
-        <div class="champion-panel">
-            <img [src]="currentChampion.sprite"
-                 alt="{{currentChampion.name}}"
-                 height="128">
-            <div class="quotes">
-                @for (quote of currentChampion.quotes; track $index) {
-                    <p>{{quote | translate}}</p>
-                }
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">{{ 'game.main.roulette.champion.go' | translate }}</button>
-    </div>
-</ng-template>
-
-<ng-template #itemUsedModalRef let-modal>
-    <div class="modal-body">
-        <h1>{{ 'game.main.roulette.champion.use' | translate }} {{ currentItem.text | translate}}!</h1>
-        <div class="item-panel">
-            <img [src]="currentItem.sprite" height="128">
-            <div class="quotes">
-                <p>{{ currentItem.description | translate }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
-    </div>
-</ng-template>

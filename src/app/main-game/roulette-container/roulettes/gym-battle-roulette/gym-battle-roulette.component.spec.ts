@@ -159,14 +159,14 @@ describe('GymBattleRouletteComponent', () => {
     expect(component.matchupAdvantageDelta).toBe(4);      // 1 mutual-advantage member * (netScore(2) * unit(ceil(3/2)=2))
     expect(component.matchupDisadvantageDelta).toBe(8);   // 2 mutual-disadvantage members * (netScore(2) * unit(ceil(3/2)=2)) = 8
 
-    const sectionLabels = fixture.nativeElement.querySelectorAll('.matchup-label-positive, .matchup-label-negative');
+    const sectionLabels = fixture.nativeElement.querySelectorAll('.battle-prep-matchup-label-positive, .battle-prep-matchup-label-negative');
     // poison is both super-effective AND resists grass, plus the weak heading: 3 labels total
     expect(sectionLabels.length).toBe(3);
 
-    const deltaEls = fixture.nativeElement.querySelectorAll('.matchup-delta');
+    const deltaEls = fixture.nativeElement.querySelectorAll('.battle-prep-matchup-delta');
     const deltaTexts = Array.from(deltaEls).map((el: any) => el.textContent.trim());
-    expect(deltaTexts).toContain('+4');
-    expect(deltaTexts).toContain('-8');
+    expect(deltaTexts.some((t: string) => t.includes('+4'))).toBeTrue();
+    expect(deltaTexts.some((t: string) => t.includes('-8'))).toBeTrue();
   });
 
   it('should still show a small, non-zero Disadvantage for a low-power weak Pokémon (no more "-0")', () => {
@@ -181,10 +181,10 @@ describe('GymBattleRouletteComponent', () => {
     expect(component.matchupDisadvantageTypes).toEqual(['fire']);
     expect(component.matchupDisadvantageDelta).toBe(2); // netScore(2) * unit(ceil(1/4)=1)
 
-    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
-    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    const negLabel = fixture.nativeElement.querySelector('.battle-prep-matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.battle-prep-matchup-delta-negative');
     expect(negLabel).not.toBeNull();
-    expect(negDelta.textContent.trim()).toBe('-2');
+    expect(negDelta.textContent.trim()).toContain('-2');
   });
 
   it('renders every entry in the leader\'s types list, including a repeated emphasis type', () => {
@@ -196,14 +196,14 @@ describe('GymBattleRouletteComponent', () => {
     (component as any).calcVictoryOdds();
     fixture.detectChanges();
 
-    const opponentIcons = fixture.nativeElement.querySelectorAll('.matchup-icons-row')[0].querySelectorAll('img');
+    const opponentIcons = fixture.nativeElement.querySelectorAll('.battle-prep-matchup-opponent img');
     expect(opponentIcons.length).toBe(2);
   });
 
   // ── getCurrentLeader: multi-leader generation handling ───────────────────
 
   it('should emit fromLeaderChange when generation is 5 and round is a multi-leader round', (done) => {
-    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
 
     // Override the component's captured generation to Gen 5 (id=5)
     (component as any).generation = { id: 5, text: 'Gen 5', region: 'Unova', fillStyle: 'darkcyan', weight: 1 };
@@ -223,7 +223,7 @@ describe('GymBattleRouletteComponent', () => {
 
   describe('New Experience mode', () => {
     beforeEach(() => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
       gameStateService.resetGameState(true);
       trainerService.resetTeam();
     });

@@ -13,12 +13,13 @@ import { AbilityService } from '../../services/ability-service/ability.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { GameState } from '../../services/game-state-service/game-state';
-import {TranslatePipe} from '@ngx-translate/core';
+import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import { SoundFxHandle, SoundFxService } from '../../services/sound-fx-service/sound-fx.service';
 import { Subscription } from 'rxjs';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { EvolutionLineModalComponent } from '../../pokedex/evolution-line-modal/evolution-line-modal.component';
+import { EventPopupComponent } from '../../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-storage-pc',
@@ -43,14 +44,14 @@ export class StoragePcComponent implements OnInit, OnDestroy {
                 private abilityService: AbilityService,
                 private markedTargetService: MarkedTargetService,
                 private pcLockService: PcLockService,
-                private soundFxService: SoundFxService) {
+                private soundFxService: SoundFxService,
+                private translate: TranslateService) {
       this.pcTurningOn = this.soundFxService.createPcTurningOnSoundFx();
       this.pcLoginAudio = this.soundFxService.createPcLoginSoundFx();
       this.pcLogoutAudio = this.soundFxService.createPcLogoutSoundFx();
     }
 
     @ViewChild('pcStorageModal', { static: true }) pcStorageModal!: TemplateRef<any>;
-    @ViewChild('pcInfoModal', { static: true }) infoModal!: TemplateRef<any>;
     @ViewChild('abilityPickerModal', { static: true }) abilityPickerModal!: TemplateRef<any>;
 
     darkMode!: Observable<boolean>;
@@ -61,8 +62,6 @@ export class StoragePcComponent implements OnInit, OnDestroy {
     storedPokemon!: PokemonItem[];
     wheelSpinning: boolean = false;
     currentGameState!: GameState;
-    infoModalTitle = '';
-    infoModalMessage = '';
     /** New Experience only: the Pokémon currently being assigned an ability via the picker modal. */
     assignTarget: PokemonItem | null = null;
     /** New Experience only: team index the Marked Target threat currently forces to lead. */
@@ -107,12 +106,10 @@ export class StoragePcComponent implements OnInit, OnDestroy {
       }
 
       if(this.currentGameState === 'team-rocket-encounter') {
-        this.infoModalTitle = 'trainer.storage.unavailable';
-        this.infoModalMessage = 'trainer.storage.unavailableMessage';
-        const modalRef = this.modalService.open(this.infoModal, {
-          centered: true,
-          size: 'md'
-        });
+        const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'md', windowClass: 'event-popup-modal' });
+        modalRef.componentInstance.title = this.translate.instant('trainer.storage.unavailable');
+        modalRef.componentInstance.lines = [this.translate.instant('trainer.storage.unavailableMessage')];
+        modalRef.componentInstance.buttons = [{ label: this.translate.instant('common.ok'), variant: 'primary' }];
       } else {
         this.trainerTeam = this.trainerService.getTeam();
         this.storedPokemon = this.trainerService.getStored();
@@ -122,17 +119,14 @@ export class StoragePcComponent implements OnInit, OnDestroy {
           centered: true,
           size: 'lg',
           backdrop: 'static',
-          keyboard: false
+          keyboard: false,
+          windowClass: 'pc-modal'
         });
       }
     }
 
     logOut(): void {
       void this.soundFxService.playSoundFx(this.pcLogoutAudio, 0.30);
-      this.modalService.dismissAll();
-    }
-
-    closeModal(): void {
       this.modalService.dismissAll();
     }
 
@@ -149,6 +143,11 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     getTypeIconUrl(type: PokemonType): string {
       return getTypeIconUrl(type);
+    }
+
+    /** Whether the bag holds a mega stone matching this Pokémon's species (informational dot; activation only happens from the battle team, not here). */
+    hasMegaStone(pokemon: PokemonItem): boolean {
+      return this.trainerService.getHeldMegaStoneNamesForPokemon(pokemon).length > 0;
     }
 
     drop(event: CdkDragDrop<PokemonItem[]>) {
@@ -211,7 +210,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
         return;
       }
       this.assignTarget = pokemon;
-      this.pickerModalRef = this.modalService.open(this.abilityPickerModal, { centered: true, size: 'md' });
+      this.pickerModalRef = this.modalService.open(this.abilityPickerModal, { centered: true, size: 'md', windowClass: 'pc-modal' });
     }
 
     /** Assigns the chosen capsule's ability to the target (overwrites any current one), consuming the capsule. */

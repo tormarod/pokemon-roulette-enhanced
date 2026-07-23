@@ -8,11 +8,13 @@ import { DarkModeService } from '../../services/dark-mode-service/dark-mode.serv
 import { ThemeService } from '../../services/theme-service/theme.service';
 import { PokemonService } from '../../services/pokemon-service/pokemon.service';
 import { PokemonFormsService } from '../../services/pokemon-forms-service/pokemon-forms.service';
-import { PokedexEntry } from '../../services/pokedex-service/pokedex.service';
+import { PokedexService, PokedexEntry } from '../../services/pokedex-service/pokedex.service';
 import { PokemonForm } from '../../interfaces/pokemon-form';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PokemonType, getTypeIconUrl } from '../../interfaces/pokemon-type';
 import { pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-forms';
+
+const POWER_PIP_CAP = 6;
 
 @Component({
   selector: 'app-pokedex-detail-modal',
@@ -25,6 +27,8 @@ import { pokemonMegaForms } from '../../services/trainer-service/pokemon-mega-fo
 export class PokedexDetailModalComponent implements OnInit {
   @Input() pokemonId!: number;
   @Input() entry: PokedexEntry | undefined;
+  /** Ordered dex ids (Kanto or National, whichever tab was active on open) that Prev/Next steps through, wrapping at the ends. */
+  @Input() dexIds: number[] = [];
 
   showShiny = false;
   selectedFormId!: number;
@@ -32,11 +36,13 @@ export class PokedexDetailModalComponent implements OnInit {
   hasError = false;
 
   readonly fallbackUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/items/unknown.png';
+  readonly powerPipCap = POWER_PIP_CAP;
 
   constructor(
     public activeModal: NgbActiveModal,
     private pokemonService: PokemonService,
     private pokemonFormsService: PokemonFormsService,
+    private pokedexService: PokedexService,
     private darkModeService: DarkModeService,
     private themeService: ThemeService
   ) {}
@@ -153,5 +159,53 @@ export class PokedexDetailModalComponent implements OnInit {
   selectForm(formId: number): void {
     this.selectedFormId = formId;
     this.hasError = false;
+  }
+
+  get isWon(): boolean {
+    return this.entry?.won === true;
+  }
+
+  get isCaptured(): boolean {
+    return !!this.entry;
+  }
+
+  get statusLabelKey(): string {
+    return this.isCaptured ? 'pokedex.caughtStatus' : 'pokedex.notCaptured';
+  }
+
+  get powerPipFilled(): boolean[] {
+    return Array.from({ length: this.powerPipCap }, (_, i) => i < this.detailsPower);
+  }
+
+  /** Prev/Next only render when there's more than one dex entry to step through. */
+  get canStep(): boolean {
+    return this.dexIds.length > 1;
+  }
+
+  onPrev(): void {
+    this.stepBy(-1);
+  }
+
+  onNext(): void {
+    this.stepBy(1);
+  }
+
+  private stepBy(delta: number): void {
+    if (!this.canStep) {
+      return;
+    }
+    const currentIndex = this.dexIds.indexOf(this.pokemonId);
+    const baseIndex = currentIndex === -1 ? 0 : currentIndex;
+    const nextIndex = (baseIndex + delta + this.dexIds.length) % this.dexIds.length;
+    this.goToPokemon(this.dexIds[nextIndex]);
+  }
+
+  /** Jumps the whole popup to a different dex entry in place, resetting per-entry view state (shiny toggle, selected form, sprite error) same as opening it fresh. */
+  private goToPokemon(pokemonId: number): void {
+    this.pokemonId = pokemonId;
+    this.selectedFormId = pokemonId;
+    this.showShiny = false;
+    this.hasError = false;
+    this.entry = this.pokedexService.currentPokedex.caught[String(pokemonId)];
   }
 }

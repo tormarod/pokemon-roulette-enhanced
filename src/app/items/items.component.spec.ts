@@ -76,11 +76,22 @@ describe('ItemsComponent', () => {
     expect(component.threatShieldInterrupt.emit).not.toHaveBeenCalled();
   });
 
-  it('should build the hover tooltip from both the item name and its description', () => {
+  it('exposes the item name and description separately for the hover popover', () => {
+    const honey = { name: 'honey', text: 'Honey', fillStyle: '', weight: 1, description: 'Biases your next catch or trade.', sprite: '' } as any;
+
+    expect(component.getItemName(honey)).toBe('Honey');
+    expect(component.getItemDescription(honey)).toBe('Biases your next catch or trade.');
+  });
+
+  it('groups owned items into categories, omitting empty ones', () => {
     component.trainerItems = [
-      { name: 'honey', text: 'Honey', fillStyle: '', weight: 1, description: 'Biases your next catch or trade.', sprite: '' } as any
+      { name: 'potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' } as any,
+      { name: 'repel', text: '', fillStyle: '', weight: 1, description: '', sprite: '' } as any,
     ];
 
-    expect(component.getItemText(0)).toBe('Honey — Biases your next catch or trade.');
+    const categoryIds = component.categories.map(c => c.id);
+    expect(categoryIds).toEqual(['battle', 'field']);
+    expect(component.categories[0].entries.length).toBe(1);
+    expect(component.categories[0].entries[0].item.name).toBe('potion');
   });
 });

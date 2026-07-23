@@ -1,25 +1,126 @@
-.title {
-    text-align: center;
-}
-
 .respin-reason {
 	text-align: center;
 }
 
-.choose-one-label {
-	text-align: center;
-	font-weight: 600;
+/* ── Reward step: "choose 1 of 3" card (2c Compact List Rows) ──────────────
+   Binary dark/light via CSS custom properties on theme classes, matching the
+   wheel-card precedent (NEVER body.theme-* here — emulated encapsulation
+   makes those silently fail in component CSS). Card tokens are identical to
+   .wheel-card so the reward screen reads as the same system. */
+
+.adventure-panel-dark {
+	--adv-card-bg: #232629;
+	--adv-card-border: #333;
+	--adv-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
+	--adv-text: #dfe6e9;
+	--adv-row-bg: rgba(255, 255, 255, 0.06);
+	--adv-row-border: rgba(255, 255, 255, 0.18);
+	--adv-row-selected-bg: rgba(249, 202, 36, 0.16);
 }
 
-.adventure-card-row {
+.adventure-panel-light {
+	--adv-card-bg: #f5f6fa;
+	--adv-card-border: #ccc;
+	--adv-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+	--adv-text: #2d3436;
+	--adv-row-bg: rgba(0, 0, 0, 0.035);
+	--adv-row-border: rgba(51, 51, 51, 0.22);
+	--adv-row-selected-bg: rgba(249, 202, 36, 0.14);
+}
+
+.adventure-panel {
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 0.75rem;
-	margin-bottom: 1rem;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	/* Uniform width shared with the status-header and wheel cards. */
+	width: 100%;
+	max-width: min(480px, 94vw);
+	box-sizing: border-box;
+	margin: 0 auto 16px;
+	padding: 20px;
+	background: var(--adv-card-bg);
+	color: var(--adv-text);
+	border: 1px solid var(--adv-card-border);
+	border-radius: 14px;
+	box-shadow: var(--adv-card-shadow);
 }
 
-.adventure-card {
-	min-width: 160px;
-	border-width: 2px;
+.adventure-panel-header {
+	text-align: center;
+}
+
+.choose-label {
+	font-size: 11px;
+	opacity: 0.6;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.choose-prompt {
+	font-size: 15px;
+	font-weight: 700;
+	margin-top: 2px;
+}
+
+.adventure-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.adventure-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 12px 14px;
+	border-radius: 12px;
+	border: 2px solid var(--adv-row-border);
+	background: var(--adv-row-bg);
+	/* Buttons don't reliably inherit text color from the page — set it
+	   explicitly or labels can render in the browser's default button color. */
+	color: var(--adv-text);
+	cursor: pointer;
+	text-align: left;
+	transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.adventure-row:hover {
+	filter: brightness(1.08);
+}
+
+.adventure-row.selected {
+	border-color: #f9ca24;
+	background: var(--adv-row-selected-bg);
+	box-shadow: 0 0 0 3px rgba(249, 202, 36, 0.3);
+}
+
+/* A sibling was picked instead. Clicks on dimmed rows are already inert via
+   onCandidatePicked's committed-pick guard — this is only the visual cue. */
+.adventure-row.dimmed {
+	opacity: 0.4;
+}
+
+.row-swatch {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+}
+
+.row-label {
+	flex: 1;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.row-chevron {
+	font-size: 16px;
+	opacity: 0.35;
 }

@@ -1,5 +1,5 @@
-<div class="wheel-container">
-    <p aria-live="polite">{{ currentSegment | translate }}</p>
+<div class="wheel-card" [ngClass]="(darkMode | async) ? 'wheel-card-dark' : 'wheel-card-light'">
+    <ng-content select="[wheel-card-header]"></ng-content>
     <div class="canvas-container">
         <canvas id="wheel"
                 #wheel
@@ -14,10 +14,20 @@
                 [height]="canvasHeight">
         </canvas>
     </div>
-    <button class="btn spin-button my-3"
-            [ngClass]="(darkMode | async) ? 'btn-light' : 'btn-dark'"
-            (click)="spinWheel()">
-            {{ 'wheel.spin' | translate }}
+    <button class="spin-button" (click)="spinWheel()">
+        {{ 'wheel.spin' | translate }}
     </button>
+    <div class="result-slot" aria-live="polite">
+        @if (resolvedItem; as item) {
+            @if (item.resultKind === 'victory') {
+                <span class="result-chip result-chip-victory">{{ 'wheel.victory' | translate }}</span>
+            } @else if (item.resultKind === 'defeat') {
+                <span class="result-chip result-chip-defeat">{{ 'wheel.defeat' | translate }}</span>
+            } @else {
+                <span class="result-chip result-chip-neutral">{{ item.text | translate }}</span>
+            }
+        } @else if (spinning) {
+            <span class="result-live">{{ currentSegment | translate }}</span>
+        }
+    </div>
 </div>
-

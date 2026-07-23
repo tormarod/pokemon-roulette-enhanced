@@ -1,15 +1,17 @@
 <div class="danger-meter" [class.shielded]="isNextStepGuaranteedSafe"
      [ngbTooltip]="'game.main.danger.help' | translate" placement="bottom" triggers="hover click">
     <div class="danger-meter-label">
-        <span>{{ 'game.main.danger.label' | translate }}</span>
+        <span class="danger-meter-title">{{ 'game.main.danger.label' | translate }}</span>
         @if (isNextStepGuaranteedSafe) {
             <span class="danger-meter-safe-badge">{{ 'game.main.danger.safe' | translate }}</span>
         }
+        <span class="danger-meter-percent">{{ dangerPercent }}%</span>
     </div>
     <div class="danger-meter-bar-track">
-        <div class="danger-meter-bar-fill" [class]="colorClass" [style.width.%]="dangerPercent"></div>
+        <div class="danger-meter-bar-fill" [class]="colorClass"
+             [style.width.%]="dangerPercent"
+             [style.background-size]="gradientBackgroundSize"></div>
     </div>
-    <div class="danger-meter-percent">{{ dangerPercent }}%</div>
     @if (showReliefCue) {
         <p class="danger-meter-relief-cue">{{ 'game.main.danger.relief' | translate }}</p>
     }

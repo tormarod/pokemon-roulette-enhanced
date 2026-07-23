@@ -1,6 +1,7 @@
 {
   "common": {
-    "scrollHint": "Scorri per altri contenuti"
+    "scrollHint": "Scorri per altri contenuti",
+    "ok": "Ok"
   },
   "settings": {
     "label": "Impostazioni",
@@ -399,7 +400,8 @@
         },
         "adventure": {
           "title": "Cosa fai tra una Palestra e l'altra?",
-          "chooseOne": "Scegline uno:",
+          "chooseOne": "Scegline uno",
+          "chooseOnePrompt": "Scegli la tua prossima mossa",
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
@@ -506,6 +508,7 @@
         },
         "champion": {
           "champion": "Campione",
+          "eyebrow": "Champion Battle",
           "go": "Andiamo!",
           "use": "Ha usato una",
           "victory": "Vittoria?",
@@ -517,6 +520,7 @@
         },
         "elite": {
           "elite4": "Superquattro",
+          "eyebrow": "Elite Four Battle",
           "go": "Andiamo!",
           "prep": {
             "congrats": "Congratulazioni!",
@@ -555,6 +559,7 @@
         "gym": {
           "against": "Lotta contro",
           "defeated": "Sconfitto?",
+          "eyebrow": "Gym Battle",
           "go": "Andiamo!",
           "used": "Ha usato",
           "yes": "Sì",
@@ -576,8 +581,10 @@
           "no": "No"
         },
         "matchup": {
+          "opponent": "Opponent",
           "superEffective": "Superefficace",
           "resists": "Resiste",
+          "advantage": "Advantage",
           "weak": "Debole",
           "abilities": "Abilità"
         },
@@ -591,6 +598,7 @@
         },
         "rival": {
           "against": "Lotta contro",
+          "eyebrow": "Rival Battle",
           "go": "Andiamo!",
           "used": "Ha usato",
           "victory": "Vittoria?",
@@ -716,6 +724,11 @@
     "restockConfirmMessage": "Rifornire il Mercato al massimo per 🪙 {{price}}?",
     "restockConfirmYes": "Rifornisci",
     "restockConfirmNo": "Annulla",
+    "filterAll": "Tutti",
+    "filterBattle": "Aiuti da battaglia",
+    "filterField": "Oggetti da campo",
+    "filterEvo": "Evoluzione e abilità",
+    "qtyHeld": "{{count}} posseduti",
     "capsule": {
       "name": "Capsula Abilità",
       "description": "Una Capsula Abilità casuale — assegnala a un membro della squadra nel PC per un vantaggio permanente."
@@ -723,6 +736,12 @@
   },
   "items": {
     "title": "Strumenti",
+    "category": {
+      "battleAids": "Battle Aids",
+      "fieldItems": "Field Items",
+      "megaStones": "Mega Stones",
+      "abilityCapsules": "Ability Capsules"
+    },
     "potion": {
       "name": "Pozione",
       "description": "La Pozione ti permette di girare di nuovo la ruota quando perderesti una qualsiasi battaglia!"
@@ -1165,7 +1184,8 @@
       "marked": "Marcato",
       "markedTooltip": "Bersaglio Marcato: bloccato — deve guidare la tua prossima battaglia e non può essere mandato al PC né scambiato.",
       "coins": "Monete",
-      "coinsTooltip": "Monete guadagnate da vittorie, avventure e ogni round. Spendile al Mercato per pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare."
+      "coinsTooltip": "Monete guadagnate da vittorie, avventure e ogni round. Spendile al Mercato per pozioni, Attacco X, Capsule Abilità, Revitalizzanti e Caramelle Rare.",
+      "badgesAriaLabel": "View earned badges"
     },
     "storage": {
       "access": "Accedi al PC",
@@ -1178,6 +1198,8 @@
       "faintedTooltip": "Esausto per una sconfitta — bloccato nel PC finché non viene rianimato con un Revitalizzante.",
       "retreatLocked": "Bloccato (Ritirata Forzata)",
       "retreatLockedTooltip": "Messo in panchina da una minaccia di Ritirata Forzata — si sblocca al termine della tua prossima battaglia reale.",
+      "retreatLockedLegend": "Retreat Locked",
+      "heldMegaStone": "Held Mega Stone",
       "pcLocked": "PC locked until your next battle",
       "revive": "Revitalizza",
       "assignAbility": "Abilità",
@@ -1187,7 +1209,9 @@
     }
   },
   "wheel": {
-    "spin": "Clicca per girare!"
+    "spin": "Clicca per girare!",
+    "victory": "VITTORIA",
+    "defeat": "SCONFITTA"
   },
   "pokemon": {
     "bulbasaur": "Bulbasaur",
@@ -3140,10 +3164,13 @@
     },
     "caught": "Catturati:",
     "search": "Cerca per nome...",
-    "notCaptured": "Non ancora catturato"
+    "notCaptured": "Non ancora catturato",
+    "caughtStatus": "Caught",
+    "wonBadge": "Won the game with"
   },
   "detail": {
     "name": "Nome",
+    "status": "Status",
     "types": "Tipi",
     "power": "Potenza",
     "shiny": {
@@ -3179,6 +3206,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_15_1": "Version 3.15.1",
   "v3_15_0": "Version 3.15.0",
   "v3_14_1": "Version 3.14.1",
   "v3_14_0": "Version 3.14.0",
@@ -3199,6 +3227,16 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_15_1": {
+      "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card.",
+      "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
+      "2": "🧭 Run context got its own status card: the upcoming opponent and the Danger meter (now a green→yellow→red gradient bar) sit together above each screen, which now carries every screen's title too.",
+      "3": "🎒 The team and item panels got the same card treatment: your roster now shows type and power right on the tile (no more hover-to-discover), badges tuck into a click-to-expand popover, and items are grouped into Battle Aids, Field Items, Mega Stones, and Ability Capsules — the latter now with a distinct color per capsule instead of one shared icon.",
+      "4": "🏪 The Market got restyled too: Buy and Sell now live behind a segmented tab instead of stacking, rows filter by category (Battle Aids / Field Items / Evolution & Ability), and each row shows price and stock/held count stacked with the full description on hover.",
+      "5": "📦 The PC Storage box matches now too: On Team and Stored are square drag tiles with status as small corner dots (Marked / Fainted / Retreat Locked / Held Mega Stone) plus a bottom pill for an assigned ability, a color-key legend explains each one, and the whole modal is properly themed instead of always rendering light.",
+      "6": "📖 The Pokédex got the same card treatment: bigger square tiles with a gold ring for anything you've won the game with, and tapping an entry now opens a themed detail popup with Prev/Next arrows to browse the whole dex without closing back to the grid.",
+      "7": "💬 Every in-game popup — evolutions, threats, rewards, battle intros, restart/reset confirms — now shares one themed card design with a gold accent, instead of a plain white box."
+    },
     "v3_15_0": {
       "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."
     },

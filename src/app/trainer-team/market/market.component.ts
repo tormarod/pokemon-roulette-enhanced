@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, Subscription } from 'rxjs';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { EventPopupComponent } from '../../event-popup/event-popup.component';
+import { Subscription } from 'rxjs';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
-import { ThemeService } from '../../services/theme-service/theme.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { GameState } from '../../services/game-state-service/game-state';
 import { ItemsService } from '../../services/items-service/items.service';
@@ -16,6 +15,9 @@ import { MARKET_PRICES, MarketEntryId, sellValue } from '../../main-game/roulett
 import { ItemItem } from '../../interfaces/item-item';
 import { MarketStockService } from '../../services/market-stock-service/market-stock.service';
 
+/** Market-specific 3-way grouping used by the filter chips (distinct from the 4-way `ItemCategory` used by the Item panel). */
+export type MarketCategory = 'battle' | 'field' | 'evo';
+
 interface MarketEntry {
   id: MarketEntryId;
   /** For a regular-item entry: the item bought. Absent for the random ability capsule. */
@@ -24,6 +26,7 @@ interface MarketEntry {
   descriptionKey: string;
   price: number;
   sprite: string;
+  category: MarketCategory;
 }
 
 interface SellableGroup {
@@ -36,6 +39,25 @@ interface SellableGroup {
 
 const CAPSULE_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png';
 
+const MARKET_ENTRY_CATEGORY: Record<MarketEntryId, MarketCategory> = {
+  'potion': 'battle',
+  'super-potion': 'battle',
+  'hyper-potion': 'battle',
+  'x-attack': 'battle',
+  'revive': 'battle',
+  'honey': 'field',
+  'rare-candy': 'evo',
+  'ability-capsule': 'evo',
+};
+
+/** Filter chip definitions for the Buy tab, in display order. */
+const MARKET_FILTERS: ReadonlyArray<{ id: MarketCategory | 'all'; labelKey: string }> = [
+  { id: 'all', labelKey: 'market.filterAll' },
+  { id: 'battle', labelKey: 'market.filterBattle' },
+  { id: 'field', labelKey: 'market.filterField' },
+  { id: 'evo', labelKey: 'market.filterEvo' },
+];
+
 /**
  * Always-available (outside combat) shop for the New-Experience coin economy.
  * Mirrors StoragePcComponent's modal pattern: a button in the team strip opens an
@@ -47,7 +69,7 @@ const CAPSULE_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master
  */
 @Component({
   selector: 'app-market',
-  imports: [CommonModule, NgbTooltipModule, TranslatePipe],
+  imports: [NgbTooltipModule, TranslatePipe],
   templateUrl: './market.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './market.component.css'
@@ -55,21 +77,19 @@ const CAPSULE_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master
 export class MarketComponent implements OnInit, OnDestroy {
 
   constructor(private trainerService: TrainerService,
-              private themeService: ThemeService,
               private modalService: NgbModal,
               private gameStateService: GameStateService,
               private itemsService: ItemsService,
               private itemSpriteService: ItemSpriteService,
               private battlePrepService: BattlePrepService,
               private soundFxService: SoundFxService,
-              private marketStockService: MarketStockService) {
+              private marketStockService: MarketStockService,
+              private translate: TranslateService) {
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
 
   @ViewChild('marketModal', { static: true }) marketModal!: TemplateRef<any>;
-  @ViewChild('restockConfirmModal', { static: true }) restockConfirmModal!: TemplateRef<any>;
 
-  darkMode!: Observable<boolean>;
   coins = 0;
   wheelSpinning = false;
   currentGameState!: GameState;
@@ -79,6 +99,10 @@ export class MarketComponent implements OnInit, OnDestroy {
   itemFoundAudio!: SoundFxHandle;
   /** True once the pre-battle prep is confirmed (spin imminent/underway). */
   private prepCommitted = false;
+
+  readonly filters = MARKET_FILTERS;
+  activeTab: 'buy' | 'sell' = 'buy';
+  activeFilter: MarketCategory | 'all' = 'all';
 
   /**
    * Battle-family states. Inside these the Market stays open during the pre-Confirm
@@ -93,7 +117,6 @@ export class MarketComponent implements OnInit, OnDestroy {
   private readonly subscriptions = new Subscription();
 
   ngOnInit(): void {
-    this.darkMode = this.themeService.isDark$;
     this.buildStock();
 
     this.subscriptions.add(this.trainerService.getCoinsObservable().subscribe(coins => {
@@ -144,11 +167,26 @@ export class MarketComponent implements OnInit, OnDestroy {
     if (!this.isAvailable) {
       return;
     }
-    this.modalService.open(this.marketModal, { centered: true, size: 'lg' });
+    this.activeTab = 'buy';
+    this.activeFilter = 'all';
+    this.modalService.open(this.marketModal, { size: 'lg', windowClass: 'market-modal market-modal-top', scrollable: true });
   }
 
   closeModal(): void {
     this.modalService.dismissAll();
+  }
+
+  setTab(tab: 'buy' | 'sell'): void {
+    this.activeTab = tab;
+  }
+
+  setFilter(filter: MarketCategory | 'all'): void {
+    this.activeFilter = filter;
+  }
+
+  /** Buy list narrowed to the active filter chip; 'all' shows everything. */
+  get filteredStock(): MarketEntry[] {
+    return this.activeFilter === 'all' ? this.stock : this.stock.filter(entry => entry.category === this.activeFilter);
   }
 
   canAfford(entry: MarketEntry): boolean {
@@ -192,7 +230,17 @@ export class MarketComponent implements OnInit, OnDestroy {
     if (!this.isAvailable || !this.canRestock || !this.canAffordRestock()) {
       return;
     }
-    this.modalService.open(this.restockConfirmModal, { centered: true, size: 'sm' });
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'sm', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.lines = [this.translate.instant('market.restockConfirmMessage', { price: this.restockPrice })];
+    modalRef.componentInstance.buttons = [
+      { label: this.translate.instant('market.restockConfirmYes'), variant: 'primary' },
+      { label: this.translate.instant('market.restockConfirmNo'), variant: 'secondary' }
+    ];
+    modalRef.result.then((index: number) => {
+      if (index === 0) {
+        this.confirmRestock();
+      }
+    }, () => {});
   }
 
   confirmRestock(): void {
@@ -261,7 +309,8 @@ export class MarketComponent implements OnInit, OnDestroy {
         labelKey: `items.${itemName}.name`,
         descriptionKey: `items.${itemName}.description`,
         price: MARKET_PRICES[id],
-        sprite: ''
+        sprite: '',
+        category: MARKET_ENTRY_CATEGORY[id]
       };
       this.itemSpriteService.getItemSprite(itemName as ItemName)
         .subscribe(response => { entry.sprite = response?.sprite ?? ''; });
@@ -273,7 +322,8 @@ export class MarketComponent implements OnInit, OnDestroy {
       labelKey: 'market.capsule.name',
       descriptionKey: 'market.capsule.description',
       price: MARKET_PRICES['ability-capsule'],
-      sprite: CAPSULE_SPRITE
+      sprite: CAPSULE_SPRITE,
+      category: MARKET_ENTRY_CATEGORY['ability-capsule']
     });
   }
 
