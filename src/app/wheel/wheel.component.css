@@ -1,14 +1,53 @@
-.wheel-container {
+/* Binary dark/light card, matching the battle-prep-panel precedent
+   (CSS custom properties on theme classes; NEVER body.theme-* here —
+   emulated encapsulation makes those silently fail in component CSS).
+   The --wheel-* vars also inherit down into projected content (battle
+   header + matchup strip) — custom properties pierce Angular's emulated
+   encapsulation because they inherit via the DOM. */
+
+.wheel-card-dark {
+    --wheel-card-bg: #232629;
+    --wheel-card-border: #333;
+    --wheel-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
+    --wheel-text: #dfe6e9;
+    --wheel-tile-bg: rgba(255, 255, 255, 0.06);
+    --wheel-tile-border: rgba(255, 255, 255, 0.18);
+    --wheel-chip-neutral-bg: rgba(255, 255, 255, 0.08);
+    /* Brightened vs. the light theme so they stay readable on the dark card. */
+    --wheel-positive: #6fcf6f;
+    --wheel-negative: #ff8a80;
+}
+
+.wheel-card-light {
+    --wheel-card-bg: #f5f6fa;
+    --wheel-card-border: #ccc;
+    --wheel-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    --wheel-text: #2d3436;
+    --wheel-tile-bg: rgba(0, 0, 0, 0.035);
+    --wheel-tile-border: rgba(51, 51, 51, 0.22);
+    --wheel-chip-neutral-bg: rgba(0, 0, 0, 0.05);
+    --wheel-positive: #2e7d32;
+    --wheel-negative: #c62828;
+}
+
+.wheel-card {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 8px;
+    width: fit-content;
+    max-width: 94vw;
+    box-sizing: border-box;
+    margin: 16px auto;
+    padding: 22px;
+    background: var(--wheel-card-bg);
+    color: var(--wheel-text);
+    border: 1px solid var(--wheel-card-border);
+    border-radius: 14px;
+    box-shadow: var(--wheel-card-shadow);
 }
 
-.wheel-container p {
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
+/* Pointer canvas sits to the right; this offset re-centers the wheel visually. */
 .canvas-container {
     display: flex;
     flex-direction: row;
@@ -18,4 +57,71 @@
 
 .spin-button {
     min-width: 200px;
+    border: 1px solid var(--wheel-text);
+    border-radius: 999px;
+    padding: 10px 32px;
+    background: none;
+    color: var(--wheel-text);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.spin-button:hover {
+    background: var(--wheel-text);
+    color: var(--wheel-card-bg);
+}
+
+/* Fixed-height slot so the card never resizes when the chip appears. */
+.result-slot {
+    height: 28px;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.result-live {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--wheel-text);
+    white-space: nowrap;
+}
+
+.result-chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    animation: result-pop 0.5s ease-out both;
+}
+
+.result-chip-victory {
+    background: linear-gradient(135deg, #eafaf1, #c8f0d8);
+    color: #1b7a2f;
+}
+
+.result-chip-defeat {
+    background: linear-gradient(135deg, #fdecea, #f8c9c4);
+    color: #a3281f;
+}
+
+.result-chip-neutral {
+    background: var(--wheel-chip-neutral-bg);
+    border-color: var(--wheel-tile-border);
+    color: var(--wheel-text);
+    text-transform: uppercase;
+}
+
+@keyframes result-pop {
+    0%   { opacity: 0; transform: scale(0.9) translateY(4px); }
+    60%  { opacity: 1; transform: scale(1.05) translateY(-1px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
 }

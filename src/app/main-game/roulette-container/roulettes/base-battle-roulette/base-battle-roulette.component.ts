@@ -200,7 +200,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const yesOdds: WheelItem[] = [];
     for (let i = 0; i < odds.yesTickets; i++) {
-      yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1 });
+      yesOdds.push({ text: yesText, fillStyle: 'green', weight: 1, resultKind: 'victory' });
     }
 
     if (types.length) {
@@ -222,7 +222,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
     const noOdds: WheelItem[] = [];
     for (let i = 0; i < odds.noTickets; i++) {
-      noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1 });
+      noOdds.push({ text: noText, fillStyle: 'crimson', weight: 1, resultKind: 'defeat' });
     }
 
     return interleaveOdds(yesOdds, noOdds);

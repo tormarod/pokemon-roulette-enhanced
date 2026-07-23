@@ -1,21 +1,3 @@
-@if (!prepPhase) {
-    <div class="roulette-header">
-        <h1 class="title">{{currentLeader.name | translate}} {{ 'game.main.roulette.gym.defeated' | translate }}</h1>
-        <p class="respin-reason">
-            {{ (retries > 0 && currentItem) ? (currentItem.text | translate) + " x" + retries : ""}}
-        </p>
-        @if (currentLeader?.types?.length) {
-            <app-matchup-strip
-                [opponentTypes]="effectiveOpponentTypes ?? []"
-                [superEffectiveTypes]="matchupSuperEffectiveTypes"
-                [resistTypes]="matchupResistTypes"
-                [weakTypes]="matchupDisadvantageTypes"
-                [advantageDelta]="matchupAdvantageDelta"
-                [disadvantageDelta]="matchupDisadvantageDelta"
-                [odds]="currentOdds" />
-        }
-    </div>
-}
 @if (prepPhase) {
     <app-battle-prep-panel
         [team]="trainerTeam"
@@ -34,6 +16,22 @@
         (confirmed)="onPrepConfirmed($event)" />
 } @else {
     <app-wheel #wheel [items]="victoryOdds" (selectedItemEvent)="onItemSelected($event)">
+        <div wheel-card-header class="wheel-card-header">
+            <h1 class="title">{{currentLeader.name | translate}} {{ 'game.main.roulette.gym.defeated' | translate }}</h1>
+            <p class="respin-reason">
+                {{ (retries > 0 && currentItem) ? (currentItem.text | translate) + " x" + retries : ""}}
+            </p>
+            @if (currentLeader?.types?.length) {
+                <app-matchup-strip
+                    [opponentTypes]="effectiveOpponentTypes ?? []"
+                    [superEffectiveTypes]="matchupSuperEffectiveTypes"
+                    [resistTypes]="matchupResistTypes"
+                    [weakTypes]="matchupDisadvantageTypes"
+                    [advantageDelta]="matchupAdvantageDelta"
+                    [disadvantageDelta]="matchupDisadvantageDelta"
+                    [odds]="currentOdds" />
+            }
+        </div>
     </app-wheel>
 }
 <div class="roulette-action-row"></div>

@@ -39,3 +39,23 @@
 .modal-footer {
 	justify-content: center;
 }
+
+/* Header block projected into the wheel card (wheel-card-header slot). */
+.wheel-card-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+}
+
+.wheel-card-header .title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.wheel-card-header .respin-reason {
+	margin: 0;
+	min-height: 1em;
+}
