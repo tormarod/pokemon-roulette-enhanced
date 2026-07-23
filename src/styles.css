@@ -183,3 +183,33 @@ body.theme-starters .achievement-tile {
   border: none;
   box-shadow: none;
 }
+
+/* ── Market modal (windowClass: 'market-modal') ──────────────────────────────
+   Bootstrap's .modal-content ignores the app theme by default (see the note
+   above) — scope it here so the Market reads correctly in all three themes
+   instead of always rendering a light-mode-white sheet. Tokens match the
+   card language used elsewhere in this redesign pass (items.component,
+   trainer-team, etc). */
+body.theme-plain-dark .market-modal .modal-content,
+body.theme-starters .market-modal .modal-content {
+  background: #232629;
+  color: #dfe6e9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .market-modal .modal-content {
+  background: #f5f6fa;
+  color: #2d3436;
+}
+
+body.theme-plain-dark .market-modal .modal-header,
+body.theme-starters .market-modal .modal-header,
+body.theme-plain-dark .market-modal .modal-footer,
+body.theme-starters .market-modal .modal-footer {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .market-modal .modal-header,
+body.theme-plain-light .market-modal .modal-footer {
+  border-color: rgba(51, 51, 51, 0.15);
+}

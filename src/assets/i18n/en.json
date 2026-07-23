@@ -723,6 +723,11 @@
     "restockConfirmMessage": "Restock the Market back to full stock for 🪙 {{price}}?",
     "restockConfirmYes": "Restock",
     "restockConfirmNo": "Cancel",
+    "filterAll": "All",
+    "filterBattle": "Battle Aids",
+    "filterField": "Field Items",
+    "filterEvo": "Evolution & Ability",
+    "qtyHeld": "{{count}} held",
     "capsule": {
       "name": "Ability Capsule",
       "description": "A random Ability Capsule — assign it to a team member in the PC for a permanent battle edge."
@@ -3220,7 +3225,8 @@
       "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card.",
       "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
       "2": "🧭 Run context got its own status card: the upcoming opponent and the Danger meter (now a green→yellow→red gradient bar) sit together above each screen, which now carries every screen's title too.",
-      "3": "🎒 The team and item panels got the same card treatment: your roster now shows type and power right on the tile (no more hover-to-discover), badges tuck into a click-to-expand popover, and items are grouped into Battle Aids, Field Items, Mega Stones, and Ability Capsules — the latter now with a distinct color per capsule instead of one shared icon."
+      "3": "🎒 The team and item panels got the same card treatment: your roster now shows type and power right on the tile (no more hover-to-discover), badges tuck into a click-to-expand popover, and items are grouped into Battle Aids, Field Items, Mega Stones, and Ability Capsules — the latter now with a distinct color per capsule instead of one shared icon.",
+      "4": "🏪 The Market got restyled too: Buy and Sell now live behind a segmented tab instead of stacking, rows filter by category (Battle Aids / Field Items / Evolution & Ability), and each row shows price and stock/held count stacked with the full description on hover."
     },
     "v3_15_0": {
       "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."
