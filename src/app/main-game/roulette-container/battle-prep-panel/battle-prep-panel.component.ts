@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PokemonItem } from '../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../interfaces/item-item';
@@ -8,6 +9,7 @@ import { TypeMatchupService } from '../../../services/type-matchup-service/type-
 import { BattleOddsService, BattleOddsBreakdown } from '../../../services/battle-odds-service/battle-odds.service';
 import { BattleDebuffService } from '../../../services/battle-debuff-service/battle-debuff.service';
 import { GameStateService } from '../../../services/game-state-service/game-state.service';
+import { ThemeService } from '../../../services/theme-service/theme.service';
 
 export interface BattlePrepConfirmed {
   leadIndex: number;
@@ -31,6 +33,15 @@ export class BattlePrepPanelComponent implements OnChanges {
   /** Battle type's base No-ticket count (gym 1, elite 2, champion 3, rival 1) — feeds the live odds preview. */
   @Input() baseNoCount = 1;
   @Input() currentRound = 0;
+  /** Small uppercase eyebrow above the title, e.g. "Gym Battle". */
+  @Input() eyebrowLabel = '';
+  /** The "<Name> defeated?" / "Victory?" headline, already translated. */
+  @Input() battleTitle = '';
+  @Input() superEffectiveTypes: PokemonType[] = [];
+  @Input() resistTypes: PokemonType[] = [];
+  @Input() weakTypes: PokemonType[] = [];
+  @Input() advantageDelta = 0;
+  @Input() disadvantageDelta = 0;
   @Output() confirmed = new EventEmitter<BattlePrepConfirmed>();
 
   selectedLeadIndex = 0;
@@ -39,13 +50,17 @@ export class BattlePrepPanelComponent implements OnChanges {
   oddsPreview: BattleOddsBreakdown | null = null;
 
   readonly getTypeIconUrl = getTypeIconUrl;
+  readonly darkMode$: Observable<boolean>;
 
   constructor(
     private typeMatchupService: TypeMatchupService,
     private battleOddsService: BattleOddsService,
     private battleDebuffService: BattleDebuffService,
     private gameStateService: GameStateService,
-  ) {}
+    private themeService: ThemeService,
+  ) {
+    this.darkMode$ = this.themeService.isDark$;
+  }
 
   ngOnChanges(): void {
     if (this.forcedIndex !== null) {

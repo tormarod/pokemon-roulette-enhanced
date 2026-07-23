@@ -1,6 +1,95 @@
-<div class="battle-prep-panel">
-    <h2 class="battle-prep-title">{{ 'game.main.roulette.battlePrep.title' | translate }}</h2>
-    <p class="battle-prep-subtitle">{{ 'game.main.roulette.battlePrep.chooseLead' | translate }}</p>
+<div class="battle-prep-card" [ngClass]="(darkMode$ | async) ? 'battle-prep-dark' : 'battle-prep-light'">
+
+    <div class="battle-prep-heading">
+        @if (eyebrowLabel) {
+            <div class="battle-prep-eyebrow">{{ eyebrowLabel }}</div>
+        }
+        <h2 class="battle-prep-title">{{ battleTitle }}</h2>
+    </div>
+
+    @if (opponentTypes?.length) {
+        <div class="battle-prep-matchup-card">
+            <div class="battle-prep-matchup-row battle-prep-matchup-opponent">
+                <span class="battle-prep-matchup-label">{{ 'game.main.roulette.matchup.opponent' | translate }}</span>
+                <div class="battle-prep-matchup-icons">
+                    @for (type of opponentTypes; track $index) {
+                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                    }
+                </div>
+            </div>
+            <div class="battle-prep-divider"></div>
+            @if (advantageDelta > 0) {
+                <div class="battle-prep-matchup-block">
+                    @if (superEffectiveTypes.length) {
+                        <span class="battle-prep-matchup-label battle-prep-matchup-label-positive">{{ 'game.main.roulette.matchup.superEffective' | translate }}</span>
+                        <div class="battle-prep-matchup-icons">
+                            @for (type of superEffectiveTypes; track $index) {
+                                <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                            }
+                        </div>
+                    }
+                    @if (resistTypes.length) {
+                        <span class="battle-prep-matchup-label battle-prep-matchup-label-positive">{{ 'game.main.roulette.matchup.resists' | translate }}</span>
+                        <div class="battle-prep-matchup-icons">
+                            @for (type of resistTypes; track $index) {
+                                <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="battle-prep-matchup-delta battle-prep-matchup-delta-positive">{{ 'game.main.roulette.matchup.advantage' | translate }} +{{ advantageDelta }}</div>
+                <div class="battle-prep-divider"></div>
+            }
+            @if (disadvantageDelta > 0) {
+                <div class="battle-prep-matchup-block">
+                    <span class="battle-prep-matchup-label battle-prep-matchup-label-negative">{{ 'game.main.roulette.matchup.weak' | translate }}</span>
+                    <div class="battle-prep-matchup-icons">
+                        @for (type of weakTypes; track $index) {
+                            <img [src]="getTypeIconUrl(type)" [alt]="type" height="20">
+                        }
+                    </div>
+                </div>
+                <div class="battle-prep-matchup-delta battle-prep-matchup-delta-negative">{{ 'game.main.roulette.matchup.weak' | translate }} -{{ disadvantageDelta }}</div>
+            }
+        </div>
+    }
+
+    @if (oddsPreview) {
+        <div class="battle-prep-stat-row">
+            <div class="battle-prep-stat">
+                <div class="battle-prep-stat-label">{{ 'game.main.roulette.odds.winChance' | translate }}</div>
+                <div class="battle-prep-stat-value battle-prep-stat-value-positive">{{ (oddsPreview.winChance * 100) | number:'1.0-0' }}%</div>
+            </div>
+            <div class="battle-prep-stat-divider"></div>
+            <div class="battle-prep-stat">
+                <div class="battle-prep-stat-label">{{ 'game.main.roulette.odds.roundThreat' | translate }}</div>
+                <div class="battle-prep-stat-value battle-prep-stat-value-negative">-{{ oddsPreview.no.base + oddsPreview.no.roundThreat }}</div>
+            </div>
+        </div>
+        @if (oddsPreview.no.badOmen > 0 || oddsPreview.no.ability !== 0 || oddsPreview.yes.ability > 0 || oddsPreview.yes.xAttack > 0) {
+            <div class="battle-prep-odds-breakdown">
+                @if (oddsPreview.no.badOmen > 0) {
+                    <span class="battle-prep-chip battle-prep-chip-negative">{{ 'game.main.roulette.odds.badOmen' | translate }}: -{{ oddsPreview.no.badOmen }}</span>
+                }
+                @if (oddsPreview.no.ability !== 0) {
+                    <span class="battle-prep-chip" [class.battle-prep-chip-negative]="oddsPreview.no.ability > 0" [class.battle-prep-chip-positive]="oddsPreview.no.ability < 0">
+                        {{ 'game.main.roulette.odds.ability' | translate }}: {{ oddsPreview.no.ability > 0 ? '+' : '' }}{{ oddsPreview.no.ability }}
+                    </span>
+                }
+                @if (oddsPreview.yes.ability > 0) {
+                    <span class="battle-prep-chip battle-prep-chip-positive">{{ 'game.main.roulette.odds.ability' | translate }}: +{{ oddsPreview.yes.ability }}</span>
+                }
+                @if (oddsPreview.yes.xAttack > 0) {
+                    <span class="battle-prep-chip battle-prep-chip-positive">{{ 'game.main.roulette.odds.xAttack' | translate }}: +{{ oddsPreview.yes.xAttack | number:'1.0-1' }}</span>
+                }
+            </div>
+        }
+    }
+
+    <div class="battle-prep-lead-heading">
+        <div class="battle-prep-lead-title">{{ 'game.main.roulette.battlePrep.title' | translate }}</div>
+        <div class="battle-prep-lead-subtitle">{{ 'game.main.roulette.battlePrep.chooseLead' | translate }}</div>
+    </div>
 
     <div class="battle-prep-lead-list">
         @for (pokemon of team; track $index) {
@@ -11,56 +100,39 @@
                 [class.disabled]="forcedIndex !== null && $index !== forcedIndex"
                 [disabled]="forcedIndex !== null && $index !== forcedIndex"
                 (click)="selectLead($index)">
+                @if (getMemberDelta(pokemon) !== 0) {
+                    <span class="battle-prep-lead-delta"
+                        [class.battle-prep-lead-delta-positive]="getMemberDelta(pokemon) > 0"
+                        [class.battle-prep-lead-delta-negative]="getMemberDelta(pokemon) < 0">
+                        {{ getMemberDelta(pokemon) > 0 ? '+' : '' }}{{ getMemberDelta(pokemon) }}
+                    </span>
+                }
                 <img [src]="pokemon.sprite?.front_default" [alt]="pokemon.text | translate" class="battle-prep-lead-sprite">
-                <span class="battle-prep-lead-name">{{ pokemon.text | translate }}</span>
+                <span class="battle-prep-lead-name" [class.battle-prep-lead-name-selected]="selectedLeadIndex === $index">{{ pokemon.text | translate }}</span>
                 <div class="battle-prep-lead-types">
                     @for (type of getPokemonTypes(pokemon); track type) {
-                        <img [src]="getTypeIconUrl(type)" [alt]="type" height="16">
+                        <img [src]="getTypeIconUrl(type)" [alt]="type">
                     }
                 </div>
-                @if (getMemberDelta(pokemon) > 0) {
-                    <span class="battle-prep-lead-delta battle-prep-lead-delta-positive">+{{ getMemberDelta(pokemon) }}</span>
-                } @else if (getMemberDelta(pokemon) < 0) {
-                    <span class="battle-prep-lead-delta battle-prep-lead-delta-negative">{{ getMemberDelta(pokemon) }}</span>
-                }
             </button>
         }
     </div>
 
-    <div class="battle-prep-items-row">
-        @if (hasXAttack()) {
+    @if (hasXAttack()) {
+        <div class="battle-prep-items-row">
             <button
                 type="button"
-                class="btn btn-outline-primary"
-                [class.active]="xAttackSelected"
+                class="battle-prep-pill battle-prep-pill-outline"
+                [class.battle-prep-pill-active]="xAttackSelected"
                 (click)="toggleXAttack()">
                 {{ 'game.main.roulette.battlePrep.useXAttack' | translate }}
             </button>
-        }
-    </div>
-
-    @if (oddsPreview) {
-        <div class="odds-winchance">{{ 'game.main.roulette.odds.winChance' | translate }}: {{ (oddsPreview.winChance * 100) | number:'1.0-0' }}%</div>
-        <div class="odds-breakdown">
-            <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.roundThreat' | translate }}: -{{ oddsPreview.no.base + oddsPreview.no.roundThreat }}</span>
-            @if (oddsPreview.no.badOmen > 0) {
-                <span class="matchup-delta matchup-delta-negative">{{ 'game.main.roulette.odds.badOmen' | translate }}: -{{ oddsPreview.no.badOmen }}</span>
-            }
-            @if (oddsPreview.no.ability !== 0) {
-                <span class="matchup-delta" [class.matchup-delta-negative]="oddsPreview.no.ability > 0" [class.matchup-delta-positive]="oddsPreview.no.ability < 0">
-                    {{ 'game.main.roulette.odds.ability' | translate }}: {{ oddsPreview.no.ability > 0 ? '+' : '' }}{{ oddsPreview.no.ability }}
-                </span>
-            }
-            @if (oddsPreview.yes.ability > 0) {
-                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.ability' | translate }}: +{{ oddsPreview.yes.ability }}</span>
-            }
-            @if (oddsPreview.yes.xAttack > 0) {
-                <span class="matchup-delta matchup-delta-positive">{{ 'game.main.roulette.odds.xAttack' | translate }}: +{{ oddsPreview.yes.xAttack | number:'1.0-1' }}</span>
-            }
         </div>
     }
 
-    <button type="button" class="btn btn-primary battle-prep-confirm" (click)="onConfirm()">
-        {{ 'game.main.roulette.battlePrep.confirm' | translate }}
-    </button>
+    <div class="battle-prep-confirm-row">
+        <button type="button" class="battle-prep-pill battle-prep-pill-primary" (click)="onConfirm()">
+            {{ 'game.main.roulette.battlePrep.confirm' | translate }}
+        </button>
+    </div>
 </div>

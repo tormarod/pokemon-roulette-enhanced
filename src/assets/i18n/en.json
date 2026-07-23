@@ -506,6 +506,7 @@
         },
         "champion": {
           "champion": "Champion",
+          "eyebrow": "Champion Battle",
           "go": "Let's Go!",
           "use": "Used a",
           "victory": "Victory?",
@@ -517,6 +518,7 @@
         },
         "elite": {
           "elite4": "Elite 4",
+          "eyebrow": "Elite Four Battle",
           "go": "Let's Go!",
           "prep": {
             "congrats": "Congratulations!",
@@ -555,6 +557,7 @@
         "gym": {
           "against": "Battle against",
           "defeated": "Defeated?",
+          "eyebrow": "Gym Battle",
           "go": "Let's Go!",
           "used": "Used a",
           "yes": "Yes",
@@ -576,8 +579,10 @@
           "no": "No"
         },
         "matchup": {
+          "opponent": "Opponent",
           "superEffective": "Super effective",
           "resists": "Resists",
+          "advantage": "Advantage",
           "weak": "Weak",
           "abilities": "Abilities"
         },
@@ -591,6 +596,7 @@
         },
         "rival": {
           "against": "Battle against",
+          "eyebrow": "Rival Battle",
           "go": "Let's Go!",
           "used": "Used a",
           "victory": "Victory?",

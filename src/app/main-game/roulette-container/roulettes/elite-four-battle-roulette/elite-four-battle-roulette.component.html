@@ -1,17 +1,19 @@
-<div class="roulette-header">
-    <h1 class="title">{{ 'game.main.roulette.elite.title' | translate }}</h1>
-    <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
-    @if (currentElite?.types?.length) {
-        <app-matchup-strip
-            [opponentTypes]="effectiveOpponentTypes ?? []"
-            [superEffectiveTypes]="matchupSuperEffectiveTypes"
-            [resistTypes]="matchupResistTypes"
-            [weakTypes]="matchupDisadvantageTypes"
-            [advantageDelta]="matchupAdvantageDelta"
-            [disadvantageDelta]="matchupDisadvantageDelta"
-            [odds]="prepPhase ? null : currentOdds" />
-    }
-</div>
+@if (!prepPhase) {
+    <div class="roulette-header">
+        <h1 class="title">{{ 'game.main.roulette.elite.title' | translate }}</h1>
+        <p class="respin-reason">{{ (retries > 0 && currentItem) ? (currentItem.text | translate)+" x"+retries : ""}}</p>
+        @if (currentElite?.types?.length) {
+            <app-matchup-strip
+                [opponentTypes]="effectiveOpponentTypes ?? []"
+                [superEffectiveTypes]="matchupSuperEffectiveTypes"
+                [resistTypes]="matchupResistTypes"
+                [weakTypes]="matchupDisadvantageTypes"
+                [advantageDelta]="matchupAdvantageDelta"
+                [disadvantageDelta]="matchupDisadvantageDelta"
+                [odds]="currentOdds" />
+        }
+    </div>
+}
 @if (prepPhase) {
     <app-battle-prep-panel
         [team]="trainerTeam"
@@ -20,6 +22,13 @@
         [forcedIndex]="markedTargetService.currentMarkedIndex"
         [baseNoCount]="baseNoCount"
         [currentRound]="currentRound"
+        [eyebrowLabel]="'game.main.roulette.elite.eyebrow' | translate"
+        [battleTitle]="'game.main.roulette.elite.title' | translate"
+        [superEffectiveTypes]="matchupSuperEffectiveTypes"
+        [resistTypes]="matchupResistTypes"
+        [weakTypes]="matchupDisadvantageTypes"
+        [advantageDelta]="matchupAdvantageDelta"
+        [disadvantageDelta]="matchupDisadvantageDelta"
         (confirmed)="onPrepConfirmed($event)" />
 } @else {
     <app-wheel

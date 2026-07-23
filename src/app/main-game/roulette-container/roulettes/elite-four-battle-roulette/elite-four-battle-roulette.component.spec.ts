@@ -124,10 +124,10 @@ describe('EliteFourBattleRouletteComponent', () => {
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.yes').length).toBe(3); // base(1) + power(2)
     expect(odds.filter((o: WheelItem) => o.text === 'game.main.roulette.elite.no').length).toBe(4);  // elite's base(2) + delta(2)
 
-    const negLabel = fixture.nativeElement.querySelector('.matchup-label-negative');
-    const negDelta = fixture.nativeElement.querySelector('.matchup-delta-negative');
+    const negLabel = fixture.nativeElement.querySelector('.battle-prep-matchup-label-negative');
+    const negDelta = fixture.nativeElement.querySelector('.battle-prep-matchup-delta-negative');
     expect(negLabel).not.toBeNull();
-    expect(negDelta.textContent.trim()).toBe('-2');
+    expect(negDelta.textContent.trim()).toContain('-2');
   });
 
   // ── onItemSelected: hyper-potion gives 3 retries ─────────────────────────

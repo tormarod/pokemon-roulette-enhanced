@@ -506,6 +506,7 @@
         },
         "champion": {
           "champion": "Campeão -",
+          "eyebrow": "Champion Battle",
           "go": "Vamos lá!",
           "use": "Usou ",
           "victory": "Vitória?",
@@ -517,6 +518,7 @@
         },
         "elite": {
           "elite4": "Elite dos 4 -",
+          "eyebrow": "Elite Four Battle",
           "go": "Vamos lá!",
           "prep": {
             "congrats": "Parabéns!",
@@ -555,6 +557,7 @@
         "gym": {
           "against": "Batalha contra",
           "defeated": "derrotado?",
+          "eyebrow": "Gym Battle",
           "go": "Vamos lá!",
           "used": "Usou ",
           "yes": "Sim",
@@ -576,8 +579,10 @@
           "no": "Não"
         },
         "matchup": {
+          "opponent": "Opponent",
           "superEffective": "Supereficaz",
           "resists": "Resiste",
+          "advantage": "Advantage",
           "weak": "Fraco",
           "abilities": "Habilidades"
         },
@@ -591,6 +596,7 @@
         },
         "rival": {
           "against": "Batalha contra",
+          "eyebrow": "Rival Battle",
           "go": "Vamos lá!",
           "used": "Usou ",
           "victory": "Vitória?",
