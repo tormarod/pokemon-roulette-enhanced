@@ -71,7 +71,8 @@ export class PokedexComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.modalService.open(this.pokedexModal, {
       centered: true,
-      size: 'lg'
+      size: 'lg',
+      windowClass: 'pokedex-modal'
     });
   }
 
@@ -85,12 +86,19 @@ export class PokedexComponent implements OnInit, OnDestroy {
   }
 
   onEntryClicked(event: PokedexEntryClickEvent): void {
+    // Not centered: Bootstrap's vertical flex-centering would re-center (and
+    // visibly jump) the dialog every time Prev/Next steps to a Pokémon whose
+    // shiny toggle / alternate-form row makes the card a different height.
+    // A fixed top anchor (see .pokedex-detail-modal-dialog in styles.css)
+    // keeps its position stable regardless of content height.
     const modalRef = this.modalService.open(PokedexDetailModalComponent, {
-      centered: true,
-      size: 'md'
+      modalDialogClass: 'pokedex-detail-modal-dialog'
     });
     modalRef.componentInstance.pokemonId = event.pokemonId;
     modalRef.componentInstance.entry = event.entry;
+    // Full active-tab dex list (Kanto or National), not filteredIds — Prev/Next
+    // cycles the whole dex regardless of whatever search term is in the box.
+    modalRef.componentInstance.dexIds = this.activeIds;
   }
 
   get localIds(): number[] {

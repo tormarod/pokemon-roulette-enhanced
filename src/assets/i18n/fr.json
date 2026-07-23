@@ -3163,10 +3163,13 @@
     },
     "caught": "Capturés :",
     "search": "Rechercher par nom...",
-    "notCaptured": "Pas encore capturé"
+    "notCaptured": "Pas encore capturé",
+    "caughtStatus": "Caught",
+    "wonBadge": "Won the game with"
   },
   "detail": {
     "name": "Nom",
+    "status": "Status",
     "types": "Types",
     "power": "Puissance",
     "shiny": {
@@ -3229,7 +3232,8 @@
       "2": "🧭 Run context got its own status card: the upcoming opponent and the Danger meter (now a green→yellow→red gradient bar) sit together above each screen, which now carries every screen's title too.",
       "3": "🎒 The team and item panels got the same card treatment: your roster now shows type and power right on the tile (no more hover-to-discover), badges tuck into a click-to-expand popover, and items are grouped into Battle Aids, Field Items, Mega Stones, and Ability Capsules — the latter now with a distinct color per capsule instead of one shared icon.",
       "4": "🏪 The Market got restyled too: Buy and Sell now live behind a segmented tab instead of stacking, rows filter by category (Battle Aids / Field Items / Evolution & Ability), and each row shows price and stock/held count stacked with the full description on hover.",
-      "5": "📦 The PC Storage box matches now too: On Team and Stored are square drag tiles with status as small corner dots (Marked / Fainted / Retreat Locked / Held Mega Stone) plus a bottom pill for an assigned ability, a color-key legend explains each one, and the whole modal is properly themed instead of always rendering light."
+      "5": "📦 The PC Storage box matches now too: On Team and Stored are square drag tiles with status as small corner dots (Marked / Fainted / Retreat Locked / Held Mega Stone) plus a bottom pill for an assigned ability, a color-key legend explains each one, and the whole modal is properly themed instead of always rendering light.",
+      "6": "📖 The Pokédex got the same card treatment: bigger square tiles with a gold ring for anything you've won the game with, and tapping an entry now opens a themed detail popup with Prev/Next arrows to browse the whole dex without closing back to the grid."
     },
     "v3_15_0": {
       "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."

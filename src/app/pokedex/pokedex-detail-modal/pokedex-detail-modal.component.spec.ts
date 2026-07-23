@@ -7,7 +7,7 @@ import { PokedexDetailModalComponent } from './pokedex-detail-modal.component';
 import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
 import { PokemonService } from '../../services/pokemon-service/pokemon.service';
 import { PokemonFormsService } from '../../services/pokemon-forms-service/pokemon-forms.service';
-import { PokedexEntry } from '../../services/pokedex-service/pokedex.service';
+import { PokedexService, PokedexEntry } from '../../services/pokedex-service/pokedex.service';
 
 describe('PokedexDetailModalComponent', () => {
   let component: PokedexDetailModalComponent;
@@ -15,6 +15,7 @@ describe('PokedexDetailModalComponent', () => {
   let mockPokemonService: jasmine.SpyObj<PokemonService>;
   let mockFormsService: jasmine.SpyObj<PokemonFormsService>;
   let mockActiveModal: jasmine.SpyObj<NgbActiveModal>;
+  let mockPokedexService: { currentPokedex: { caught: Record<string, PokedexEntry> } };
 
   const seenEntry: PokedexEntry = { won: false, sprite: null };
   const shinyEntry: PokedexEntry = { won: true, sprite: null, shiny: true };
@@ -23,6 +24,7 @@ describe('PokedexDetailModalComponent', () => {
     mockPokemonService = jasmine.createSpyObj('PokemonService', ['getPokemonById']);
     mockFormsService = jasmine.createSpyObj('PokemonFormsService', ['getFormIds', 'getPokemonForms']);
     mockActiveModal = jasmine.createSpyObj('NgbActiveModal', ['dismiss', 'close']);
+    mockPokedexService = { currentPokedex: { caught: { '25': seenEntry } } };
 
     mockPokemonService.getPokemonById.and.returnValue({
       pokemonId: 25,
@@ -45,7 +47,8 @@ describe('PokedexDetailModalComponent', () => {
         { provide: NgbActiveModal, useValue: mockActiveModal },
         { provide: DarkModeService, useValue: { darkMode$: of(false) } },
         { provide: PokemonService, useValue: mockPokemonService },
-        { provide: PokemonFormsService, useValue: mockFormsService }
+        { provide: PokemonFormsService, useValue: mockFormsService },
+        { provide: PokedexService, useValue: mockPokedexService }
       ]
     }).compileComponents();
 
@@ -115,14 +118,14 @@ describe('PokedexDetailModalComponent', () => {
   it('template does NOT render shiny toggle when entry.shiny is falsy', () => {
     component.entry = seenEntry;
     fixture.detectChanges();
-    const toggle = fixture.nativeElement.querySelector('.btn-outline-warning, .btn-warning');
+    const toggle = fixture.nativeElement.querySelector('.pd-pill-toggle');
     expect(toggle).toBeNull();
   });
 
   it('template renders shiny toggle button when entry.shiny is true', () => {
     component.entry = shinyEntry;
     fixture.detectChanges();
-    const toggle = fixture.nativeElement.querySelector('.btn-outline-warning, .btn-warning');
+    const toggle = fixture.nativeElement.querySelector('.pd-pill-toggle');
     expect(toggle).not.toBeNull();
   });
 
@@ -143,5 +146,80 @@ describe('PokedexDetailModalComponent', () => {
   it('alternateForms returns empty array when getPokemonById returns undefined', () => {
     mockPokemonService.getPokemonById.and.returnValue(undefined);
     expect(component.alternateForms).toEqual([]);
+  });
+
+  // ── Prev/Next (Pokédex Modal Redesign) ──────────────────────────────────
+
+  describe('Prev/Next stepping', () => {
+    it('canStep is false with fewer than 2 dexIds', () => {
+      component.dexIds = [];
+      expect(component.canStep).toBeFalse();
+      component.dexIds = [25];
+      expect(component.canStep).toBeFalse();
+    });
+
+    it('canStep is true with 2+ dexIds', () => {
+      component.dexIds = [1, 4, 25];
+      expect(component.canStep).toBeTrue();
+    });
+
+    it('onNext moves to the next id in dexIds and wraps at the end', () => {
+      component.dexIds = [1, 4, 25];
+      component.pokemonId = 25;
+      component.onNext();
+      expect(component.pokemonId).toBe(1);
+    });
+
+    it('onPrev moves to the previous id in dexIds and wraps at the start', () => {
+      component.dexIds = [1, 4, 25];
+      component.pokemonId = 1;
+      component.onPrev();
+      expect(component.pokemonId).toBe(25);
+    });
+
+    it('stepping resets selectedFormId, showShiny and hasError, and refreshes entry from PokedexService', () => {
+      mockPokedexService.currentPokedex.caught['4'] = shinyEntry;
+      component.dexIds = [1, 4, 25];
+      component.pokemonId = 1;
+      component.selectedFormId = 10001;
+      component.showShiny = true;
+      component.hasError = true;
+
+      component.onNext();
+
+      expect(component.pokemonId).toBe(4);
+      expect(component.selectedFormId).toBe(4);
+      expect(component.showShiny).toBeFalse();
+      expect(component.hasError).toBeFalse();
+      expect(component.entry).toBe(shinyEntry);
+    });
+
+    it('stepping is a no-op when canStep is false', () => {
+      component.dexIds = [];
+      component.pokemonId = 25;
+      component.onNext();
+      expect(component.pokemonId).toBe(25);
+    });
+  });
+
+  // ── Status row (Pokédex Modal Redesign) ─────────────────────────────────
+
+  describe('status row', () => {
+    it('isWon reflects entry.won', () => {
+      component.entry = { won: true, sprite: null };
+      expect(component.isWon).toBeTrue();
+      component.entry = seenEntry;
+      expect(component.isWon).toBeFalse();
+    });
+
+    it('statusLabelKey is pokedex.caughtStatus when captured', () => {
+      component.entry = seenEntry;
+      expect(component.statusLabelKey).toBe('pokedex.caughtStatus');
+    });
+
+    it('statusLabelKey is pokedex.notCaptured when not captured', () => {
+      component.entry = undefined;
+      expect(component.statusLabelKey).toBe('pokedex.notCaptured');
+    });
   });
 });

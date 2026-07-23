@@ -283,3 +283,39 @@ body.theme-starters .pc-modal .pc-grid-dropzone {
 body.theme-plain-light .pc-modal .pc-grid-dropzone {
   border-color: rgba(51, 51, 51, 0.22);
 }
+
+/* ── Pokédex grid modal (windowClass: 'pokedex-modal') ───────────────────────
+   Same treatment as the Market/PC Storage modals above — Bootstrap's
+   .modal-content ignores the app theme by default. */
+body.theme-plain-dark .pokedex-modal .modal-content,
+body.theme-starters .pokedex-modal .modal-content {
+  background: #232629;
+  color: #dfe6e9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .pokedex-modal .modal-content {
+  background: #f5f6fa;
+  color: #2d3436;
+}
+
+/* ── Pokédex detail popup (modalDialogClass: 'pokedex-detail-modal-dialog') ──
+   Strips Bootstrap's modal chrome so the component's own themed card (see
+   pd-light/pd-dark in pokedex-detail-modal.component.css) shows through
+   instead — same approach as .evolution-line-modal-dialog above, and for the
+   same reason: this popup is a compact floating card in the design, not a
+   full-width Bootstrap dialog. */
+.pokedex-detail-modal-dialog {
+  width: fit-content;
+  max-width: min(360px, 92vw);
+  /* Fixed top anchor, not vertically centered — Prev/Next can change the
+     card's height (shiny toggle / alternate-form row only shows for some
+     Pokémon), and a centered dialog would visibly jump position each time
+     that height changes as you step through the dex. */
+  margin: 2rem auto;
+}
+.pokedex-detail-modal-dialog .modal-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
