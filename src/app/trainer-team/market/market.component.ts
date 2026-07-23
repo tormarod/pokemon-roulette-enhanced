@@ -168,7 +168,7 @@ export class MarketComponent implements OnInit, OnDestroy {
     }
     this.activeTab = 'buy';
     this.activeFilter = 'all';
-    this.modalService.open(this.marketModal, { centered: true, size: 'lg', windowClass: 'market-modal' });
+    this.modalService.open(this.marketModal, { size: 'lg', windowClass: 'market-modal market-modal-top', scrollable: true });
   }
 
   closeModal(): void {

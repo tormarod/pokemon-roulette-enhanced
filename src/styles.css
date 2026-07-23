@@ -213,3 +213,13 @@ body.theme-plain-light .market-modal .modal-header,
 body.theme-plain-light .market-modal .modal-footer {
   border-color: rgba(51, 51, 51, 0.15);
 }
+
+/* Anchor the Market dialog to the top of the viewport (windowClass also
+   carries 'market-modal', so it gets the theming above) instead of
+   Bootstrap's default vertical centering — the item list is tall enough
+   that centering pushed its top edge off-screen on shorter viewports. */
+.market-modal-top .modal-dialog {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  max-height: calc(100vh - 4rem);
+}
