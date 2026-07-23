@@ -22,6 +22,13 @@
 .evo-row {
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
   gap: 6px 10px; padding: 18px 4px 8px; overflow-x: auto;
+  /* .evo-row is the only child that drives the modal's shrink-wrap width (see
+     .evolution-line-modal-dialog in styles.css and the containment note above on
+     .evo-header/.evo-stats). A single-stage line (no evolutions, e.g. Cyclizar)
+     shrinks this row to one small tile, which then shrinks the whole card below
+     what the contained header/stats content needs, overflowing it. Floor the
+     row's width so the card always fits the type icons + power bar. */
+  min-width: 300px;
 }
 
 .evo-tile {
