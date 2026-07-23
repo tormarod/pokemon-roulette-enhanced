@@ -177,6 +177,14 @@ body.theme-starters .achievement-tile {
      capped so wide evolution lines (e.g. Pikachu's branches) don't overflow. */
   width: fit-content;
   max-width: min(920px, 92vw);
+  /* Bootstrap only centers .modal-dialog horizontally (margin: ... auto) at
+     its >=576px breakpoint; below that it falls back to a plain 0.5rem
+     margin, which hugs a shrink-wrapped fit-content box to the left edge on
+     mobile. centered: true only adds .modal-dialog-centered for *vertical*
+     centering (flex), so horizontal margin needs to be forced explicitly at
+     every width. */
+  margin-left: auto;
+  margin-right: auto;
 }
 .evolution-line-modal-dialog .modal-content {
   background: transparent;
