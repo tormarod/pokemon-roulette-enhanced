@@ -31,51 +31,107 @@
   cursor: not-allowed;
 }
 
-.modal-body {
-    color: black;
+/* Modal chrome (background/text color) is themed globally via the 'pc-modal'
+   windowClass — see the body.theme-* rules in styles.css. Nothing here needs
+   to set color: the modal-content already provides a themed background + text
+   color that this content inherits. */
+
+.pc-section {
+  margin-bottom: 18px;
 }
 
-.modal-body p {
-    font-size: medium;
+.pc-section:last-of-type {
+  margin-bottom: 0;
 }
 
+.pc-section-label {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.55;
+}
+
+/* Tile grid — 6 columns desktop, drops to 3 on mobile (matches the PC Modal
+   Redesign handoff: at a fixed 6 columns the corner dots collide and the
+   ability pill truncates unreadably at phone width). Same 768px breakpoint
+   as the rest of the app's mobile layout (main-game stacks the team panel
+   below the roulette at this width too), not the mockup's own ~400px —
+   at 400px the modal (`size: 'lg'`, capped ~800px) is still well into its
+   6-column desktop layout on real phone viewports, which is what forced 6
+   tiny columns instead of the intended 3. */
 .pokemon-storage-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px;
-  border: solid 1px #ccc;
-  min-height: 60px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.pokemon-storage-card {
-  width: calc((100% - (5 * 12px)) / 6);
-  padding: 2px;
-  border: 1px solid #333;
-  border-radius: 4px;
-  color: rgba(0, 0, 0, 0.87);
-  display: inline-block;
-  box-sizing: border-box;
-  cursor: move;
-  background: #dfe6e9;
-  text-align: center;
-  font-size: 14px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
 }
 
 @media (max-width: 768px) {
-  .pokemon-storage-card {
-    width: calc((100% - (2 * 12px)) / 3);
+  .pokemon-storage-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* Dashed border marks Stored as a drop target; On Team doesn't need one
+   (it's always full-ish, so the affordance isn't needed there). */
+.pc-grid-dropzone {
+  min-height: 100px;
+  padding: 10px;
+  border-radius: 12px;
+  border-style: dashed;
+  border-width: 1px;
+  box-sizing: border-box;
+}
+
+.pokemon-storage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: grab;
+}
+
+.pokemon-storage-card.cdk-drag-disabled {
+  cursor: default;
+}
+
+.pc-tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: box-shadow 0.15s ease;
+  /* Colors (border/background, both states) are set globally per theme —
+     see the body.theme-* .pc-tile rules in styles.css. Scoped there rather
+     than here because CDK's drag-preview clone is appended outside this
+     component's DOM subtree (into an overlay attached near <body>), where
+     component-scoped selectors can't reach it but body.theme-x can. */
+}
+
+.pokemon-storage-card:hover .pc-tile {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.pc-tile-sprite {
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
+}
+
+.pc-tile-sprite-fainted {
+  opacity: 0.45;
+  filter: grayscale(1);
 }
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-              0 8px 10px 1px rgba(0, 0, 0, 0.14),
-              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
 .cdk-drag-placeholder {
@@ -86,32 +142,9 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.fainted-card {
-  cursor: default;
-  background: #b2bec3;
-}
-
-.fainted-sprite {
-  filter: grayscale(100%);
-  opacity: 0.6;
-}
-
-.fainted-badge {
-  display: block;
-  font-size: 11px;
-  font-weight: bold;
-  color: #636e72;
-  cursor: help;
-}
-
-.revive-button {
-  margin-top: 4px;
-  font-size: 11px;
-  padding: 1px 6px;
-}
-
-/* PC Lockout threat (New Experience only) — same warning red as .marked-badge,
-   but a full-width banner since it applies to the whole modal, not one card. */
+/* PC Lockout threat (New Experience only) — same warning red as the marked
+   dot, but a full-width banner since it applies to the whole modal, not one
+   card. */
 .pc-lock-banner {
   margin-bottom: 12px;
   padding: 6px 10px;
@@ -123,48 +156,163 @@
   text-align: center;
 }
 
-/* Marked Target lock (New Experience only) — the marked team member can't be
-   dragged out to storage or reordered away; see cdkDragDisabled binding. */
+/* Marked Target lock (New Experience only) — cursor cue only; the tile
+   already goes non-draggable (.cdk-drag-disabled above) and the corner dot
+   below explains why. */
 .marked-card {
   cursor: default;
 }
 
-/* Marked Target badge (New Experience only) — same stacked block-line convention
-   as .ability-badge below, distinct color so the two read apart at a glance. */
-.marked-badge {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  font-weight: bold;
-  color: #ffffff;
-  background: #c0392b;
-  border-radius: 3px;
-  padding: 1px 3px;
+/* Status dots — corners of the tile. Colors are constant across themes
+   (same as the mega/marked accents used elsewhere), so no per-theme override
+   is needed here. */
+.pc-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
   cursor: help;
 }
 
-/* Ability UI sits on the PC card's fixed light background (#dfe6e9), like the
-   fainted badge, so it stays legible in all three app themes. */
-.ability-badge {
-  display: block;
-  margin-top: 4px;
-  font-size: 10px;
-  font-weight: bold;
-  color: #2d3436;
-  background: #ffffff;
-  border: 1px solid #333;
-  border-radius: 3px;
-  padding: 1px 3px;
+.pc-dot-marked {
+  left: 4px;
+  top: 4px;
+  background: #c0392b;
+  border: 1px solid #7a1810;
+}
+
+.pc-dot-fainted {
+  right: 4px;
+  top: 4px;
+  background: #636e72;
+  border: 1px solid #45494c;
+}
+
+.pc-dot-mega {
+  left: 4px;
+  bottom: 4px;
+  background: #f9ca24;
+  border: 1px solid #7a5b00;
+}
+
+/* Forced Retreat lock (New Experience only) — distinct from Fainted (they're
+   independent flags, see PokemonItem.retreatLocked), so it gets its own dot
+   in the tile's remaining corner instead of reusing the fainted one. */
+.pc-dot-retreat {
+  right: 4px;
+  bottom: 4px;
+  background: #0984e3;
+  border: 1px solid #054a7a;
+}
+
+/* Ability pill spans the tile's full width at the bottom — not a corner dot,
+   since the ability name needs room to render (truncates with ellipsis if
+   long). Sits on the fixed near-black overlay used elsewhere for on-sprite
+   text (badges/toasts), so it stays legible over any tile background/theme. */
+.pc-ability-pill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 8px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 0 0 11px 11px;
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  box-sizing: border-box;
   cursor: help;
 }
 
-.assign-ability-button {
-  margin-top: 4px;
+.pc-tile-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.pc-tile-action {
   font-size: 10px;
   padding: 1px 6px;
+}
+
+/* Legend + Logout row */
+.pc-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.pc-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.pc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Own classes (not .pc-dot-*) so a spec/DOM query for an actual status dot
+   (e.g. ".pc-dot-marked", used to assert the Marked Target badge shows on
+   exactly one team member) can't accidentally match this always-rendered
+   legend swatch instead. */
+.pc-legend-dot {
+  position: static;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pc-legend-dot-marked {
+  background: #c0392b;
+  border: 1px solid #7a1810;
+}
+
+.pc-legend-dot-fainted {
+  background: #636e72;
+  border: 1px solid #45494c;
+}
+
+.pc-legend-dot-mega {
+  background: #f9ca24;
+  border: 1px solid #7a5b00;
+}
+
+.pc-legend-dot-retreat {
+  background: #0984e3;
+  border: 1px solid #054a7a;
+}
+
+/* Custom pill instead of Bootstrap's btn-outline-dark: that class hardcodes
+   a near-black border/text (fine on the old always-light modal, invisible
+   against the new dark theme's #232629 background) — currentColor/inherit
+   instead track whatever color: the themed .pc-modal .modal-content rules in
+   styles.css set, same trick as .market-close/.market-sell. */
+.pc-logout-btn {
+  flex: none;
+  border: 1px solid currentColor;
+  background: none;
+  color: inherit;
+  border-radius: 999px;
+  padding: 6px 22px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pc-logout-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
 }
 
 /* Capsule picker (stacked modal) */

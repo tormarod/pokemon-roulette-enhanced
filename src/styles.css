@@ -223,3 +223,63 @@ body.theme-plain-light .market-modal .modal-footer {
   margin-bottom: 2rem;
   max-height: calc(100vh - 4rem);
 }
+
+/* ── PC Storage modal (windowClass: 'pc-modal') ──────────────────────────────
+   Same treatment as the Market modal above — Bootstrap's .modal-content
+   ignores the app theme by default. Also carries the tile bg/border colors
+   for storage-pc.component's drag tiles: component CSS can't use body.theme-*
+   selectors (emulated encapsulation, see the note above), and CDK's
+   drag-preview clone is appended into an overlay near <body> — outside this
+   component's own DOM subtree — so scoping through an ancestor class the
+   component controls (e.g. .modal-content) wouldn't reach that clone anyway.
+   Scoping directly off body.theme-x here does, since <body> is always an
+   ancestor of the clone too. */
+body.theme-plain-dark .pc-modal .modal-content,
+body.theme-starters .pc-modal .modal-content {
+  background: #232629;
+  color: #dfe6e9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .pc-modal .modal-content {
+  background: #f5f6fa;
+  color: #2d3436;
+}
+
+body.theme-plain-dark .pc-modal .modal-footer,
+body.theme-starters .pc-modal .modal-footer {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .pc-modal .modal-footer {
+  border-color: rgba(51, 51, 51, 0.15);
+}
+
+body.theme-plain-dark .pc-modal .pc-tile,
+body.theme-starters .pc-modal .pc-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.theme-plain-light .pc-modal .pc-tile {
+  background: rgba(0, 0, 0, 0.035);
+  border-color: rgba(51, 51, 51, 0.22);
+}
+
+body.theme-plain-dark .pc-modal .pc-tile.pc-tile-fainted,
+body.theme-starters .pc-modal .pc-tile.pc-tile-fainted {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.theme-plain-light .pc-modal .pc-tile.pc-tile-fainted {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.theme-plain-dark .pc-modal .pc-grid-dropzone,
+body.theme-starters .pc-modal .pc-grid-dropzone {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.theme-plain-light .pc-modal .pc-grid-dropzone {
+  border-color: rgba(51, 51, 51, 0.22);
+}

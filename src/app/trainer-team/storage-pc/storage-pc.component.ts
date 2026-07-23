@@ -111,7 +111,8 @@ export class StoragePcComponent implements OnInit, OnDestroy {
         this.infoModalMessage = 'trainer.storage.unavailableMessage';
         const modalRef = this.modalService.open(this.infoModal, {
           centered: true,
-          size: 'md'
+          size: 'md',
+          windowClass: 'pc-modal'
         });
       } else {
         this.trainerTeam = this.trainerService.getTeam();
@@ -122,7 +123,8 @@ export class StoragePcComponent implements OnInit, OnDestroy {
           centered: true,
           size: 'lg',
           backdrop: 'static',
-          keyboard: false
+          keyboard: false,
+          windowClass: 'pc-modal'
         });
       }
     }
@@ -149,6 +151,11 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     getTypeIconUrl(type: PokemonType): string {
       return getTypeIconUrl(type);
+    }
+
+    /** Whether the bag holds a mega stone matching this Pokémon's species (informational dot; activation only happens from the battle team, not here). */
+    hasMegaStone(pokemon: PokemonItem): boolean {
+      return this.trainerService.getHeldMegaStoneNamesForPokemon(pokemon).length > 0;
     }
 
     drop(event: CdkDragDrop<PokemonItem[]>) {
@@ -211,7 +218,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
         return;
       }
       this.assignTarget = pokemon;
-      this.pickerModalRef = this.modalService.open(this.abilityPickerModal, { centered: true, size: 'md' });
+      this.pickerModalRef = this.modalService.open(this.abilityPickerModal, { centered: true, size: 'md', windowClass: 'pc-modal' });
     }
 
     /** Assigns the chosen capsule's ability to the target (overwrites any current one), consuming the capsule. */

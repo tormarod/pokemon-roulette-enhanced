@@ -97,6 +97,21 @@ describe('StoragePcComponent', () => {
     });
   });
 
+  // ── Held Mega Stone dot (PC Modal Redesign) ─────────────────────────────
+
+  describe('hasMegaStone', () => {
+    it('is false when the bag holds no mega stone for the species', () => {
+      const venusaur = makeTestPokemon({ pokemonId: 3 });
+      expect(component.hasMegaStone(venusaur)).toBeFalse();
+    });
+
+    it('is true once a matching mega stone is in the bag', () => {
+      trainerService.addToItems({ name: 'venusaurite', text: 'items.venusaurite.name', fillStyle: 'darkgreen', weight: 1, description: '', sprite: '' } as any);
+      const venusaur = makeTestPokemon({ pokemonId: 3 });
+      expect(component.hasMegaStone(venusaur)).toBeTrue();
+    });
+  });
+
   // ── Forced Retreat lock (adventure threats rework) ──────────────────────
 
   describe('retreatLocked storage card', () => {
@@ -116,7 +131,8 @@ describe('StoragePcComponent', () => {
       const card = rootNode.querySelector('#storedPokemon .pokemon-storage-card')!;
       expect(card).toBeTruthy();
       expect(card.classList.contains('fainted-card')).toBeTrue();
-      expect(card.querySelector('.fainted-badge')?.textContent).toContain('trainer.storage.retreatLocked');
+      expect(card.querySelector('.pc-dot-retreat')).toBeTruthy();
+      expect(card.querySelector('.pc-dot-fainted')).toBeFalsy();
 
       viewRef.destroy();
     });
@@ -264,8 +280,8 @@ describe('StoragePcComponent', () => {
       const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
       const cards = rootNode.querySelectorAll('#trainerTeam .pokemon-storage-card');
 
-      expect(cards[0].querySelector('.marked-badge')).toBeTruthy();
-      expect(cards[1].querySelector('.marked-badge')).toBeFalsy();
+      expect(cards[0].querySelector('.pc-dot-marked')).toBeTruthy();
+      expect(cards[1].querySelector('.pc-dot-marked')).toBeFalsy();
 
       viewRef.destroy();
     });
@@ -279,7 +295,7 @@ describe('StoragePcComponent', () => {
       viewRef.detectChanges();
       const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
 
-      expect(rootNode.querySelector('.marked-badge')).toBeFalsy();
+      expect(rootNode.querySelector('.pc-dot-marked')).toBeFalsy();
 
       viewRef.destroy();
     });
@@ -295,7 +311,7 @@ describe('StoragePcComponent', () => {
       viewRef.detectChanges();
       const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
 
-      expect(rootNode.querySelector('.marked-badge')).toBeFalsy();
+      expect(rootNode.querySelector('.pc-dot-marked')).toBeFalsy();
 
       viewRef.destroy();
     });

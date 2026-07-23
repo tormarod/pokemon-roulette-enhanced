@@ -1197,6 +1197,8 @@
       "faintedTooltip": "Fainted from a battle loss — locked in the PC until revived with a Revive item.",
       "retreatLocked": "Locked (Forced Retreat)",
       "retreatLockedTooltip": "Benched here by a Forced Retreat threat — unlocks once your next real battle resolves.",
+      "retreatLockedLegend": "Retreat Locked",
+      "heldMegaStone": "Held Mega Stone",
       "pcLocked": "PC locked until your next battle",
       "revive": "Revive",
       "assignAbility": "Ability",
@@ -3226,7 +3228,8 @@
       "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
       "2": "🧭 Run context got its own status card: the upcoming opponent and the Danger meter (now a green→yellow→red gradient bar) sit together above each screen, which now carries every screen's title too.",
       "3": "🎒 The team and item panels got the same card treatment: your roster now shows type and power right on the tile (no more hover-to-discover), badges tuck into a click-to-expand popover, and items are grouped into Battle Aids, Field Items, Mega Stones, and Ability Capsules — the latter now with a distinct color per capsule instead of one shared icon.",
-      "4": "🏪 The Market got restyled too: Buy and Sell now live behind a segmented tab instead of stacking, rows filter by category (Battle Aids / Field Items / Evolution & Ability), and each row shows price and stock/held count stacked with the full description on hover."
+      "4": "🏪 The Market got restyled too: Buy and Sell now live behind a segmented tab instead of stacking, rows filter by category (Battle Aids / Field Items / Evolution & Ability), and each row shows price and stock/held count stacked with the full description on hover.",
+      "5": "📦 The PC Storage box matches now too: On Team and Stored are square drag tiles with status as small corner dots (Marked / Fainted / Retreat Locked / Held Mega Stone) plus a bottom pill for an assigned ability, a color-key legend explains each one, and the whole modal is properly themed instead of always rendering light."
     },
     "v3_15_0": {
       "0": "🧬 Tap any Pokémon in your team or PC to see its full evolution line, including Mega Evolutions you've unlocked."
