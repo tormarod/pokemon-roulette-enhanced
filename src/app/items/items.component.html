@@ -1,68 +1,36 @@
-<div class="item-box rounded-3 p-3 m-3"
-     [ngClass]="isDark ? 'border white-shadow' : 'black-border shadow'">
+<div class="item-box" [ngClass]="isDark ? 'panel-dark' : 'panel-light'">
     <h2 class="title">{{ 'items.title' | translate }}</h2>
-    <div class="item-section container">
-        <div class="row gap-2">
-            <div class="item-container rounded-3 col-2 cursor-pointer"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(0)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(0)}}" (click)="useItem(trainerItems[0])">
-        </div>
-        <div class="item-container rounded-3 col-2 cursor-pointer"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(1)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(1)}}" (click)="useItem(trainerItems[1])">
-        </div>
-        <div class="item-container rounded-3 col-2 cursor-pointer"
-            [ngClass]="isDark ? 'border' : 'black-border shadow '">
-            <img [src]="getItemSprite(2)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(2)}}" (click)="useItem(trainerItems[2])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(3)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(3)}}" (click)="useItem(trainerItems[3])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(4)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(4)}}" (click)="useItem(trainerItems[4])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(5)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(5)}}" (click)="useItem(trainerItems[5])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(6)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(6)}}" (click)="useItem(trainerItems[6])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(7)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(7)}}" (click)="useItem(trainerItems[7])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(8)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(8)}}" (click)="useItem(trainerItems[8])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(9)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(9)}}" (click)="useItem(trainerItems[9])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(10)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(10)}}" (click)="useItem(trainerItems[10])">
-        </div>
-        <div class="item-container rounded-3 col-2"
-            [ngClass]="isDark ? 'border' : 'black-border shadow'">
-            <img [src]="getItemSprite(11)" class="img-fluid" placement="bottom" (error)="onSpriteError($event)"
-                ngbTooltip="{{getItemText(11)}}" (click)="useItem(trainerItems[11])">
-        </div>
-        </div>
+    <div class="categories-grid">
+        @for (category of categories; track category.id) {
+            <div class="category-cell">
+                <div class="category-label">{{ category.labelKey | translate }}</div>
+                <div class="category-items">
+                    @for (entry of category.entries; track entry.index) {
+                        <div class="item-tile-wrap">
+                            <button type="button"
+                                    class="item-tile"
+                                    (mouseenter)="setHoveredItem(entry.index)"
+                                    (mouseleave)="setHoveredItem(null)"
+                                    (click)="useItem(entry.item)">
+                                @if (isCapsule(entry.item)) {
+                                    <span class="capsule-glyph" [style.background]="getCapsuleGlyphBackground(entry.item)"></span>
+                                } @else {
+                                    <img [src]="getItemSprite(entry.item)"
+                                         class="item-sprite"
+                                         [alt]="getItemName(entry.item)"
+                                         (error)="onSpriteError($event)">
+                                }
+                            </button>
+                            @if (hoveredItemIndex === entry.index) {
+                                <div class="item-popover">
+                                    <div class="item-popover-name">{{ getItemName(entry.item) }}</div>
+                                    <div class="item-popover-desc">{{ getItemDescription(entry.item) }}</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>

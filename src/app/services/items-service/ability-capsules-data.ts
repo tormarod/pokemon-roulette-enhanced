@@ -1,16 +1,10 @@
 import { ItemItem } from '../../interfaces/item-item';
-import { PokemonType } from '../../interfaces/pokemon-type';
+import { pokemonTypeColors } from '../../interfaces/pokemon-type';
 import { AbilityCapsuleName, capsuleNameFor } from './ability-capsule-names';
 import { AbilityDefinition, AbilityId, abilitiesById } from '../ability-service/abilities-data';
 
 /** Wheel-slice / badge color per type — capsules are colored by their ability's flavor type. */
-const TYPE_COLOR: Record<PokemonType, string> = {
-  normal: '#A8A77A', fighting: '#C22E28', flying: '#A98FF3', poison: '#A33EA1',
-  ground: '#E2BF65', rock: '#B6A136', bug: '#A6B91A', ghost: '#735797',
-  steel: '#B7B7CE', fire: '#EE8130', water: '#6390F0', grass: '#7AC74C',
-  electric: '#F7D02C', psychic: '#F95587', ice: '#96D9D6', dragon: '#6F35FC',
-  dark: '#705746', fairy: '#D685AD'
-};
+const TYPE_COLOR = pokemonTypeColors;
 
 /** Shared "Ability Capsule" sprite (PokeAPI) — every capsule shows the same icon. */
 const CAPSULE_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png';

@@ -1,17 +1,14 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Badge } from '../../interfaces/badge';
-import { Observable } from 'rxjs';
-import { DarkModeService } from '../../services/dark-mode-service/dark-mode.service';
-import { ThemeService } from '../../services/theme-service/theme.service';
 import { CommonModule } from '@angular/common';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import {TranslatePipe} from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import { BadgesService } from '../../services/badges-service/badges.service';
+import { GenerationService } from '../../services/generation-service/generation.service';
 
 @Component({
   selector: 'app-badges',
   imports: [
     CommonModule,
-    NgbTooltipModule,
     TranslatePipe
   ],
   templateUrl: './badges.component.html',
@@ -20,11 +17,24 @@ import {TranslatePipe} from '@ngx-translate/core';
 })
 export class BadgesComponent {
 
-    @Input() trainerBadges!: Badge[];
+  @Input() trainerBadges!: Badge[];
 
-    darkMode!: Observable<boolean>;
+  /** True while the earned-badges popover is open. */
+  expanded = false;
 
-    constructor(private darkModeService: DarkModeService, private themeService: ThemeService) {
-      this.darkMode = this.themeService.isDark$;
+  constructor(private badgesService: BadgesService, private generationService: GenerationService) { }
+
+  /** One slot per obtainable badge for the current generation (5 or 8), true where earned. */
+  get badgeSlots(): boolean[] {
+    const total = this.badgesService.getTotalBadgeCount(this.generationService.getCurrentGeneration());
+    const earned = this.trainerBadges?.length ?? 0;
+    return Array.from({ length: total }, (_, i) => i < earned);
+  }
+
+  toggleExpanded(): void {
+    if (!this.trainerBadges?.length) {
+      return;
     }
+    this.expanded = !this.expanded;
+  }
 }

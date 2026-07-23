@@ -1,4 +1,36 @@
 
+/* Utility-rail trigger button — consumes --panel-* custom properties inherited
+   from the ancestor .trainer-team-box (see trainer-team.component.css). Kept
+   local (duplicated in pokedex/market's own CSS) since Angular's emulated
+   encapsulation means classes don't share across components, only the vars do. */
+.panel-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid var(--panel-text, #2d3436);
+  background: none;
+  color: var(--panel-text, #2d3436);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.panel-pill-btn:hover:not(:disabled) {
+  background: var(--panel-text, #2d3436);
+  color: var(--panel-card-bg, #f5f6fa);
+}
+
+.panel-pill-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .modal-body {
     color: black;
 }

@@ -1,104 +1,92 @@
-<div class="trainer-team-box rounded-3 p-3 m-3 row gap-3"
-     [ngClass]="(darkMode | async) ? 'border white-shadow' : 'black-border shadow'">
-    <div class="container" >
-          <div class="row gap-2">
-               <div class="trainer-sprite rounded-3 col-3"
-                    [ngClass]="(darkMode | async) ? 'border white-shadow' : 'black-border shadow'">
-                    <img [src]="trainer.sprite" alt="Trainer Sprite" class="img-fluid">
-               </div>
-               <app-badges
-                    class="col-8"
-                    [trainerBadges]="trainerBadges">
-               </app-badges>
-          </div>
-    </div>
-    <div class="container">
-          <div class="row gap-2">
-               <div class="row col-12 gap-2 p-0">
-                    @for (i of [0,1,2,3,4,5]; track i) {
-                         <div class="pokemon-container rounded-3 col-3"
-                              [ngClass]="(darkMode | async) ? 'border' : 'black-border shadow'">
-                              @if (trainerTeam[i]?.sprite) {
-                                   <img [src]="getSprite(trainerTeam[i])"
-                                        class="img-fluid"
-                                        role="button"
-                                        style="cursor: pointer;"
-                                        placement="bottom"
-                                        container="body"
-                                        [ngbTooltip]="pokemonInfoTooltip"
-                                        triggers="hover"
-                                        [tooltipContext]="{ pokemon: trainerTeam[i] }"
-                                        (click)="openEvolutionDetail(trainerTeam[i])">
+<div class="trainer-team-box" [ngClass]="(darkMode | async) ? 'panel-dark' : 'panel-light'">
 
-                                   @if (getMegaStoneSprite(trainerTeam[i]); as megaStoneSprite) {
-                                        <button
-                                             type="button"
-                                             class="mega-stone-overlay-button"
-                                             (click)="triggerMegaStoneInterrupt(trainerTeam[i])"
-                                             placement="bottom"
-                                             ngbTooltip="{{ getMegaStoneTextKey(trainerTeam[i]) | translate }}"
-                                             [attr.aria-label]="getMegaStoneTextKey(trainerTeam[i]) | translate">
-                                             <img
-                                                  [src]="megaStoneSprite"
-                                                  class="mega-stone-overlay"
-                                                  [style.background]="getMegaStoneFillStyle(trainerTeam[i])"
-                                                  alt="Mega Stone">
-                                        </button>
-                                   }
-                                   @if (isNewExperienceMode && i === markedIndex) {
-                                        <span class="marked-badge"
-                                              placement="bottom"
-                                              ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}"
-                                              triggers="hover click">
-                                             {{ 'trainer.team.marked' | translate }}
-                                        </span>
-                                   }
-                                   @if (isNewExperienceMode) {
-                                        @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
-                                             <span class="ability-badge"
-                                                   placement="bottom"
-                                                   ngbTooltip="{{ getMemberAbilityDescription(trainerTeam[i]) | translate }}"
-                                                   triggers="hover click">{{ abilityName | translate }}</span>
-                                        }
-                                   }
-                              }
-                         </div>
+    <!-- Utility rail: trainer tile, badges + PC/Pokédex, coins + Market -->
+    <div class="panel-card utility-rail">
+        <span class="trainer-tile">
+            <img [src]="trainer.sprite" alt="Trainer Sprite" class="trainer-tile-img">
+        </span>
+        <div class="utility-middle">
+            <app-badges [trainerBadges]="trainerBadges"></app-badges>
+            <div class="utility-buttons">
+                <app-storage-pc></app-storage-pc>
+                <app-pokedex></app-pokedex>
+            </div>
+        </div>
+        @if (isNewExperienceMode) {
+            <div class="utility-right">
+                <span class="coin-pill"
+                      placement="bottom"
+                      container="body"
+                      ngbTooltip="{{ 'trainer.team.coinsTooltip' | translate }}"
+                      triggers="hover click">
+                    <span class="coin-icon" aria-hidden="true">🪙</span>
+                    <span class="coin-amount">{{ coins }}</span>
+                    <span class="coin-label">{{ 'trainer.team.coins' | translate }}</span>
+                    @if (coinGain !== null) {
+                        <span class="coin-gain" aria-hidden="true">+{{ coinGain }}</span>
                     }
-               </div>
-               @if (isNewExperienceMode) {
-                    <div class="col-12 p-0">
-                         <div class="coin-counter rounded-3"
-                              [ngClass]="(darkMode | async) ? 'border white-shadow' : 'black-border shadow'"
-                              placement="bottom"
-                              container="body"
-                              ngbTooltip="{{ 'trainer.team.coinsTooltip' | translate }}"
-                              triggers="hover click">
-                              <span class="coin-icon" aria-hidden="true">🪙</span>
-                              <span class="coin-amount">{{ coins }}</span>
-                              <span class="coin-label">{{ 'trainer.team.coins' | translate }}</span>
-                              @if (coinGain !== null) {
-                                   <span class="coin-gain" aria-hidden="true">+{{ coinGain }}</span>
-                              }
-                         </div>
+                </span>
+                <app-market></app-market>
+            </div>
+        }
+    </div>
+
+    <!-- Roster grid -->
+    <div class="panel-card roster-card">
+        @for (i of [0,1,2,3,4,5]; track i) {
+            <div class="roster-slot">
+                @if (trainerTeam[i]?.sprite) {
+                    <div class="roster-tile"
+                         (mouseenter)="setHoveredMember(i)"
+                         (mouseleave)="setHoveredMember(null)">
+                        <img [src]="getSprite(trainerTeam[i])"
+                             class="roster-sprite"
+                             role="button"
+                             style="cursor: pointer;"
+                             (click)="openEvolutionDetail(trainerTeam[i])">
+
+                        @if (getMegaStoneSprite(trainerTeam[i]); as megaStoneSprite) {
+                            <button
+                                 type="button"
+                                 class="mega-stone-overlay-button"
+                                 (click)="triggerMegaStoneInterrupt(trainerTeam[i])"
+                                 placement="bottom"
+                                 ngbTooltip="{{ getMegaStoneTextKey(trainerTeam[i]) | translate }}"
+                                 [attr.aria-label]="getMegaStoneTextKey(trainerTeam[i]) | translate">
+                                 <img
+                                      [src]="megaStoneSprite"
+                                      class="mega-stone-overlay"
+                                      [style.background]="getMegaStoneFillStyle(trainerTeam[i])"
+                                      alt="Mega Stone">
+                            </button>
+                        }
+                        @if (isNewExperienceMode && i === markedIndex) {
+                            <span class="marked-badge"
+                                  placement="bottom"
+                                  ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}"
+                                  triggers="hover click">
+                                 {{ 'trainer.team.marked' | translate }}
+                            </span>
+                        }
                     </div>
-               }
-               <div class="col-12 p-0 d-flex flex-column flex-md-row gap-2">
-                    <app-storage-pc></app-storage-pc>
-                    <app-pokedex></app-pokedex>
-                    <app-market></app-market>
-               </div>
-          </div>
+                    <div class="roster-types">
+                        @for (type of getPokemonTypes(trainerTeam[i]); track type) {
+                            <span class="type-chip" [style.background]="getTypeColor(type)">{{ ('pokemonType.' + type) | translate }}</span>
+                        }
+                    </div>
+                    <div class="roster-power">{{ 'detail.power' | translate }} {{ trainerTeam[i].power }}</div>
+                    @if (isNewExperienceMode && hoveredMemberIndex === i) {
+                        @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
+                            <div class="roster-popover">
+                                <div class="roster-popover-name">{{ abilityName | translate }}</div>
+                                @if (getMemberAbilityDescription(trainerTeam[i]); as abilityDesc) {
+                                    <div class="roster-popover-desc">{{ abilityDesc | translate }}</div>
+                                }
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        }
     </div>
 </div>
-
-<ng-template #pokemonInfoTooltip let-pokemon="pokemon">
-     <div class="pokemon-tooltip">
-          <div class="pokemon-tooltip-name">{{ pokemon.text | translate }}</div>
-          <div class="pokemon-tooltip-power">{{ 'detail.power' | translate }}: {{ pokemon.power }}</div>
-          <div class="pokemon-tooltip-types">
-               @for (type of getPokemonTypes(pokemon); track type) {
-                    <img class="pokemon-tooltip-type-icon" [src]="getTypeIconUrl(type)" [alt]="type">
-               }
-          </div>
-     </div>
-</ng-template>

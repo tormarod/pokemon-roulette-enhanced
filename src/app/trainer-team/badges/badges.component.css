@@ -1,37 +1,80 @@
-.badge-box {
-    background-color: rgba(211, 211, 211, 0.5);
+.badges-wrap {
+  position: relative;
+  display: inline-flex;
 }
 
-.white-shadow {
-    box-shadow: 0 0 0.5em 0 white;
+.badges-toggle {
+  display: flex;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
 }
 
-.black-border {
-    border: 1px solid #333;
+.badges-toggle-empty {
+  cursor: default;
 }
 
-.badge-section {
-    gap: 0.5em;
+.badge-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(128, 128, 128, 0.4);
+  box-sizing: border-box;
+}
+
+.badge-dot-earned {
+  background: #f9ca24;
+  border-color: #7a5b00;
+}
+
+.badges-popover {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--panel-card-bg, #f5f6fa);
+  color: var(--panel-text, #2d3436);
+  border: 1px solid var(--panel-card-border, #ccc);
+  border-radius: 12px;
+  box-shadow: var(--panel-card-shadow, 0 12px 32px rgba(0, 0, 0, 0.18));
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  max-width: 240px;
+  animation: badges-pop 0.15s ease-out both;
+}
+
+.badge-popover-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 48px;
+}
+
+.badge-popover-sprite {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.badge-popover-name {
+  font-size: 9px;
+  opacity: 0.65;
+  text-align: center;
+}
+
+@keyframes badges-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(4px);
   }
-
-.badge-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0px;
-    aspect-ratio: 1;
-
-    img {
-        width: 80%;
-        height: 80%;
-        animation: badge-show 2s ease-in-out;
-    }
-}
-
-@keyframes badge-show {
-    0% { transform: scale(4); }
-    25% { transform: scale(1); }
-    50% { filter: brightness(1); }
-    75% { filter: brightness(2); }
-    100% { filter: brightness(1); }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

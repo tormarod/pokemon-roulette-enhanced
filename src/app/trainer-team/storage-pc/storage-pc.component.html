@@ -1,5 +1,4 @@
-<button type="button" class="btn" [ngClass]="(darkMode | async) ? 'btn-outline-light' : 'btn-outline-dark'"
-  (click)="showPCModal()">
+<button type="button" class="panel-pill-btn" (click)="showPCModal()">
   <ng-icon name="bootstrapPcDisplayHorizontal"></ng-icon>
   {{ 'trainer.storage.access' | translate }}
 </button>
