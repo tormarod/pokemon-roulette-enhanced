@@ -299,6 +299,46 @@ body.theme-plain-light .pokedex-modal .modal-content {
   color: #2d3436;
 }
 
+/* ── Event popup modal (windowClass: 'event-popup-modal') ────────────────────
+   Shared card for every gameplay event/announcement popup and confirm dialog
+   (EventPopupComponent). Same treatment as Market/PC/Pokédex modals —
+   Bootstrap's .modal-content ignores the app theme by default. theme-starters
+   shares theme-plain-dark's colors (Market/PC/Pokédex precedent) — the design
+   mockup's own dark-variant colors already match this scheme exactly. */
+body.theme-plain-dark .event-popup-modal .modal-content,
+body.theme-starters .event-popup-modal .modal-content {
+  background: #232629;
+  color: #dfe6e9;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+body.theme-plain-light .event-popup-modal .modal-content {
+  background: #f5f6fa;
+  color: #2d3436;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+body.theme-plain-dark .event-popup-modal .event-popup-footer,
+body.theme-starters .event-popup-modal .event-popup-footer {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-plain-light .event-popup-modal .event-popup-footer {
+  border-color: rgba(51, 51, 51, 0.15);
+}
+
+body.theme-plain-dark .event-popup-modal .event-popup-tile,
+body.theme-starters .event-popup-modal .event-popup-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.theme-plain-light .event-popup-modal .event-popup-tile {
+  background: rgba(0, 0, 0, 0.035);
+  border-color: rgba(51, 51, 51, 0.22);
+}
+
 /* ── Pokédex detail popup (modalDialogClass: 'pokedex-detail-modal-dialog') ──
    Strips Bootstrap's modal chrome so the component's own themed card (see
    pd-light/pd-dark in pokedex-detail-modal.component.css) shows through

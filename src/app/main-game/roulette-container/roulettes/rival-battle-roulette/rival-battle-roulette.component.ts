@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { rivalByGeneration } from './rival-by-generation';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { BaseBattleRouletteComponent } from '../base-battle-roulette/base-battle
 import { MatchupStripComponent } from '../../../matchup-strip/matchup-strip.component';
 import { BattlePrepPanelComponent } from '../../battle-prep-panel/battle-prep-panel.component';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
+import { EventPopupComponent } from '../../../../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-rival-battle-roulette',
@@ -32,10 +33,6 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
   protected override readonly allowPotions = false;
 
   rivalByGeneration = rivalByGeneration;
-
-  @ViewChild('presentationModalRef', { static: true }) declare presentationModalRef: TemplateRef<unknown>;
-  @ViewChild('itemUsedModalRef', { static: true }) declare itemUsedModalRef: TemplateRef<unknown>;
-  @ViewChild('faintedModal', { static: true }) faintedModal!: TemplateRef<any>;
 
   @Output() fromRivalChange = new EventEmitter<number>();
 
@@ -84,6 +81,34 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
     this.trainerService.commitTeamAndStorage(updatedTeam, [...this.trainerService.getStored(), faintedMon]);
 
     this.faintedPokemon = faintedMon;
-    this.modalService.open(this.faintedModal, { centered: true, size: 'md' });
+    this.openFaintedModal();
+  }
+
+  protected override openPresentationModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.rival.against')} ${this.translate.instant(this.currentRival.name)}!`,
+      images: [{ src: Array.isArray(this.currentRival.sprite) ? this.currentRival.sprite[0] : this.currentRival.sprite, alt: this.translate.instant(this.currentRival.name) }],
+      lines: this.currentRival.quotes.map(q => this.translate.instant(q)),
+      buttons: [{ label: this.translate.instant('game.main.roulette.rival.go'), variant: 'primary' }],
+      size: 'lg'
+    });
+  }
+
+  protected override openItemUsedModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.rival.used')} ${this.translate.instant(this.currentItem.text)}!`,
+      images: [{ src: this.currentItem.sprite }],
+      lines: [this.translate.instant(this.currentItem.description)],
+      size: 'md'
+    });
+  }
+
+  /** Image-only popup (no message box) — deliberately not routed through ModalQueueService, matching the pre-migration behavior. */
+  private openFaintedModal(): void {
+    if (!this.faintedPokemon) return;
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'md', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = `${this.translate.instant(this.faintedPokemon.text)} ${this.translate.instant('game.main.roulette.rival.fainted')}`;
+    modalRef.componentInstance.images = [{ src: this.faintedPokemon.sprite?.front_default ?? '' }];
+    modalRef.componentInstance.buttons = [{ label: this.translate.instant('common.ok'), variant: 'primary' }];
   }
 }

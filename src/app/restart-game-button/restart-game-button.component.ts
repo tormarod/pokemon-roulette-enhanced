@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgIconsModule, provideIcons } from '@ng-icons/core';
 import { bootstrapArrowRepeat } from '@ng-icons/bootstrap-icons';
 import { GameStateService } from '../services/game-state-service/game-state.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { EventPopupComponent } from '../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-restart-game-button',
@@ -22,7 +23,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class RestartGameButtonComponent {
 
   constructor(private modalService: NgbModal,
-              private gameStateService: GameStateService
+              private gameStateService: GameStateService,
+              private translate: TranslateService
   ) {
     this.gameStateService.wheelSpinningObserver.pipe(takeUntilDestroyed()).subscribe(state => {
       this.wheelSpinning = state;
@@ -30,25 +32,27 @@ export class RestartGameButtonComponent {
   }
 
   wheelSpinning: boolean = false;
-  @ViewChild('restartGameModal', { static: true }) restartGameModal!: TemplateRef<any>;
   @Output() restartEvent = new EventEmitter<boolean>();
 
-  showRestartGameConfirmModal() {
-    if(this.wheelSpinning) {
+  showRestartGameConfirmModal(): void {
+    if (this.wheelSpinning) {
       return;
     }
-    this.modalService.open(this.restartGameModal, {
-      centered: true,
-      size: 'lg'
-    });
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = this.translate.instant('game.restart.title');
+    modalRef.componentInstance.lines = [this.translate.instant('game.restart.warning')];
+    modalRef.componentInstance.buttons = [
+      { label: this.translate.instant('game.restart.confirm'), variant: 'primary' },
+      { label: this.translate.instant('game.restart.cancel'), variant: 'secondary' }
+    ];
+    modalRef.result.then((index: number) => {
+      if (index === 0) {
+        this.confirmRestart();
+      }
+    }, () => {});
   }
 
   confirmRestart(): void {
     this.restartEvent.emit(true);
-    this.closeModal();
-  }
-
-  closeModal(): void {
-    this.modalService.dismissAll();
   }
 }

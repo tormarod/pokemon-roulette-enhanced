@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { ItemsService } from '../../../../services/items-service/items.service';
 import { ItemSpriteService, ITEM_SPRITE_FALLBACK } from '../../../../services/item-sprite-service/item-sprite.service';
 import { ItemItem } from '../../../../interfaces/item-item';
 import { SoundFxHandle, SoundFxService } from '../../../../services/sound-fx-service/sound-fx.service';
 import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
+import { EventPopupComponent } from '../../../../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-find-item-roulette',
@@ -23,28 +23,19 @@ import { ModalQueueService } from '../../../../services/modal-queue-service/moda
 })
 export class FindItemRouletteComponent {
 
-  constructor(private modalService: NgbModal,
-    private modalQueueService: ModalQueueService,
+  constructor(private modalQueueService: ModalQueueService,
     private itemService: ItemsService,
     private itemSpriteService: ItemSpriteService,
-    private soundFxService: SoundFxService) {
+    private soundFxService: SoundFxService,
+    private translateService: TranslateService) {
     this.items = itemService.getFindableItems();
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
 
-  @ViewChild('itemExplainerModal', { static: true }) itemExplainerModal!: TemplateRef<any>;
   items: ItemItem[] = [];
   selectedItem: ItemItem | null = null;
   @Output() itemSelectedEvent = new EventEmitter<ItemItem>();
   itemFoundAudio!: SoundFxHandle;
-
-  /** Swap a broken/blocked item sprite for the local common-item fallback. */
-  onSpriteError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    if (!img.src.endsWith(ITEM_SPRITE_FALLBACK)) {
-      img.src = ITEM_SPRITE_FALLBACK;
-    }
-  }
 
   onItemSelected(index: number): void {
     this.selectedItem = this.items[index];
@@ -56,25 +47,17 @@ export class FindItemRouletteComponent {
     });
 
     void this.soundFxService.playSoundFx(this.itemFoundAudio, 0.25);
-
-    this.modalQueueService.open(this.itemExplainerModal, {
-      centered: true,
-      size: 'md',
-      keyboard: false
-    }).then(modalRef => {
-      modalRef.result.then(() => {
-        if (this.selectedItem) {
-          this.itemSelectedEvent.emit(this.selectedItem);
-        }
-      }, () => {
-        if (this.selectedItem) {
-          this.itemSelectedEvent.emit(this.selectedItem);
-        }
-      });
-    });
+    void this.openItemExplainerModal();
   }
 
-  closeItemExplainerModal(): void {
-    this.modalService.dismissAll();
+  private async openItemExplainerModal(): Promise<void> {
+    if (!this.selectedItem) return;
+    const modalRef = await this.modalQueueService.open(EventPopupComponent, { centered: true, size: 'md', windowClass: 'event-popup-modal', keyboard: false });
+    modalRef.componentInstance.title = `${this.translateService.instant('game.main.roulette.item.found')} ${this.translateService.instant(this.selectedItem.text)}`;
+    modalRef.componentInstance.images = [{ src: this.selectedItem.sprite || ITEM_SPRITE_FALLBACK, height: 64 }];
+    modalRef.componentInstance.lines = [this.translateService.instant(this.selectedItem.description)];
+    modalRef.componentInstance.buttons = [{ label: this.translateService.instant('common.ok'), variant: 'primary' }];
+    const emit = () => { if (this.selectedItem) this.itemSelectedEvent.emit(this.selectedItem); };
+    modalRef.result.then(emit, emit);
   }
 }

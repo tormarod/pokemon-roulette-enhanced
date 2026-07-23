@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { eliteFourByGeneration } from './elite-four-by-generation';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -30,9 +30,6 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
 
   eliteFourByGeneration = eliteFourByGeneration;
 
-  @ViewChild('presentationModalRef', { static: true }) declare presentationModalRef: TemplateRef<unknown>;
-  @ViewChild('itemUsedModalRef', { static: true }) declare itemUsedModalRef: TemplateRef<unknown>;
-
   @Output() fromEliteChange = new EventEmitter<number>();
 
   currentElite!: GymLeader;
@@ -55,5 +52,24 @@ export class EliteFourBattleRouletteComponent extends BaseBattleRouletteComponen
   private isEliteVariantRound(): boolean {
     const g = this.generation.id, r = this.currentRound % 4;
     return g === 8 && (r === 0 || r === 2);
+  }
+
+  protected override openPresentationModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.elite.elite4')} ${this.translate.instant(this.currentElite.name)}!`,
+      images: [{ src: Array.isArray(this.currentElite.sprite) ? this.currentElite.sprite[0] : this.currentElite.sprite, alt: this.translate.instant(this.currentElite.name) }],
+      lines: this.currentElite.quotes.map(q => this.translate.instant(q)),
+      buttons: [{ label: this.translate.instant('game.main.roulette.elite.go'), variant: 'primary' }],
+      size: 'lg'
+    });
+  }
+
+  protected override openItemUsedModal(): void {
+    void this.openEventPopup({
+      title: `${this.translate.instant('game.main.roulette.elite.use')} ${this.translate.instant(this.currentItem.text)}!`,
+      images: [{ src: this.currentItem.sprite }],
+      lines: [this.translate.instant(this.currentItem.description)],
+      size: 'md'
+    });
   }
 }

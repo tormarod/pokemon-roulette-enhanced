@@ -377,25 +377,3 @@
     </div>
   </div>
 </div>
-
-<ng-template #resetStatsModal let-modal>
-  <div class="modal-body">
-    <h1>{{ 'stats.reset.title' | translate }}</h1>
-    <p>{{ 'stats.reset.warning' | translate }}</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="confirmReset()">{{ 'stats.reset.confirm' | translate }}</button>
-    <button type="button" class="btn btn-primary" (click)="closeModal()">{{ 'stats.reset.cancel' | translate }}</button>
-  </div>
-</ng-template>
-
-<ng-template #sectionResetModal let-modal>
-  <div class="modal-body">
-    <h1>{{ 'stats.reset.section.' + pendingResetSection + '.title' | translate }}</h1>
-    <p>{{ 'stats.reset.section.' + pendingResetSection + '.warning' | translate }}</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="confirmSectionReset()">{{ 'stats.reset.confirm' | translate }}</button>
-    <button type="button" class="btn btn-primary" (click)="closeModal()">{{ 'stats.reset.cancel' | translate }}</button>
-  </div>
-</ng-template>

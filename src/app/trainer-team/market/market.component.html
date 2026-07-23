@@ -108,13 +108,3 @@
     <button type="button" class="market-close" (click)="closeModal()">{{ 'market.close' | translate }}</button>
   </div>
 </ng-template>
-
-<ng-template #restockConfirmModal let-modal>
-  <div class="modal-body">
-    <p>{{ 'market.restockConfirmMessage' | translate: { price: restockPrice } }}</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="confirmRestock(); modal.close()">{{ 'market.restockConfirmYes' | translate }}</button>
-    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">{{ 'market.restockConfirmNo' | translate }}</button>
-  </div>
-</ng-template>

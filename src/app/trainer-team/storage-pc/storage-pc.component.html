@@ -129,20 +129,6 @@
   </div>
 </ng-template>
 
-<ng-template #pcInfoModal let-modal>
-  <div class="modal-body">
-      <h1>{{ infoModalTitle | translate}}</h1>
-      <div class="explain-panel">
-          <div class="message">
-              <p>{{ infoModalMessage | translate}}</p>
-          </div>
-      </div>
-  </div>
-  <div class="modal-footer">
-      <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
-  </div>
-</ng-template>
-
 <ng-template #pokemonInfoTooltip let-pokemon="pokemon">
      <div class="pokemon-tooltip">
           <div class="pokemon-tooltip-name">{{ pokemon.text | translate }}</div>

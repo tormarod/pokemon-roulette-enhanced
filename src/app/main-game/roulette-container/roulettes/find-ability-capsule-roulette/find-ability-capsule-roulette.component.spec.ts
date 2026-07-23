@@ -27,7 +27,7 @@ describe('FindAbilityCapsuleRouletteComponent', () => {
     const spy = spyOn(component.capsuleSelectedEvent, 'emit');
     // Stub the modal so the flow completes synchronously without a real modal.
     spyOn(component['modalQueueService'], 'open').and.returnValue(
-      Promise.resolve({ result: Promise.resolve(true) } as any)
+      Promise.resolve({ componentInstance: {}, result: Promise.resolve(true) } as any)
     );
 
     component.onCapsuleSelected(0);

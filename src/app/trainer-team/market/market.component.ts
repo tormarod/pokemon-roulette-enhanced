@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { EventPopupComponent } from '../../event-popup/event-popup.component';
 import { Subscription } from 'rxjs';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../services/game-state-service/game-state.service';
@@ -82,12 +83,12 @@ export class MarketComponent implements OnInit, OnDestroy {
               private itemSpriteService: ItemSpriteService,
               private battlePrepService: BattlePrepService,
               private soundFxService: SoundFxService,
-              private marketStockService: MarketStockService) {
+              private marketStockService: MarketStockService,
+              private translate: TranslateService) {
     this.itemFoundAudio = this.soundFxService.createItemFoundSoundFx();
   }
 
   @ViewChild('marketModal', { static: true }) marketModal!: TemplateRef<any>;
-  @ViewChild('restockConfirmModal', { static: true }) restockConfirmModal!: TemplateRef<any>;
 
   coins = 0;
   wheelSpinning = false;
@@ -229,7 +230,17 @@ export class MarketComponent implements OnInit, OnDestroy {
     if (!this.isAvailable || !this.canRestock || !this.canAffordRestock()) {
       return;
     }
-    this.modalService.open(this.restockConfirmModal, { centered: true, size: 'sm', windowClass: 'market-modal' });
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'sm', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.lines = [this.translate.instant('market.restockConfirmMessage', { price: this.restockPrice })];
+    modalRef.componentInstance.buttons = [
+      { label: this.translate.instant('market.restockConfirmYes'), variant: 'primary' },
+      { label: this.translate.instant('market.restockConfirmNo'), variant: 'secondary' }
+    ];
+    modalRef.result.then((index: number) => {
+      if (index === 0) {
+        this.confirmRestock();
+      }
+    }, () => {});
   }
 
   confirmRestock(): void {

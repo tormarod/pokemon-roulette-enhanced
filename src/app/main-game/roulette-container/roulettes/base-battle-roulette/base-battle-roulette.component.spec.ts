@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { BaseBattleRouletteComponent } from './base-battle-roulette.component';
@@ -12,7 +11,6 @@ import { PokemonType } from '../../../../interfaces/pokemon-type';
 import { TrainerService } from '../../../../services/trainer-service/trainer.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
 import { BattleDebuffService } from '../../../../services/battle-debuff-service/battle-debuff.service';
-import { ModalQueueService } from '../../../../services/modal-queue-service/modal-queue.service';
 import { BattlePrepService } from '../../../../services/battle-prep-service/battle-prep.service';
 import { MarkedTargetService } from '../../../../services/marked-target-service/marked-target.service';
 import { ScoutingReportService } from '../../../../services/scouting-report-service/scouting-report.service';
@@ -39,6 +37,9 @@ class TestBattleRouletteComponent extends BaseBattleRouletteComponent {
 
   protected override onGameStateChange(): void {}
 
+  protected override openPresentationModal(): void {}
+  protected override openItemUsedModal(): void {}
+
   protected override calcVictoryOdds(): void {
     this.victoryOdds = this.buildVictoryOdds(this.effectiveOpponentTypes, 'test.battle', this.testBaseNoCount, this.testCurrentRound, this.testLeadIndex);
   }
@@ -62,7 +63,6 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
   let trainerService: TrainerService;
   let gameStateService: GameStateService;
   let battleDebuffService: BattleDebuffService;
-  let modalQueueService: ModalQueueService;
   let battlePrepService: BattlePrepService;
   let markedTargetService: MarkedTargetService;
   let scoutingReportService: ScoutingReportService;
@@ -94,7 +94,6 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     trainerService = TestBed.inject(TrainerService);
     gameStateService = TestBed.inject(GameStateService);
     battleDebuffService = TestBed.inject(BattleDebuffService);
-    modalQueueService = TestBed.inject(ModalQueueService);
     battlePrepService = TestBed.inject(BattlePrepService);
     markedTargetService = TestBed.inject(MarkedTargetService);
     scoutingReportService = TestBed.inject(ScoutingReportService);
@@ -337,7 +336,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     });
 
     it('consumes a potion and does not emit yet when a loss still has one available', () => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      spyOn(component, 'openItemUsedModal' as any);
       component.setItems([
         { name: 'potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' },
       ]);
@@ -352,7 +351,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
       expect(component.battleResultEvent.emit).not.toHaveBeenCalled();
       expect((component as any).retries).toBe(1); // usePotion('potion') resets retries to 1
       expect((component as any).trainerItems.length).toBe(0); // potion consumed
-      expect(modalQueueService.open).toHaveBeenCalled();
+      expect((component as any).openItemUsedModal).toHaveBeenCalled();
     });
 
     it('emits false, runs cleanup, and calls onFinalLoss on a final loss with no potion', () => {

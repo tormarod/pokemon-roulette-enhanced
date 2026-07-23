@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {TranslatePipe} from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WheelComponent } from '../../../../wheel/wheel.component';
 import { PokemonItem } from '../../../../interfaces/pokemon-item';
 import { WheelItem } from '../../../../interfaces/wheel-item';
+import { EventPopupComponent } from '../../../../event-popup/event-popup.component';
 
 @Component({
   selector: 'app-team-rocket-roulette',
@@ -14,14 +15,16 @@ import { WheelItem } from '../../../../interfaces/wheel-item';
 })
 export class TeamRocketRouletteComponent implements OnInit {
 
-  constructor(private modalService: NgbModal) {
+  constructor(
+    private modalService: NgbModal,
+    private translateService: TranslateService
+  ) {
   }
 
   @Input() stolenPokemon!: PokemonItem | null;
   @Output() stealPokemonEvent = new EventEmitter<void>();
   @Output() nothingHappensEvent = new EventEmitter<void>();
   @Output() defeatInBattleEvent = new EventEmitter<void>();
-  @ViewChild('teamRockerModal', { static: true }) teamRockerModal!: TemplateRef<any>;
 
   outcomes: WheelItem[] = [];
 
@@ -47,10 +50,17 @@ export class TeamRocketRouletteComponent implements OnInit {
       this.outcomes.push({ text: 'game.main.roulette.teamrocket.outcomes.defeat', fillStyle: 'green', weight: 2 });
     }
 
-    this.modalService.open(this.teamRockerModal, {
-      centered: true,
-      size: 'lg'
-    });
+    const modalRef = this.modalService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
+    modalRef.componentInstance.title = this.translateService.instant('game.main.roulette.teamrocket.teamrocket');
+    modalRef.componentInstance.images = [
+      { src: this.james.sprite, alt: this.james.name },
+      { src: this.jessie.sprite, alt: this.jessie.name }
+    ];
+    modalRef.componentInstance.lines = [
+      this.translateService.instant('game.main.roulette.teamrocket.trouble'),
+      this.translateService.instant('game.main.roulette.teamrocket.double')
+    ];
+    modalRef.componentInstance.buttons = [{ label: this.translateService.instant('game.main.roulette.teamrocket.meowth'), variant: 'primary' }];
   }
 
   onItemSelected(index: number): void {
@@ -65,9 +75,5 @@ export class TeamRocketRouletteComponent implements OnInit {
         this.defeatInBattleEvent.emit();
         break;
     }
-  }
-
-  closeModal(): void {
-    this.modalService.dismissAll();
   }
 }

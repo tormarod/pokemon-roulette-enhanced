@@ -203,7 +203,7 @@ describe('GymBattleRouletteComponent', () => {
   // ── getCurrentLeader: multi-leader generation handling ───────────────────
 
   it('should emit fromLeaderChange when generation is 5 and round is a multi-leader round', (done) => {
-    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+    spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
 
     // Override the component's captured generation to Gen 5 (id=5)
     (component as any).generation = { id: 5, text: 'Gen 5', region: 'Unova', fillStyle: 'darkcyan', weight: 1 };
@@ -223,7 +223,7 @@ describe('GymBattleRouletteComponent', () => {
 
   describe('New Experience mode', () => {
     beforeEach(() => {
-      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({} as NgbModalRef));
+      spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
       gameStateService.resetGameState(true);
       trainerService.resetTeam();
     });

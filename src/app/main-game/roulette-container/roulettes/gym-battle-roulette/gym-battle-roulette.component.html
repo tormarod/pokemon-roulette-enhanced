@@ -36,35 +36,3 @@
 }
 <div class="roulette-action-row"></div>
 
-<ng-template #presentationModalRef let-modal>
-    <div class="modal-body">
-        <h1>{{ 'game.main.roulette.gym.against' | translate }} {{ currentLeader.name | translate }}!</h1>
-        <div class="leader-panel">
-            <img [src]="currentLeader.sprite" alt="{{currentLeader.name}}" height="128">
-            <div class="quotes">
-                @for (quote of currentLeader.quotes; track $index) {
-                    <p>{{quote | translate}}</p>
-                }
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">{{ 'game.main.roulette.gym.go' | translate }}</button>
-    </div>
-</ng-template>
-
-<ng-template #itemUsedModalRef let-modal>
-    <div class="modal-body">
-        <h1>{{ 'game.main.roulette.gym.used' | translate }} {{ currentItem.text | translate }}!</h1>
-        <div class="item-panel">
-            <img [src]="currentItem.sprite" height="128">
-            <div class="quotes">
-                <p>{{ currentItem.description | translate}}</p>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Ok</button>
-    </div>
-</ng-template>
-
