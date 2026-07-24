@@ -265,42 +265,28 @@
   font-weight: 700;
 }
 
-.roster-popover {
+/* Ability pill — mirrors the PC storage tile pill (see storage-pc.component.css
+   .pc-ability-pill): spans the tile's full width at the bottom on the fixed
+   near-black overlay so the ability name stays legible over any sprite/theme,
+   truncating with ellipsis if long. The description shows in an ngbTooltip. */
+.roster-ability-pill {
   position: absolute;
-  z-index: 5;
-  top: 100%;
-  left: 50%;
-  width: 160px;
-  background: var(--panel-card-bg);
-  border: 1px solid var(--panel-card-border);
-  border-radius: 10px;
-  box-shadow: var(--panel-card-shadow);
-  padding: 8px;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 8px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 0 0 11px 11px;
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   box-sizing: border-box;
-  pointer-events: none;
-  animation: roster-popover-pop 0.15s ease-out both;
-}
-
-.roster-popover-name {
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.roster-popover-desc {
-  font-size: 10px;
-  opacity: 0.8;
-  margin-top: 2px;
-}
-
-@keyframes roster-popover-pop {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) scale(0.92) translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1) translateY(0);
-  }
+  cursor: help;
 }
 
 /* Corner-overlay badges (opposite the mega-stone slot) for New Experience Mode
@@ -329,6 +315,7 @@
   background: transparent;
   padding: 0;
   cursor: pointer;
+  z-index: 3;
 }
 
 .mega-stone-overlay-button:focus-visible {

@@ -36,9 +36,7 @@
         @for (i of [0,1,2,3,4,5]; track i) {
             <div class="roster-slot">
                 @if (trainerTeam[i]?.sprite) {
-                    <div class="roster-tile"
-                         (mouseenter)="setHoveredMember(i)"
-                         (mouseleave)="setHoveredMember(null)">
+                    <div class="roster-tile">
                         <img [src]="getSprite(trainerTeam[i])"
                              class="roster-sprite"
                              role="button"
@@ -68,6 +66,15 @@
                                  {{ 'trainer.team.marked' | translate }}
                             </span>
                         }
+                        @if (isNewExperienceMode) {
+                            @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
+                                <span class="roster-ability-pill"
+                                      placement="bottom"
+                                      container="body"
+                                      ngbTooltip="{{ getMemberAbilityDescription(trainerTeam[i]) | translate }}"
+                                      triggers="hover click">{{ abilityName | translate }}</span>
+                            }
+                        }
                     </div>
                     <div class="roster-types">
                         @for (type of getPokemonTypes(trainerTeam[i]); track type) {
@@ -75,16 +82,6 @@
                         }
                     </div>
                     <div class="roster-power">{{ 'detail.power' | translate }} {{ trainerTeam[i].power }}</div>
-                    @if (isNewExperienceMode && hoveredMemberIndex === i) {
-                        @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
-                            <div class="roster-popover">
-                                <div class="roster-popover-name">{{ abilityName | translate }}</div>
-                                @if (getMemberAbilityDescription(trainerTeam[i]); as abilityDesc) {
-                                    <div class="roster-popover-desc">{{ abilityDesc | translate }}</div>
-                                }
-                            </div>
-                        }
-                    }
                 }
             </div>
         }
