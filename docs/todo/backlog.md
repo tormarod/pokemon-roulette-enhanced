@@ -1,7 +1,7 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-22
+Last updated: 2026-07-24
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
@@ -57,6 +57,20 @@ odds nudge. Possible directions (undecided): a small pick-from-N capsule choice
 instead of a single random award, or biasing the capsule draw toward the team's
 types. Low priority — revisit after the Phase 2 magnitude pass, which changes how
 much a capsule is worth in the first place.
+
+### Sync non-en ability descriptions with en (post ability-dedup)
+
+The ability-effect dedup pass (`docs/plans/done/deduplicate-ability-effects.md`)
+rewrote 10 ability descriptions in `en.json` for their new mechanics and dropped
+**English placeholders** into `de/es/fr/it/pt` for those 10 (torrent, keen-eye,
+overgrow, rough-skin, poison-point, cursed-body, clear-body, sand-rush,
+snow-cloak, thick-fat). Two follow-ups for a translation pass: (1) translate
+those 10 placeholders into each locale; (2) apply the same **off-by-one numeral
+correction** the en pass made to the untouched abilities (blaze, guts, static,
+intimidate, multiscale, swarm, sheer-force, comeback, marvel-scale — the shown
+magnitude was one less than the real ticket value) in all five translated
+locales. Low priority — placeholders are readable English, and the untouched
+numerals were already off before this pass.
 
 ### Shiny animation could default to skipped
 

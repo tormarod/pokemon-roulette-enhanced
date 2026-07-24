@@ -79,21 +79,22 @@ export class BattleOddsService {
       if (d > 0) leadAdvantageDelta = d; else if (d < 0) leadDisadvantageDelta = -d;
     }
 
-    let abilityYes = 0, abilityNo = 0, extraRetry = false;
-    if (input.abilitiesActive) {
-      const a = this.abilityService.applyTeamAbilities(team, opponentTypes);
-      abilityYes = a.yesBonus; abilityNo = a.noBonus; extraRetry = a.extraRetry;
-    }
-
     const xAttack = (input.xAttackBonus ?? 0) + (input.classicPlusModifiers ?? 0);
     const badOmen = input.badOmen ?? 0;
     const typeAdvantage = advantageDelta + leadAdvantageDelta;
     const typeDisadvantage = disadvantageDelta + leadDisadvantageDelta;
+    const roundThreat = Math.ceil(currentRound * ROUND_THREAT_MULT);
+
+    let abilityYes = 0, abilityNo = 0, extraRetry = false;
+    if (input.abilitiesActive) {
+      const a = this.abilityService.applyTeamAbilities(team, opponentTypes,
+        { round: currentRound, roundThreat, badOmen });
+      abilityYes = a.yesBonus; abilityNo = a.noBonus; extraRetry = a.extraRetry;
+    }
 
     const effectivePower = yesPower + leadAdvantageDelta + xAttack + abilityYes;
     const yesTickets = Math.round(effectivePower) + 1;
 
-    const roundThreat = Math.ceil(currentRound * ROUND_THREAT_MULT);
     const rawNo = baseNoCount + roundThreat + disadvantageDelta + leadDisadvantageDelta + badOmen + abilityNo;
     const noTickets = Math.max(baseNoCount, rawNo);
 

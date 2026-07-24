@@ -103,7 +103,7 @@ describe('BattleOddsService', () => {
   });
 
   it('folds an active ability effect into a distinct ability field, separate from typeDisadvantage', () => {
-    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'torrent' })]; // weak vs fire, torrent: soak-if-negative -3
+    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'multiscale' })]; // weak vs fire, multiscale: soak-if-negative -3
     const odds = service.computeOdds({
       team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: true,
     });
@@ -112,12 +112,29 @@ describe('BattleOddsService', () => {
   });
 
   it('ignores ability effects when abilitiesActive is false (Classic mode)', () => {
-    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'torrent' })];
+    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'multiscale' })];
     const odds = service.computeOdds({
       team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: false,
     });
     expect(odds.no.ability).toBe(0);
     expect(odds.extraRetry).toBe(false);
+  });
+
+  it('threads round/roundThreat/badOmen context into context-reading abilities', () => {
+    // blunt-threat (rough-skin) removes up to 2 of the round-threat No.
+    const bluntTeam = [makeTestPokemon({ power: 4, type1: 'normal', ability: 'rough-skin' })];
+    const blunt = service.computeOdds({
+      team: bluntTeam, opponentTypes: [], baseNoCount: 1, currentRound: 4, abilitiesActive: true,
+    });
+    expect(blunt.no.roundThreat).toBe(5); // ceil(4 * 1.25)
+    expect(blunt.no.ability).toBe(-2);    // -min(roundThreat 5, value 2)
+
+    // cushion-omen (thick-fat) removes up to 2 of the bad-omen No.
+    const omenTeam = [makeTestPokemon({ power: 4, type1: 'normal', ability: 'thick-fat' })];
+    const omen = service.computeOdds({
+      team: omenTeam, opponentTypes: [], baseNoCount: 1, currentRound: 0, badOmen: 3, abilitiesActive: true,
+    });
+    expect(omen.no.ability).toBe(-2); // -min(badOmen 3, value 2)
   });
 
   it('computes winChance as yesTickets / (yesTickets + noTickets)', () => {
