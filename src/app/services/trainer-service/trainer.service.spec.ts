@@ -88,6 +88,14 @@ describe('TrainerService', () => {
     expect(itemNames).toEqual(['potion', 'honey', 'repel']);
   });
 
+  it('resetItems adds a starter X Attack in New Experience mode only', () => {
+    service.resetItems(true);
+    expect(service.trainerItems.map(item => item.name)).toEqual(['potion', 'honey', 'repel', 'x-attack']);
+
+    service.resetItems(false);
+    expect(service.trainerItems.map(item => item.name)).toEqual(['potion', 'honey', 'repel']);
+  });
+
   // ── coins (Market currency) ──────────────────────────────────────────────
 
   it('should start with zero coins', () => {

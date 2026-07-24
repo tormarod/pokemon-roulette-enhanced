@@ -3206,6 +3206,7 @@
   },
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
+  "v3_16_2": "Version 3.16.2",
   "v3_16_1": "Version 3.16.1",
   "v3_16_0": "Version 3.16.0",
   "v3_15_1": "Version 3.15.1",
@@ -3229,6 +3230,9 @@
     "title": "Neue Inhalte",
     "dismiss": "Verstanden",
     "settingsEntry": "Neue Inhalte",
+    "v3_16_2": {
+      "0": "💪 New Experience runs now start with one X Attack in the bag — a free pre-spin boost to help through a rough opening matchup or an early Bad Omen. (Classic mode's starter kit is unchanged.)"
+    },
     "v3_16_1": {
       "0": "🔮 Bad Omen now scales with the round it strikes on: early game (rounds 1–2) it only adds a single extra No ticket to your next battle instead of two, and it grows as the run goes on — so an early omen stings less and a late one bites harder.",
       "1": "🧹 The end-of-run screen no longer shows the status header with the Danger bar — it's useless once the run is over, so it's now hidden on both the game-over and victory screens."

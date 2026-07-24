@@ -1182,6 +1182,8 @@ describe('RunPersistenceService', () => {
       expect(scoutingReportService.currentType).toBeNull();
       expect(pcLockService.isLocked).toBeFalse();
       expect(gameStateService.isNewExperienceMode).toBeTrue();
+      // New Experience runs start with a bonus X Attack in the kit.
+      expect(trainerService.getItems().some(i => i.name === 'x-attack')).toBeTrue();
       expect(localStorage.getItem(RUN_KEY)).toBeNull();
     });
 
@@ -1194,6 +1196,8 @@ describe('RunPersistenceService', () => {
       expect(trainerService.getTeam().length).toBe(0);
       // resetItems() restores the default starting kit (Potion/Honey/Repel), not an empty bag.
       expect(trainerService.getItems().some(i => i.name === 'super-potion')).toBeFalse();
+      // Classic mode does NOT get the New-Experience-only starter X Attack.
+      expect(trainerService.getItems().some(i => i.name === 'x-attack')).toBeFalse();
       expect(gameStateService.isNewExperienceMode).toBeFalse();
     });
   });

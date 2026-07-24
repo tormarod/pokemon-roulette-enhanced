@@ -74,6 +74,20 @@ export class TrainerService implements OnDestroy {
     description: 'items.repel.description'
   };
 
+  // New-Experience-only starter item: one consumed pre-spin X Attack to soften a
+  // rough opening matchup or a bad-omen draw on the first gym. Deliberately NOT
+  // granted in Classic mode, where x-attack applies passively to every battle
+  // forever (see BaseBattleRouletteComponent.plusModifiers) — a permanent buff
+  // there, not the one-time early help this is meant to be.
+  private static readonly DEFAULT_X_ATTACK: ItemItem = {
+    text: 'items.x-attack.name',
+    name: 'x-attack',
+    sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png',
+    fillStyle: 'crimson',
+    weight: 1,
+    description: 'items.x-attack.description'
+  };
+
   private readonly gameStateSubscription: Subscription;
 
   constructor(private badgesService: BadgesService,
@@ -509,12 +523,15 @@ export class TrainerService implements OnDestroy {
     this.trainerTeamObservable.next(this.trainerTeam);
   }
 
-  resetItems() {
+  resetItems(newExperienceMode: boolean = false) {
     this.trainerItems = [
       structuredClone(TrainerService.DEFAULT_POTION),
       structuredClone(TrainerService.DEFAULT_HONEY),
       structuredClone(TrainerService.DEFAULT_REPEL)
     ];
+    if (newExperienceMode) {
+      this.trainerItems.push(structuredClone(TrainerService.DEFAULT_X_ATTACK));
+    }
     this.trainerItemsObservable.next(this.trainerItems);
   }
 
