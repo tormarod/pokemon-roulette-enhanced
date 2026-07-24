@@ -30,6 +30,26 @@ export class WheelComponent implements AfterViewInit, OnChanges {
   wheelCtx!: CanvasRenderingContext2D;
   pointerCanvas!: HTMLCanvasElement;
   pointerCtx!: CanvasRenderingContext2D;
+
+  /**
+   * Pre-rendered wheel (all wedges + dividers + labels + gold ring) at rotation 0.
+   * The wheel is geometrically rigid during a spin — only its rotation changes — so
+   * we draw it once here and each animation frame just rotates and blits this bitmap
+   * (one drawImage) instead of re-tracing every slice + label 60×/sec. Rebuilt only
+   * when the inputs actually change: items (ngOnChanges) or canvas size (resize).
+   * The centre hub is drawn separately on top, unrotated, so its pokéball stays upright.
+   */
+  private wheelBitmap: HTMLCanvasElement | null = null;
+  private wheelBitmapCtx: CanvasRenderingContext2D | null = null;
+
+  /**
+   * Above this slice count per-slice labels are dropped entirely. Past ~48 slices the
+   * arc under each label is so narrow (≈20px on the 340px wheel, far less on the
+   * 151-slice catch wheel) that the text overlaps into an unreadable smear — no font
+   * is both large enough to read and small enough not to collide. The live "current
+   * segment" readout and the result chip below the wheel cover what the player landed on.
+   */
+  private static readonly LABEL_SLICE_LIMIT = 48;
   @Input() items: WheelItem[] = [];
   @Output() selectedItemEvent = new EventEmitter<number>();
   @ViewChild('wheel') wheelCanvasRef!: ElementRef<HTMLCanvasElement>;
@@ -89,6 +109,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     // Wait for translations to be ready
     this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.preprocessTranslations();
+      this.drawWheelBitmap();
       this.drawWheel();
       this.drawPointer();
       this.resolvePendingSpinIfAny();
@@ -127,6 +148,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     this.updateWheelDimensions();
 
     if (this.wheelCtx && this.pointerCtx) {
+      this.drawWheelBitmap();
       this.drawWheel(this.currentRotation);
       this.drawPointer();
     }
@@ -139,6 +161,7 @@ export class WheelComponent implements AfterViewInit, OnChanges {
       this.currentSegment = '-';
       this.translateService.get('wheel.spin').pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.preprocessTranslations();
+        this.drawWheelBitmap();
         this.drawWheel();
         this.drawPointer();
       });
@@ -166,14 +189,11 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     this.fontSize = this.wheelWidth / 24;
 
     // Tiered caps: crowded wheels need progressively smaller labels so
-    // neighbouring slice texts stop overlapping (e.g. the 151-slice Gen 1
-    // catch wheel — at 340px the per-slice arc there is only ~6px).
+    // neighbouring slice texts stop overlapping. Only counts up to
+    // LABEL_SLICE_LIMIT are labelled at all (see drawWheelBitmap), so there's
+    // no tier beyond that — those wheels render label-free.
     const count = this.items.length;
-    if (count >= 128) {
-      this.fontSize = Math.min(this.fontSize, 6);
-    } else if (count >= 96) {
-      this.fontSize = Math.min(this.fontSize, 7);
-    } else if (count >= 64) {
+    if (count > 40) {
       this.fontSize = Math.min(this.fontSize, 8);
     } else if (count >= 32) {
       this.fontSize = Math.min(this.fontSize, 10);
@@ -182,70 +202,122 @@ export class WheelComponent implements AfterViewInit, OnChanges {
     }
   }
 
+  /**
+   * Paint the current frame: clear, blit the pre-rendered wheel bitmap rotated by
+   * `rotation`, then stamp the hub on top (unrotated). O(1) per frame regardless of
+   * slice count — the per-slice tracing lives in drawWheelBitmap, run once off-frame.
+   */
   private drawWheel(rotation = 0): void {
-    const centerX = this.wheelCanvas.width / 2;
-    const centerY = this.wheelCanvas.height / 2;
-    const radius = (this.wheelCanvas.width / 2);
+    if (!this.wheelBitmap) {
+      return;
+    }
+    const w = this.wheelCanvas.width;
+    const h = this.wheelCanvas.height;
+    const centerX = w / 2;
+    const centerY = h / 2;
+    const radius = w / 2;
+
+    this.wheelCtx.clearRect(0, 0, w, h);
+    this.wheelCtx.save();
+    this.wheelCtx.translate(centerX, centerY);
+    this.wheelCtx.rotate(rotation);
+    this.wheelCtx.drawImage(this.wheelBitmap, -centerX, -centerY);
+    this.wheelCtx.restore();
+
+    // Hub stamped fresh each frame so the pokéball glyph never rotates with the wheel.
+    this.drawHub(centerX, centerY, radius);
+  }
+
+  /**
+   * Render the static wheel (wedges + dividers + highlights + labels + gold ring) into
+   * an offscreen bitmap at rotation 0. Expensive — traces every slice and rasterizes
+   * every label — so it runs only when the geometry changes (items / canvas size), not
+   * per animation frame. drawWheel then rotates and blits this bitmap.
+   */
+  private drawWheelBitmap(): void {
+    const w = this.wheelCanvas.width;
+    const h = this.wheelCanvas.height;
+    if (w === 0 || h === 0) {
+      return;
+    }
+
+    if (!this.wheelBitmap) {
+      this.wheelBitmap = document.createElement('canvas');
+      this.wheelBitmapCtx = this.wheelBitmap.getContext('2d');
+    }
+    if (this.wheelBitmap.width !== w || this.wheelBitmap.height !== h) {
+      this.wheelBitmap.width = w;
+      this.wheelBitmap.height = h;
+    }
+    const ctx = this.wheelBitmapCtx;
+    if (!ctx) {
+      return;
+    }
+
+    const centerX = w / 2;
+    const centerY = h / 2;
+    const radius = w / 2;
     const s = radius / 112;           // scale factor vs. the 260px design prototype
     const segRadius = 102 * s;        // segments run almost to the gold ring
 
     const totalWeight = this.getTotalWeights();
     const arcSize = (2 * Math.PI) / (totalWeight);
-    this.wheelCtx.clearRect(0, 0, this.wheelCanvas.width, this.wheelCanvas.height);
+    const drawLabels = this.translatedItems.length <= WheelComponent.LABEL_SLICE_LIMIT;
+    ctx.clearRect(0, 0, w, h);
 
-    let startAngle = rotation;
+    let startAngle = 0;
     for (let index = 0; index < this.translatedItems.length; index++) {
       const item = this.translatedItems[index];
       const segmentSize = arcSize * item.weight;
       const endAngle = startAngle + segmentSize;
 
       /** Draw the segment */
-      this.wheelCtx.beginPath();
-      this.wheelCtx.arc(centerX, centerY, segRadius, startAngle, endAngle);
-      this.wheelCtx.lineTo(centerX, centerY);
-      this.wheelCtx.fillStyle = softenWheelColor(item.fillStyle);
-      this.wheelCtx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, segRadius, startAngle, endAngle);
+      ctx.lineTo(centerX, centerY);
+      ctx.fillStyle = softenWheelColor(item.fillStyle);
+      ctx.fill();
 
       // Subtle divider between slices (reads especially on the interleaved battle wheels)
-      this.wheelCtx.lineWidth = Math.max(1, s);
-      this.wheelCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      this.wheelCtx.stroke();
+      ctx.lineWidth = Math.max(1, s);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.stroke();
 
       // Type-bias visual feedback (V2 B3): gold outline on slices being boosted
       // toward — so the effect reads before spinning.
       if (item.highlighted) {
-        this.wheelCtx.lineWidth = 3;
-        this.wheelCtx.strokeStyle = '#FFD700';
-        this.wheelCtx.stroke();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#FFD700';
+        ctx.stroke();
       }
 
-      if (this.translatedItems.length < 160) {
+      if (drawLabels) {
         /** Draw the text: thin black outline first keeps labels legible over any fill */
-        this.wheelCtx.save();
-        this.wheelCtx.translate(centerX, centerY);
-        this.wheelCtx.rotate(startAngle + segmentSize / 2);
-        this.wheelCtx.font = '700 ' + this.fontSize + 'px system-ui, sans-serif';
-        this.wheelCtx.textAlign = 'right';
-        this.wheelCtx.lineWidth = Math.max(1, this.fontSize * 0.09);
-        this.wheelCtx.strokeStyle = '#000';
-        this.wheelCtx.lineJoin = 'round';
-        this.wheelCtx.strokeText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
-        this.wheelCtx.fillStyle = '#fff';
-        this.wheelCtx.fillText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
-        this.wheelCtx.restore();
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(startAngle + segmentSize / 2);
+        ctx.font = '700 ' + this.fontSize + 'px system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.lineWidth = Math.max(1, this.fontSize * 0.09);
+        ctx.strokeStyle = '#000';
+        ctx.lineJoin = 'round';
+        ctx.strokeText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(item.text, segRadius - 6 * s, this.fontSize * 0.32);
+        ctx.restore();
       }
 
       startAngle = endAngle;
     }
 
-    // Ring drawn AFTER segments so the gold stroke sits on top of slice edges,
-    // then the hub badge on top of everything (WHEEL-01/WHEEL-02)
-    this.drawBorderRing(centerX, centerY, radius);
-    this.drawHub(centerX, centerY, radius);
+    // Ring drawn AFTER segments so the gold stroke sits on top of slice edges.
+    // (A centred circle, so it's rotation-invariant when the bitmap spins.)
+    // The hub is NOT baked in here — it's stamped per frame in drawWheel so it
+    // stays upright (WHEEL-01/WHEEL-02).
+    this.drawBorderRing(ctx, centerX, centerY, radius);
   }
 
-  private drawBorderRing(cx: number, cy: number, radius: number): void {
-    const ctx = this.wheelCtx;
+  private drawBorderRing(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number): void {
     const s = radius / 112;
 
     // Single flat gold ring
