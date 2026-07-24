@@ -236,10 +236,8 @@ Manual / visual (real app, New Experience Mode, main panel):
 
 ---
 
-## Version / release notes (confirm with maintainer)
+## Version / release notes
 
-This is invisible UX polish (same feature, smarter trigger), so it is a **PATCH** at most. Recommend:
-bump `package.json` PATCH and add a one-line `whatsNew` note ("main-panel buttons now collapse to
-icons based on available space instead of a fixed screen width") across the six locale files, per the
-repo's release-notes convention — **or** fold it into PR #56's release note if that one hasn't
-shipped yet. Decision is the maintainer's; do not add a new What's New version silently.
+**Decided (maintainer): no version bump and no What's New entry.** This is invisible UX polish (same
+feature, smarter trigger), not a player-facing change worth a release note. Ship it without touching
+`package.json`, `RELEASE_NOTES`, or the locale `whatsNew` keys.
