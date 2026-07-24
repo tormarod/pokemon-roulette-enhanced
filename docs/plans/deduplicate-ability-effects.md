@@ -1,10 +1,13 @@
 # Deduplicate ability effects (give clones distinct mechanics)
 
-Status: **Phase 1 done; Phases 2–4 pending**
+Status: **Phases 1–2 done; Phases 3–4 pending**
 
 - [x] Phase 1 — Core mechanics (data + service + plumbing). Builds/type-checks
       clean; only the 3 stale specs + 1 battle-odds case fail (rewritten in Phase 2).
-- [ ] Phase 2 — Tests
+- [x] Phase 2 — Tests. Rewrote the 3 stale ability specs (repurposed to the new
+      canonical holders: intimidate/swarm/multiscale) + swapped the battle-odds
+      torrent case to multiscale; added one `it` per new mechanic and a
+      battle-odds context-threading case. Full suite green (957).
 - [ ] Phase 3 — i18n descriptions
 - [ ] Phase 4 — Release plumbing & cleanup
 

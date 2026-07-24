@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { AbilityService } from './ability.service';
+import { AbilityContext, AbilityService } from './ability.service';
 import { TypeMatchupService } from '../type-matchup-service/type-matchup.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { AbilityId } from './abilities-data';
@@ -45,9 +45,9 @@ describe('AbilityService', () => {
 
   // ── §4a base roster (existing effects) ──────────────────────────────────
 
-  it('thick-fat: flat -2 No, regardless of delta', () => {
+  it('intimidate: flat -2 No, regardless of delta', () => {
     withDelta(5);
-    expect(service.applyTeamAbilities([mon('thick-fat')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('intimidate')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
   });
 
   it('guts: flat +3 Yes', () => {
@@ -58,12 +58,12 @@ describe('AbilityService', () => {
     expect(service.applyTeamAbilities([mon('static')], [])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
   });
 
-  it('rough-skin: +2 Yes only if delta positive', () => {
+  it('swarm: +2 Yes only if delta positive', () => {
     withDelta(3);
-    expect(service.applyTeamAbilities([mon('rough-skin')], ['fire'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('swarm')], ['fire'])).toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
 
     withDelta(-3);
-    expect(service.applyTeamAbilities([mon('rough-skin')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('swarm')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
   it('sturdy: no odds effect — handled by the faint mechanic instead', () => {
@@ -87,12 +87,12 @@ describe('AbilityService', () => {
     expect(service.applyTeamAbilities([mon('blaze')], ['grass'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
-  it('torrent: -3 No only if delta negative', () => {
+  it('multiscale: -3 No only if delta negative', () => {
     withDelta(-1);
-    expect(service.applyTeamAbilities([mon('torrent')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -3, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('multiscale')], ['fire'])).toEqual({ yesBonus: 0, noBonus: -3, extraRetry: false });
 
     withDelta(1);
-    expect(service.applyTeamAbilities([mon('torrent')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('multiscale')], ['fire'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
   it('synchronize: +1 Yes per teammate sharing a type, own type included', () => {
@@ -198,6 +198,94 @@ describe('AbilityService', () => {
 
     withDelta(4); // advantage => no effect
     expect(service.applyTeamAbilities([mon('comeback')], ['dark'])).toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  // ── dedup-pass distinct mechanics ────────────────────────────────────────
+
+  it('torrent (rally-outmatched): +1 Yes per team member at a disadvantage', () => {
+    withDelta(-1); // both members disadvantaged => +1 * 2
+    expect(service.applyTeamAbilities([mon('torrent'), mon(undefined)], ['fire']))
+      .toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+
+    withDelta(1); // nobody disadvantaged => no effect
+    expect(service.applyTeamAbilities([mon('torrent'), mon(undefined)], ['fire']))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('keen-eye (spot-weakness): +1 Yes per team member at an advantage', () => {
+    withDelta(1); // both members advantaged => +1 * 2
+    expect(service.applyTeamAbilities([mon('keen-eye'), mon(undefined)], ['fire']))
+      .toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+
+    withDelta(-1); // nobody advantaged => no effect
+    expect(service.applyTeamAbilities([mon('keen-eye'), mon(undefined)], ['fire']))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('overgrow (grow-with-round): +Yes equal to the round, capped at 3', () => {
+    const ctx = (round: number): AbilityContext => ({ round, roundThreat: 0, badOmen: 0 });
+    expect(service.applyTeamAbilities([mon('overgrow')], [], ctx(2)))
+      .toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('overgrow')], [], ctx(9))) // capped at value 3
+      .toEqual({ yesBonus: 3, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('overgrow')], [], ctx(0)))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('rough-skin (blunt-threat): -No, removing up to 2 of the round threat', () => {
+    const ctx = (roundThreat: number): AbilityContext => ({ round: 0, roundThreat, badOmen: 0 });
+    expect(service.applyTeamAbilities([mon('rough-skin')], [], ctx(1)))
+      .toEqual({ yesBonus: 0, noBonus: -1, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('rough-skin')], [], ctx(5))) // capped at value 2
+      .toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('rough-skin')], [], ctx(0)))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('poison-point (venom-vs-dual): +2 Yes only against a dual-typed opponent', () => {
+    expect(service.applyTeamAbilities([mon('poison-point')], ['fire', 'flying']))
+      .toEqual({ yesBonus: 2, noBonus: 0, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('poison-point')], ['fire']))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('cursed-body (curse-vs-dual): -2 No only against a dual-typed opponent', () => {
+    expect(service.applyTeamAbilities([mon('cursed-body')], ['fire', 'flying']))
+      .toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('cursed-body')], ['fire']))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('clear-body (focus-vs-mono): -2 No only against a single-typed opponent', () => {
+    expect(service.applyTeamAbilities([mon('clear-body')], ['fire']))
+      .toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('clear-body')], ['fire', 'flying']))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+    // No opponent types => neither mono nor dual => no effect.
+    expect(service.applyTeamAbilities([mon('clear-body')], []))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('sand-rush (reckless-rush): +2 Yes and +1 No (asymmetric variance)', () => {
+    expect(service.applyTeamAbilities([mon('sand-rush')], []))
+      .toEqual({ yesBonus: 2, noBonus: 1, extraRetry: false });
+  });
+
+  it('snow-cloak (snow-refuge): -2 No only while the team has <= 2 members', () => {
+    expect(service.applyTeamAbilities([mon('snow-cloak'), mon(undefined)], []))
+      .toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('snow-cloak'), mon(undefined), mon(undefined)], []))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
+  });
+
+  it('thick-fat (cushion-omen): -No, removing up to 2 of the bad-omen No', () => {
+    const ctx = (badOmen: number): AbilityContext => ({ round: 0, roundThreat: 0, badOmen });
+    expect(service.applyTeamAbilities([mon('thick-fat')], [], ctx(3))) // capped at value 2
+      .toEqual({ yesBonus: 0, noBonus: -2, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('thick-fat')], [], ctx(1)))
+      .toEqual({ yesBonus: 0, noBonus: -1, extraRetry: false });
+    expect(service.applyTeamAbilities([mon('thick-fat')], [], ctx(0)))
+      .toEqual({ yesBonus: 0, noBonus: 0, extraRetry: false });
   });
 
   // ── lookups ─────────────────────────────────────────────────────────────
