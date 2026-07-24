@@ -1,6 +1,7 @@
-<button type="button" class="panel-pill-btn" (click)="openPokedex()">
+<button type="button" class="panel-pill-btn" (click)="openPokedex()"
+        [attr.aria-label]="'pokedex.button' | translate">
   <ng-icon name="bootstrapBook"></ng-icon>
-  {{ 'pokedex.button' | translate }}
+  <span class="panel-pill-label">{{ 'pokedex.button' | translate }}</span>
 </button>
 
 <ng-template #pokedexModal let-modal>

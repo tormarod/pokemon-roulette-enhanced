@@ -178,6 +178,27 @@
   }
 }
 
+/* Phone widths: the fixed 120px right column plus its "MONEDAS" label crowds
+   out the middle, which is what squeezes the PC/Pokédex pills until their
+   labels spill. Drop the coin word (the 🪙 + amount still reads clearly) and
+   let the column size to its content so the icon-only pills get the room back.
+   The buttons themselves go icon-only at this same 480px breakpoint in their
+   own component CSS. */
+@media (max-width: 480px) {
+  .utility-rail {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .utility-right {
+    width: auto;
+  }
+
+  .coin-label {
+    display: none;
+  }
+}
+
 /* Roster grid */
 
 /* Columns cap at 107px (the PC bench card's own measured size — see

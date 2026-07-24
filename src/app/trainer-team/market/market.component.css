@@ -36,6 +36,20 @@
   margin-right: 0.35em;
 }
 
+/* Phone widths: collapse the pill to icon-only so the label can't overflow a
+   squeezed button (see storage-pc.component.css for the full rationale). Drop
+   the icon's trailing margin so the lone emoji stays centered; the aria-label
+   keeps the button named for assistive tech. */
+@media (max-width: 480px) {
+  .panel-pill-label {
+    display: none;
+  }
+
+  .market-button-icon {
+    margin-right: 0;
+  }
+}
+
 /* Header balance pill — carries its own colors so it reads on any themed modal header. */
 .market-balance {
   display: inline-flex;

@@ -30,6 +30,15 @@
   cursor: not-allowed;
 }
 
+/* Phone widths: collapse the pill to icon-only so the label can't overflow a
+   squeezed button (see storage-pc.component.css for the full rationale). The
+   aria-label keeps the button named for assistive tech. */
+@media (max-width: 480px) {
+  .panel-pill-label {
+    display: none;
+  }
+}
+
 /* Modal chrome (background/text color) is themed globally via the
    'pokedex-modal' windowClass — see the body.theme-* rules in styles.css.
    Nothing here needs to set color: the modal-content already provides a

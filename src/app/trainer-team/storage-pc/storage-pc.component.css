@@ -31,6 +31,17 @@
   cursor: not-allowed;
 }
 
+/* Phone widths: the utility rail can't fit two text pills plus the coin +
+   Market column, so the pills collapse and their nowrap labels spill out and
+   collide (see the reported warped layout). Drop to icon-only here — the
+   aria-label keeps the button named for assistive tech. Same 480px phone
+   breakpoint used elsewhere in this component (the PC grid) and the app. */
+@media (max-width: 480px) {
+  .panel-pill-label {
+    display: none;
+  }
+}
+
 /* Modal chrome (background/text color) is themed globally via the 'pc-modal'
    windowClass — see the body.theme-* rules in styles.css. Nothing here needs
    to set color: the modal-content already provides a themed background + text
