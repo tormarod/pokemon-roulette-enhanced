@@ -103,10 +103,16 @@
   background: rgba(128, 128, 128, 0.15);
 }
 
-/* Below this width .event-popup-row's flex-wrap otherwise puts one tile next
-   to the message and strands the second tile alone on its own line (uneven,
-   looks broken) — stack top-tile/message/bottom-tile vertically instead. */
-@media (max-width: 480px) {
+/* Bootstrap's .modal-lg only gets its full 800px width at its own >=992px
+   breakpoint (Bootstrap's "lg") — below that even a size:'lg' modal is capped
+   at ~500px, too narrow to fit two ~148px tiles + the message in one row
+   (needs ~536px+). A first pass at max-width:480px left a gap between 480
+   and 992px where the row still tried and failed to fit — one tile ends up
+   next to the message and the second tile strands alone on the next line,
+   still uneven. Match Bootstrap's own breakpoint instead of guessing a phone
+   width, so the row layout only activates once the modal is actually wide
+   enough to hold it. */
+@media (max-width: 991.98px) {
   .event-popup-row {
     flex-direction: column;
   }
