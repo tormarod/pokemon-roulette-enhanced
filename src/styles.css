@@ -292,6 +292,16 @@ body.theme-plain-light .pc-modal .pc-grid-dropzone {
   border-color: rgba(51, 51, 51, 0.22);
 }
 
+/* Ability picker options use Bootstrap's .btn-outline-dark, whose dark text and
+   border vanish against the dark modal background at rest (only becoming visible
+   once hover/tap fills the button). Give them a light resting text/border in the
+   dark themes; plain-light already reads fine with the default dark-on-light. */
+body.theme-plain-dark .pc-modal .ability-picker-option,
+body.theme-starters .pc-modal .ability-picker-option {
+  color: #dfe6e9;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
 /* ── Pokédex grid modal (windowClass: 'pokedex-modal') ───────────────────────
    Same treatment as the Market/PC Storage modals above — Bootstrap's
    .modal-content ignores the app theme by default. */
