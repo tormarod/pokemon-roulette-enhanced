@@ -1,6 +1,7 @@
-<button type="button" class="panel-pill-btn" (click)="showPCModal()">
+<button type="button" class="panel-pill-btn" (click)="showPCModal()"
+        [attr.aria-label]="'trainer.storage.access' | translate">
   <ng-icon name="bootstrapPcDisplayHorizontal"></ng-icon>
-  {{ 'trainer.storage.access' | translate }}
+  <span class="panel-pill-label">{{ 'trainer.storage.access' | translate }}</span>
 </button>
 
 <ng-template #pcStorageModal let-modal>

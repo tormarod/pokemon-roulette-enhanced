@@ -3,10 +3,11 @@
           [disabled]="!isAvailable"
           placement="top"
           container="body"
+          [attr.aria-label]="'market.access' | translate"
           ngbTooltip="{{ (isAvailable ? 'market.access' : 'market.unavailable') | translate }}"
           (click)="openMarket()">
     <span class="market-button-icon" aria-hidden="true">🏪</span>
-    {{ 'market.access' | translate }}
+    <span class="panel-pill-label">{{ 'market.access' | translate }}</span>
   </button>
 }
 
