@@ -259,6 +259,18 @@ describe('RouletteContainerComponent', () => {
 
       expect(component.showDangerMeter).toBeFalse();
     });
+
+    // The status header (danger bar included) is useless once the run is over —
+    // it must not render on the terminal game-over / game-finish screens.
+    (['game-over', 'game-finish'] as const).forEach(terminal => {
+      it(`hides the status header on the terminal ${terminal} screen`, () => {
+        gameStateService.resetGameState(true);
+        gameStateService.restoreState(terminal, [], 5);
+        fixture.detectChanges();
+
+        expect(component.showStatusHeader).toBeFalse();
+      });
+    });
   });
 
   it('should route to form selection when captured pokemon has multiple forms', () => {
@@ -1158,6 +1170,26 @@ describe('RouletteContainerComponent', () => {
       expect(battleDebuffService.currentDebuff).toBeGreaterThan(0);
       expect(modalQueueService.open).toHaveBeenCalled();
       expect(component.doNothing).toHaveBeenCalled();
+    });
+
+    // Debuff scales with the round it's drawn on: ceil(round / 2), floored at 1,
+    // so rounds 1-2 only add a single No ticket and it grows from there.
+    [
+      { round: 0, expected: 1 },
+      { round: 1, expected: 1 },
+      { round: 2, expected: 1 },
+      { round: 3, expected: 2 },
+      { round: 4, expected: 2 },
+      { round: 5, expected: 3 },
+      { round: 8, expected: 4 },
+    ].forEach(({ round, expected }) => {
+      it(`scales the debuff to ${expected} at round ${round}`, () => {
+        gameStateService.restoreState('adventure-continues', ['adventure-continues'], round);
+
+        component.badOmen();
+
+        expect(battleDebuffService.currentDebuff).toBe(expected);
+      });
     });
   });
 

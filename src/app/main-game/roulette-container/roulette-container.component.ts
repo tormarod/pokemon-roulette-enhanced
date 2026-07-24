@@ -81,9 +81,18 @@ import { ScoutingReportService } from '../../services/scouting-report-service/sc
 import { TypeMatchupService } from '../../services/type-matchup-service/type-matchup.service';
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 
-/** V2 "badOmen" threat: extra No tickets on the next battle. */
-const BADOMEN_DEBUFF_AMOUNT = 2;
 const MALFUNCTION_ESCAPE_CHANCE = 0.35;
+
+/**
+ * V2 "badOmen" threat: extra No tickets carried into the next battle, scaled by
+ * the round it's drawn on so it stays gentle early and grows with the run. Early
+ * rounds (1 and 2) only add a single ticket; every two further rounds adds one
+ * more (ceil(round / 2)), floored at 1 so a round-0 draw still bites. This stacks
+ * on top of the round-threat No tickets (see BattleOddsService).
+ */
+function badOmenDebuffAmount(round: number): number {
+  return Math.max(1, Math.ceil(round / 2));
+}
 
 @Component({
   selector: 'app-roulette-container',
@@ -290,6 +299,10 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   private readonly opponentPreviewHiddenStates = new Set<GameState>([
     'gym-battle', 'elite-four-battle', 'champion-battle', 'battle-rival'
   ]);
+  /** Terminal run-over screens with their own layouts — no status header at all. */
+  private readonly terminalStates = new Set<GameState>([
+    'game-over', 'game-finish'
+  ]);
   /**
    * States that show an obtain wheel already-onscreen. A bias item used
    * while one of these is current applies in place via a modal picker
@@ -369,8 +382,16 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     return { keys: entry.keys, suffix };
   }
 
-  /** The card renders whenever it has any content — opponent, danger meter, or a screen title. */
+  /**
+   * The card renders whenever it has any content — opponent, danger meter, or a
+   * screen title — except on the terminal run-over screens (game-over/game-finish),
+   * which have their own layouts and where a danger bar or opponent preview is just
+   * noise (the run is already decided).
+   */
   get showStatusHeader(): boolean {
+    if (this.terminalStates.has(this.currentGameState)) {
+      return false;
+    }
     return this.showOpponentPreview || this.showDangerMeter || !!this.statusPrompt;
   }
 
@@ -993,7 +1014,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
 
   /** V2 "badOmen" threat (New Experience only): extra No tickets on the next battle, persisted so a reload can't shake it off. */
   badOmen(): void {
-    this.battleDebuffService.setDebuff(BADOMEN_DEBUFF_AMOUNT);
+    this.battleDebuffService.setDebuff(badOmenDebuffAmount(this.gameStateService.currentRoundValue));
     this.infoModalTitle = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.title');
     this.infoModalMessage = this.translateService.instant('game.main.roulette.adventure.threats.badOmen.description');
     void this.openInfoModal();
