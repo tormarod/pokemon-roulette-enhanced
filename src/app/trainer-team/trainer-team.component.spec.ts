@@ -92,18 +92,16 @@ describe('TrainerTeamComponent', () => {
       expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
     });
 
-    it('shows the ability popover, on hover, for a team member with an assigned ability', () => {
+    it('shows the ability pill for a team member with an assigned ability', () => {
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, ability: 'sturdy' }));
+      trainerService.addToTeam(makeTestPokemon({ pokemonId: 4 }));
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('.roster-popover')).toBeFalsy();
-
-      component.setHoveredMember(0);
-      fixture.detectChanges();
-
-      const popover = fixture.nativeElement.querySelector('.roster-popover-name');
-      expect(popover).toBeTruthy();
-      expect(popover.textContent).toContain('abilities.sturdy.name');
+      const tiles = fixture.nativeElement.querySelectorAll('.roster-slot');
+      const pill = tiles[0].querySelector('.roster-ability-pill');
+      expect(pill).toBeTruthy();
+      expect(pill.textContent).toContain('abilities.sturdy.name');
+      expect(tiles[1].querySelector('.roster-ability-pill')).toBeFalsy();
     });
 
     it('getMemberAbilityName returns the ability i18n name key (or null)', () => {
@@ -112,15 +110,14 @@ describe('TrainerTeamComponent', () => {
       expect(component.getMemberAbilityName(undefined)).toBeNull();
     });
 
-    it('hides marked badge / ability popover in Classic mode even if the underlying data is set', () => {
+    it('hides marked badge / ability pill in Classic mode even if the underlying data is set', () => {
       gameStateService.restoreNewExperienceMode(false);
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, ability: 'sturdy' }));
       markedTargetService.setMark(0);
-      component.setHoveredMember(0);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
-      expect(fixture.nativeElement.querySelector('.roster-popover')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('.roster-ability-pill')).toBeFalsy();
     });
   });
 

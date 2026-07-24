@@ -43,8 +43,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   trainerTeam!: PokemonItem[];
   trainerBadges!: Badge[];
   markedIndex: number | null = null;
-  /** Roster tile currently hovered — drives the ability-only popover (see getMemberAbilityName). */
-  hoveredMemberIndex: number | null = null;
 
   /** Market currency balance (New Experience only). */
   coins = 0;
@@ -136,10 +134,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
 
   getTypeColor(type: PokemonType): string {
     return pokemonTypeColors[type];
-  }
-
-  setHoveredMember(index: number | null): void {
-    this.hoveredMemberIndex = index;
   }
 
   getSprite(pokemon: PokemonItem): string {
