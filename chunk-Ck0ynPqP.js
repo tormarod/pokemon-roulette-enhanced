@@ -1,1 +1,0 @@
-import {W as Wv,al as oc,d as dE,am as ic}from'./main-RCUZYWFS.js';var m=class t{static \u0275fac=function(n){return new(n||t)};static \u0275cmp=Wv({type:t,selectors:[["app-not-found"]],decls:2,vars:0,template:function(n,c){n&1&&(oc(0,"p"),dE(1,"not-found works!"),ic());},encapsulation:2,changeDetection:1})};export{m as NotFoundComponent};
