@@ -176,7 +176,7 @@ export class RunPersistenceService {
   startFreshRun(newExperienceMode: boolean): void {
     this.trainerService.resetTrainer();
     this.trainerService.resetTeam();
-    this.trainerService.resetItems();
+    this.trainerService.resetItems(newExperienceMode);
     this.trainerService.resetBadges();
     this.trainerService.clearPendingTypeBiases();
     this.gameStateService.resetGameState(newExperienceMode);
