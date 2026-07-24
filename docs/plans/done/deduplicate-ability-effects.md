@@ -1,6 +1,6 @@
 # Deduplicate ability effects (give clones distinct mechanics)
 
-Status: **Phases 1–3 done; Phase 4 pending**
+Status: **DONE — all phases shipped (v3.16.0)**
 
 - [x] Phase 1 — Core mechanics (data + service + plumbing). Builds/type-checks
       clean; only the 3 stale specs + 1 battle-odds case fail (rewritten in Phase 2).
@@ -14,7 +14,9 @@ Status: **Phases 1–3 done; Phase 4 pending**
       abilities (blaze/guts/static/intimidate/multiscale/swarm/sheer-force/
       comeback/marvel-scale). Translated numerals on untouched abilities deferred
       to backlog. Suite green (957).
-- [ ] Phase 4 — Release plumbing & cleanup
+- [x] Phase 4 — Release plumbing & cleanup. package.json 3.15.1 → 3.16.0;
+      RELEASE_NOTES + whatsNew.v3_16_0 (label + note) in all 6 locales; README
+      feature bullet; backlog entry for the non-en translation sync. Suite green.
 
 ## Problem
 

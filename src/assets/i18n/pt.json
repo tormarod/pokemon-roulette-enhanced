@@ -3206,6 +3206,7 @@
   },
   "v2_1_0": "Versão 2.1.0",
   "v2_2_0": "Versão 2.2.0",
+  "v3_16_0": "Version 3.16.0",
   "v3_15_1": "Version 3.15.1",
   "v3_15_0": "Version 3.15.0",
   "v3_14_1": "Version 3.14.1",
@@ -3227,6 +3228,9 @@
     "title": "Novidades",
     "dismiss": "Entendi",
     "settingsEntry": "Novidades",
+    "v3_16_0": {
+      "0": "⚔️ Abilities overhaul: ten abilities that used to be mechanical duplicates now have their own distinct effects — Torrent rallies when you're outmatched, Overgrow grows stronger each round, Keen Eye sharpens with every teammate that has the advantage, Thick Fat cushions bad luck, and more."
+    },
     "v3_15_1": {
       "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card.",
       "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
