@@ -19,7 +19,18 @@ export type AbilityEffectType =
   | 'dual-type-offense'
   | 'mono-type-offense'
   | 'scale-with-advantage'
-  | 'scale-with-disadvantage';
+  | 'scale-with-disadvantage'
+  // 10 distinct mechanics replacing former duplicate effects (dedup pass).
+  | 'rally-outmatched'
+  | 'spot-weakness'
+  | 'grow-with-round'
+  | 'blunt-threat'
+  | 'venom-vs-dual'
+  | 'curse-vs-dual'
+  | 'focus-vs-mono'
+  | 'reckless-rush'
+  | 'snow-refuge'
+  | 'cushion-omen';
 
 /**
  * Stable id for every assignable ability. Persisted on `PokemonItem.ability`
@@ -96,20 +107,20 @@ function ability(
 export const abilitiesById: Record<AbilityId, AbilityDefinition> = {
   // §4a — base 18.
   'blaze': ability('blaze', 'fire', 'offense-if-positive', 3),
-  'torrent': ability('torrent', 'water', 'soak-if-negative', -3),
-  'overgrow': ability('overgrow', 'grass', 'offense-if-positive', 3),
+  'torrent': ability('torrent', 'water', 'rally-outmatched', 1),
+  'overgrow': ability('overgrow', 'grass', 'grow-with-round', 3),
   'guts': ability('guts', 'fighting', 'flat-yes', 3),
   'static': ability('static', 'electric', 'flat-yes', 2),
-  'poison-point': ability('poison-point', 'poison', 'flat-yes', 2),
+  'poison-point': ability('poison-point', 'poison', 'venom-vs-dual', 2),
   'intimidate': ability('intimidate', 'dark', 'flat-no', -2),
-  'thick-fat': ability('thick-fat', 'normal', 'flat-no', -2),
-  'clear-body': ability('clear-body', 'steel', 'flat-no', -2),
-  'keen-eye': ability('keen-eye', 'flying', 'flat-no', -2),
-  'snow-cloak': ability('snow-cloak', 'ice', 'flat-no', -2),
+  'thick-fat': ability('thick-fat', 'normal', 'cushion-omen', 2),
+  'clear-body': ability('clear-body', 'steel', 'focus-vs-mono', -2),
+  'keen-eye': ability('keen-eye', 'flying', 'spot-weakness', 1),
+  'snow-cloak': ability('snow-cloak', 'ice', 'snow-refuge', -2),
   'multiscale': ability('multiscale', 'dragon', 'soak-if-negative', -3),
   'levitate': ability('levitate', 'ghost', 'zero-own-negative', 0),
   'swarm': ability('swarm', 'bug', 'offense-if-positive', 2),
-  'rough-skin': ability('rough-skin', 'ground', 'offense-if-positive', 2),
+  'rough-skin': ability('rough-skin', 'ground', 'blunt-threat', 2),
   'synchronize': ability('synchronize', 'psychic', 'team-synergy', 1),
   'sturdy': ability('sturdy', 'rock', 'faint-immune-lead', 0),
   'serene-grace': ability('serene-grace', 'fairy', 'extra-retry', 0),
@@ -125,6 +136,6 @@ export const abilitiesById: Record<AbilityId, AbilityDefinition> = {
   'sheer-force': ability('sheer-force', 'ground', 'scale-with-advantage', 4),
   'comeback': ability('comeback', 'dark', 'scale-with-disadvantage', 4),
   'marvel-scale': ability('marvel-scale', 'water', 'soak-if-negative', -2),
-  'sand-rush': ability('sand-rush', 'rock', 'flat-yes', 2),
-  'cursed-body': ability('cursed-body', 'ghost', 'flat-no', -2)
+  'sand-rush': ability('sand-rush', 'rock', 'reckless-rush', 2),
+  'cursed-body': ability('cursed-body', 'ghost', 'curse-vs-dual', -2)
 };

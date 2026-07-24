@@ -1,6 +1,12 @@
 # Deduplicate ability effects (give clones distinct mechanics)
 
-Status: **approved, not started**
+Status: **Phase 1 done; Phases 2–4 pending**
+
+- [x] Phase 1 — Core mechanics (data + service + plumbing). Builds/type-checks
+      clean; only the 3 stale specs + 1 battle-odds case fail (rewritten in Phase 2).
+- [ ] Phase 2 — Tests
+- [ ] Phase 3 — i18n descriptions
+- [ ] Phase 4 — Release plumbing & cleanup
 
 ## Problem
 
