@@ -1,6 +1,6 @@
 # Deduplicate ability effects (give clones distinct mechanics)
 
-Status: **Phases 1–2 done; Phases 3–4 pending**
+Status: **Phases 1–3 done; Phase 4 pending**
 
 - [x] Phase 1 — Core mechanics (data + service + plumbing). Builds/type-checks
       clean; only the 3 stale specs + 1 battle-odds case fail (rewritten in Phase 2).
@@ -8,7 +8,12 @@ Status: **Phases 1–2 done; Phases 3–4 pending**
       canonical holders: intimidate/swarm/multiscale) + swapped the battle-odds
       torrent case to multiscale; added one `it` per new mechanic and a
       battle-odds context-threading case. Full suite green (957).
-- [ ] Phase 3 — i18n descriptions
+- [x] Phase 3 — i18n descriptions. Rewrote the 10 redesigned descriptions in en
+      and applied English placeholders in de/es/fr/it/pt (old translations
+      described the wrong effect). Corrected the en off-by-one on 9 untouched
+      abilities (blaze/guts/static/intimidate/multiscale/swarm/sheer-force/
+      comeback/marvel-scale). Translated numerals on untouched abilities deferred
+      to backlog. Suite green (957).
 - [ ] Phase 4 — Release plumbing & cleanup
 
 ## Problem
