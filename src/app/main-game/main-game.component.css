@@ -2,6 +2,20 @@
 	width: 100%;
 }
 
+/*
+ * On phones the page scrolls on the document body and the Items section is the
+ * last thing in the layout, so a mobile browser's collapsible bottom URL bar
+ * overlays it with no room to scroll clear — and any hover tooltip that opens
+ * near the bottom lands behind the bar too. Add scrollable breathing room below
+ * the content (plus the home-indicator safe area) so the bottom of the layout,
+ * and tooltips, can always be scrolled above the browser chrome.
+ */
+@media (max-width: 575.98px) {
+	.game-container {
+		padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+	}
+}
+
 .map-container {
 	flex-shrink: 0;
 	/* Prevents it from shrinking */
