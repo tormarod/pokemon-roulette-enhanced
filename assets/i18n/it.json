@@ -678,20 +678,20 @@
   },
   "abilities": {
     "blaze": { "name": "Blaze", "description": "+2 Sì quando questo Pokémon ha un vantaggio di tipo." },
-    "torrent": { "name": "Torrent", "description": "-2 No quando questo Pokémon è in svantaggio di tipo." },
-    "overgrow": { "name": "Overgrow", "description": "+2 Sì quando questo Pokémon ha un vantaggio di tipo." },
+    "torrent": { "name": "Torrent", "description": "Rallying tide: +1 Yes for each teammate at a type disadvantage." },
+    "overgrow": { "name": "Overgrow", "description": "Grows stronger each round: more Yes later in the run (up to +3)." },
     "guts": { "name": "Guts", "description": "+2 Sì, sempre." },
     "static": { "name": "Static", "description": "+1 Sì, sempre." },
-    "poison-point": { "name": "Poison Point", "description": "+1 Sì, sempre." },
+    "poison-point": { "name": "Poison Point", "description": "+2 Yes against a dual-typed opponent." },
     "intimidate": { "name": "Intimidate", "description": "-1 No, sempre." },
-    "thick-fat": { "name": "Thick Fat", "description": "-1 No, sempre." },
-    "clear-body": { "name": "Clear Body", "description": "-1 No, sempre." },
-    "keen-eye": { "name": "Keen Eye", "description": "-1 No, sempre." },
-    "snow-cloak": { "name": "Snow Cloak", "description": "-1 No, sempre." },
+    "thick-fat": { "name": "Thick Fat", "description": "Cushions bad-omen No by up to 2." },
+    "clear-body": { "name": "Clear Body", "description": "-2 No against a single-typed opponent." },
+    "keen-eye": { "name": "Keen Eye", "description": "Keen eyes: +1 Yes for each teammate at a type advantage." },
+    "snow-cloak": { "name": "Snow Cloak", "description": "-2 No while your team has 2 or fewer Pokémon." },
     "multiscale": { "name": "Multiscale", "description": "-2 No quando questo Pokémon è in svantaggio di tipo." },
     "levitate": { "name": "Levitate", "description": "Annulla lo svantaggio di tipo di questo Pokémon." },
     "swarm": { "name": "Swarm", "description": "+1 Sì quando questo Pokémon ha un vantaggio di tipo." },
-    "rough-skin": { "name": "Rough Skin", "description": "+1 Sì quando questo Pokémon ha un vantaggio di tipo." },
+    "rough-skin": { "name": "Rough Skin", "description": "Blunts the round's threat, removing up to 2 No." },
     "synchronize": { "name": "Synchronize", "description": "+1 Sì per ogni membro della squadra che condivide un tipo." },
     "sturdy": { "name": "Sturdy", "description": "Questo capofila sopravvive una volta per battaglia a un K.O. che gli avrebbe inflitto il rivale." },
     "serene-grace": { "name": "Serene Grace", "description": "Concede un tentativo di battaglia extra." },
@@ -705,8 +705,8 @@
     "sheer-force": { "name": "Sheer Force", "description": "Aggiunge di nuovo il tuo vantaggio di tipo come Sì, fino a +3." },
     "comeback": { "name": "Comeback", "description": "Trasforma il tuo svantaggio di tipo in Sì, fino a +3." },
     "marvel-scale": { "name": "Marvel Scale", "description": "-1 No quando questo Pokémon è in svantaggio di tipo." },
-    "sand-rush": { "name": "Sand Rush", "description": "+1 Sì, sempre." },
-    "cursed-body": { "name": "Cursed Body", "description": "-1 No, sempre." }
+    "sand-rush": { "name": "Sand Rush", "description": "Reckless charge: +2 Yes but also +1 No." },
+    "cursed-body": { "name": "Cursed Body", "description": "-2 No against a dual-typed opponent." }
   },
   "market": {
     "title": "Mercato",
@@ -3206,6 +3206,7 @@
   },
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
+  "v3_16_0": "Version 3.16.0",
   "v3_15_1": "Version 3.15.1",
   "v3_15_0": "Version 3.15.0",
   "v3_14_1": "Version 3.14.1",
@@ -3227,6 +3228,9 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v3_16_0": {
+      "0": "⚔️ Abilities overhaul: ten abilities that used to be mechanical duplicates now have their own distinct effects — Torrent rallies when you're outmatched, Overgrow grows stronger each round, Keen Eye sharpens with every teammate that has the advantage, Thick Fat cushions bad luck, and more."
+    },
     "v3_15_1": {
       "0": "🎡 The roulette wheel got a visual refresh: every wheel now sits in a themed card with a cleaner gold-ring look, a harmonized slice palette, and a result chip that pops in with your spin's outcome. Battle wheels show the matchup and win chance right on the card.",
       "1": "🗺️ New Experience's 'choose one of 3' adventure step matches the new look too: each option is now an icon-led row on the same themed card, with your pick locking in with a gold highlight.",
