@@ -41,16 +41,16 @@ describe('DangerMeterService', () => {
     expect(service.currentConsecutiveThreats).toBe(0);
   });
 
-  it('should follow the base(round) curve: 5, 10, 25, 50, 70, 70', () => {
+  it('should follow the base(round) curve: 5, 10, 25, 50, 85, 100', () => {
     const spy = spyOn(Math, 'random').and.returnValue(0.99); // always reward, so dangerPercent settles at base(round)
     const rounds = [0, 1, 2, 3, 4, 5];
-    const expected = [5, 10, 25, 50, 70, 70];
+    const expected = [5, 10, 25, 50, 85, 100];
 
     rounds.forEach((round, i) => {
-      // 65 is below the reward threshold (random*100=99) but high enough that
-      // dangerPercent+RECOVERY(15)=80 >= base(round) for every round below, so
+      // 85 is below the reward threshold (random*100=99) but high enough that
+      // dangerPercent+RECOVERY(15)=100 >= base(round) for every round, so
       // recover() is always capped by base(round), not by +RECOVERY.
-      service.restore(65, 0);
+      service.restore(85, 0);
       service.rollStep(round);
       expect(service.currentDangerPercent).toBe(expected[i]);
     });

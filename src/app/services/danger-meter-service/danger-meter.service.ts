@@ -37,7 +37,7 @@ const INIT_DANGER_PERCENT = 5;
 export class DangerMeterService {
   private static readonly BASE = 5;
   private static readonly CURVE = 5;
-  private static readonly CAP = 70;
+  private static readonly CAP = 100;
   private static readonly RELIEF = 20;
   private static readonly RECOVERY = 15;
   private static readonly FLOOR = 5;
