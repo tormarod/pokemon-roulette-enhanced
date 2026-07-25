@@ -182,12 +182,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
       this.trainerService.commitTeamAndStorage(this.trainerTeam, this.storedPokemon);
     }
 
-    // ── Ability assignment (New Experience only) ───────────────────────────
-
-    /** Whether the whole ability feature is active — gates every ability UI here. */
-    get isNewExperienceMode(): boolean {
-      return this.gameStateService.isNewExperienceMode;
-    }
+    // ── Ability assignment ──────────────────────────────────────────────
 
     /** i18n name key of a Pokémon's assigned ability, or null. Translated in the template. */
     getMemberAbilityName(pokemon: PokemonItem): string | null {
@@ -206,7 +201,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     /** Opens the capsule picker for a Pokémon (stacked on the PC modal). */
     openAbilityPicker(pokemon: PokemonItem): void {
-      if (!this.isNewExperienceMode || !this.ownedCapsules().length) {
+      if (!this.ownedCapsules().length) {
         return;
       }
       this.assignTarget = pokemon;
@@ -215,7 +210,7 @@ export class StoragePcComponent implements OnInit, OnDestroy {
 
     /** Assigns the chosen capsule's ability to the target (overwrites any current one), consuming the capsule. */
     assignAbility(capsule: ItemItem): void {
-      if (!this.assignTarget || !this.isNewExperienceMode || !capsule.abilityId) {
+      if (!this.assignTarget || !capsule.abilityId) {
         return;
       }
       this.assignTarget.ability = capsule.abilityId;

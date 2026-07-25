@@ -23,7 +23,7 @@ import { PokemonForm } from '../../interfaces/pokemon-form';
 import { ItemItem } from '../../interfaces/item-item';
 import { ShinyRouletteComponent } from "./roulettes/shiny-roulette/shiny-roulette.component";
 import { StartAdventureRouletteComponent } from "./roulettes/start-adventure-roulette/start-adventure-roulette.component";
-import { isMegaStoneItemName, ItemName, MegaStoneItemName } from '../../services/items-service/item-names';
+import { isMegaStoneItemName, MegaStoneItemName } from '../../services/items-service/item-names';
 import { PokemonFromGenerationRouletteComponent } from "./roulettes/pokemon-from-generation-roulette/pokemon-from-generation-roulette.component";
 import { PokemonFromAuxListRouletteComponent } from "./roulettes/pokemon-from-aux-list-roulette/pokemon-from-aux-list-roulette.component";
 import { GymBattleRouletteComponent } from "./roulettes/gym-battle-roulette/gym-battle-roulette.component";
@@ -342,13 +342,11 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Same visibility window as showOpponentPreview (hidden during battles and
-   * before the adventure starts) but also gated on New Experience Mode — the
-   * danger meter is a New-Experience-only cadence engine (see
-   * DangerMeterService); Classic mode's plain wheel never draws through it.
+   * Same visibility window as showOpponentPreview: hidden during battles and
+   * before the adventure starts.
    */
   get showDangerMeter(): boolean {
-    if (!this.gameStateService.isNewExperienceMode || this.opponentPreviewHiddenStates.has(this.currentGameState)) {
+    if (this.opponentPreviewHiddenStates.has(this.currentGameState)) {
       return false;
     }
     return !this.gameStateService.getStateStack().includes('start-adventure');
@@ -485,7 +483,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
           this.altPrizeSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png';
           this.altPrizeDescription = 'game.main.altPrizes.gymBattle.potionDesc';
           void this.openAltPrizeModal();
-          return this.buyPotions();
+          return this.foundCoins();
         case 'visit-daycare':
             this.altPrizeText = 'game.main.altPrizes.visitDaycare.egg';
             this.altPrizeSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/items/mystery-egg.png';
@@ -503,7 +501,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
           this.altPrizeSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png';
           this.altPrizeDescription = 'game.main.altPrizes.battleTrainer.potionDesc';
           void this.openAltPrizeModal();
-          return this.buyPotions();
+          return this.foundCoins();
         case 'team-rocket-encounter':
           this.altPrizeText = 'game.main.altPrizes.teamRocket.item';
           this.altPrizeSprite = 'https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/items/unknown.png';
@@ -535,29 +533,12 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.finishCurrentState();
   }
 
-  buyPotions(): void {
-    // New Experience repurposes this card as a "found coins" bundle now that a
-    // real Market exists (see economy-and-market plan). Classic mode keeps the
-    // original free-potion behaviour — it has no coins to award.
-    if (this.gameStateService.isNewExperienceMode) {
-      this.coinsFoundAmount = foundCoinsReward();
-      this.trainerService.addCoins(this.coinsFoundAmount);
-      this.playItemFoundAudio();
-      void this.openCoinsFoundModal();
-      this.finishCurrentState();
-      return;
-    }
-
-    let itemName: ItemName = 'potion';
-
-    if (this.leadersDefeatedAmount > 6) {
-      itemName = 'hyper-potion';
-    } else if (this.leadersDefeatedAmount > 3) {
-      itemName = 'super-potion';
-    }
-
-    this.trainerService.addToItems(this.itemService.getItem(itemName));
+  /** A found-coins bundle from the adventure/prep wheels. */
+  foundCoins(): void {
+    this.coinsFoundAmount = foundCoinsReward();
+    this.trainerService.addCoins(this.coinsFoundAmount);
     this.playItemFoundAudio();
+    void this.openCoinsFoundModal();
     this.finishCurrentState();
   }
 
@@ -566,7 +547,7 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Coins for winning a battle (New Experience only). Call BEFORE advanceRound so
+   * Coins for winning a battle. Call BEFORE advanceRound so
    * `leadersDefeatedAmount` is still the round just cleared. `advancesRound` adds
    * the flat per-round stipend — passed true only for gym/elite four (which
    * advance the round), so the stipend lands exactly once per round and can't be
@@ -574,9 +555,6 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
    * ends, so there is nothing left to spend on.
    */
   private awardBattleCoins(advancesRound: boolean): void {
-    if (!this.gameStateService.isNewExperienceMode) {
-      return;
-    }
     let coins = battleWinReward(this.leadersDefeatedAmount);
     if (advancesRound) {
       coins += passiveRoundStipend();
@@ -584,11 +562,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.trainerService.addCoins(coins);
   }
 
-  /** A reward card's coin bonus (New Experience only). */
+  /** A reward card's coin bonus. */
   private awardCardCoins(): void {
-    if (!this.gameStateService.isNewExperienceMode) {
-      return;
-    }
     this.trainerService.addCoins(cardCoinReward());
   }
 
@@ -864,13 +839,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
   /**
    * Repel/Max Repel: a bonus action, not a substitute for the player's normal
    * turn — no repeatCurrentState(), it just mutates the danger meter and lets
-   * play continue. NE-only safety net in case the item somehow surfaces in
-   * Classic (getRegularItems() already filters it out there).
+   * play continue.
    */
   private handleThreatShieldUse(item: ItemItem): void {
-    if (!this.gameStateService.isNewExperienceMode) {
-      return;
-    }
     const count = item.name === 'max-repel' ? 3 : 1;
     this.dangerMeterService.addThreatShield(count);
     this.trainerService.removeItem(item);
@@ -904,10 +875,9 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     this.gameStateService.setNextState('adventure-continues');
     this.multitaskCounter = this.multitaskCounter + 2;
     this.respinReason = 'Multitask x' + this.multitaskCounter;
-    // The extra picks multitask hands out are guaranteed threat-free (New
-    // Experience mode) — a reward that grants more rewards shouldn't be able to
-    // ambush you. The danger meter still climbs across them. No-op in Classic
-    // mode, where nothing draws through the danger meter.
+    // The extra picks multitask hands out are guaranteed threat-free — a
+    // reward that grants more rewards shouldn't be able to ambush you. The
+    // danger meter still climbs across them.
     this.dangerMeterService.addGuaranteedRewardSteps(2);
     this.finishCurrentState();
   }
@@ -1145,12 +1115,12 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       this.chooseWhoWillEvolve('battle-rival');
     } else {
       // A rival loss never ends the run on its own — it faints the lead
-      // instead (New Experience only, see RivalBattleRouletteComponent). It's
-      // never a "nemesis" — omit the opponent key.
+      // instead (see RivalBattleRouletteComponent). It's never a "nemesis" —
+      // omit the opponent key.
       this.statsService.recordBattleLoss('rival');
       // Edge case: the faint above emptied the team (no Pokémon left to
       // field). Nothing to continue with — end the run like any other loss.
-      if (this.gameStateService.isNewExperienceMode && this.trainerService.getTeam().length === 0) {
+      if (this.trainerService.getTeam().length === 0) {
         this.statsService.recordRunEnd(false, this.leadersDefeatedAmount);
         this.gameStateService.setNextState('game-over');
       }

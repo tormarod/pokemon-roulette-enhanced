@@ -34,7 +34,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
 
   @Input() respinReason!: string;
   @Output() battleTrainerEvent = new EventEmitter<EventSource>();
-  @Output() buyPotionsEvent = new EventEmitter<void>();
+  @Output() foundCoinsEvent = new EventEmitter<void>();
   @Output() catchTwoPokemonEvent = new EventEmitter<void>();
   @Output() catchThreePokemonEvent = new EventEmitter<void>();
   @Output() legendaryEncounterEvent = new EventEmitter<void>();
@@ -57,7 +57,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
         this.battleTrainerEvent.emit('battle-trainer');
         break;
       case 1:
-        this.buyPotionsEvent.emit();
+        this.foundCoinsEvent.emit();
         break;
       case 2:
         this.catchTwoPokemonEvent.emit();

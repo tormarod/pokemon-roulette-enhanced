@@ -45,7 +45,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Input() excludedThreatIds: string[] = [];
   @Output() catchPokemonEvent = new EventEmitter<void>();
   @Output() battleTrainerEvent = new EventEmitter<EventSource>();
-  @Output() buyPotionsEvent = new EventEmitter<void>();
+  @Output() foundCoinsEvent = new EventEmitter<void>();
   @Output() catchTwoPokemonEvent = new EventEmitter<void>();
   @Output() visitDaycareEvent = new EventEmitter<EventSource>();
   @Output() teamRocketEncounterEvent = new EventEmitter<void>();
@@ -90,9 +90,9 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   private readonly rewardPool: AdventureCandidate[] = [
     { id: 'catchPokemon', textKey: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5, icon: 'pokeball' },
     { id: 'battleTrainer', textKey: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 2, icon: 'swords' },
-    // New Experience repurposes this card as a coin bundle (real Market exists);
-    // the id stays `buyPotions` so routing is unchanged, only the label differs.
-    { id: 'buyPotions', textKey: 'game.main.roulette.adventure.actions.foundCoins', fillStyle: 'darkgoldenrod', weight: 0.5, icon: 'coins' },
+    // This id is persisted in pendingAdventure — changing it again would need
+    // the same save-discard treatment as the Classic-mode removal (D1/D5).
+    { id: 'foundCoins', textKey: 'game.main.roulette.adventure.actions.foundCoins', fillStyle: 'darkgoldenrod', weight: 0.5, icon: 'coins' },
     { id: 'catchTwoPokemon', textKey: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 2, icon: 'pokeball-double' },
     { id: 'visitDaycare', textKey: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1, icon: 'house' },
     { id: 'teamRocket', textKey: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2, icon: 'rocket' },
@@ -154,7 +154,7 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   private readonly actionHandlers: Record<string, () => void> = {
     catchPokemon: () => this.catchPokemonEvent.emit(),
     battleTrainer: () => this.battleTrainerEvent.emit('battle-trainer'),
-    buyPotions: () => this.buyPotionsEvent.emit(),
+    foundCoins: () => this.foundCoinsEvent.emit(),
     catchTwoPokemon: () => this.catchTwoPokemonEvent.emit(),
     visitDaycare: () => this.visitDaycareEvent.emit('visit-daycare'),
     teamRocket: () => this.teamRocketEncounterEvent.emit(),

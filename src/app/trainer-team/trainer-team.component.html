@@ -12,23 +12,21 @@
                 <app-pokedex></app-pokedex>
             </div>
         </div>
-        @if (isNewExperienceMode) {
-            <div class="utility-right">
-                <span class="coin-pill"
-                      placement="bottom"
-                      container="body"
-                      ngbTooltip="{{ 'trainer.team.coinsTooltip' | translate }}"
-                      triggers="hover click">
-                    <span class="coin-icon" aria-hidden="true">🪙</span>
-                    <span class="coin-amount">{{ coins }}</span>
-                    <span class="coin-label">{{ 'trainer.team.coins' | translate }}</span>
-                    @if (coinGain !== null) {
-                        <span class="coin-gain" aria-hidden="true">+{{ coinGain }}</span>
-                    }
-                </span>
-                <app-market></app-market>
-            </div>
-        }
+        <div class="utility-right">
+            <span class="coin-pill"
+                  placement="bottom"
+                  container="body"
+                  ngbTooltip="{{ 'trainer.team.coinsTooltip' | translate }}"
+                  triggers="hover click">
+                <span class="coin-icon" aria-hidden="true">🪙</span>
+                <span class="coin-amount">{{ coins }}</span>
+                <span class="coin-label">{{ 'trainer.team.coins' | translate }}</span>
+                @if (coinGain !== null) {
+                    <span class="coin-gain" aria-hidden="true">+{{ coinGain }}</span>
+                }
+            </span>
+            <app-market></app-market>
+        </div>
     </div>
 
     <!-- Roster grid -->
@@ -58,7 +56,7 @@
                                       alt="Mega Stone">
                             </button>
                         }
-                        @if (isNewExperienceMode && i === markedIndex) {
+                        @if (i === markedIndex) {
                             <span class="marked-badge"
                                   placement="bottom"
                                   ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}"
@@ -66,14 +64,12 @@
                                  {{ 'trainer.team.marked' | translate }}
                             </span>
                         }
-                        @if (isNewExperienceMode) {
-                            @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
-                                <span class="roster-ability-pill"
-                                      placement="bottom"
-                                      container="body"
-                                      ngbTooltip="{{ getMemberAbilityDescription(trainerTeam[i]) | translate }}"
-                                      triggers="hover click">{{ abilityName | translate }}</span>
-                            }
+                        @if (getMemberAbilityName(trainerTeam[i]); as abilityName) {
+                            <span class="roster-ability-pill"
+                                  placement="bottom"
+                                  container="body"
+                                  ngbTooltip="{{ getMemberAbilityDescription(trainerTeam[i]) | translate }}"
+                                  triggers="hover click">{{ abilityName | translate }}</span>
                         }
                     </div>
                     <div class="roster-types">

@@ -16,7 +16,6 @@ import { ItemItem } from '../interfaces/item-item';
 import { PokemonType, pokemonTypeColors } from '../interfaces/pokemon-type';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { AbilityService } from '../services/ability-service/ability.service';
-import { GameStateService } from '../services/game-state-service/game-state.service';
 import { EvolutionLineModalComponent } from '../pokedex/evolution-line-modal/evolution-line-modal.component';
 
 @Component({
@@ -36,7 +35,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
               private themeService: ThemeService,
               private markedTargetService: MarkedTargetService,
               private abilityService: AbilityService,
-              private gameStateService: GameStateService,
               private modalService: NgbModal) { }
 
   trainer!: { sprite: string; };
@@ -44,7 +42,7 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   trainerBadges!: Badge[];
   markedIndex: number | null = null;
 
-  /** Market currency balance (New Experience only). */
+  /** Market currency balance. */
   coins = 0;
   /** Transient "+N" floater shown briefly when the balance increases; null when idle. */
   coinGain: number | null = null;
@@ -105,11 +103,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
       this.coinGain = null;
       this.coinGainTimeout = null;
     }, 1500);
-  }
-
-  /** Gates every New-Experience-only status badge (marked target, ability) on the strip. */
-  get isNewExperienceMode(): boolean {
-    return this.gameStateService.isNewExperienceMode;
   }
 
   /** i18n name key of a Pokémon's assigned ability, or null. Translated in the template. */
