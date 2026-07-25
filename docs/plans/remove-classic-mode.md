@@ -14,10 +14,11 @@ Target version: **4.0.0** (MAJOR — the mirror of 3.0.0, which introduced the m
 
 | # | Question | Decision |
 |---|---|---|
-| D1 | In-flight Classic saves (`newExperienceMode: false`, or absent on pre-3.0 saves) | **Discard on load.** The player lands on `character-select` like a first-time visitor. No notice modal. |
+| D1 | In-flight saves from **any** pre-4.0 version (Classic *and* New Experience) | **Discard on load**, identified by the absence of `runFormat`. The player lands on `character-select` like a first-time visitor. No notice modal. |
 | D2 | Version bump | **4.0.0** |
 | D3 | The name "New Experience Mode" in README/UI | **Dropped entirely.** Describe the mechanics as how the game plays. Old shipped release notes keep the term (see R1). |
-| D4 | "Buy Potions" mislabel on `start-adventure` / `elite-four-prep` wheels | **Fix in this change** — both already award coins in NE, only the adventure wheel got relabelled. Rename the i18n keys *and* the internal identifiers (`buyPotionsEvent` → `foundCoinsEvent`, `buyPotions()` → `foundCoins()`) so the names match what the code does. **The persisted candidate id stays `buyPotions`** — see H1. |
+| D4 | "Buy Potions" mislabel on `start-adventure` / `elite-four-prep` wheels | **Fix in this change** — both already award coins in NE, only the adventure wheel got relabelled. Rename the i18n keys *and* every internal identifier (`buyPotionsEvent` → `foundCoinsEvent`, `buyPotions()` → `foundCoins()`) so the names match what the code does. |
+| D5 | The persisted `'buyPotions'` adventure candidate id | **Renamed to `'foundCoins'` too** — full consistency, no exceptions. Safe only because D1 discards every save that could contain the old id. |
 
 **R1 — do not touch shipped release notes.** `whatsNew.v3_*` entries in all six
 locales mention "Classic mode is unaffected". Per `CLAUDE.md` those are shipped
@@ -25,9 +26,18 @@ history; leave every one of them byte-identical. Only the README and the new
 `v4_0_0` entry get written.
 
 **On D1:** discarding a save contradicts the run-persistence fairness invariant
-in `CLAUDE.md`. That was raised and overruled: silently switching a run's ruleset
-mid-flight is its own unfairness. Recorded here so a later session doesn't
-"fix" it back.
+in `CLAUDE.md`. That was raised and overruled twice, deliberately, and the scope
+widened from "Classic saves only" to "all pre-4.0 saves" once full identifier
+consistency was chosen (see D5) — the game is currently played by a small circle
+of friends, so a one-time reset is an acceptable price. Recorded here so a later
+session doesn't "fix" it back.
+
+**Consequence to keep in mind:** because *no* pre-4.0 save survives, no code
+after this change ever has to interpret pre-4.0 data. That is what makes D5
+safe, and it also means the `newExperienceMode` field never needs to be read
+again — the discard gate keys off `runFormat` alone. If a future decision
+narrows D1 back to "keep New Experience saves", D5 must be revisited at the same
+time; the two are coupled.
 
 ---
 
@@ -82,21 +92,19 @@ is untouched by this work.
   `Moedas Encontradas`) — so D4 can reuse those strings rather than adding
   English placeholders.
 
-- **H1 — do NOT rename the `'buyPotions'` adventure candidate id.** It is
-  **persisted**: `PendingAdventureDraw.candidates: string[]`
-  (`adventure-draw.service.ts`) is saved by `RunPersistenceService` as
-  `pendingAdventure`, so live players' `localStorage` contains the literal
-  string `'buyPotions'`. `MainAdventureRouletteComponent.resolveCandidates()`
-  maps stored ids through the pool and then **silently** drops unknown ones
-  (`.filter((c): c is AdventureCandidate => !!c)`), so a rename would restore a
-  3-candidate draw as 2 — and a committed `picked` index would then point at the
-  wrong candidate, or at nothing. 4.0.0 keeps New Experience saves (D1 only
-  discards Classic ones), so this is a live break, not a theoretical one.
-  Leave the id and the existing explanatory comment at
-  `main-adventure-roulette.component.ts:122–123` in place; only refresh its
-  wording (it currently says "New Experience repurposes this card…").
-  Renaming it would need an id-migration map in `restoreDraw`, which is not
-  worth it for an internal string players never see.
+- **D5 — the `'buyPotions'` adventure candidate id IS renamed to `'foundCoins'`,
+  and this is only safe because of D1.** The id is **persisted**:
+  `PendingAdventureDraw.candidates: string[]` (`adventure-draw.service.ts`) is
+  saved by `RunPersistenceService` as `pendingAdventure`, so pre-4.0
+  `localStorage` contains the literal string `'buyPotions'`.
+  `MainAdventureRouletteComponent.resolveCandidates()` maps stored ids through
+  the pool and **silently** drops unknown ones
+  (`.filter((c): c is AdventureCandidate => !!c)`) — so a surviving old save
+  would restore a 3-candidate draw as 2, and a committed `picked` index would
+  then point at the wrong candidate or at nothing. **D1 removes that class of
+  save entirely**, so no migration map is needed and no player can reach the
+  degraded path. Do **not** implement an id-migration in `restoreDraw`; the
+  discard gate is the migration.
 
 ---
 
@@ -174,25 +182,25 @@ is untouched by this work.
   - **D1 discard gate.** Add this method and call it from `loadRun()`:
     ```ts
     /**
-     * Classic mode was removed in 4.0.0. A save from a Classic run describes a
-     * ruleset that no longer exists (no coin balance, no danger cadence, a
-     * passively-applied X Attack), so it's discarded rather than silently
-     * continued under the surviving rules. Pre-4.0 saves are identified by the
-     * old `newExperienceMode` flag: `true` was a New Experience run and is kept,
-     * anything else (false, or absent on a pre-3.0 save) was Classic. Saves
-     * written by 4.0+ carry `runFormat` and are always kept.
+     * 4.0.0 discards every save written before it. Two reasons, both hard:
+     * Classic-mode runs describe a ruleset that no longer exists (no coin
+     * balance, no danger cadence, a passively-applied X Attack), and pre-4.0
+     * saves of *any* mode can hold a pending adventure draw referencing the old
+     * `buyPotions` candidate id, which resolveCandidates() would silently drop
+     * (see D5). Rather than carry a per-field migration for a game with a
+     * handful of players, the whole pre-4.0 shape is dropped: a save is kept
+     * only if it carries `runFormat`, which only 4.0+ writes.
      */
-    private isRemovedClassicRun(value: unknown): boolean {
-      const run = value as { runFormat?: unknown; newExperienceMode?: unknown };
-      if (typeof run.runFormat === 'number' && run.runFormat >= RUN_FORMAT) {
-        return false;
-      }
-      return run.newExperienceMode !== true;
+    private isPreV4Run(value: unknown): boolean {
+      const run = value as { runFormat?: unknown };
+      return !(typeof run.runFormat === 'number' && run.runFormat >= RUN_FORMAT);
     }
     ```
+    Note this reads **only** `runFormat` — the old `newExperienceMode` field is
+    never inspected, so nothing in the codebase after this change refers to it.
     In `loadRun()`, inside the `try`, after `const parsed = JSON.parse(...)`:
     ```ts
-    if (this.isRemovedClassicRun(parsed)) {
+    if (this.isPreV4Run(parsed)) {
       this.clearRun();
       return null;
     }
@@ -331,11 +339,11 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     `this.itemService.getItem(...)` are still used elsewhere in the file; drop
     the import only if genuinely orphaned.
 
-- [ ] **D4 identifier rename (`buyPotions` → `foundCoins`).** Once the method no
-      longer buys anything, the name is actively misleading. Purely internal —
-      no i18n, no persistence — so it's a safe mechanical rename. Do it in one
-      pass across all of these, and **do not** touch the persisted candidate id
-      (H1):
+- [ ] **D4/D5 rename: every `buyPotions` becomes `foundCoins`.** Once the method
+      no longer buys anything, the name is actively misleading. This includes the
+      persisted candidate id, which D1's discard gate makes safe (see D5). Do it
+      in one pass; the goal is that `grep -rn buyPotions src/` returns **zero
+      hits** afterwards:
   - `roulette-container.component.ts`: `buyPotions(): void` → `foundCoins(): void`
     (≈538), and the two `return this.buyPotions();` call sites (≈488, ≈506).
   - `roulette-container.component.html`: all three
@@ -347,18 +355,22 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     line 186, and the `onItemSelected` emit at 349 — the latter disappears with
     Phase 3 anyway), `elite-four-prep-roulette.component.ts` (37, 60),
     `start-adventure-roulette.component.ts` (18, 35).
-  - In `main-adventure-roulette.component.ts` the `actionHandlers` entry becomes
-    `buyPotions: () => this.foundCoinsEvent.emit(),` — **the key stays
-    `buyPotions`** (it is the persisted id, H1). Update the comment above it to
-    explain exactly that, e.g. *"Key is the persisted candidate id and must not
-    change (see RunPersistenceService.pendingAdventure); the label and handler
-    say foundCoins."*
+  - **The `rewardPool` candidate id** (`main-adventure-roulette.component.ts:124`):
+    `{ id: 'buyPotions', … }` → `{ id: 'foundCoins', … }`, and the matching
+    `actionHandlers` key (186) → `foundCoins: () => this.foundCoinsEvent.emit(),`.
+    Replace the two-line comment above it (122–123, "New Experience repurposes
+    this card as a coin bundle… the id stays `buyPotions`") with a note that the
+    id is persisted in `pendingAdventure`, so changing it again would need the
+    same save-discard treatment.
+  - Spec fixtures **do** get updated this time — the `candidates: ['catchPokemon',
+    'buyPotions', 'findItem']` literals in
+    `main-adventure-roulette.component.spec.ts` (195, 196, 206, 215, 219, 223)
+    become `'foundCoins'`.
   - Specs referencing the emitter name: `roulette-container.component.spec.ts`
     (415–418, 433–436 — including the two `it('… → buyPotions()')` titles),
     `main-adventure-roulette.component.spec.ts` (83, 193, 200, 208, 227, 232),
     `elite-four-prep-roulette.component.spec.ts` (29),
-    `start-adventure-roulette.component.spec.ts` (28). Leave the
-    `candidates: [… 'buyPotions' …]` fixture *values* alone (H1).
+    `start-adventure-roulette.component.spec.ts` (28).
   - `awardBattleCoins` (≈577) and `awardCardCoins` (≈589): delete the
     `if (!…isNewExperienceMode) return;` guards; drop "(New Experience only)"
     from their doc comments.
@@ -444,13 +456,16 @@ disappears entirely.
     and add `runFormat: 4,` to each fixture that must still restore.
   - Delete the two `isNewExperienceMode` assertions at 1184 and 1201 and the
     Classic-starter-X-Attack test around 1199.
-  - **Add three new tests for D1:**
+  - **Add these tests for D1** (note the third row is the one that changed when
+    D1 widened — a pre-4.0 New Experience save is now discarded too):
     | Input | Expected |
     |---|---|
-    | Stored run with `newExperienceMode: false` (no `runFormat`) | `loadRun()` returns `null` **and** the `localStorage` key is removed |
-    | Stored run with no `newExperienceMode` and no `runFormat` (pre-3.0 save) | `loadRun()` returns `null`, key removed |
-    | Stored run with `newExperienceMode: true` (no `runFormat`) | `loadRun()` returns the run; team/items/round restored as before |
+    | Stored run with `newExperienceMode: false`, no `runFormat` | `loadRun()` returns `null` **and** the `localStorage` key is removed |
+    | Stored run with neither field (pre-3.0 save) | `loadRun()` returns `null`, key removed |
+    | Stored run with `newExperienceMode: true`, no `runFormat` | `loadRun()` returns `null`, key removed |
+    | Stored run with `runFormat: 4` | `loadRun()` returns the run; team/items/round restored |
     | A run persisted by the current code | contains `runFormat: 4`, and `loadRun()` accepts it on a fresh service instance |
+    | Stored run with `runFormat: 4` and `pendingAdventure.candidates` containing `'foundCoins'` | restores 3 candidates; none silently dropped |
 
 - [ ] **`main-adventure-roulette.component.spec.ts`** — delete the **entire
       first `describe('MainAdventureRouletteComponent')` block** (lines 14–116):
@@ -575,10 +590,16 @@ disappears entirely.
       - `whatsNew.v4_0_0.0` (en): `"🎲 One game, one ruleset. Everything that used to be behind the optional mode toggle — battle prep, the Danger meter and threats, abilities, Coins and the Market — is now simply how the game plays, and the Settings toggle is gone. Want the untweaked original? Play zeroxm's version."`
       - `whatsNew.v4_0_0.1` (en): `"🪙 The \"Buy Potions\" card on the pre-adventure and Elite Four prep wheels now says \"Found Coins\", which is what it has actually been awarding."`
         (Player-facing text only — the identifier rename in Phase 4 needs no note.)
+      - `whatsNew.v4_0_0.2` (en) — **required, not optional.** D1 now discards
+        *every* pre-4.0 save, so anyone mid-run loses it. That must be said:
+        `"♻️ One-time reset: runs started before this version can't be carried over and have been cleared, so your next visit starts a fresh run. Runs saved from here on restore as normal."`
       - de/es/fr/it/pt: English placeholder is acceptable per `CLAUDE.md`.
-      - **Heads-up:** a saved run started before 4.0.0 in Classic will be
-        discarded (D1). Consider whether note `.0` should say so — decide at
-        write time; the plan does not require it.
+      - Add `'whatsNew.v4_0_0.2'` to the `noteKeys` array in `release-notes.ts`.
+      - **Ordering caveat:** the What's New modal only shows to a visitor whose
+        stored `last-seen-version` is older than 4.0.0 — which is exactly the set
+        of players whose run just got cleared, so the note reaches its audience.
+        A brand-new player sees it too and it will read as harmless noise; that's
+        an acceptable trade for not silently eating a friend's run.
 
 - [ ] **`README.md`** — per D3, drop the mode framing throughout.
   - Feature list (lines 15, 16, 18, 21, 29): rewrite so nothing reads as
@@ -592,8 +613,10 @@ disappears entirely.
   - Line 70 and 78 (`## Economy & the Market`): drop "Also New Experience
     Mode-only" and "Classic mode has no coins, Market, or item selling".
   - Line 93 (persistence): drop "New Experience Mode's" from the coin-balance
-    mention; **add** a sentence that a pre-4.0 Classic save is discarded on
-    load, since that is a user-visible persistence behaviour.
+    mention; **add** a sentence that any save written before 4.0.0 — Classic or
+    New Experience — is discarded on load, since that is a user-visible
+    persistence behaviour and a documented exception to the "a reload never
+    wipes your run" guarantee stated in that same paragraph.
   - Add a line to the "New features added on top of the original" list noting
     Classic mode's removal in 4.0.0 (this list is the fork's changelog).
 
@@ -617,16 +640,16 @@ Automated (`npm run test:local`) — full suite green after Phase 5.
 |---|---|---|
 | A1 | Fresh visitor, no `localStorage` | Game starts at `character-select`; Settings has **no** New Experience toggle; the run has battle prep, the Danger meter, Coins, and Market available |
 | A2 | `localStorage` run with `newExperienceMode: false` | Save discarded and the key removed; player lands at `character-select` |
-| A3 | `localStorage` run with `newExperienceMode: true`, mid-run | Run restores exactly as before — team, PC, items, coins, badges, round, screen |
-| A4 | Save a run in 4.0.0, reload | Persisted JSON contains `runFormat: 4`; run restores |
+| A3 | `localStorage` run with `newExperienceMode: true`, mid-run (pre-4.0 New Experience save) | **Also** discarded — key removed, player lands at `character-select`. This is the intended one-time reset, not a bug |
+| A4 | Save a run in 4.0.0, reload | Persisted JSON contains `runFormat: 4`; run restores fully — team, PC, items, coins, badges, round, screen |
 | A5 | Reach a gym battle | Prep panel shown (lead pick + optional X Attack); odds identical to pre-change NE odds for the same inputs |
 | A6 | Hold 3 X Attacks, do **not** commit one in prep, spin | Odds show **no** X Attack contribution (the old passive Classic stacking is gone in every case) |
 | A7 | Lose a rival battle | Lead faints, goes to PC greyed out; no potion offered; `finishBattleCleanup()` runs (mark/debuff/scouting/PC-lock all cleared) |
 | A8 | Empty the team via a rival faint | Run ends (`game-over`) |
 | A9 | Reach `adventure-continues` | 3-row picker on a reward step, auto-routed threat on a threat step — **never** the old single wheel |
 | A10 | Land the coin card on the pre-adventure and Elite Four prep wheels | Label reads "Found Coins" (localised); coins awarded, no potion |
-| A10b | `grep -rn "buyPotions" src/` after Phase 6 | Only hits are the persisted candidate id: the `buyPotions:` key in `actionHandlers`, and `'buyPotions'` inside spec draw fixtures. No i18n key, no emitter, no method. |
-| A10c | Reload mid-run with a pending adventure draw whose stored candidates include `buyPotions` | All 3 candidate rows re-render; picking the coin row awards coins (guards H1) |
+| A10b | `grep -rn "buyPotions" src/` after Phase 6 | **Zero hits.** Not in i18n, not as an emitter, method, candidate id, `actionHandlers` key, or spec fixture |
+| A10c | Start a 4.0 run, reach a reward step, reload before picking | All 3 candidate rows re-render with the same ids; picking the coin row awards coins (guards the D5 rename end-to-end) |
 | A11 | Fresh run's starting bag | potion, honey, repel, **and** x-attack |
 | A12 | Spin Find Item repeatedly | Pool excludes Market-sold items; revive/repel/max-repel are reachable |
 | A13 | Assign an ability capsule from the PC | Badge shows; the ability shifts battle odds |
