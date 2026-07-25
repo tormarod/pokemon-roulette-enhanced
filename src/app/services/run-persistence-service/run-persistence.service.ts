@@ -215,7 +215,7 @@ export class RunPersistenceService {
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
     this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
     this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
-    this.dangerMeterService.restore(run.dangerPercent ?? 5, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0, run.shieldedSteps ?? 0);
+    this.dangerMeterService.restore(run.dangerPercent ?? 10, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0, run.shieldedSteps ?? 0);
     this.adventureDrawService.restoreDraw(run.pendingAdventure ?? null);
     this.battleDebuffService.restoreDebuff(run.pendingBattleDebuff ?? 0);
     this.markedTargetService.restoreMark(run.markedTeamIndex ?? null);

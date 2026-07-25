@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "Assustado!",
-              "description": "Algo abalou seus nervos — o caminho à frente parece mais perigoso do que há pouco."
+              "description": "Algo abalou seus nervos — seu medidor de Perigo volta a subir, aumentando a chance de os próximos passos da aventura virarem ameaças."
             },
             "markedTarget": {
               "title": "Alvo Marcado",

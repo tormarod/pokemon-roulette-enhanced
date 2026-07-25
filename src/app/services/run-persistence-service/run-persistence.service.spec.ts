@@ -325,7 +325,7 @@ describe('RunPersistenceService', () => {
     TestBed.inject(RunPersistenceService);
 
     const restoredDangerMeterService = TestBed.inject(DangerMeterService);
-    expect(restoredDangerMeterService.currentDangerPercent).toBe(5);
+    expect(restoredDangerMeterService.currentDangerPercent).toBe(10);
     expect(restoredDangerMeterService.currentConsecutiveThreats).toBe(0);
   });
 
@@ -1173,7 +1173,7 @@ describe('RunPersistenceService', () => {
       service.startFreshRun(true);
 
       expect(battlePrepService.getPendingPrep()).toBeNull();
-      expect(dangerMeterService.currentDangerPercent).toBe(5);
+      expect(dangerMeterService.currentDangerPercent).toBe(10);
       expect(dangerMeterService.currentConsecutiveThreats).toBe(0);
       expect(adventureDrawService.getPendingDraw()).toBeNull();
       expect(battleDebuffService.currentDebuff).toBe(0);
