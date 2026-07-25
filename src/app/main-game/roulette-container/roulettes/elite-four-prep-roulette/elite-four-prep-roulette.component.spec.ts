@@ -39,7 +39,7 @@ describe('EliteFourPrepRouletteComponent', () => {
 
     expect(component.actions.map(a => a.text)).toEqual([
       'game.main.roulette.elite.prep.actions.trainingArc',
-      'game.main.roulette.elite.prep.actions.buyPotions',
+      'game.main.roulette.elite.prep.actions.foundCoins',
       'game.main.roulette.elite.prep.actions.catchTwoPokemon',
       'game.main.roulette.elite.prep.actions.catchThreePokemon',
       'game.main.roulette.elite.prep.actions.huntLegendary',

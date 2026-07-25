@@ -43,7 +43,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
 
   actions: WheelItem[] = [
     { text: 'game.main.roulette.elite.prep.actions.trainingArc', fillStyle: 'crimson', weight: 2 },
-    { text: 'game.main.roulette.elite.prep.actions.buyPotions', fillStyle: 'darkorange', weight: 2 },
+    { text: 'game.main.roulette.elite.prep.actions.foundCoins', fillStyle: 'darkorange', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.catchTwoPokemon', fillStyle: 'darkgoldenrod', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.catchThreePokemon', fillStyle: 'green', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.huntLegendary', fillStyle: 'darkgreen', weight: 2 },

@@ -12,10 +12,6 @@
     "skipShinyRolls": "Nascondi i tiri Shiny",
     "skipMegaEvolutionAnimation": "Salta animazione Mega Evoluzione",
     "fastSpin": "Rotazione Rapida",
-    "newExperienceMode": {
-      "title": "Modalità Nuova Esperienza",
-      "description": "Aggiunge scelte pre-battaglia e posta più alta. Le modifiche avranno effetto dalla prossima partita."
-    },
     "defaultGender": {
       "title": "Genere del personaggio",
       "male": "Sempre Ragazzo",
@@ -378,7 +374,7 @@
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
-            "buyPotions": "Compra Pozioni"
+            "foundCoins": "Monete Trovate"
           }
         },
         "catch": {
@@ -405,7 +401,6 @@
           "actions": {
             "catchPokemon": "Cattura un Pokémon",
             "battleTrainer": "Lotta contro un Allenatore",
-            "buyPotions": "Compra Pozioni",
             "foundCoins": "Monete Trovate",
             "catchTwoPokemon": "Cattura due Pokémon",
             "visitDaycare": "Pensione Pokémon",
@@ -532,7 +527,7 @@
             "actions": {
               "catchPokemon": "Cattura un Pokémon",
               "trainingArc": "Allenamento intensivo",
-              "buyPotions": "Compra Pozioni",
+              "foundCoins": "Monete Trovate",
               "catchTwoPokemon": "Cattura due Pokémon",
               "huntLegendary": "Caccia un Pokémon leggendario",
               "findItem": "Trova uno strumento",
@@ -3204,6 +3199,7 @@
     "dark": "Buio",
     "fairy": "Folletto"
   },
+  "v4_0_0": "Versione 4.0.0",
   "v2_1_0": "Versione 2.1.0",
   "v2_2_0": "Versione 2.2.0",
   "v3_16_2": "Version 3.16.2",
@@ -3230,6 +3226,11 @@
     "title": "Novità",
     "dismiss": "Ho capito",
     "settingsEntry": "Novità",
+    "v4_0_0": {
+      "0": "🎲 One game, one ruleset. Everything that used to be behind the optional mode toggle — battle prep, the Danger meter and threats, abilities, Coins and the Market — is now simply how the game plays, and the Settings toggle is gone. Want the untweaked original? Play zeroxm's version.",
+      "1": "🪙 The \"Buy Potions\" card on the pre-adventure and Elite Four prep wheels now says \"Found Coins\", which is what it has actually been awarding.",
+      "2": "♻️ One-time reset: runs started before this version can't be carried over and have been cleared, so your next visit starts a fresh run. Runs saved from here on restore as normal."
+    },
     "v3_16_2": {
       "0": "💪 New Experience runs now start with one X Attack in the bag — a free pre-spin boost to help through a rough opening matchup or an early Bad Omen. (Classic mode's starter kit is unchanged.)"
     },

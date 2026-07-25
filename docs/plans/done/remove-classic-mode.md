@@ -1,7 +1,7 @@
 # Plan: Remove Classic mode — New Experience becomes the only experience
 
 Owner: tormarod
-Status: **approved, not started**
+Status: **shipped in 4.0.0**
 Target version: **4.0.0** (MAJOR — the mirror of 3.0.0, which introduced the mode)
 
 > Players who want the untweaked original can play
@@ -110,7 +110,7 @@ is untouched by this work.
 
 ## Phase 1 — Mode plumbing removal
 
-- [ ] **`src/app/services/settings-service/settings.service.ts`**
+- [x] **`src/app/services/settings-service/settings.service.ts`**
   - Remove `newExperienceMode: boolean;` from `GameSettings`.
   - Remove `newExperienceMode: true` from `defaultSettings`.
   - Delete `toggleNewExperienceMode()`.
@@ -119,23 +119,23 @@ is untouched by this work.
     survives at runtime but is no longer on the type. Harmless. Do **not** add a
     key-whitelist filter — out of scope.
 
-- [ ] **`src/app/settings/settings.component.ts`**
+- [x] **`src/app/settings/settings.component.ts`**
   - Delete `onToggleNewExperienceMode()`.
   - `onRestartGame()` → `this.runPersistenceService.startFreshRun();`
   - `SettingsService` is still used (`ngOnInit`, the other toggles) — keep it.
 
-- [ ] **`src/app/settings/settings.component.html`**
+- [x] **`src/app/settings/settings.component.html`**
   - Delete the entire `<div class="col-12">…</div>` block containing
     `id="newExperienceModeSwitch"` (currently lines ~149–164, between the
     `fastSpinSwitch` block and `<app-language-selector>`).
 
-- [ ] **`src/app/main-game/main-game.component.ts`**
+- [x] **`src/app/main-game/main-game.component.ts`**
   - `resetGame()` → `this.runPersistenceService.startFreshRun();`
   - Remove the `SettingsService` constructor param (line 78) **and** its import
     (line 29). Verified: `settingsService` appears nowhere else in the `.ts` and
     nowhere in `main-game.component.html`.
 
-- [ ] **`src/app/services/game-state-service/game-state.service.ts`**
+- [x] **`src/app/services/game-state-service/game-state.service.ts`**
   - Delete the `newExperienceMode` field, `newExperienceModeObserver`, the
     5-line comment block above them, the `isNewExperienceMode` getter, and
     `restoreNewExperienceMode()`.
@@ -147,14 +147,14 @@ is untouched by this work.
     `resetGameState(): void`; delete the trailing
     `this.newExperienceMode.next(newExperienceMode);`.
 
-- [ ] **`src/app/services/trainer-service/trainer.service.ts`**
+- [x] **`src/app/services/trainer-service/trainer.service.ts`**
   - `resetItems(newExperienceMode: boolean = false)` → `resetItems()`; make the
     X Attack push unconditional (drop the `if`).
   - Rewrite the `DEFAULT_X_ATTACK` comment (lines 77–81) to drop the Classic
     justification. Suggested: `// Starter item: one consumed pre-spin X Attack
     to soften a rough opening matchup or a bad-omen draw on the first gym.`
 
-- [ ] **`src/app/services/run-persistence-service/run-persistence.service.ts`**
+- [x] **`src/app/services/run-persistence-service/run-persistence.service.ts`**
   - Add near the top: `/** Bumped when a save's shape changes incompatibly. */`
     `const RUN_FORMAT = 4;`
   - `SavedRun`: replace `newExperienceMode: boolean;` with `runFormat?: number;`.
@@ -221,7 +221,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
 
 ## Phase 2 — Battle path
 
-- [ ] **`src/app/services/battle-odds-service/battle-odds.service.ts`**
+- [x] **`src/app/services/battle-odds-service/battle-odds.service.ts`**
   - `BattleOddsInput`: delete `classicPlusModifiers?: number;` and
     `abilitiesActive: boolean;`.
   - `BattleOddsBreakdown.yes.xAttack` comment → `// xAttackBonus`.
@@ -235,7 +235,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     (`let abilityYes = 0, abilityNo = 0, extraRetry = false;` goes away.)
   - `xAttackBonus()` doc: drop the final "Classic mode does NOT use this" sentence.
 
-- [ ] **`src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts`**
+- [x] **`src/app/main-game/roulette-container/roulettes/base-battle-roulette/base-battle-roulette.component.ts`**
   - Delete `plusModifiers()` entirely (lines 132–150, comment included).
   - Delete `skipRetriesInClassicMode` (lines 93–94).
   - `buildVictoryOdds`: drop `classicPlusModifiers: this.plusModifiers(),` and
@@ -249,11 +249,11 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
   - `gameStateService` is still used (`currentState` subscription) — keep it.
   - `trainerItems` is still used by `hasPotions()` — keep it.
 
-- [ ] **`…/roulettes/rival-battle-roulette/rival-battle-roulette.component.ts`**
+- [x] **`…/roulettes/rival-battle-roulette/rival-battle-roulette.component.ts`**
   - Delete `protected override readonly skipRetriesInClassicMode = true;` (line 32).
   - Keep `allowPotions = false` — that is the surviving rival rule.
 
-- [ ] **`…/roulette-container/battle-prep-panel/battle-prep-panel.component.ts`**
+- [x] **`…/roulette-container/battle-prep-panel/battle-prep-panel.component.ts`**
   - Delete `classicPlusModifiers: 0,` and
     `abilitiesActive: this.gameStateService.isNewExperienceMode,` (lines 86, 88).
   - `gameStateService` becomes unused here — remove the constructor param
@@ -266,7 +266,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
 
 ## Phase 3 — Adventure step
 
-- [ ] **`…/roulettes/main-adventure-roulette/main-adventure-roulette.component.ts`**
+- [x] **`…/roulettes/main-adventure-roulette/main-adventure-roulette.component.ts`**
   - Delete `baseActions` (lines 77–94), `areaZeroAction` (96–100),
     `actions` (102), `isNewExperienceMode` (108), and the whole
     `onItemSelected(index)` switch (340–394).
@@ -300,7 +300,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     index — a draw persisted across reload can't rely on index order."*
   - `isGeneration9` is still read by `initializeDraw()` — keep it.
 
-- [ ] **`…/main-adventure-roulette.component.html`**
+- [x] **`…/main-adventure-roulette.component.html`**
   - Delete the `@if (isNewExperienceMode) {` wrapper and the whole
     `} @else { <app-wheel …/> }` branch, promoting
     `@if (stepType === 'reward') { … }` to top level. Keep the leading
@@ -312,7 +312,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
 
 ## Phase 4 — Items, coins, panels
 
-- [ ] **`src/app/services/items-service/items.service.ts`**
+- [x] **`src/app/services/items-service/items.service.ts`**
   - Delete `NE_ONLY_ITEM_NAMES` and its comment;
     `getRegularItems()` → `return Object.values(this.regularItemsData);`
   - `getFindableItems()`: delete the `if (!…isNewExperienceMode) return regularItems;`
@@ -320,7 +320,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
   - `GameStateService` becomes unused — delete the constructor entirely and the
     import. (`MARKET_PRICES` and everything else stay.)
 
-- [ ] **`src/app/main-game/roulette-container/roulette-container.component.ts`**
+- [x] **`src/app/main-game/roulette-container/roulette-container.component.ts`**
   - `showDangerMeter` (≈351): drop only the `!…isNewExperienceMode ||` clause
     from the condition. Rewrite the doc comment (drop the Classic sentence).
   - `buyPotions()` (≈538): delete the classic tail entirely — the method becomes
@@ -339,7 +339,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     `this.itemService.getItem(...)` are still used elsewhere in the file; drop
     the import only if genuinely orphaned.
 
-- [ ] **D4/D5 rename: every `buyPotions` becomes `foundCoins`.** Once the method
+- [x] **D4/D5 rename: every `buyPotions` becomes `foundCoins`.** Once the method
       no longer buys anything, the name is actively misleading. This includes the
       persisted candidate id, which D1's discard gate makes safe (see D5). Do it
       in one pass; the goal is that `grep -rn buyPotions src/` returns **zero
@@ -380,7 +380,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     comment.
   - `rivalBattleResult` (≈1153): `if (this.trainerService.getTeam().length === 0) {`.
 
-- [ ] **`src/app/trainer-team/market/market.component.{ts,html}`**
+- [x] **`src/app/trainer-team/market/market.component.{ts,html}`**
   - `.ts`: delete the `isNewExperienceMode` getter; in `isAvailable`, the guard
     becomes `if (this.wheelSpinning) { return false; }`. Update the class-level
     doc comment (line ~67) to drop "Hidden in Classic mode (no coins exist there)".
@@ -388,14 +388,14 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
   - `.html`: delete the outer `@if (isNewExperienceMode) {` / closing `}`,
     dedenting the contents.
 
-- [ ] **`src/app/trainer-team/trainer-team.component.{ts,html}`**
+- [x] **`src/app/trainer-team/trainer-team.component.{ts,html}`**
   - `.ts`: delete the `isNewExperienceMode` getter (lines 110–113).
   - `.html`: unwrap all three gates — the `utility-right` block (line 15), the
     `i === markedIndex` badge (61 → `@if (i === markedIndex) {`), and the ability
     pill (69 → collapse the outer `@if` into just the inner
     `@if (getMemberAbilityName(...); as abilityName)`).
 
-- [ ] **`src/app/trainer-team/storage-pc/storage-pc.component.{ts,html}`**
+- [x] **`src/app/trainer-team/storage-pc/storage-pc.component.{ts,html}`**
   - `.ts`: delete the `isNewExperienceMode` getter (188–190) and its comment;
     drop `!this.isNewExperienceMode ||` from `openAbilityPicker`'s guard (209)
     and `!this.isNewExperienceMode ||` from `assignAbility`'s guard (218). Keep
@@ -408,7 +408,7 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
   - **`gameStateService` may become unused in both these components — grep before
     removing the injection.**
 
-- [ ] **Theme check (required by `CLAUDE.md`).** These unwraps make the coin
+- [x] **Theme check (required by `CLAUDE.md`).** These unwraps make the coin
   pill, Market button, ability pills, and marked badge render in states they
   never did before *only* for players who were on Classic — the markup and CSS
   are unchanged, so no new styling work is expected. Still confirm the
@@ -428,16 +428,16 @@ appears 21×, `resetGameState(false)` 5×, `resetGameState()` 13× — every cal
 becomes `resetGameState()`, and `restoreNewExperienceMode(…)` (16 call sites)
 disappears entirely.
 
-- [ ] **`settings.service.spec.ts`** — delete all four `newExperienceMode` tests
+- [x] **`settings.service.spec.ts`** — delete all four `newExperienceMode` tests
       (`should default newExperienceMode to true`, `should toggle …`,
       `should persist … across a fresh service instance`, and the one at line 44).
       8 → 4 tests.
 
-- [ ] **`game-state.service.spec.ts`** — delete the whole
+- [x] **`game-state.service.spec.ts`** — delete the whole
       `── newExperienceMode snapshot ──` section (4 tests, lines 72–98).
       Retarget any `resetGameState(true|false)` elsewhere to `resetGameState()`.
 
-- [ ] **`items.service.spec.ts`** — delete the three Classic tests
+- [x] **`items.service.spec.ts`** — delete the three Classic tests
       (`excludes revive …`, `excludes repel/max-repel …`,
       `getFindableItems is unchanged …`). Rename the surviving ones to drop
       "in New Experience mode" (e.g. `includes revive in regular items`).
@@ -446,7 +446,7 @@ disappears entirely.
       keeping one assertion. Remove the `GameStateService` import and the
       `gameStateService` local.
 
-- [ ] **`run-persistence.service.spec.ts`** — the biggest sweep (47 tests).
+- [x] **`run-persistence.service.spec.ts`** — the biggest sweep (47 tests).
   - Delete `should save the newExperienceMode snapshot taken at run start`,
     `should restore newExperienceMode from a saved run on construction`, and
     `should default newExperienceMode to false when restoring an older save
@@ -467,7 +467,7 @@ disappears entirely.
     | A run persisted by the current code | contains `runFormat: 4`, and `loadRun()` accepts it on a fresh service instance |
     | Stored run with `runFormat: 4` and `pendingAdventure.candidates` containing `'foundCoins'` | restores 3 candidates; none silently dropped |
 
-- [ ] **`main-adventure-roulette.component.spec.ts`** — delete the **entire
+- [x] **`main-adventure-roulette.component.spec.ts`** — delete the **entire
       first `describe('MainAdventureRouletteComponent')` block** (lines 14–116):
       all five tests in it (`should create`, the two `component.actions` tests,
       and the two `onItemSelected` routing tests) exercise only the deleted
@@ -485,22 +485,22 @@ disappears entirely.
       `component['resolveCandidates'](['areaZero'])` — or simply drop this
       coverage and note it; the reward-pool path is already covered).
 
-- [ ] **`base-battle-roulette.component.spec.ts`** — rename
+- [x] **`base-battle-roulette.component.spec.ts`** — rename
       `does not affect odds when leadIndex is undefined (Classic mode / no lead
       chosen)` → `(no lead chosen)`. Check for any `plusModifiers` /
       `classicPlusModifiers` / `abilitiesActive` references and drop them.
 
-- [ ] **`rival-battle-roulette.component.spec.ts`** — delete the
+- [x] **`rival-battle-roulette.component.spec.ts`** — delete the
       `── Classic mode: rival's win/loss-only mechanic stays untouched ──`
       section including `should not decrement retries or consult potions in
       Classic mode`.
 
-- [ ] **`battle-odds.service.spec.ts`** — delete
+- [x] **`battle-odds.service.spec.ts`** — delete
       `ignores ability effects when abilitiesActive is false (Classic mode)`;
       remove `abilitiesActive` (and any `classicPlusModifiers`) from every
       `computeOdds` input literal in the file.
 
-- [ ] **`roulette-container.component.spec.ts`** — delete
+- [x] **`roulette-container.component.spec.ts`** — delete
       `is hidden in Classic mode even once the adventure has started`,
       `does not end the run on an empty team in Classic mode …`,
       `a gym win grants no coins in Classic mode`,
@@ -508,21 +508,21 @@ disappears entirely.
       `reachStartAdventureNE` → `reachStartAdventure` and its
       `resetGameState(true)` → `resetGameState()`.
 
-- [ ] **`storage-pc.component.spec.ts`** — delete
+- [x] **`storage-pc.component.spec.ts`** — delete
       `does not assign or consume in Classic mode` and
       `hides the marked badge in Classic mode even if a mark is set`; drop the
       four `restoreNewExperienceMode` calls.
 
-- [ ] **`trainer-team.component.spec.ts`** — delete
+- [x] **`trainer-team.component.spec.ts`** — delete
       `hides marked badge / ability pill in Classic mode even if the underlying
       data is set`; drop the two `restoreNewExperienceMode` calls.
 
-- [ ] **`market.component.spec.ts`** — delete
+- [x] **`market.component.spec.ts`** — delete
       `Classic mode has no stock limits (Market is hidden)` (line 264) or
       rewrite it against `isAvailable`; drop the `restoreNewExperienceMode(false)`
       call.
 
-- [ ] `npm run test:local` — **full suite green, zero pending/skipped.**
+- [x] `npm run test:local` — **full suite green, zero pending/skipped.**
 
 **Checkpoint — stop for review.**
 
@@ -530,7 +530,7 @@ disappears entirely.
 
 ## Phase 6 — i18n, D4 label fix, docs, release
 
-- [ ] **Delete from all six locales** (`src/assets/i18n/{en,de,es,fr,it,pt}.json`):
+- [x] **Delete from all six locales** (`src/assets/i18n/{en,de,es,fr,it,pt}.json`):
   - `settings.newExperienceMode` (the whole `{ title, description }` object).
   - `game.main.roulette.adventure.actions.buyPotions` — now unused; the adventure
     wheel's coin card uses `…actions.foundCoins`.
@@ -538,7 +538,7 @@ disappears entirely.
     `game.main.roulette.elite.prep.actions.buyPotions` outright — **rename**
     them (next step).
 
-- [ ] **D4 label fix — rename the keys, don't just re-value them.** In all six
+- [x] **D4 label fix — rename the keys, don't just re-value them.** In all six
       locales, rename
       `game.main.roulette.start.actions.buyPotions` → `…start.actions.foundCoins`
       and `game.main.roulette.elite.prep.actions.buyPotions` →
@@ -567,9 +567,9 @@ disappears entirely.
   **zero** hits (the adventure wheel's key was deleted in the step above, and
   these two are renamed).
 
-- [ ] **`package.json`** — `"version": "4.0.0"`.
+- [x] **`package.json`** — `"version": "4.0.0"`.
 
-- [ ] **`src/app/data/release-notes.ts`** — prepend, newest-first:
+- [x] **`src/app/data/release-notes.ts`** — prepend, newest-first:
       ```ts
       {
         version: '4.0.0',
@@ -582,7 +582,7 @@ disappears entirely.
       ```
       `CURRENT_VERSION` derives from this automatically.
 
-- [ ] **All six locales** — add the top-level version label and the notes.
+- [x] **All six locales** — add the top-level version label and the notes.
       (The label is a **top-level** key, not under `whatsNew` — see
       `whats-new.component.html:15`.)
       - top level: `"v4_0_0": "Version 4.0.0"` (translate "Version" per locale,
@@ -601,7 +601,7 @@ disappears entirely.
         A brand-new player sees it too and it will read as harmless noise; that's
         an acceptable trade for not silently eating a friend's run.
 
-- [ ] **`README.md`** — per D3, drop the mode framing throughout.
+- [x] **`README.md`** — per D3, drop the mode framing throughout.
   - Feature list (lines 15, 16, 18, 21, 29): rewrite so nothing reads as
     "opt-in", "off by default", or "existing players see no change unless they
     opt in".
@@ -620,15 +620,15 @@ disappears entirely.
   - Add a line to the "New features added on top of the original" list noting
     Classic mode's removal in 4.0.0 (this list is the fork's changelog).
 
-- [ ] **`CLAUDE.md`** — line 71 cites "New Experience Mode was 3.0.0" as the
+- [x] **`CLAUDE.md`** — line 71 cites "New Experience Mode was 3.0.0" as the
       MAJOR example. Leave the example (it's still true history) but it's fine to
       append "; removing Classic mode was 4.0.0" as a second example.
 
-- [ ] **`docs/todo/backlog.md`** — verified: no open entry covers this work, so
+- [x] **`docs/todo/backlog.md`** — verified: no open entry covers this work, so
       nothing to delete. If the Phase 5 gen-9 Area Zero coverage is dropped
       rather than replaced, add an entry for restoring it.
 
-- [ ] Move this file to `docs/plans/done/remove-classic-mode.md`.
+- [x] Move this file to `docs/plans/done/remove-classic-mode.md`.
 
 ---
 
