@@ -310,12 +310,12 @@
 }
 
 /* Held mega stone indicator — mirrors the team panel's .mega-stone-overlay, but
-   non-interactive (the lead card itself is the button) and pinned top-left so it
-   never collides with the top-right matchup delta badge. */
+   non-interactive (the lead card itself is the button). Pinned bottom-left to
+   match the PC storage's mega dot (and clear of the top-right delta badge). */
 .battle-prep-lead-mega {
     position: absolute;
     left: 4px;
-    top: 4px;
+    bottom: 4px;
     width: 20px;
     height: 20px;
     border-radius: 999px;
