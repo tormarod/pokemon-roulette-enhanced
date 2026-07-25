@@ -89,7 +89,7 @@ describe('ChampionBattleRouletteComponent', () => {
 
   describe('New Experience mode', () => {
     beforeEach(() => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
     });
 

@@ -6,7 +6,6 @@ import { bootstrapPcDisplayHorizontal } from '@ng-icons/bootstrap-icons';
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../../services/trainer-service/trainer.service';
-import { GameStateService } from '../../services/game-state-service/game-state.service';
 import { MarkedTargetService } from '../../services/marked-target-service/marked-target.service';
 import { PcLockService } from '../../services/pc-lock-service/pc-lock.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
@@ -185,22 +184,15 @@ describe('StoragePcComponent', () => {
     });
   });
 
-  // ── Ability assignment (New Experience) ─────────────────────────────────
+  // ── Ability assignment ───────────────────────────────────────────────────
 
   describe('ability assignment', () => {
-    let gameStateService: GameStateService;
-
     const addCapsule = (abilityId: AbilityId) =>
       trainerService.addToItems({
         name: `capsule-${abilityId}`, text: `abilities.${abilityId}.name`,
         description: `abilities.${abilityId}.description`, fillStyle: 'red',
         weight: 1, sprite: '', abilityId
       } as any);
-
-    beforeEach(() => {
-      gameStateService = TestBed.inject(GameStateService);
-      gameStateService.restoreNewExperienceMode(true);
-    });
 
     it('ownedCapsules returns only ability-capsule items', () => {
       trainerService.addToItems({ name: 'potion', text: '', description: '', fillStyle: '', weight: 1, sprite: '' } as any);
@@ -239,31 +231,14 @@ describe('StoragePcComponent', () => {
       component.assignAbility(component.ownedCapsules().find(c => c.abilityId === 'torrent')!);
       expect(mon.ability).toBe('torrent');
     });
-
-    it('does not assign or consume in Classic mode', () => {
-      gameStateService.restoreNewExperienceMode(false);
-      const mon = makeTestPokemon();
-      component.trainerTeam = [mon];
-      component.storedPokemon = [];
-      addCapsule('blaze');
-      component.assignTarget = mon;
-
-      component.assignAbility(component.ownedCapsules()[0]);
-
-      expect(mon.ability).toBeUndefined();
-      expect(component.ownedCapsules().length).toBe(1);
-    });
   });
 
   // ── Marked Target badge on the PC modal's team loop ──────────────────────
 
   describe('markedTarget badge (team loop)', () => {
-    let gameStateService: GameStateService;
     let markedTargetService: MarkedTargetService;
 
     beforeEach(() => {
-      gameStateService = TestBed.inject(GameStateService);
-      gameStateService.restoreNewExperienceMode(true);
       markedTargetService = TestBed.inject(MarkedTargetService);
     });
 
@@ -289,22 +264,6 @@ describe('StoragePcComponent', () => {
     it('shows no marked badge when nothing is marked', () => {
       component.trainerTeam = [makeTestPokemon()];
       component.storedPokemon = [];
-      fixture.detectChanges();
-
-      const viewRef = component.pcStorageModal.createEmbeddedView({});
-      viewRef.detectChanges();
-      const rootNode = viewRef.rootNodes.find((node: Node) => node.nodeType === Node.ELEMENT_NODE) as HTMLElement;
-
-      expect(rootNode.querySelector('.pc-dot-marked')).toBeFalsy();
-
-      viewRef.destroy();
-    });
-
-    it('hides the marked badge in Classic mode even if a mark is set', () => {
-      gameStateService.restoreNewExperienceMode(false);
-      component.trainerTeam = [makeTestPokemon()];
-      component.storedPokemon = [];
-      markedTargetService.setMark(0);
       fixture.detectChanges();
 
       const viewRef = component.pcStorageModal.createEmbeddedView({});

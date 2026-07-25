@@ -80,20 +80,12 @@ describe('TrainerService', () => {
     expect(itemNames).toEqual(['potion', 'honey', 'repel']);
   });
 
-  it('resetItems should restore the same three starting items', () => {
-    service.addToItems({ name: 'x-attack', text: '', fillStyle: '', weight: 1, description: '', sprite: 'x' });
+  it('resetItems restores the same starting kit, including a starter X Attack', () => {
+    service.addToItems({ name: 'honey', text: '', fillStyle: '', weight: 1, description: '', sprite: 'x' });
     service.resetItems();
 
     const itemNames = service.trainerItems.map(item => item.name);
-    expect(itemNames).toEqual(['potion', 'honey', 'repel']);
-  });
-
-  it('resetItems adds a starter X Attack in New Experience mode only', () => {
-    service.resetItems(true);
-    expect(service.trainerItems.map(item => item.name)).toEqual(['potion', 'honey', 'repel', 'x-attack']);
-
-    service.resetItems(false);
-    expect(service.trainerItems.map(item => item.name)).toEqual(['potion', 'honey', 'repel']);
+    expect(itemNames).toEqual(['potion', 'honey', 'repel', 'x-attack']);
   });
 
   // ── coins (Market currency) ──────────────────────────────────────────────

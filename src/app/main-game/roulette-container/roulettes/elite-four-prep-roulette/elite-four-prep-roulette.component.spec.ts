@@ -26,7 +26,7 @@ describe('EliteFourPrepRouletteComponent', () => {
 
   it('should map every action index to its correct event, in order', () => {
     const emitterNames = [
-      'battleTrainerEvent', 'buyPotionsEvent', 'catchTwoPokemonEvent', 'catchThreePokemonEvent',
+      'battleTrainerEvent', 'foundCoinsEvent', 'catchTwoPokemonEvent', 'catchThreePokemonEvent',
       'legendaryEncounterEvent', 'findItemEvent', 'teamRocketEncounterEvent',
     ] as const;
 
