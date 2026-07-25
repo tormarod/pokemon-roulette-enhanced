@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "Spaventato!",
-              "description": "Qualcosa ti ha scosso i nervi — la strada davanti a te sembra più pericolosa di un attimo fa."
+              "description": "Qualcosa ti ha scosso i nervi — il tuo indicatore di Pericolo risale, rendendo più probabile che i prossimi passi dell'avventura si trasformino in minacce."
             },
             "markedTarget": {
               "title": "Bersaglio Marcato",

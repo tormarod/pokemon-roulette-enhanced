@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "Aufgeschreckt!",
-              "description": "Etwas hat dich aus der Fassung gebracht — der Weg vor dir wirkt gefährlicher als noch vor einem Moment."
+              "description": "Etwas hat dich aus der Fassung gebracht — deine Gefahren-Anzeige steigt wieder an, wodurch die nächsten Abenteuer-Schritte eher zu Bedrohungen werden."
             },
             "markedTarget": {
               "title": "Markiertes Ziel",

@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "¡Asustado!",
-              "description": "Algo te ha puesto los pelos de punta — el camino por delante se siente más peligroso que hace un momento."
+              "description": "Algo te ha puesto los pelos de punta — tu medidor de Peligro vuelve a subir, haciendo que los próximos pasos de la aventura tengan más probabilidades de convertirse en amenazas."
             },
             "markedTarget": {
               "title": "Objetivo Marcado",
