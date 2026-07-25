@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncPipe, NgClass } from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';
-import { WheelComponent } from '../../../../wheel/wheel.component';
-import { WheelItem } from '../../../../interfaces/wheel-item';
 import { EventSource } from '../../../EventSource';
 import { GenerationService } from '../../../../services/generation-service/generation.service';
 import { GameStateService } from '../../../../services/game-state-service/game-state.service';
@@ -23,7 +21,7 @@ interface AdventureCandidate {
 
 @Component({
   selector: 'app-main-adventure-roulette',
-  imports: [WheelComponent, TranslatePipe, AsyncPipe, NgClass],
+  imports: [TranslatePipe, AsyncPipe, NgClass],
   templateUrl: './main-adventure-roulette.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-adventure-roulette.component.css'
@@ -74,38 +72,11 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   @Output() pcLockoutEvent = new EventEmitter<void>();
   @Output() teamRocketAmbushEvent = new EventEmitter<void>();
 
-  private readonly baseActions: WheelItem[] = [
-    { text: 'game.main.roulette.adventure.actions.catchPokemon', fillStyle: 'crimson', weight: 5 },
-    { text: 'game.main.roulette.adventure.actions.battleTrainer', fillStyle: 'darkorange', weight: 2 },
-    { text: 'game.main.roulette.adventure.actions.buyPotions', fillStyle: 'darkgoldenrod', weight: 0.5 },
-    { text: 'game.main.roulette.adventure.actions.catchTwoPokemon', fillStyle: 'darkcyan', weight: 2 },
-    { text: 'game.main.roulette.adventure.actions.visitDaycare', fillStyle: 'blue', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.teamRocket', fillStyle: 'purple', weight: 2 },
-    { text: 'game.main.roulette.adventure.actions.mysteriousEgg', fillStyle: 'deeppink', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.legendaryEncounter', fillStyle: 'crimson', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.tradePokemon', fillStyle: 'darkorange', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.findItem', fillStyle: 'darkgoldenrod', weight: 2 },
-    { text: 'game.main.roulette.adventure.actions.exploreCave', fillStyle: 'green', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.snorlaxEncounter', fillStyle: 'darkcyan', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.multitask', fillStyle: 'blue', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.goFishing', fillStyle: 'purple', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.findFossil', fillStyle: 'deeppink', weight: 1 },
-    { text: 'game.main.roulette.adventure.actions.battleRival', fillStyle: 'black', weight: 1 },
-  ];
-
-  private readonly areaZeroAction: WheelItem = {
-    text: 'game.main.roulette.adventure.actions.areaZero',
-    fillStyle: 'darkslateblue',
-    weight: 1
-  };
-
-  actions: WheelItem[] = [...this.baseActions];
   private generationSubscription: Subscription | null = null;
   private gameStateSubscription: Subscription | null = null;
   private isGeneration9 = false;
 
-  // ── New Experience mode: choose-between adventure (V2 Part A) ──────────
-  isNewExperienceMode = false;
+  // ── Choose-between adventure (V2 Part A) ──────────
   candidates: AdventureCandidate[] = [];
   stepType: AdventureStepType | null = null;
   /** Index of the committed pick (drives the selected/dimmed row states); null until a row is picked. */
@@ -176,9 +147,9 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   ];
 
   /**
-   * Routes a drawn/picked candidate id to the same output event Classic
-   * mode's onItemSelected switch uses, just keyed by a stable id instead of a
-   * wheel index — a draw persisted across reload can't rely on index order.
+   * Routes a drawn/picked candidate id to its output event, keyed by a stable
+   * id rather than a list index — a draw persisted across reload can't rely
+   * on index order.
    */
   private readonly actionHandlers: Record<string, () => void> = {
     catchPokemon: () => this.catchPokemonEvent.emit(),
@@ -214,27 +185,21 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.generationSubscription = this.generationService.getGeneration().subscribe(generation => {
       this.isGeneration9 = generation.id === 9;
-      this.actions = generation.id === 9
-        ? [...this.baseActions, this.areaZeroAction]
-        : [...this.baseActions];
     });
 
-    this.isNewExperienceMode = this.gameStateService.isNewExperienceMode;
-    if (this.isNewExperienceMode) {
-      // Re-draw on every entry into this state, not just component construction.
-      // Some actions (e.g. multitask) route back to 'adventure-continues' without
-      // the component being destroyed/recreated — Angular's @switch only rebuilds
-      // on a genuine case change, so relying on ngOnInit alone missed same-state
-      // re-entries and left the already-picked, stale candidates on screen
-      // (multitaskEvent fired, the round counter advanced, but nothing visibly
-      // happened). currentState is a BehaviorSubject, so this also fires
-      // synchronously for the normal first-render case, same as before.
-      this.gameStateSubscription = this.gameStateService.currentState.subscribe(state => {
-        if (state === 'adventure-continues') {
-          this.initializeDraw();
-        }
-      });
-    }
+    // Re-draw on every entry into this state, not just component construction.
+    // Some actions (e.g. multitask) route back to 'adventure-continues' without
+    // the component being destroyed/recreated — Angular's @switch only rebuilds
+    // on a genuine case change, so relying on ngOnInit alone missed same-state
+    // re-entries and left the already-picked, stale candidates on screen
+    // (multitaskEvent fired, the round counter advanced, but nothing visibly
+    // happened). currentState is a BehaviorSubject, so this also fires
+    // synchronously for the normal first-render case, same as before.
+    this.gameStateSubscription = this.gameStateService.currentState.subscribe(state => {
+      if (state === 'adventure-continues') {
+        this.initializeDraw();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -335,62 +300,6 @@ export class MainAdventureRouletteComponent implements OnInit, OnDestroy {
   /** Weighted sample of a single entry from `pool`. */
   private drawWeightedOne(pool: AdventureCandidate[]): AdventureCandidate {
     return this.drawDistinct(pool, 1)[0];
-  }
-
-  onItemSelected(index: number): void {
-    switch (index) {
-      case 0:
-        this.catchPokemonEvent.emit();
-        break;
-      case 1:
-        this.battleTrainerEvent.emit('battle-trainer');
-        break;
-      case 2:
-        this.buyPotionsEvent.emit();
-        break;
-      case 3:
-        this.catchTwoPokemonEvent.emit();
-        break;
-      case 4:
-        this.visitDaycareEvent.emit('visit-daycare');
-        break;
-      case 5:
-        this.teamRocketEncounterEvent.emit();
-        break;
-      case 6:
-        this.mysteriousEggEvent.emit();
-        break;
-      case 7:
-        this.legendaryEncounterEvent.emit();
-        break;
-      case 8:
-        this.tradePokemonEvent.emit();
-        break;
-      case 9:
-        this.findItemEvent.emit();
-        break;
-      case 10:
-        this.exploreCaveEvent.emit();
-        break;
-      case 11:
-        this.snorlaxEncounterEvent.emit();
-        break;
-      case 12:
-        this.multitaskEvent.emit();
-        break;
-      case 13:
-        this.goFishingEvent.emit();
-        break;
-      case 14:
-        this.findFossilEvent.emit();
-        break;
-      case 15:
-        this.battleRivalEvent.emit();
-        break;
-      case 16:
-        this.areaZeroEvent.emit();
-        break;
-    }
   }
 }
 

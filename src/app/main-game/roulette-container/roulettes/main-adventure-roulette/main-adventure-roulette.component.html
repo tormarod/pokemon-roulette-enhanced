@@ -4,8 +4,7 @@
 @if (respinReason) {
     <p class="respin-reason">{{ respinReason | translate }}</p>
 }
-@if (isNewExperienceMode) {
-    @if (stepType === 'reward') {
+@if (stepType === 'reward') {
         <div class="adventure-panel" [ngClass]="(isDark$ | async) ? 'adventure-panel-dark' : 'adventure-panel-light'">
             <div class="adventure-panel-header">
                 <div class="choose-label">{{ 'game.main.roulette.adventure.chooseOne' | translate }}</div>
@@ -118,10 +117,4 @@
             </div>
         </div>
     }
-} @else {
-    <app-wheel  #wheel
-                [items]="actions"
-                (selectedItemEvent)="onItemSelected($event)">
-    </app-wheel>
-}
 <div class="roulette-action-row"></div>
