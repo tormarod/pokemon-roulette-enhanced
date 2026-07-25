@@ -62,7 +62,11 @@ export class EvolutionLineModalComponent implements OnInit {
     this.darkMode = this.themeService.isDark$;
     this.selectedId = this.pokemonId;
 
-    const columns = this.evolutionService.getEvolutionLine(this.pokemonId);
+    // A mega form (e.g. a team member mid-battle) isn't an evolution node, so its
+    // own id has no line — build the line from the base species and keep the mega
+    // stage selected (it's emitted below via pokemonMegaForms for the last column).
+    const lineRootId = this.baseSpeciesIdFor(this.pokemonId);
+    const columns = this.evolutionService.getEvolutionLine(lineRootId);
     this.baseColumns = columns.map((col, ci) => col.map(mon => this.toStageView(mon, ci, false)));
 
     const lastColumnIndex = columns.length - 1;
@@ -93,7 +97,19 @@ export class EvolutionLineModalComponent implements OnInit {
   }
 
   get selectedStage(): EvolutionStageView {
-    return this.allStages.find(s => s.pokemonId === this.selectedId) ?? this.allStages[0];
+    return this.allStages.find(s => s.pokemonId === this.selectedId)
+      ?? this.allStages[0]
+      ?? { pokemonId: this.pokemonId, text: '', power: 0, isMega: false, locked: false, columnIndex: 0 };
+  }
+
+  /** Maps a mega-form pokemonId back to its base species id; returns the id unchanged otherwise. */
+  private baseSpeciesIdFor(id: number): number {
+    for (const [baseId, forms] of Object.entries(pokemonMegaForms)) {
+      if (forms.some(form => form.pokemonId === id)) {
+        return Number(baseId);
+      }
+    }
+    return id;
   }
 
   get pipCap(): number {

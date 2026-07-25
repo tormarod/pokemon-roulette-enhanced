@@ -64,6 +64,31 @@ describe('EvolutionLineModalComponent', () => {
     fixture.detectChanges();
   }
 
+  // Like setup(), but opens the modal on an explicit id (e.g. a mega-form id)
+  // instead of defaulting to the line's first stage.
+  function setupOnId(line: PokemonItem[][], pokemonId: number, caught: PokedexData['caught'] = {}): void {
+    TestBed.resetTestingModule();
+    mockEvolutionService = jasmine.createSpyObj('EvolutionService', ['getEvolutionLine']);
+    mockEvolutionService.getEvolutionLine.and.returnValue(line);
+    mockPokedexService = { currentPokedex: { version: 1, caught } };
+    mockActiveModal = jasmine.createSpyObj('NgbActiveModal', ['dismiss', 'close']);
+
+    TestBed.configureTestingModule({
+      imports: [EvolutionLineModalComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: NgbActiveModal, useValue: mockActiveModal },
+        { provide: EvolutionService, useValue: mockEvolutionService },
+        { provide: PokedexService, useValue: mockPokedexService },
+        { provide: ThemeService, useValue: { isDark$: of(false) } },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(EvolutionLineModalComponent);
+    component = fixture.componentInstance;
+    component.pokemonId = pokemonId;
+    fixture.detectChanges();
+  }
+
   afterEach(() => TestBed.resetTestingModule());
 
   it('should create', () => {
@@ -167,6 +192,28 @@ describe('EvolutionLineModalComponent', () => {
     const dragoniteLine: PokemonItem[][] = [[mon(147, 'pokemon.dratini', 1)], [mon(148, 'pokemon.dragonair', 2)], [mon(149, 'pokemon.dragonite', 4)]];
     setup(dragoniteLine, { '149': { won: true, sprite: null, mega: true } });
     expect(component.pipCap).toBe(6);
+  });
+
+  // ── Opening on a mega-form id (e.g. a team member mid-battle) ───────────
+
+  it('builds the line from the base species when opened on a mega-form id, keeping the mega selected', () => {
+    // pokemonId 10033 is Venusaur's mega form (pokemonMegaForms[3]).
+    setupOnId(venusaurLine, 10033, { '3': { won: true, sprite: null, mega: true } });
+
+    // The line is requested for the base species (3), not the mega id.
+    expect(mockEvolutionService.getEvolutionLine).toHaveBeenCalledWith(3);
+    // The mega stage stays selected and resolves — no undefined-stage freeze.
+    expect(component.selectedId).toBe(10033);
+    expect(component.selectedStage.pokemonId).toBe(10033);
+    expect(component.selectedStage.isMega).toBeTrue();
+  });
+
+  it('never yields an undefined selected stage even when the line is empty', () => {
+    setupOnId([[]], 99999);
+
+    expect(component.selectedStage).toBeTruthy();
+    expect(component.selectedStage.pokemonId).toBe(99999);
+    expect(() => component.formatPokemonNumber(component.selectedStage.pokemonId)).not.toThrow();
   });
 
   it('formatPokemonNumber pads IDs under 1000 and leaves 1000+ unpadded', () => {
