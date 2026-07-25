@@ -9,7 +9,6 @@ import { megaStoneNamesForBaseId } from '../../../services/trainer-service/pokem
 import { TypeMatchupService } from '../../../services/type-matchup-service/type-matchup.service';
 import { BattleOddsService, BattleOddsBreakdown } from '../../../services/battle-odds-service/battle-odds.service';
 import { BattleDebuffService } from '../../../services/battle-debuff-service/battle-debuff.service';
-import { GameStateService } from '../../../services/game-state-service/game-state.service';
 import { ThemeService } from '../../../services/theme-service/theme.service';
 
 export interface BattlePrepConfirmed {
@@ -57,7 +56,6 @@ export class BattlePrepPanelComponent implements OnChanges {
     private typeMatchupService: TypeMatchupService,
     private battleOddsService: BattleOddsService,
     private battleDebuffService: BattleDebuffService,
-    private gameStateService: GameStateService,
     private themeService: ThemeService,
   ) {
     this.darkMode$ = this.themeService.isDark$;
@@ -83,9 +81,7 @@ export class BattlePrepPanelComponent implements OnChanges {
       leadIndex: this.selectedLeadIndex,
       xAttackBonus: this.xAttackSelected
         ? this.battleOddsService.xAttackBonus(this.team, this.currentRound) : 0,
-      classicPlusModifiers: 0,
       badOmen: this.battleDebuffService.currentDebuff,
-      abilitiesActive: this.gameStateService.isNewExperienceMode,
     });
   }
 
