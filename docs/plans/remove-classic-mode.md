@@ -17,7 +17,7 @@ Target version: **4.0.0** (MAJOR — the mirror of 3.0.0, which introduced the m
 | D1 | In-flight Classic saves (`newExperienceMode: false`, or absent on pre-3.0 saves) | **Discard on load.** The player lands on `character-select` like a first-time visitor. No notice modal. |
 | D2 | Version bump | **4.0.0** |
 | D3 | The name "New Experience Mode" in README/UI | **Dropped entirely.** Describe the mechanics as how the game plays. Old shipped release notes keep the term (see R1). |
-| D4 | "Buy Potions" mislabel on `start-adventure` / `elite-four-prep` wheels | **Fix in this change** — both already award coins in NE, only the adventure wheel got relabelled. |
+| D4 | "Buy Potions" mislabel on `start-adventure` / `elite-four-prep` wheels | **Fix in this change** — both already award coins in NE, only the adventure wheel got relabelled. Rename the i18n keys *and* the internal identifiers (`buyPotionsEvent` → `foundCoinsEvent`, `buyPotions()` → `foundCoins()`) so the names match what the code does. **The persisted candidate id stays `buyPotions`** — see H1. |
 
 **R1 — do not touch shipped release notes.** `whatsNew.v3_*` entries in all six
 locales mention "Classic mode is unaffected". Per `CLAUDE.md` those are shipped
@@ -81,6 +81,22 @@ is untouched by this work.
   gefunden`, `Monedas Encontradas`, `Pièces trouvées`, `Monete Trovate`,
   `Moedas Encontradas`) — so D4 can reuse those strings rather than adding
   English placeholders.
+
+- **H1 — do NOT rename the `'buyPotions'` adventure candidate id.** It is
+  **persisted**: `PendingAdventureDraw.candidates: string[]`
+  (`adventure-draw.service.ts`) is saved by `RunPersistenceService` as
+  `pendingAdventure`, so live players' `localStorage` contains the literal
+  string `'buyPotions'`. `MainAdventureRouletteComponent.resolveCandidates()`
+  maps stored ids through the pool and then **silently** drops unknown ones
+  (`.filter((c): c is AdventureCandidate => !!c)`), so a rename would restore a
+  3-candidate draw as 2 — and a committed `picked` index would then point at the
+  wrong candidate, or at nothing. 4.0.0 keeps New Experience saves (D1 only
+  discards Classic ones), so this is a live break, not a theoretical one.
+  Leave the id and the existing explanatory comment at
+  `main-adventure-roulette.component.ts:122–123` in place; only refresh its
+  wording (it currently says "New Experience repurposes this card…").
+  Renaming it would need an id-migration map in `restoreDraw`, which is not
+  worth it for an internal string players never see.
 
 ---
 
@@ -314,6 +330,35 @@ Phases 2–4 close it. Do not start Phase 2 without a go-ahead.
     After this, check whether the `ItemName` import and
     `this.itemService.getItem(...)` are still used elsewhere in the file; drop
     the import only if genuinely orphaned.
+
+- [ ] **D4 identifier rename (`buyPotions` → `foundCoins`).** Once the method no
+      longer buys anything, the name is actively misleading. Purely internal —
+      no i18n, no persistence — so it's a safe mechanical rename. Do it in one
+      pass across all of these, and **do not** touch the persisted candidate id
+      (H1):
+  - `roulette-container.component.ts`: `buyPotions(): void` → `foundCoins(): void`
+    (≈538), and the two `return this.buyPotions();` call sites (≈488, ≈506).
+  - `roulette-container.component.html`: all three
+    `(buyPotionsEvent)="buyPotions()"` bindings (lines 33, 91, 215) →
+    `(foundCoinsEvent)="foundCoins()"`.
+  - `@Output() buyPotionsEvent` → `foundCoinsEvent`, plus each `.emit()` call, in
+    all three emitting components:
+    `main-adventure-roulette.component.ts` (declaration line 50, `actionHandlers`
+    line 186, and the `onItemSelected` emit at 349 — the latter disappears with
+    Phase 3 anyway), `elite-four-prep-roulette.component.ts` (37, 60),
+    `start-adventure-roulette.component.ts` (18, 35).
+  - In `main-adventure-roulette.component.ts` the `actionHandlers` entry becomes
+    `buyPotions: () => this.foundCoinsEvent.emit(),` — **the key stays
+    `buyPotions`** (it is the persisted id, H1). Update the comment above it to
+    explain exactly that, e.g. *"Key is the persisted candidate id and must not
+    change (see RunPersistenceService.pendingAdventure); the label and handler
+    say foundCoins."*
+  - Specs referencing the emitter name: `roulette-container.component.spec.ts`
+    (415–418, 433–436 — including the two `it('… → buyPotions()')` titles),
+    `main-adventure-roulette.component.spec.ts` (83, 193, 200, 208, 227, 232),
+    `elite-four-prep-roulette.component.spec.ts` (29),
+    `start-adventure-roulette.component.spec.ts` (28). Leave the
+    `candidates: [… 'buyPotions' …]` fixture *values* alone (H1).
   - `awardBattleCoins` (≈577) and `awardCardCoins` (≈589): delete the
     `if (!…isNewExperienceMode) return;` guards; drop "(New Experience only)"
     from their doc comments.
@@ -475,13 +520,15 @@ disappears entirely.
   - `game.main.roulette.adventure.actions.buyPotions` — now unused; the adventure
     wheel's coin card uses `…actions.foundCoins`.
   - **Do not** delete `game.main.roulette.start.actions.buyPotions` or
-    `game.main.roulette.elite.prep.actions.buyPotions` — those keys are still
-    referenced by their components; only their *values* change (next step).
+    `game.main.roulette.elite.prep.actions.buyPotions` outright — **rename**
+    them (next step).
 
-- [ ] **D4 label fix.** In all six locales, set both
-      `game.main.roulette.start.actions.buyPotions` and
-      `game.main.roulette.elite.prep.actions.buyPotions` to that locale's
-      existing `game.main.roulette.adventure.actions.foundCoins` string:
+- [ ] **D4 label fix — rename the keys, don't just re-value them.** In all six
+      locales, rename
+      `game.main.roulette.start.actions.buyPotions` → `…start.actions.foundCoins`
+      and `game.main.roulette.elite.prep.actions.buyPotions` →
+      `…elite.prep.actions.foundCoins`, giving each that locale's existing
+      `game.main.roulette.adventure.actions.foundCoins` string:
 
   | locale | new value |
   |---|---|
@@ -492,9 +539,18 @@ disappears entirely.
   | it | `Monete Trovate` |
   | pt | `Moedas Encontradas` |
 
-  Keys stay as-is so `start-adventure-roulette.component.ts:23` and
-  `elite-four-prep-roulette.component.ts:46` need no edit. Their specs assert
-  the *key*, not the value, so they keep passing.
+  Then update the two referencing components and their specs:
+  - `…/roulettes/start-adventure-roulette/start-adventure-roulette.component.ts:23`
+    → `'game.main.roulette.start.actions.foundCoins'`
+  - `…/roulettes/elite-four-prep-roulette/elite-four-prep-roulette.component.ts:46`
+    → `'game.main.roulette.elite.prep.actions.foundCoins'`
+  - `start-adventure-roulette.component.spec.ts:40` and
+    `elite-four-prep-roulette.component.spec.ts:42` assert the key string —
+    update both.
+
+  After this, grep for `actions.buyPotions` across `src/` — it should return
+  **zero** hits (the adventure wheel's key was deleted in the step above, and
+  these two are renamed).
 
 - [ ] **`package.json`** — `"version": "4.0.0"`.
 
@@ -518,6 +574,7 @@ disappears entirely.
         matching the existing `v3_*` labels in that file)
       - `whatsNew.v4_0_0.0` (en): `"🎲 One game, one ruleset. Everything that used to be behind the optional mode toggle — battle prep, the Danger meter and threats, abilities, Coins and the Market — is now simply how the game plays, and the Settings toggle is gone. Want the untweaked original? Play zeroxm's version."`
       - `whatsNew.v4_0_0.1` (en): `"🪙 The \"Buy Potions\" card on the pre-adventure and Elite Four prep wheels now says \"Found Coins\", which is what it has actually been awarding."`
+        (Player-facing text only — the identifier rename in Phase 4 needs no note.)
       - de/es/fr/it/pt: English placeholder is acceptable per `CLAUDE.md`.
       - **Heads-up:** a saved run started before 4.0.0 in Classic will be
         discarded (D1). Consider whether note `.0` should say so — decide at
@@ -567,7 +624,9 @@ Automated (`npm run test:local`) — full suite green after Phase 5.
 | A7 | Lose a rival battle | Lead faints, goes to PC greyed out; no potion offered; `finishBattleCleanup()` runs (mark/debuff/scouting/PC-lock all cleared) |
 | A8 | Empty the team via a rival faint | Run ends (`game-over`) |
 | A9 | Reach `adventure-continues` | 3-row picker on a reward step, auto-routed threat on a threat step — **never** the old single wheel |
-| A10 | Land the coin card on the pre-adventure and Elite Four prep wheels | Label reads "Found Coins"; coins awarded, no potion |
+| A10 | Land the coin card on the pre-adventure and Elite Four prep wheels | Label reads "Found Coins" (localised); coins awarded, no potion |
+| A10b | `grep -rn "buyPotions" src/` after Phase 6 | Only hits are the persisted candidate id: the `buyPotions:` key in `actionHandlers`, and `'buyPotions'` inside spec draw fixtures. No i18n key, no emitter, no method. |
+| A10c | Reload mid-run with a pending adventure draw whose stored candidates include `buyPotions` | All 3 candidate rows re-render; picking the coin row awards coins (guards H1) |
 | A11 | Fresh run's starting bag | potion, honey, repel, **and** x-attack |
 | A12 | Spin Find Item repeatedly | Pool excludes Market-sold items; revive/repel/max-repel are reachable |
 | A13 | Assign an ability capsule from the PC | Badge shows; the ability shifts battle odds |
