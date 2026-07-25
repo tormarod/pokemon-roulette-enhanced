@@ -30,7 +30,7 @@
     <app-start-adventure-roulette
         (catchPokemonEvent)="catchPokemon()"
         (battleTrainerEvent)="chooseWhoWillEvolve($event)"
-        (buyPotionsEvent)="buyPotions()">
+        (foundCoinsEvent)="foundCoins()">
     </app-start-adventure-roulette>
   }
   @case ('catch-pokemon') {
@@ -88,7 +88,7 @@
         [excludedThreatIds]="excludedThreatIds()"
         (catchPokemonEvent)="catchPokemon()"
         (battleTrainerEvent)="chooseWhoWillEvolve($event)"
-        (buyPotionsEvent)="buyPotions()"
+        (foundCoinsEvent)="foundCoins()"
         (catchTwoPokemonEvent)="catchTwoPokemon()"
         (visitDaycareEvent)="chooseWhoWillEvolve($event)"
         (teamRocketEncounterEvent)="teamRocketEncounter()"
@@ -212,7 +212,7 @@
     <app-elite-four-prep-roulette
         [respinReason]="respinReason"
         (battleTrainerEvent)="chooseWhoWillEvolve($event)"
-        (buyPotionsEvent)="buyPotions()"
+        (foundCoinsEvent)="foundCoins()"
         (catchTwoPokemonEvent)="catchTwoPokemon()"
         (catchThreePokemonEvent)="catchThreePokemon()"
         (legendaryEncounterEvent)="legendaryEncounter()"

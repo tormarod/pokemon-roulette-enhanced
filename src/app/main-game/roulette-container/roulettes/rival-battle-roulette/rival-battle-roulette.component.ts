@@ -29,7 +29,6 @@ export class RivalBattleRouletteComponent extends BaseBattleRouletteComponent {
   protected override readonly battleKey = 'battle-rival';
   protected override readonly textPrefix = 'game.main.roulette.rival';
   protected override readonly baseNoCount = 1;
-  protected override readonly skipRetriesInClassicMode = true;
   protected override readonly allowPotions = false;
 
   rivalByGeneration = rivalByGeneration;

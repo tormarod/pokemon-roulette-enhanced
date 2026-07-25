@@ -6,7 +6,6 @@ import { NgIconsModule, provideIcons } from '@ng-icons/core';
 import { bootstrapBook, bootstrapPcDisplayHorizontal } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TrainerService } from '../services/trainer-service/trainer.service';
-import { GameStateService } from '../services/game-state-service/game-state.service';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { PokemonItem } from '../interfaces/pokemon-item';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -17,7 +16,6 @@ describe('TrainerTeamComponent', () => {
   let fixture: ComponentFixture<TrainerTeamComponent>;
   let httpSpy: jasmine.SpyObj<HttpClient>;
   let trainerService: TrainerService;
-  let gameStateService: GameStateService;
   let markedTargetService: MarkedTargetService;
   let modalServiceSpy: jasmine.SpyObj<NgbModal>;
 
@@ -52,7 +50,6 @@ describe('TrainerTeamComponent', () => {
 
     trainerService = TestBed.inject(TrainerService);
     trainerService.resetTeam();
-    gameStateService = TestBed.inject(GameStateService);
     markedTargetService = TestBed.inject(MarkedTargetService);
     markedTargetService.clearMark();
 
@@ -67,13 +64,9 @@ describe('TrainerTeamComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // ── Marked Target / ability status badges (New Experience only) ─────────
+  // ── Marked Target / ability status badges ────────────────────────────────
 
   describe('status badges on the team strip', () => {
-    beforeEach(() => {
-      gameStateService.restoreNewExperienceMode(true);
-    });
-
     it('shows the marked badge only on the team member at the marked index', () => {
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 1 }));
       trainerService.addToTeam(makeTestPokemon({ pokemonId: 4 }));
@@ -108,16 +101,6 @@ describe('TrainerTeamComponent', () => {
       expect(component.getMemberAbilityName(makeTestPokemon({ ability: 'sturdy' }))).toBe('abilities.sturdy.name');
       expect(component.getMemberAbilityName(makeTestPokemon())).toBeNull();
       expect(component.getMemberAbilityName(undefined)).toBeNull();
-    });
-
-    it('hides marked badge / ability pill in Classic mode even if the underlying data is set', () => {
-      gameStateService.restoreNewExperienceMode(false);
-      trainerService.addToTeam(makeTestPokemon({ pokemonId: 1, ability: 'sturdy' }));
-      markedTargetService.setMark(0);
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('.marked-badge')).toBeFalsy();
-      expect(fixture.nativeElement.querySelector('.roster-ability-pill')).toBeFalsy();
     });
   });
 

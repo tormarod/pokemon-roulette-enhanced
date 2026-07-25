@@ -15,7 +15,7 @@ export interface BattleOddsBreakdown {
     base: number;             // always 1 (the single base Yes ticket)
     teamPower: number;        // Σ member.power
     typeAdvantage: number;    // advantageDelta + leadAdvantageDelta
-    xAttack: number;          // xAttackBonus + classicPlusModifiers
+    xAttack: number;          // xAttackBonus
     ability: number;          // abilityYesBonus
   };
   no: {
@@ -35,9 +35,7 @@ export interface BattleOddsInput {
   currentRound: number;
   leadIndex?: number;
   xAttackBonus?: number;          // committed/selected x-attack mean power, else 0
-  classicPlusModifiers?: number;  // BaseBattleRouletteComponent.plusModifiers() result, else 0
   badOmen?: number;               // battleDebuffService.currentDebuff, else 0
-  abilitiesActive: boolean;       // gameStateService.isNewExperienceMode
 }
 
 /**
@@ -57,7 +55,7 @@ export class BattleOddsService {
    * the team's mean power (its historical value) plus a flat round-scaled term
    * so the boost keeps pace with the round-threat No tickets late-game. `round`
    * is leadersDefeatedAmount (integer, cumulative across the run). Returns 0 for
-   * an empty team. Classic mode does NOT use this — see plusModifiers().
+   * an empty team.
    */
   xAttackBonus(team: PokemonItem[], round: number): number {
     if (!team.length) return 0;
@@ -79,18 +77,15 @@ export class BattleOddsService {
       if (d > 0) leadAdvantageDelta = d; else if (d < 0) leadDisadvantageDelta = -d;
     }
 
-    const xAttack = (input.xAttackBonus ?? 0) + (input.classicPlusModifiers ?? 0);
+    const xAttack = input.xAttackBonus ?? 0;
     const badOmen = input.badOmen ?? 0;
     const typeAdvantage = advantageDelta + leadAdvantageDelta;
     const typeDisadvantage = disadvantageDelta + leadDisadvantageDelta;
     const roundThreat = Math.ceil(currentRound * ROUND_THREAT_MULT);
 
-    let abilityYes = 0, abilityNo = 0, extraRetry = false;
-    if (input.abilitiesActive) {
-      const a = this.abilityService.applyTeamAbilities(team, opponentTypes,
-        { round: currentRound, roundThreat, badOmen });
-      abilityYes = a.yesBonus; abilityNo = a.noBonus; extraRetry = a.extraRetry;
-    }
+    const a = this.abilityService.applyTeamAbilities(team, opponentTypes,
+      { round: currentRound, roundThreat, badOmen });
+    const abilityYes = a.yesBonus, abilityNo = a.noBonus, extraRetry = a.extraRetry;
 
     const effectivePower = yesPower + leadAdvantageDelta + xAttack + abilityYes;
     const yesTickets = Math.round(effectivePower) + 1;

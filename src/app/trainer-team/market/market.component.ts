@@ -64,8 +64,8 @@ const MARKET_FILTERS: ReadonlyArray<{ id: MarketCategory | 'all'; labelKey: stri
  * NgbModal of stock rows, each buyable when affordable. Buying spends coins
  * (TrainerService.spendCoins) and bags the item — a random capsule for the
  * capsule row, same payload as the find-ability-capsule wheel, assigned later in
- * the PC. Hidden in Classic mode (no coins exist there) and disabled during
- * battles / the prep panel so a purchase can't react to a shown loss or odds.
+ * the PC. Disabled during battles / the prep panel so a purchase can't react
+ * to a shown loss or odds.
  */
 @Component({
   selector: 'app-market',
@@ -143,18 +143,13 @@ export class MarketComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  /** Whether the whole Market exists this run (coins are New Experience only). */
-  get isNewExperienceMode(): boolean {
-    return this.gameStateService.isNewExperienceMode;
-  }
-
   /**
    * Openable when a wheel isn't mid-spin and either we're not in a battle state, or
    * we are but still in the pre-Confirm prep phase (no committed prep). This lets you
    * spend coins to prepare for the fight in front of you, but never after committing.
    */
   get isAvailable(): boolean {
-    if (!this.isNewExperienceMode || this.wheelSpinning) {
+    if (this.wheelSpinning) {
       return false;
     }
     if (this.combatStates.has(this.currentGameState)) {

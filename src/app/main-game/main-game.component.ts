@@ -26,7 +26,6 @@ import { MegaStoneService } from '../services/mega-stone-service/mega-stone.serv
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
 import { LinkCableService } from '../services/link-cable-service/link-cable.service';
 import { ThreatShieldService } from '../services/threat-shield-service/threat-shield.service';
-import { SettingsService } from '../services/settings-service/settings.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
 interface GroupedBias {
@@ -75,7 +74,6 @@ export class MainGameComponent implements OnInit {
     private typeBiasItemService: TypeBiasItemService,
     private linkCableService: LinkCableService,
     private threatShieldService: ThreatShieldService,
-    private settingsService: SettingsService,
     private runPersistenceService: RunPersistenceService) {
       this.darkMode = this.themeService.isDark$;
   }
@@ -187,6 +185,6 @@ export class MainGameComponent implements OnInit {
   }
 
   resetGame(): void {
-    this.runPersistenceService.startFreshRun(this.settingsService.currentSettings.newExperienceMode);
+    this.runPersistenceService.startFreshRun();
   }
 }

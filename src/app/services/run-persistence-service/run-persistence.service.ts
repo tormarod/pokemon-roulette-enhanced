@@ -19,6 +19,9 @@ import { Badge } from '../../interfaces/badge';
 import { MegaStoneItemName } from '../items-service/item-names';
 import { PokemonType } from '../../interfaces/pokemon-type';
 
+/** Bumped when a save's shape changes incompatibly. */
+const RUN_FORMAT = 4;
+
 export interface SavedRun {
   state: GameState;
   stateStack: GameState[];
@@ -30,7 +33,7 @@ export interface SavedRun {
   gender: string;
   generationId: number;
   pendingTypeBiases: PendingTypeBiases;
-  newExperienceMode: boolean;
+  runFormat?: number;
   pendingBattlePrep: PendingBattlePrep | null;
   dangerPercent: number;
   consecutiveThreats: number;
@@ -89,7 +92,6 @@ export class RunPersistenceService {
       this.trainerService.getTrainer(),
       this.generationService.getGeneration(),
       this.trainerService.getPendingTypeBiasesObservable(),
-      this.gameStateService.newExperienceModeObserver,
       this.battlePrepService.getPendingPrepObservable(),
       this.dangerMeterService.getStateObservable(),
       this.adventureDrawService.getPendingDrawObservable(),
@@ -100,7 +102,7 @@ export class RunPersistenceService {
       this.scoutingReportService.getPendingTypeObservable(),
       this.pcLockService.getLockedObservable(),
       this.marketStockService.getStateObservable(),
-    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, newExperienceMode, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins, scoutingType, pcLocked, marketStock]) => {
+    ]).subscribe(([state, currentRound, trainerTeam, trainerItems, trainerBadges, , generation, pendingTypeBiases, pendingBattlePrep, dangerMeterState, pendingAdventure, pendingBattleDebuff, markedTeamIndex, pendingCatchEscapeChance, coins, scoutingType, pcLocked, marketStock]) => {
       if (TERMINAL_STATES.has(state)) {
         this.clearRun();
         return;
@@ -117,7 +119,7 @@ export class RunPersistenceService {
         gender: this.trainerService.gender,
         generationId: generation.id,
         pendingTypeBiases,
-        newExperienceMode,
+        runFormat: RUN_FORMAT,
         pendingBattlePrep,
         dangerPercent: dangerMeterState.dangerPercent,
         consecutiveThreats: dangerMeterState.consecutiveThreats,
@@ -148,6 +150,10 @@ export class RunPersistenceService {
 
     try {
       const parsed = JSON.parse(storageItem);
+      if (this.isPreV4Run(parsed)) {
+        this.clearRun();
+        return null;
+      }
       if (this.isValidSavedRun(parsed)) {
         return parsed;
       }
@@ -168,18 +174,17 @@ export class RunPersistenceService {
    * duplicate a partial version of this, and both left every per-run ancillary
    * service (battle prep, danger meter, adventure draw, battle debuff, marked
    * target, catch risk) holding stale state from the previous run. A stale
-   * committed battlePrepService entry in particular could make a fresh New
-   * Experience Mode run's first battle skip the prep panel entirely (its
-   * battleKey still matched), which only cleared itself once that stale battle
-   * resolved — the "toggling New Experience Mode needs two restarts" bug.
+   * committed battlePrepService entry in particular could make a fresh run's
+   * first battle skip the prep panel entirely (its battleKey still matched),
+   * which only cleared itself once that stale battle resolved.
    */
-  startFreshRun(newExperienceMode: boolean): void {
+  startFreshRun(): void {
     this.trainerService.resetTrainer();
     this.trainerService.resetTeam();
-    this.trainerService.resetItems(newExperienceMode);
+    this.trainerService.resetItems();
     this.trainerService.resetBadges();
     this.trainerService.clearPendingTypeBiases();
-    this.gameStateService.resetGameState(newExperienceMode);
+    this.gameStateService.resetGameState();
     this.battlePrepService.clearPrep();
     this.dangerMeterService.resetForNewRun();
     this.adventureDrawService.clearDraw();
@@ -213,7 +218,6 @@ export class RunPersistenceService {
     // today's array shape — normalize both into the current array format.
     this.trainerService.restorePendingTypeBiases(this.normalizePendingTypeBiases(run.pendingTypeBiases));
     this.gameStateService.restoreState(run.state, run.stateStack, run.currentRound);
-    this.gameStateService.restoreNewExperienceMode(run.newExperienceMode ?? false);
     this.battlePrepService.restorePrep(run.pendingBattlePrep ?? null);
     this.dangerMeterService.restore(run.dangerPercent ?? 10, run.consecutiveThreats ?? 0, run.guaranteedRewardSteps ?? 0, run.shieldedSteps ?? 0);
     this.adventureDrawService.restoreDraw(run.pendingAdventure ?? null);
@@ -252,6 +256,21 @@ export class RunPersistenceService {
     }
   }
 
+  /**
+   * 4.0.0 discards every save written before it. Two reasons, both hard:
+   * Classic-mode runs describe a ruleset that no longer exists (no coin
+   * balance, no danger cadence, a passively-applied X Attack), and pre-4.0
+   * saves of *any* mode can hold a pending adventure draw referencing the old
+   * `buyPotions` candidate id, which resolveCandidates() would silently drop.
+   * Rather than carry a per-field migration for a game with a handful of
+   * players, the whole pre-4.0 shape is dropped: a save is kept only if it
+   * carries `runFormat`, which only 4.0+ writes.
+   */
+  private isPreV4Run(value: unknown): boolean {
+    const run = value as { runFormat?: unknown };
+    return !(typeof run.runFormat === 'number' && run.runFormat >= RUN_FORMAT);
+  }
+
   private isValidSavedRun(value: unknown): value is SavedRun {
     if (!value || typeof value !== 'object') {
       return false;
@@ -268,7 +287,6 @@ export class RunPersistenceService {
       typeof run.gender === 'string' &&
       typeof run.generationId === 'number' &&
       (run.pendingTypeBiases === undefined || typeof run.pendingTypeBiases === 'object') &&
-      (run.newExperienceMode === undefined || typeof run.newExperienceMode === 'boolean') &&
       (run.pendingBattlePrep === undefined || run.pendingBattlePrep === null || typeof run.pendingBattlePrep === 'object') &&
       (run.dangerPercent === undefined || typeof run.dangerPercent === 'number') &&
       (run.consecutiveThreats === undefined || typeof run.consecutiveThreats === 'number') &&

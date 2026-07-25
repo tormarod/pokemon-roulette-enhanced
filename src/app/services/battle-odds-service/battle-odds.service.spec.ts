@@ -23,7 +23,7 @@ describe('BattleOddsService', () => {
 
   it('produces 1 yes and baseNoCount+round*threatMult no tickets for an empty, untyped team', () => {
     const odds = service.computeOdds({
-      team: [], opponentTypes: [], baseNoCount: 2, currentRound: 3, abilitiesActive: false,
+      team: [], opponentTypes: [], baseNoCount: 2, currentRound: 3,
     });
     expect(odds.yesTickets).toBe(1);
     expect(odds.noTickets).toBe(6); // 2 + ceil(3*1.25)
@@ -32,7 +32,7 @@ describe('BattleOddsService', () => {
   it('boosts yes by the net-score-scaled unit for a mutual-advantage matchup', () => {
     const team = [makeTestPokemon({ power: 2, type1: 'water' })]; // SE vs fire AND resists fire: netScore=2
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: false,
+      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0,
     });
     expect(odds.yesTickets).toBe(5); // base(1) + yesPower(2+2)
     expect(odds.noTickets).toBe(1);
@@ -43,7 +43,7 @@ describe('BattleOddsService', () => {
   it('adds extra No tickets (not fewer Yes) for a mutual-disadvantage matchup', () => {
     const team = [makeTestPokemon({ power: 2, type1: 'grass' })]; // weak vs fire: netScore=-2
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: false,
+      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0,
     });
     expect(odds.yesTickets).toBe(3); // base(1) + power(2)
     expect(odds.noTickets).toBe(3); // base(1) + noBonus(2)
@@ -53,7 +53,7 @@ describe('BattleOddsService', () => {
   it('doubles the advantage for a lead with a favorable matchup', () => {
     const team = [makeTestPokemon({ power: 2, type1: 'water' })];
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, leadIndex: 0, abilitiesActive: false,
+      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, leadIndex: 0,
     });
     expect(odds.yesTickets).toBe(7); // base(1) + yesPower(4) + leadAdvantageDelta(2)
     expect(odds.yes.typeAdvantage).toBe(4);
@@ -63,7 +63,7 @@ describe('BattleOddsService', () => {
   it('doubles the disadvantage (extra No tickets) for a lead with an unfavorable matchup', () => {
     const team = [makeTestPokemon({ power: 2, type1: 'grass' })];
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, leadIndex: 0, abilitiesActive: false,
+      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, leadIndex: 0,
     });
     expect(odds.yesTickets).toBe(3);
     expect(odds.noTickets).toBe(5); // base(1) + noBonus(2) + leadDisadvantageDelta(2)
@@ -73,7 +73,7 @@ describe('BattleOddsService', () => {
 
   it('adds the pending battle debuff (badOmen) to the No tickets', () => {
     const odds = service.computeOdds({
-      team: [], opponentTypes: [], baseNoCount: 1, currentRound: 0, badOmen: 2, abilitiesActive: false,
+      team: [], opponentTypes: [], baseNoCount: 1, currentRound: 0, badOmen: 2,
     });
     expect(odds.noTickets).toBe(3); // base(1) + debuff(2)
     expect(odds.no.badOmen).toBe(2);
@@ -82,7 +82,7 @@ describe('BattleOddsService', () => {
   it('applies the x-attack power bonus on top of the type-adjusted yes power', () => {
     const team = [makeTestPokemon({ power: 4 })];
     const odds = service.computeOdds({
-      team, opponentTypes: [], baseNoCount: 1, currentRound: 0, xAttackBonus: 4, abilitiesActive: false,
+      team, opponentTypes: [], baseNoCount: 1, currentRound: 0, xAttackBonus: 4,
     });
     expect(odds.yesTickets).toBe(9); // base(1) + power(4) + xAttack(4)
     expect(odds.yes.xAttack).toBe(4);
@@ -105,26 +105,17 @@ describe('BattleOddsService', () => {
   it('folds an active ability effect into a distinct ability field, separate from typeDisadvantage', () => {
     const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'multiscale' })]; // weak vs fire, multiscale: soak-if-negative -3
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: true,
+      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0,
     });
     expect(odds.no.ability).toBe(-3);
     expect(odds.no.typeDisadvantage).toBe(4); // netScore(2) * unit(ceil(4/2)=2), unaffected by the ability
-  });
-
-  it('ignores ability effects when abilitiesActive is false (Classic mode)', () => {
-    const team = [makeTestPokemon({ power: 4, type1: 'grass', ability: 'multiscale' })];
-    const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 1, currentRound: 0, abilitiesActive: false,
-    });
-    expect(odds.no.ability).toBe(0);
-    expect(odds.extraRetry).toBe(false);
   });
 
   it('threads round/roundThreat/badOmen context into context-reading abilities', () => {
     // blunt-threat (rough-skin) removes up to 2 of the round-threat No.
     const bluntTeam = [makeTestPokemon({ power: 4, type1: 'normal', ability: 'rough-skin' })];
     const blunt = service.computeOdds({
-      team: bluntTeam, opponentTypes: [], baseNoCount: 1, currentRound: 4, abilitiesActive: true,
+      team: bluntTeam, opponentTypes: [], baseNoCount: 1, currentRound: 4,
     });
     expect(blunt.no.roundThreat).toBe(5); // ceil(4 * 1.25)
     expect(blunt.no.ability).toBe(-2);    // -min(roundThreat 5, value 2)
@@ -132,14 +123,14 @@ describe('BattleOddsService', () => {
     // cushion-omen (thick-fat) removes up to 2 of the bad-omen No.
     const omenTeam = [makeTestPokemon({ power: 4, type1: 'normal', ability: 'thick-fat' })];
     const omen = service.computeOdds({
-      team: omenTeam, opponentTypes: [], baseNoCount: 1, currentRound: 0, badOmen: 3, abilitiesActive: true,
+      team: omenTeam, opponentTypes: [], baseNoCount: 1, currentRound: 0, badOmen: 3,
     });
     expect(omen.no.ability).toBe(-2); // -min(badOmen 3, value 2)
   });
 
   it('computes winChance as yesTickets / (yesTickets + noTickets)', () => {
     const odds = service.computeOdds({
-      team: [], opponentTypes: [], baseNoCount: 3, currentRound: 12, abilitiesActive: false,
+      team: [], opponentTypes: [], baseNoCount: 3, currentRound: 12,
     });
     // yesTickets=1, roundThreat=ceil(12*1.25)=15, noTickets=max(3, 3+15)=18
     expect(odds.yesTickets).toBe(1);
@@ -150,7 +141,7 @@ describe('BattleOddsService', () => {
   it('marks floored true only when Math.max(baseNoCount, raw) actually clamps upward', () => {
     const team = [makeTestPokemon({ power: 2, type1: 'water' })]; // strong matchup, no negative contributions
     const odds = service.computeOdds({
-      team, opponentTypes: ['fire'], baseNoCount: 5, currentRound: 0, abilitiesActive: false,
+      team, opponentTypes: ['fire'], baseNoCount: 5, currentRound: 0,
     });
     expect(odds.no.floored).toBe(false);
     expect(odds.noTickets).toBe(5);

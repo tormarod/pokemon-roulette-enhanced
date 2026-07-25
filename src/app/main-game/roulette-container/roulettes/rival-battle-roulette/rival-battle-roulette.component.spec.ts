@@ -130,7 +130,7 @@ describe('RivalBattleRouletteComponent', () => {
 
   describe('New Experience mode', () => {
     beforeEach(() => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
     });
 
@@ -243,23 +243,5 @@ describe('RivalBattleRouletteComponent', () => {
       expect(trainerService.getTeam().length).toBe(1);
       expect(trainerService.getStored().length).toBe(0);
     });
-  });
-
-  // ── Classic mode: rival's win/loss-only mechanic stays untouched ─────────
-
-  it('should not decrement retries or consult potions in Classic mode', () => {
-    (component as any).trainerItems = [
-      { name: 'potion', text: 'items.potion.name', fillStyle: 'purple', weight: 1, description: '', sprite: '' }
-    ];
-    (component as any).victoryOdds = [
-      { text: 'game.main.roulette.rival.no', fillStyle: 'crimson', weight: 1 },
-    ];
-    spyOn(component.battleResultEvent, 'emit');
-
-    component.onItemSelected(0);
-
-    expect(component.battleResultEvent.emit).toHaveBeenCalledWith(false);
-    expect((component as any).trainerItems.length).toBe(1); // potion untouched
-    expect((component as any).retries).toBe(0); // never decremented
   });
 });

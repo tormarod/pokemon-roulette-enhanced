@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { GenerationItem } from '../../../../interfaces/generation-item';
@@ -9,113 +8,8 @@ import { AdventureDrawService } from '../../../../services/adventure-draw-servic
 import { DangerMeterService } from '../../../../services/danger-meter-service/danger-meter.service';
 
 import { MainAdventureRouletteComponent } from './main-adventure-roulette.component';
-import { WheelComponent } from '../../../../wheel/wheel.component';
 
 describe('MainAdventureRouletteComponent', () => {
-  let component: MainAdventureRouletteComponent;
-  let fixture: ComponentFixture<MainAdventureRouletteComponent>;
-  let generationSubject: BehaviorSubject<GenerationItem>;
-
-  const createGeneration = (id: number): GenerationItem => ({
-    id,
-    text: `Gen ${id}`,
-    region: 'Test Region',
-    fillStyle: 'black',
-    weight: 1
-  });
-
-  beforeEach(async () => {
-    // These tests exercise the Classic-mode wheel specifically, which requires
-    // New Experience Mode to be off — explicit since the setting now defaults on.
-    localStorage.clear();
-    generationSubject = new BehaviorSubject<GenerationItem>(createGeneration(1));
-
-    await TestBed.configureTestingModule({
-      imports: [MainAdventureRouletteComponent, TranslateModule.forRoot()],
-      providers: [
-        {
-          provide: GenerationService,
-          useValue: {
-            getGeneration: () => generationSubject.asObservable(),
-            getCurrentGeneration: () => createGeneration(1)
-          }
-        }
-      ]
-    })
-    .compileComponents();
-
-    TestBed.inject(GameStateService).resetGameState(false);
-
-    fixture = TestBed.createComponent(MainAdventureRouletteComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should keep the base action list for non-gen-9 generations', () => {
-    expect(component.actions.length).toBe(16);
-    expect(component.actions.some(action => action.text === 'game.main.roulette.adventure.actions.areaZero')).toBeFalse();
-  });
-
-  it('should append the Area Zero action for generation 9', () => {
-    generationSubject.next(createGeneration(9));
-    fixture.detectChanges();
-
-    expect(component.actions.length).toBe(17);
-    expect(component.actions[16].text).toBe('game.main.roulette.adventure.actions.areaZero');
-  });
-
-  it('should emit the Area Zero event from the gen-9-only slot', () => {
-    spyOn(component.areaZeroEvent, 'emit');
-
-    component.onItemSelected(16);
-
-    expect(component.areaZeroEvent.emit).toHaveBeenCalled();
-  });
-
-  // ── onItemSelected: every wheel index must map to its correct event ──
-
-  it('should map every base action index to its correct event, in order', () => {
-    const emitterNames = [
-      'catchPokemonEvent', 'battleTrainerEvent', 'buyPotionsEvent', 'catchTwoPokemonEvent',
-      'visitDaycareEvent', 'teamRocketEncounterEvent', 'mysteriousEggEvent', 'legendaryEncounterEvent',
-      'tradePokemonEvent', 'findItemEvent', 'exploreCaveEvent', 'snorlaxEncounterEvent',
-      'multitaskEvent', 'goFishingEvent', 'findFossilEvent', 'battleRivalEvent',
-    ] as const;
-
-    emitterNames.forEach((emitterName, index) => {
-      const spy = spyOn((component as any)[emitterName], 'emit');
-      component.onItemSelected(index);
-      expect(spy).toHaveBeenCalledTimes(1);
-      spy.calls.reset();
-    });
-
-    // Sanity check the array itself lines up with the emitter list above, action-by-action
-    expect(component.actions.map(a => a.text)).toEqual([
-      'game.main.roulette.adventure.actions.catchPokemon',
-      'game.main.roulette.adventure.actions.battleTrainer',
-      'game.main.roulette.adventure.actions.buyPotions',
-      'game.main.roulette.adventure.actions.catchTwoPokemon',
-      'game.main.roulette.adventure.actions.visitDaycare',
-      'game.main.roulette.adventure.actions.teamRocket',
-      'game.main.roulette.adventure.actions.mysteriousEgg',
-      'game.main.roulette.adventure.actions.legendaryEncounter',
-      'game.main.roulette.adventure.actions.tradePokemon',
-      'game.main.roulette.adventure.actions.findItem',
-      'game.main.roulette.adventure.actions.exploreCave',
-      'game.main.roulette.adventure.actions.snorlaxEncounter',
-      'game.main.roulette.adventure.actions.multitask',
-      'game.main.roulette.adventure.actions.goFishing',
-      'game.main.roulette.adventure.actions.findFossil',
-      'game.main.roulette.adventure.actions.battleRival',
-    ]);
-  });
-});
-
-describe('MainAdventureRouletteComponent — New Experience mode', () => {
   let component: MainAdventureRouletteComponent;
   let fixture: ComponentFixture<MainAdventureRouletteComponent>;
   let gameStateService: GameStateService;
@@ -150,7 +44,7 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     gameStateService = TestBed.inject(GameStateService);
     adventureDrawService = TestBed.inject(AdventureDrawService);
     dangerMeterService = TestBed.inject(DangerMeterService);
-    gameStateService.resetGameState(true);
+    gameStateService.resetGameState();
     // Match production reality: this component only ever mounts once the
     // real state machine (RouletteContainerComponent's @switch) has already
     // reached 'adventure-continues' — the component's own state subscription
@@ -166,12 +60,17 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
     fixture.detectChanges();
   };
 
+  it('should create', () => {
+    spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
+    createFixture();
+    expect(component).toBeTruthy();
+  });
+
   it('should render 3 pick rows instead of the wheel', () => {
     spyOn(dangerMeterService, 'rollStep').and.returnValue('reward');
     createFixture();
 
     expect(fixture.nativeElement.querySelectorAll('button.adventure-row').length).toBe(3);
-    expect(fixture.debugElement.query(By.directive(WheelComponent))).toBeFalsy();
   });
 
   it('should draw 3 distinct candidates and commit them via AdventureDrawService', () => {
@@ -190,46 +89,46 @@ describe('MainAdventureRouletteComponent — New Experience mode', () => {
 
   it('should route a picked candidate to its matching output event and clear the draw', () => {
     createFixture();
-    spyOn(component.buyPotionsEvent, 'emit');
+    spyOn(component.foundCoinsEvent, 'emit');
     // Force a known draw so the test isn't at the mercy of the random pool.
-    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'buyPotions', 'findItem'], picked: null });
-    component.candidates = component['resolveCandidates'](['catchPokemon', 'buyPotions', 'findItem']);
+    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'foundCoins', 'findItem'], picked: null });
+    component.candidates = component['resolveCandidates'](['catchPokemon', 'foundCoins', 'findItem']);
 
     component.onCandidatePicked(1);
 
-    expect(component.buyPotionsEvent.emit).toHaveBeenCalled();
+    expect(component.foundCoinsEvent.emit).toHaveBeenCalled();
     expect(adventureDrawService.getPendingDraw()).toBeNull();
   });
 
   it('should ignore a second pick once one has already been committed', () => {
     createFixture();
-    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'buyPotions', 'findItem'], picked: 0 });
+    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'foundCoins', 'findItem'], picked: 0 });
 
-    spyOn(component.buyPotionsEvent, 'emit');
+    spyOn(component.foundCoinsEvent, 'emit');
     component.onCandidatePicked(1);
 
-    expect(component.buyPotionsEvent.emit).not.toHaveBeenCalled();
+    expect(component.foundCoinsEvent.emit).not.toHaveBeenCalled();
   });
 
   it('should re-show the same candidates on reload when a draw exists with no pick yet', () => {
-    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'buyPotions', 'findItem'], picked: null });
+    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'foundCoins', 'findItem'], picked: null });
 
     createFixture();
 
-    expect(component.candidates.map(c => c.id)).toEqual(['catchPokemon', 'buyPotions', 'findItem']);
+    expect(component.candidates.map(c => c.id)).toEqual(['catchPokemon', 'foundCoins', 'findItem']);
   });
 
   it('should replay the picked outcome immediately on reload when a pick was already committed', async () => {
-    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'buyPotions', 'findItem'], picked: 1 });
+    adventureDrawService.restoreDraw({ stepType: 'reward', candidates: ['catchPokemon', 'foundCoins', 'findItem'], picked: 1 });
 
     fixture = TestBed.createComponent(MainAdventureRouletteComponent);
     component = fixture.componentInstance;
-    spyOn(component.buyPotionsEvent, 'emit');
+    spyOn(component.foundCoinsEvent, 'emit');
 
     fixture.detectChanges(); // runs ngOnInit, which should replay the committed pick
     await Promise.resolve(); // flush the routing microtask (see initializeDraw()'s comment)
 
-    expect(component.buyPotionsEvent.emit).toHaveBeenCalled();
+    expect(component.foundCoinsEvent.emit).toHaveBeenCalled();
     expect(adventureDrawService.getPendingDraw()).toBeNull();
   });
 

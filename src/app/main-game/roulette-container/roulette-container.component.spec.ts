@@ -86,7 +86,7 @@ describe('RouletteContainerComponent', () => {
 
   describe('multitask', () => {
     it('queues exactly two adventure-continues rounds before returning to the pre-built flow', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       const states: string[] = [];
       gameStateService.currentState.subscribe(s => states.push(s));
       states.length = 0; // drop the initial replay emission from subscribing
@@ -118,7 +118,7 @@ describe('RouletteContainerComponent', () => {
     // for it. Fixed by calling ChangeDetectorRef.markForCheck() in the private
     // finishCurrentState() wrapper every action funnels through.
     it('renders the correct "Multitask xN" note at every step, including a chained 2nd multitask()', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       const respinReasonText = () => fixture.nativeElement.querySelector('.respin-reason')?.textContent?.trim();
 
       component.multitask(); // 1st call: queues 2 rounds
@@ -221,38 +221,29 @@ describe('RouletteContainerComponent', () => {
   // ══════════════════════════════════════════════════════════════════════════
 
   describe('danger meter', () => {
-    const reachStartAdventureNE = () => {
-      gameStateService.resetGameState(true);
+    const reachStartAdventure = () => {
+      gameStateService.resetGameState();
       gameStateService.finishCurrentState(); // character-select
       gameStateService.finishCurrentState(); // starter-pokemon
       gameStateService.finishCurrentState(); // start-adventure
       fixture.detectChanges();
     };
 
-    it('is hidden in Classic mode even once the adventure has started', () => {
-      gameStateService.finishCurrentState(); // character-select
-      gameStateService.finishCurrentState(); // starter-pokemon
-      gameStateService.finishCurrentState(); // start-adventure
+    it('is hidden before the adventure has started', () => {
+      gameStateService.resetGameState();
       fixture.detectChanges();
 
       expect(component.showDangerMeter).toBeFalse();
     });
 
-    it('is hidden before the adventure has started in New Experience Mode', () => {
-      gameStateService.resetGameState(true);
-      fixture.detectChanges();
-
-      expect(component.showDangerMeter).toBeFalse();
-    });
-
-    it('is visible once the adventure starts in New Experience Mode', () => {
-      reachStartAdventureNE();
+    it('is visible once the adventure starts', () => {
+      reachStartAdventure();
 
       expect(component.showDangerMeter).toBeTrue();
     });
 
-    it('is hidden during an actual gym battle in New Experience Mode', () => {
-      reachStartAdventureNE();
+    it('is hidden during an actual gym battle', () => {
+      reachStartAdventure();
       gameStateService.setNextState('gym-battle');
       gameStateService.finishCurrentState();
       fixture.detectChanges();
@@ -264,7 +255,7 @@ describe('RouletteContainerComponent', () => {
     // it must not render on the terminal game-over / game-finish screens.
     (['game-over', 'game-finish'] as const).forEach(terminal => {
       it(`hides the status header on the terminal ${terminal} screen`, () => {
-        gameStateService.resetGameState(true);
+        gameStateService.resetGameState();
         gameStateService.restoreState(terminal, [], 5);
         fixture.detectChanges();
 
@@ -365,7 +356,7 @@ describe('RouletteContainerComponent', () => {
 
   describe('rivalBattleResult(false) — empty-team edge case', () => {
     it('ends the run when the faint mechanic emptied the team in New Experience mode', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
       let latestState: string | undefined;
       gameStateService.currentState.subscribe(s => latestState = s);
@@ -376,7 +367,7 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('does not end the run when the team still has a Pokemon left after the loss', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
       trainerService.addToTeam({
         pokemonId: 1, text: 'pokemon.bulbasaur', fillStyle: 'green',
@@ -390,16 +381,6 @@ describe('RouletteContainerComponent', () => {
       expect(latestState).not.toBe('game-over');
     });
 
-    it('does not end the run on an empty team in Classic mode (faint mechanic does not apply)', () => {
-      gameStateService.resetGameState(false);
-      trainerService.resetTeam();
-      let latestState: string | undefined;
-      gameStateService.currentState.subscribe(s => latestState = s);
-
-      component.rivalBattleResult(false);
-
-      expect(latestState).not.toBe('game-over');
-    });
   });
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -412,10 +393,10 @@ describe('RouletteContainerComponent', () => {
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {}, result: Promise.resolve() } as any));
     });
 
-    it('gym-battle → buyPotions()', () => {
-      spyOn(component, 'buyPotions');
+    it('gym-battle → foundCoins()', () => {
+      spyOn(component, 'foundCoins');
       component.chooseWhoWillEvolve('gym-battle');
-      expect(component.buyPotions).toHaveBeenCalled();
+      expect(component.foundCoins).toHaveBeenCalled();
     });
 
     it('visit-daycare → mysteriousEgg()', () => {
@@ -430,10 +411,10 @@ describe('RouletteContainerComponent', () => {
       expect(component.findItem).toHaveBeenCalled();
     });
 
-    it('battle-trainer → buyPotions()', () => {
-      spyOn(component, 'buyPotions');
+    it('battle-trainer → foundCoins()', () => {
+      spyOn(component, 'foundCoins');
       component.chooseWhoWillEvolve('battle-trainer');
-      expect(component.buyPotions).toHaveBeenCalled();
+      expect(component.foundCoins).toHaveBeenCalled();
     });
 
     it('team-rocket-encounter → findItem()', () => {
@@ -772,7 +753,7 @@ describe('RouletteContainerComponent', () => {
 
     beforeEach(() => {
       dangerMeterService = TestBed.inject(DangerMeterService);
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
     });
 
     it('grants 1 threat shield for Repel and removes the item', () => {
@@ -788,16 +769,6 @@ describe('RouletteContainerComponent', () => {
       (component as any).handleThreatShieldUse(MAX_REPEL);
 
       expect(dangerMeterService.currentShieldedSteps).toBe(3);
-    });
-
-    it('is a no-op outside New Experience mode', () => {
-      gameStateService.resetGameState(false);
-      spyOn(trainerService, 'removeItem');
-
-      (component as any).handleThreatShieldUse(REPEL);
-
-      expect(dangerMeterService.currentShieldedSteps).toBe(0);
-      expect(trainerService.removeItem).not.toHaveBeenCalled();
     });
 
     it('does not repeat the current state — it is a bonus action', () => {
@@ -1485,7 +1456,7 @@ describe('RouletteContainerComponent', () => {
 
   describe('coin economy', () => {
     it('a gym win grants the round-scaled drop plus the per-round stipend in New Experience mode', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetCoins();
 
       component.gymBattleResult(true); // round 0
@@ -1493,17 +1464,8 @@ describe('RouletteContainerComponent', () => {
       expect(trainerService.getCoins()).toBe(battleWinReward(0) + passiveRoundStipend());
     });
 
-    it('a gym win grants no coins in Classic mode', () => {
-      gameStateService.resetGameState(false);
-      trainerService.resetCoins();
-
-      component.gymBattleResult(true);
-
-      expect(trainerService.getCoins()).toBe(0);
-    });
-
     it('a rival win grants the win drop but no per-round stipend', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
       trainerService.addToTeam({
         pokemonId: 1, text: 'pokemon.bulbasaur', fillStyle: 'green',
@@ -1517,7 +1479,7 @@ describe('RouletteContainerComponent', () => {
     });
 
     it('an exploreCave card grants a coin bonus within the card range in New Experience mode', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetCoins();
 
       component.exploreCave();
@@ -1526,17 +1488,8 @@ describe('RouletteContainerComponent', () => {
       expect(trainerService.getCoins()).toBeLessThanOrEqual(CARD_COIN_MAX);
     });
 
-    it('an exploreCave card grants no coins in Classic mode', () => {
-      gameStateService.resetGameState(false);
-      trainerService.resetCoins();
-
-      component.exploreCave();
-
-      expect(trainerService.getCoins()).toBe(0);
-    });
-
     it('multitask grants no coins (cannot be farmed for the stipend)', () => {
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetCoins();
 
       component.multitask();

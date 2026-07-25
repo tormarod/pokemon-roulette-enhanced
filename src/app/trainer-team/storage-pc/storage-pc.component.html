@@ -20,8 +20,8 @@
             [cdkDropListEnterPredicate]="teamIsFullPredicate">
             @for (pokemon of trainerTeam; track pokemon; let idx = $index) {
               <div  class="pokemon-storage-card"
-                    [class.marked-card]="isNewExperienceMode && idx === markedIndex"
-                    [cdkDragDisabled]="(isNewExperienceMode && idx === markedIndex) || pcLocked"
+                    [class.marked-card]="idx === markedIndex"
+                    [cdkDragDisabled]="(idx === markedIndex) || pcLocked"
                     cdkDrag>
                 <div class="pc-tile">
                   <img class="pc-tile-sprite"
@@ -34,19 +34,17 @@
                        [ngbTooltip]="pokemonInfoTooltip"
                        [tooltipContext]="{ pokemon: pokemon }"
                        (click)="openEvolutionDetail(pokemon)">
-                  @if (isNewExperienceMode && idx === markedIndex) {
+                  @if (idx === markedIndex) {
                     <span class="pc-dot pc-dot-marked" placement="bottom" ngbTooltip="{{ 'trainer.team.markedTooltip' | translate }}" triggers="hover click"></span>
                   }
                   @if (hasMegaStone(pokemon)) {
                     <span class="pc-dot pc-dot-mega" placement="bottom" ngbTooltip="{{ 'trainer.storage.heldMegaStone' | translate }}" triggers="hover click"></span>
                   }
-                  @if (isNewExperienceMode) {
-                    @if (getMemberAbilityName(pokemon); as abilityName) {
-                      <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
-                    }
+                  @if (getMemberAbilityName(pokemon); as abilityName) {
+                    <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
                   }
                 </div>
-                @if (isNewExperienceMode && ownedCapsules().length) {
+                @if (ownedCapsules().length) {
                   <div class="pc-tile-actions">
                     <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="openAbilityPicker(pokemon)">
                       {{ 'trainer.storage.assignAbility' | translate }}
@@ -94,20 +92,18 @@
               @if (hasMegaStone(pokemon)) {
                 <span class="pc-dot pc-dot-mega" placement="bottom" ngbTooltip="{{ 'trainer.storage.heldMegaStone' | translate }}" triggers="hover click"></span>
               }
-              @if (isNewExperienceMode) {
-                @if (getMemberAbilityName(pokemon); as abilityName) {
-                  <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
-                }
+              @if (getMemberAbilityName(pokemon); as abilityName) {
+                <span class="pc-ability-pill" placement="bottom" ngbTooltip="{{ getMemberAbilityDescription(pokemon) | translate }}" triggers="hover click">{{ abilityName | translate }}</span>
               }
             </div>
-            @if ((pokemon.fainted && hasRevive()) || (isNewExperienceMode && !pokemon.fainted && ownedCapsules().length)) {
+            @if ((pokemon.fainted && hasRevive()) || (!pokemon.fainted && ownedCapsules().length)) {
               <div class="pc-tile-actions">
                 @if (pokemon.fainted && hasRevive()) {
                   <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="revivePokemon(pokemon)">
                     {{ 'trainer.storage.revive' | translate }}
                   </button>
                 }
-                @if (isNewExperienceMode && !pokemon.fainted && ownedCapsules().length) {
+                @if (!pokemon.fainted && ownedCapsules().length) {
                   <button type="button" class="btn btn-sm btn-outline-primary pc-tile-action" (click)="openAbilityPicker(pokemon)">
                     {{ 'trainer.storage.assignAbility' | translate }}
                   </button>

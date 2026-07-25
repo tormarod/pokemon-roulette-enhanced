@@ -90,8 +90,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   protected setCurrentOpponent(_opponent: GymLeader): void {}
   protected prepareOpponentForRound(): void {}
 
-  /** Rival overrides to true — Classic mode skips retries/potion/cleanup entirely. */
-  protected readonly skipRetriesInClassicMode: boolean = false;
   /**
    * Whether a loss can be salvaged by spending a potion for extra retries.
    * Only gym/Elite Four/Champion battles allow it; rival battles override to
@@ -130,26 +128,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Classic mode: passively scans every x-attack in inventory and applies it,
-   * every battle, without ever consuming it. Under New Experience, x-attack
-   * becomes an explicit, consumed, pre-spin choice instead — its bonus comes
-   * from the committed prep's xAttackBonus (see buildVictoryOdds), so this
-   * returns 0 there to avoid double-counting.
-   */
-  protected plusModifiers(): number {
-    if (this.gameStateService.isNewExperienceMode) {
-      return 0;
-    }
-    let power = 0;
-    const xAttacks = this.trainerItems.filter(item => item.name === 'x-attack');
-    xAttacks.forEach(() => {
-      const meanPower = this.trainerTeam.reduce((sum, pokemon) => sum + pokemon.power, 0) / this.trainerTeam.length;
-      power += meanPower;
-    });
-    return power;
-  }
-
-  /**
    * Builds the yes/no ticket pool shared by every battle type: 1 base yes ticket,
    * team power adjusted for type matchup (see TypeMatchupService), the x-attack
    * bonus, and round-scaled no tickets topped up by any type disadvantage.
@@ -176,9 +154,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
       currentRound,
       leadIndex,
       xAttackBonus,
-      classicPlusModifiers: this.plusModifiers(),
       badOmen: this.battleDebuffService.currentDebuff,
-      abilitiesActive: this.gameStateService.isNewExperienceMode,
     });
 
     // Serene Grace-style: grants one free retry, once per battle instance, the
@@ -282,7 +258,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
     this.prepareOpponentForRound();
     const pending = this.battlePrepService.getPendingPrep();
     const committed = !!pending && pending.battleKey === this.battleKey;
-    this.prepPhase = this.gameStateService.isNewExperienceMode && !committed;
+    this.prepPhase = !committed;
     this.calcVictoryOdds();
     // Deferred one microtask tick so a variant round's resolveOpponentVariant()
     // (queued during prepareOpponentForRound(), above) always resolves currentLeader
@@ -294,8 +270,7 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
 
   /** Rebuilds victoryOdds from current team, items, and opponent data. */
   protected calcVictoryOdds(): void {
-    const prep = this.gameStateService.isNewExperienceMode
-      ? this.battlePrepService.getPendingPrep() : null;
+    const prep = this.battlePrepService.getPendingPrep();
     const xAttackBonus = prep?.xAttackUsed
       ? this.battleOddsService.xAttackBonus(this.trainerTeam, this.currentRound) : 0;
     this.victoryOdds = this.buildVictoryOdds(
@@ -307,11 +282,6 @@ export abstract class BaseBattleRouletteComponent implements OnInit, OnDestroy {
   onItemSelected(index: number): void {
     this.recordSpin(index);
     const landedYes = this.victoryOdds[index].text === `${this.textPrefix}.yes`;
-
-    if (this.skipRetriesInClassicMode && !this.gameStateService.isNewExperienceMode) {
-      this.battleResultEvent.emit(landedYes);
-      return;
-    }
 
     this.retries--;
     if (landedYes) {

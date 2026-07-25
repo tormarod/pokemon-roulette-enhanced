@@ -37,7 +37,7 @@ describe('MarketComponent', () => {
     battlePrepService = TestBed.inject(BattlePrepService);
     itemsService = TestBed.inject(ItemsService);
     marketStockService = TestBed.inject(MarketStockService);
-    gameStateService.resetGameState(true);
+    gameStateService.resetGameState();
     trainerService.resetTeam();
     trainerService.resetItems();
     trainerService.resetCoins();
@@ -261,8 +261,4 @@ describe('MarketComponent', () => {
     expect(trainerService.getCoins()).toBe(coinsBefore);
   });
 
-  it('Classic mode has no stock limits (getRemaining still reports capacity but Market is hidden)', () => {
-    gameStateService.restoreNewExperienceMode(false);
-    expect(component.isNewExperienceMode).toBeFalse();
-  });
 });

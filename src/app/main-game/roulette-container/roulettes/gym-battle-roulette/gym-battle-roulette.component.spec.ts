@@ -224,7 +224,7 @@ describe('GymBattleRouletteComponent', () => {
   describe('New Experience mode', () => {
     beforeEach(() => {
       spyOn(modalQueueService, 'open').and.returnValue(Promise.resolve({ componentInstance: {} } as NgbModalRef));
-      gameStateService.resetGameState(true);
+      gameStateService.resetGameState();
       trainerService.resetTeam();
     });
 

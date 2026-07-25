@@ -4,21 +4,10 @@ import { of } from 'rxjs';
 
 import { BattlePrepService } from './battle-prep.service';
 import { TrainerService } from '../trainer-service/trainer.service';
-import { ItemItem } from '../../interfaces/item-item';
 
 describe('BattlePrepService', () => {
   let service: BattlePrepService;
   let trainerService: TrainerService;
-
-  const makeItem = (overrides: Partial<ItemItem> = {}): ItemItem => ({
-    name: 'x-attack',
-    text: '',
-    fillStyle: '',
-    weight: 1,
-    description: '',
-    sprite: 'x',
-    ...overrides,
-  } as ItemItem);
 
   beforeEach(() => {
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
@@ -48,7 +37,7 @@ describe('BattlePrepService', () => {
   });
 
   it('should consume one x-attack from inventory when xAttackUsed is true', () => {
-    trainerService.addToItems(makeItem({ name: 'x-attack' }));
+    // resetItems() already seeds one starter X Attack.
     expect(trainerService.getItems().filter(i => i.name === 'x-attack').length).toBe(1);
 
     service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: true });
@@ -57,7 +46,8 @@ describe('BattlePrepService', () => {
   });
 
   it('should not touch inventory when xAttackUsed is false', () => {
-    trainerService.addToItems(makeItem({ name: 'x-attack' }));
+    // resetItems() already seeds one starter X Attack.
+    expect(trainerService.getItems().filter(i => i.name === 'x-attack').length).toBe(1);
 
     service.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
 

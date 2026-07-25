@@ -1,15 +1,13 @@
-@if (isNewExperienceMode) {
-  <button type="button" class="panel-pill-btn market-button"
-          [disabled]="!isAvailable"
-          placement="top"
-          container="body"
-          [attr.aria-label]="'market.access' | translate"
-          ngbTooltip="{{ (isAvailable ? 'market.access' : 'market.unavailable') | translate }}"
-          (click)="openMarket()">
-    <span class="market-button-icon" aria-hidden="true">🏪</span>
-    <span class="panel-pill-label">{{ 'market.access' | translate }}</span>
-  </button>
-}
+<button type="button" class="panel-pill-btn market-button"
+        [disabled]="!isAvailable"
+        placement="top"
+        container="body"
+        [attr.aria-label]="'market.access' | translate"
+        ngbTooltip="{{ (isAvailable ? 'market.access' : 'market.unavailable') | translate }}"
+        (click)="openMarket()">
+  <span class="market-button-icon" aria-hidden="true">🏪</span>
+  <span class="panel-pill-label">{{ 'market.access' | translate }}</span>
+</button>
 
 <ng-template #marketModal let-modal>
   <div class="modal-header">

@@ -15,12 +15,12 @@ export class StartAdventureRouletteComponent {
 
   @Output () catchPokemonEvent = new EventEmitter<void>();
   @Output () battleTrainerEvent = new EventEmitter<EventSource>();
-  @Output () buyPotionsEvent = new EventEmitter<void>();
+  @Output () foundCoinsEvent = new EventEmitter<void>();
 
   actions: WheelItem[] = [
     { text: 'game.main.roulette.start.actions.catchPokemon', fillStyle: 'crimson', weight: 3 },
     { text: 'game.main.roulette.start.actions.battleTrainer', fillStyle: 'darkorange', weight: 2 },
-    { text: 'game.main.roulette.start.actions.buyPotions', fillStyle: 'green', weight: 1 }
+    { text: 'game.main.roulette.start.actions.foundCoins', fillStyle: 'green', weight: 1 }
   ];
 
   onItemSelected(index: number): void {
@@ -32,7 +32,7 @@ export class StartAdventureRouletteComponent {
         this.battleTrainerEvent.emit('battle-trainer');
         break;
       case 2:
-        this.buyPotionsEvent.emit();
+        this.foundCoinsEvent.emit();
         break;
     }
   }

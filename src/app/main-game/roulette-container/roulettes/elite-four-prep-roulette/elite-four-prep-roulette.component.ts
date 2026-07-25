@@ -34,7 +34,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
 
   @Input() respinReason!: string;
   @Output() battleTrainerEvent = new EventEmitter<EventSource>();
-  @Output() buyPotionsEvent = new EventEmitter<void>();
+  @Output() foundCoinsEvent = new EventEmitter<void>();
   @Output() catchTwoPokemonEvent = new EventEmitter<void>();
   @Output() catchThreePokemonEvent = new EventEmitter<void>();
   @Output() legendaryEncounterEvent = new EventEmitter<void>();
@@ -43,7 +43,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
 
   actions: WheelItem[] = [
     { text: 'game.main.roulette.elite.prep.actions.trainingArc', fillStyle: 'crimson', weight: 2 },
-    { text: 'game.main.roulette.elite.prep.actions.buyPotions', fillStyle: 'darkorange', weight: 2 },
+    { text: 'game.main.roulette.elite.prep.actions.foundCoins', fillStyle: 'darkorange', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.catchTwoPokemon', fillStyle: 'darkgoldenrod', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.catchThreePokemon', fillStyle: 'green', weight: 2 },
     { text: 'game.main.roulette.elite.prep.actions.huntLegendary', fillStyle: 'darkgreen', weight: 2 },
@@ -57,7 +57,7 @@ export class EliteFourPrepRouletteComponent implements OnInit {
         this.battleTrainerEvent.emit('battle-trainer');
         break;
       case 1:
-        this.buyPotionsEvent.emit();
+        this.foundCoinsEvent.emit();
         break;
       case 2:
         this.catchTwoPokemonEvent.emit();

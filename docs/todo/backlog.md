@@ -1,7 +1,7 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-24
+Last updated: 2026-07-25
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
@@ -13,6 +13,17 @@ Last updated: 2026-07-24
 ---
 
 ## Open items
+
+### Restore gen-9 Area Zero adventure-draw test coverage
+
+Removing Classic mode (4.0.0, `docs/plans/done/remove-classic-mode.md`) deleted
+`main-adventure-roulette.component.spec.ts`'s old wheel-path describe block,
+which was the only place asserting `areaZero` gets appended to the drawable
+pool on generation 9. The reward-pool draw path itself is still covered; only
+the gen-9-specific inclusion isn't. Low priority — add a test that spies
+`rollStep` → `'reward'`, drives the generation subject to 9, and asserts
+`areaZeroCandidate` is present in `component['resolveCandidates'](...)`'s
+input pool (or equivalent), if this needs re-verifying.
 
 ### PokedexDetailModalComponent Mega-form stats don't update
 

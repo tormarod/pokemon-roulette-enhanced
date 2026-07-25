@@ -238,7 +238,7 @@ describe('BaseBattleRouletteComponent (buildVictoryOdds)', () => {
     expect(component.matchupDisadvantageDelta).toBe(0);
   });
 
-  it('does not affect odds when leadIndex is undefined (Classic mode / no lead chosen)', () => {
+  it('does not affect odds when leadIndex is undefined (no lead chosen)', () => {
     trainerService.addToTeam(makeTestPokemon({ power: 2, type1: 'water' }));
     component.testOpponentTypes = ['fire'];
     component.testLeadIndex = undefined;

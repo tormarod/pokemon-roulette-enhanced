@@ -79,77 +79,6 @@ describe('RunPersistenceService', () => {
     expect(stored.trainerItems.some(i => i.name === 'super-potion')).toBeTrue();
   });
 
-  it('should save the newExperienceMode snapshot taken at run start', () => {
-    gameStateService.resetGameState(true);
-    trainerService.addToTeam(makeTestPokemon());
-
-    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
-    expect(stored.newExperienceMode).toBeTrue();
-  });
-
-  it('should restore newExperienceMode from a saved run on construction', () => {
-    const savedRun: SavedRun = {
-      state: 'gym-battle',
-      stateStack: ['game-finish', 'champion-battle'],
-      currentRound: 1,
-      trainerTeam: [],
-      storedPokemon: [],
-      trainerItems: [],
-      trainerBadges: [],
-      gender: 'male',
-      generationId: 1,
-      pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
-      pendingBattlePrep: null,
-      dangerPercent: 5,
-      consecutiveThreats: 0,
-      guaranteedRewardSteps: 0,
-      shieldedSteps: 0,
-      pendingAdventure: null,
-      pendingBattleDebuff: 0,
-      markedTeamIndex: null,
-      pendingCatchEscapeChance: 0,
-      coins: 0,
-      megaBattleBaseId: null,
-      megaBattleStoneName: null,
-      megaBattleOriginalPokemon: null,
-      scoutingType: null,
-      pcLocked: false,
-      marketStock: null,
-    };
-    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
-
-    TestBed.resetTestingModule();
-    configureFreshTestBed();
-    TestBed.inject(RunPersistenceService);
-
-    const restoredGameStateService = TestBed.inject(GameStateService);
-    expect(restoredGameStateService.isNewExperienceMode).toBeTrue();
-  });
-
-  it('should default newExperienceMode to false when restoring an older save without the field', () => {
-    const legacySavedRun = {
-      state: 'gym-battle',
-      stateStack: ['game-finish', 'champion-battle'],
-      currentRound: 1,
-      trainerTeam: [],
-      storedPokemon: [],
-      trainerItems: [],
-      trainerBadges: [],
-      gender: 'male',
-      generationId: 1,
-      pendingTypeBiases: { toward: [], honey: [] },
-    };
-    localStorage.setItem(RUN_KEY, JSON.stringify(legacySavedRun));
-
-    TestBed.resetTestingModule();
-    configureFreshTestBed();
-    TestBed.inject(RunPersistenceService);
-
-    const restoredGameStateService = TestBed.inject(GameStateService);
-    expect(restoredGameStateService.isNewExperienceMode).toBeFalse();
-  });
-
   it('should save a committed battle prep to localStorage', () => {
     const battlePrepService = TestBed.inject(BattlePrepService);
     battlePrepService.commitPrep({ battleKey: 'gym-battle', leadIndex: 0, xAttackUsed: false });
@@ -171,7 +100,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: { battleKey: 'gym-battle', leadIndex: 1, xAttackUsed: true },
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -248,7 +177,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 30,
       consecutiveThreats: 1,
@@ -352,7 +281,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -426,7 +355,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -498,7 +427,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -570,7 +499,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -642,7 +571,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -714,7 +643,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -784,7 +713,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -858,7 +787,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [] },
-      newExperienceMode: true,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -929,7 +858,7 @@ describe('RunPersistenceService', () => {
       gender: 'female',
       generationId: 3,
       pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], honey: [] },
-      newExperienceMode: false,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -985,7 +914,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [{ type: 'water', mode: 'soft' }], honey: [] },
-      newExperienceMode: false,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -1038,7 +967,7 @@ describe('RunPersistenceService', () => {
     expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([]);
   });
 
-  it('should migrate a pre-stacking saved run with the old single-entry bias shape into the array shape', () => {
+  it('discards a saved run with the pre-stacking single-entry bias shape, since it necessarily predates runFormat (D1)', () => {
     const legacyRun = {
       state: 'adventure-continues',
       stateStack: ['game-finish', 'champion-battle'],
@@ -1060,8 +989,10 @@ describe('RunPersistenceService', () => {
       TestBed.inject(RunPersistenceService);
     }).not.toThrow();
 
+    // No runFormat means the whole save is discarded before normalizePendingTypeBiases
+    // ever runs (see isPreV4Run) — the single-entry shape never reaches restoreRun().
     const restoredTrainerService = TestBed.inject(TrainerService);
-    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([{ type: 'fire', mode: 'soft' }]);
+    expect(restoredTrainerService.currentPendingTypeBiases.toward).toEqual([]);
   });
 
   it('should restore pending Honey uses from a saved run on construction', () => {
@@ -1076,7 +1007,7 @@ describe('RunPersistenceService', () => {
       gender: 'male',
       generationId: 1,
       pendingTypeBiases: { toward: [], honey: [['fire', 'water']] },
-      newExperienceMode: false,
+      runFormat: 4,
       pendingBattlePrep: null,
       dangerPercent: 5,
       consecutiveThreats: 0,
@@ -1142,6 +1073,167 @@ describe('RunPersistenceService', () => {
     expect(freshTrainerService.getTeam().length).toBe(0);
   });
 
+  // ── D1: every save written before 4.0.0 is discarded on load ────────────
+  // (Classic and pre-4.0 New Experience alike — see docs/plans/remove-classic-mode.md.)
+
+  it('discards a stored run with newExperienceMode: false and no runFormat', () => {
+    const legacyRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], honey: [] },
+      newExperienceMode: false,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(service.loadRun()).toBeNull();
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('discards a stored run with neither newExperienceMode nor runFormat (pre-3.0 save)', () => {
+    const legacyRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], honey: [] },
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(service.loadRun()).toBeNull();
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('discards a stored run with newExperienceMode: true and no runFormat', () => {
+    const legacyRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], honey: [] },
+      newExperienceMode: true,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(legacyRun));
+
+    expect(service.loadRun()).toBeNull();
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('accepts a stored run with runFormat: 4 and restores team/items/round', () => {
+    const savedRun: SavedRun = {
+      state: 'gym-battle',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 2,
+      trainerTeam: [makeTestPokemon({ pokemonId: 6 })],
+      storedPokemon: [],
+      trainerItems: [{ name: 'potion', text: '', fillStyle: '', weight: 1, description: '', sprite: '' }],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], honey: [] },
+      runFormat: 4,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      shieldedSteps: 0,
+      pendingAdventure: null,
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
+      marketStock: null,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    expect(service.loadRun()).not.toBeNull();
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    const restoredGameStateService = TestBed.inject(GameStateService);
+    expect(restoredTrainerService.getTeam()[0].pokemonId).toBe(6);
+    expect(restoredTrainerService.getItems().some(i => i.name === 'potion')).toBeTrue();
+    expect(restoredGameStateService.currentRoundValue).toBe(2);
+  });
+
+  it('a run persisted by the current code carries runFormat: 4 and is accepted on a fresh service instance', () => {
+    trainerService.addToTeam(makeTestPokemon());
+
+    const stored = JSON.parse(localStorage.getItem(RUN_KEY)!) as SavedRun;
+    expect(stored.runFormat).toBe(4);
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredTrainerService = TestBed.inject(TrainerService);
+    expect(restoredTrainerService.getTeam().length).toBe(1);
+  });
+
+  it('restores a runFormat: 4 save whose pendingAdventure candidates include foundCoins, without dropping any', () => {
+    const savedRun: SavedRun = {
+      state: 'adventure-continues',
+      stateStack: ['game-finish', 'champion-battle'],
+      currentRound: 1,
+      trainerTeam: [],
+      storedPokemon: [],
+      trainerItems: [],
+      trainerBadges: [],
+      gender: 'male',
+      generationId: 1,
+      pendingTypeBiases: { toward: [], honey: [] },
+      runFormat: 4,
+      pendingBattlePrep: null,
+      dangerPercent: 5,
+      consecutiveThreats: 0,
+      guaranteedRewardSteps: 0,
+      shieldedSteps: 0,
+      pendingAdventure: { stepType: 'reward', candidates: ['catchPokemon', 'foundCoins', 'findItem'], picked: null },
+      pendingBattleDebuff: 0,
+      markedTeamIndex: null,
+      pendingCatchEscapeChance: 0,
+      coins: 0,
+      megaBattleBaseId: null,
+      megaBattleStoneName: null,
+      megaBattleOriginalPokemon: null,
+      scoutingType: null,
+      pcLocked: false,
+      marketStock: null,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(savedRun));
+
+    TestBed.resetTestingModule();
+    configureFreshTestBed();
+    TestBed.inject(RunPersistenceService);
+
+    const restoredAdventureDrawService = TestBed.inject(AdventureDrawService);
+    expect(restoredAdventureDrawService.getPendingDraw()?.candidates).toEqual(['catchPokemon', 'foundCoins', 'findItem']);
+  });
+
   // ── startFreshRun — single source of truth for restarting a run ─────────
   // Regression coverage for the "toggling New Experience Mode needs two
   // restarts" bug: a stale committed battlePrepService entry (or any other
@@ -1170,7 +1262,7 @@ describe('RunPersistenceService', () => {
       scoutingReportService.setType('fire');
       pcLockService.setLock(true);
 
-      service.startFreshRun(true);
+      service.startFreshRun();
 
       expect(battlePrepService.getPendingPrep()).toBeNull();
       expect(dangerMeterService.currentDangerPercent).toBe(10);
@@ -1181,24 +1273,21 @@ describe('RunPersistenceService', () => {
       expect(catchRiskService.currentEscapeChance).toBe(0);
       expect(scoutingReportService.currentType).toBeNull();
       expect(pcLockService.isLocked).toBeFalse();
-      expect(gameStateService.isNewExperienceMode).toBeTrue();
-      // New Experience runs start with a bonus X Attack in the kit.
+      // Every fresh run starts with a bonus X Attack in the kit.
       expect(trainerService.getItems().some(i => i.name === 'x-attack')).toBeTrue();
       expect(localStorage.getItem(RUN_KEY)).toBeNull();
     });
 
-    it('resets trainer team/items to the default starting kit and applies the requested New Experience Mode value', () => {
+    it('resets trainer team/items to the default starting kit', () => {
       trainerService.addToTeam(makeTestPokemon());
       trainerService.addToItems({ name: 'super-potion', text: '', fillStyle: '', weight: 1, description: '', sprite: 'x' });
 
-      service.startFreshRun(false);
+      service.startFreshRun();
 
       expect(trainerService.getTeam().length).toBe(0);
-      // resetItems() restores the default starting kit (Potion/Honey/Repel), not an empty bag.
+      // resetItems() restores the default starting kit (Potion/Honey/Repel/X Attack), not an empty bag.
       expect(trainerService.getItems().some(i => i.name === 'super-potion')).toBeFalse();
-      // Classic mode does NOT get the New-Experience-only starter X Attack.
-      expect(trainerService.getItems().some(i => i.name === 'x-attack')).toBeFalse();
-      expect(gameStateService.isNewExperienceMode).toBeFalse();
+      expect(trainerService.getItems().some(i => i.name === 'x-attack')).toBeTrue();
     });
   });
 

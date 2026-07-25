@@ -25,7 +25,7 @@ describe('StartAdventureRouletteComponent', () => {
   // ── onItemSelected: every wheel index must map to its correct event ──
 
   it('should map every action index to its correct event, in order', () => {
-    const emitterNames = ['catchPokemonEvent', 'battleTrainerEvent', 'buyPotionsEvent'] as const;
+    const emitterNames = ['catchPokemonEvent', 'battleTrainerEvent', 'foundCoinsEvent'] as const;
 
     emitterNames.forEach((emitterName, index) => {
       const spy = spyOn((component as any)[emitterName], 'emit');
@@ -37,7 +37,7 @@ describe('StartAdventureRouletteComponent', () => {
     expect(component.actions.map(a => a.text)).toEqual([
       'game.main.roulette.start.actions.catchPokemon',
       'game.main.roulette.start.actions.battleTrainer',
-      'game.main.roulette.start.actions.buyPotions',
+      'game.main.roulette.start.actions.foundCoins',
     ]);
   });
 });
