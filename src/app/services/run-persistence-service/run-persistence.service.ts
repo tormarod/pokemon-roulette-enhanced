@@ -81,6 +81,13 @@ export class RunPersistenceService {
     const savedRun = this.loadRun();
     if (savedRun) {
       this.restoreRun(savedRun);
+    } else {
+      // No valid save (first-ever visit, or one just discarded as stale/invalid):
+      // route through the same single source of truth as an explicit Restart so
+      // starting state (e.g. the starter X Attack, only granted by resetItems()
+      // inside startFreshRun()) isn't silently skipped in favor of raw field
+      // defaults that can drift out of sync with it.
+      this.startFreshRun();
     }
 
     combineLatest([
