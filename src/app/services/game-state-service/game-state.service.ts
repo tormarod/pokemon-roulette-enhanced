@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameState } from './game-state';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { GenerationService } from '../generation-service/generation.service';
-import { SettingsService } from '../settings-service/settings.service';
 
 const GENERATION_GAME_CONFIG: Record<number, { gymCount: number; eliteFourCount: number }> = {
   1: { gymCount: 8, eliteFourCount: 4 },
@@ -31,16 +30,7 @@ export class GameStateService {
   private wheelSpinning = new BehaviorSubject<boolean>(false);
   wheelSpinningObserver = this.wheelSpinning.asObservable();
 
-  // Seeded from the current setting so a brand-new player's very first-ever run
-  // (before RunPersistenceService has any saved run to restore, and before any
-  // explicit Restart re-reads the setting) already reflects it, instead of
-  // silently starting in Classic mode regardless of the setting's default.
-  private newExperienceMode: BehaviorSubject<boolean>;
-  newExperienceModeObserver: Observable<boolean>;
-
-  constructor(private generationService: GenerationService, private settingsService: SettingsService) {
-    this.newExperienceMode = new BehaviorSubject<boolean>(this.settingsService.currentSettings.newExperienceMode);
-    this.newExperienceModeObserver = this.newExperienceMode.asObservable();
+  constructor(private generationService: GenerationService) {
     const genId = this.generationService.getCurrentGeneration().id;
     const config = GENERATION_GAME_CONFIG[genId] ?? { gymCount: 8, eliteFourCount: 4 };
     this.initializeStates(config.gymCount, config.eliteFourCount);
@@ -116,23 +106,12 @@ export class GameStateService {
     this.wheelSpinning.next(state);
   }
 
-  /** Synchronous read for non-reactive call sites (e.g. calcVictoryOdds()). */
-  get isNewExperienceMode(): boolean {
-    return this.newExperienceMode.value;
-  }
-
-  /** Restores the snapshot taken at run start, without touching the stack/round. */
-  restoreNewExperienceMode(value: boolean): void {
-    this.newExperienceMode.next(value);
-  }
-
-  resetGameState(newExperienceMode: boolean = false): void {
+  resetGameState(): void {
     const genId = this.generationService.getCurrentGeneration().id;
     const config = GENERATION_GAME_CONFIG[genId] ?? { gymCount: 8, eliteFourCount: 4 };
     this.initializeStates(config.gymCount, config.eliteFourCount);
     this.setNextState('game-start');
     this.finishCurrentState();
     this.currentRound.next(0);
-    this.newExperienceMode.next(newExperienceMode);
   }
 }
