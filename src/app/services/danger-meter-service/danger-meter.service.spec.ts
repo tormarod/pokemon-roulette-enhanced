@@ -14,37 +14,37 @@ describe('DangerMeterService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should default to dangerPercent 5, consecutiveThreats 0, guaranteedRewardSteps 0, shieldedSteps 0', () => {
-    expect(service.currentDangerPercent).toBe(5);
+  it('should default to dangerPercent 10, consecutiveThreats 0, guaranteedRewardSteps 0, shieldedSteps 0', () => {
+    expect(service.currentDangerPercent).toBe(10);
     expect(service.currentConsecutiveThreats).toBe(0);
     expect(service.currentGuaranteedRewardSteps).toBe(0);
     expect(service.currentShieldedSteps).toBe(0);
   });
 
   it('rollStep should return "threat" and apply relief when the roll is below dangerPercent', () => {
-    spyOn(Math, 'random').and.returnValue(0.01); // *100 = 1, below the initial 5% danger
+    spyOn(Math, 'random').and.returnValue(0.01); // *100 = 1, below the initial 10% danger
 
     const step = service.rollStep(0);
 
     expect(step).toBe('threat');
-    expect(service.currentDangerPercent).toBe(5); // max(FLOOR=5, 5 - RELIEF=20)
+    expect(service.currentDangerPercent).toBe(5); // max(FLOOR=5, 10 - RELIEF=30)
     expect(service.currentConsecutiveThreats).toBe(1);
   });
 
   it('rollStep should return "reward" and recover danger toward base(round) when the roll is above dangerPercent', () => {
-    spyOn(Math, 'random').and.returnValue(0.5); // *100 = 50, above the initial 5% danger
+    spyOn(Math, 'random').and.returnValue(0.5); // *100 = 50, above the initial 10% danger
 
     const step = service.rollStep(0);
 
     expect(step).toBe('reward');
-    expect(service.currentDangerPercent).toBe(5); // recover(0): min(base(0)=5, 5+15)=5
+    expect(service.currentDangerPercent).toBe(10); // recover(0): min(base(0)=10, 10+15)=10
     expect(service.currentConsecutiveThreats).toBe(0);
   });
 
-  it('should follow the base(round) curve: 5, 10, 25, 50, 85, 100', () => {
+  it('should follow the base(round) curve: 10, 25, 40, 55, 70, 85, 100', () => {
     const spy = spyOn(Math, 'random').and.returnValue(0.99); // always reward, so dangerPercent settles at base(round)
-    const rounds = [0, 1, 2, 3, 4, 5];
-    const expected = [5, 10, 25, 50, 85, 100];
+    const rounds = [0, 1, 2, 3, 4, 5, 6];
+    const expected = [10, 25, 40, 55, 70, 85, 100];
 
     rounds.forEach((round, i) => {
       // 85 is below the reward threshold (random*100=99) but high enough that
@@ -62,7 +62,7 @@ describe('DangerMeterService', () => {
     service.restore(5, 0);
     spyOn(Math, 'random').and.returnValue(0.99); // reward path
 
-    service.rollStep(3); // base(3) = 50, but recovery is capped at +15
+    service.rollStep(3); // base(3) = 55, but recovery is capped at +15
 
     expect(service.currentDangerPercent).toBe(20);
   });
@@ -96,7 +96,7 @@ describe('DangerMeterService', () => {
 
     // First guaranteed step: forced reward despite the low roll, danger keeps climbing.
     expect(service.rollStep(3)).toBe('reward');
-    expect(service.currentDangerPercent).toBe(50); // recover(3): min(base(3)=50, 70... capped by base) = 50
+    expect(service.currentDangerPercent).toBe(55); // recover(3): min(base(3)=55, 70... capped by base) = 55
     expect(service.currentGuaranteedRewardSteps).toBe(1);
     expect(service.currentConsecutiveThreats).toBe(0);
 
@@ -152,7 +152,7 @@ describe('DangerMeterService', () => {
 
     service.resetForNewRun();
 
-    expect(service.currentDangerPercent).toBe(5);
+    expect(service.currentDangerPercent).toBe(10);
     expect(service.currentConsecutiveThreats).toBe(0);
     expect(service.currentGuaranteedRewardSteps).toBe(0);
     expect(service.currentShieldedSteps).toBe(0);
@@ -230,6 +230,6 @@ describe('DangerMeterService', () => {
     spyOn(Math, 'random').and.returnValue(0.01);
     service.rollStep(0);
 
-    expect(values).toEqual([5, 5]);
+    expect(values).toEqual([10, 5]); // initial 10, then relief floor after the threat (max(FLOOR=5, 10-30))
   });
 });

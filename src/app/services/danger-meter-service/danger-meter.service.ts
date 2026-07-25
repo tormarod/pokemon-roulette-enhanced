@@ -23,7 +23,7 @@ export interface DangerMeterState {
   shieldedSteps: number;
 }
 
-const INIT_DANGER_PERCENT = 5;
+const INIT_DANGER_PERCENT = 10;
 
 /**
  * New-Experience-only cadence engine for the choose-between adventure (V2 Part A).
@@ -35,10 +35,10 @@ const INIT_DANGER_PERCENT = 5;
   providedIn: 'root'
 })
 export class DangerMeterService {
-  private static readonly BASE = 5;
-  private static readonly CURVE = 5;
+  private static readonly BASE = 10;
+  private static readonly STEP = 15;
   private static readonly CAP = 100;
-  private static readonly RELIEF = 20;
+  private static readonly RELIEF = 30;
   private static readonly RECOVERY = 15;
   private static readonly FLOOR = 5;
   private static readonly PITY = 3;
@@ -76,9 +76,10 @@ export class DangerMeterService {
     return this.state.value.shieldedSteps;
   }
 
-  /** base(round) = min(CAP, BASE + CURVE * round^2) — the ceiling danger recovers up to. */
+  /** base(round) = min(CAP, BASE + STEP * round) — the ceiling danger recovers up to. Linear:
+   * 10, 25, 40, 55, 70, 85, 100, then flat at 100. */
   private base(round: number): number {
-    return Math.min(DangerMeterService.CAP, DangerMeterService.BASE + DangerMeterService.CURVE * round * round);
+    return Math.min(DangerMeterService.CAP, DangerMeterService.BASE + DangerMeterService.STEP * round);
   }
 
   private recoverTo(round: number): number {
