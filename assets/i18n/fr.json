@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "Effrayé !",
-              "description": "Quelque chose t'a mis les nerfs à vif — la route qui t'attend semble plus dangereuse qu'il y a un instant."
+              "description": "Quelque chose t'a mis les nerfs à vif — ta jauge de Danger remonte, rendant les prochaines étapes d'aventure plus susceptibles de tourner à la menace."
             },
             "markedTarget": {
               "title": "Cible Marquée",

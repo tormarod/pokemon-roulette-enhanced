@@ -454,7 +454,7 @@
             },
             "spooked": {
               "title": "Spooked!",
-              "description": "Something's rattled your nerves — the road ahead feels more dangerous than it did a moment ago."
+              "description": "Something's rattled your nerves — your Danger meter jumps back up, making the next few adventure steps more likely to turn into threats."
             },
             "markedTarget": {
               "title": "Marked Target",
