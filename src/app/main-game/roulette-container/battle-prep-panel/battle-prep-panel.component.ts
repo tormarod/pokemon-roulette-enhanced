@@ -5,6 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PokemonItem } from '../../../interfaces/pokemon-item';
 import { ItemItem } from '../../../interfaces/item-item';
 import { PokemonType, getTypeIconUrl } from '../../../interfaces/pokemon-type';
+import { megaStoneNamesForBaseId } from '../../../services/trainer-service/pokemon-mega-forms';
 import { TypeMatchupService } from '../../../services/type-matchup-service/type-matchup.service';
 import { BattleOddsService, BattleOddsBreakdown } from '../../../services/battle-odds-service/battle-odds.service';
 import { BattleDebuffService } from '../../../services/battle-debuff-service/battle-debuff.service';
@@ -107,6 +108,15 @@ export class BattlePrepPanelComponent implements OnChanges {
       return 0;
     }
     return this.typeMatchupService.getMemberSignedDelta(pokemon, this.opponentTypes);
+  }
+
+  /** The bag's mega stone matching this lead's species, or null — mirrors the team panel's held-stone overlay. */
+  getHeldMegaStone(pokemon: PokemonItem): ItemItem | null {
+    const stoneNames = megaStoneNamesForBaseId(pokemon.pokemonId);
+    if (!stoneNames.length) {
+      return null;
+    }
+    return this.items.find(item => stoneNames.some(name => name === item.name)) ?? null;
   }
 
   hasXAttack(): boolean {

@@ -96,7 +96,9 @@
   @for (_ of [selectedId]; track selectedId) {
     <div class="evo-stats evo-stats-fade">
       <div class="evo-stats-types">
-        <img class="evo-type-icon" [src]="getTypeIconUrl(selectedStage.type1!)" [alt]="selectedStage.type1">
+        @if (selectedStage.type1) {
+          <img class="evo-type-icon" [src]="getTypeIconUrl(selectedStage.type1)" [alt]="selectedStage.type1">
+        }
         @if (selectedStage.type2) {
           <img class="evo-type-icon" [src]="getTypeIconUrl(selectedStage.type2)" [alt]="selectedStage.type2">
         }

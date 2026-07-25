@@ -309,6 +309,22 @@
     color: #1c1c1c;
 }
 
+/* Held mega stone indicator — mirrors the team panel's .mega-stone-overlay, but
+   non-interactive (the lead card itself is the button) and pinned top-left so it
+   never collides with the top-right matchup delta badge. */
+.battle-prep-lead-mega {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    padding: 2px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 2;
+}
+
 .battle-prep-lead-delta-positive {
     background: #6fcf6f;
 }

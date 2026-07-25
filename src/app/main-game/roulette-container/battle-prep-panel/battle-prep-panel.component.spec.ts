@@ -171,6 +171,43 @@ describe('BattlePrepPanelComponent', () => {
     expect(emitted).toEqual({ leadIndex: 1, xAttackUsed: true });
   });
 
+  // ── Held mega stone indicator ──────────────────────────────────────────
+
+  it('returns the held mega stone matching a lead species', () => {
+    const emboarite = makeItem({ name: 'emboarite', sprite: 'emboarite.png', fillStyle: 'black' });
+    component.team = [makePokemon({ pokemonId: 500 })]; // Emboar
+    component.items = [emboarite, makeItem({ name: 'x-attack' })];
+    fixture.detectChanges();
+
+    expect(component.getHeldMegaStone(component.team[0])).toBe(emboarite);
+  });
+
+  it('returns null when no matching mega stone is held', () => {
+    component.team = [makePokemon({ pokemonId: 500 })]; // Emboar
+    component.items = [makeItem({ name: 'gengarite', sprite: 'g.png' })]; // wrong species
+    fixture.detectChanges();
+
+    expect(component.getHeldMegaStone(component.team[0])).toBeNull();
+  });
+
+  it('returns null for a species with no mega stone mapping', () => {
+    component.team = [makePokemon({ pokemonId: 16 })]; // Pidgey — no stone
+    component.items = [makeItem({ name: 'emboarite', sprite: 'e.png' })];
+    fixture.detectChanges();
+
+    expect(component.getHeldMegaStone(component.team[0])).toBeNull();
+  });
+
+  it('renders the mega stone icon only on lead cards whose species stone is held', () => {
+    component.team = [makePokemon({ pokemonId: 500 }), makePokemon({ pokemonId: 2 })];
+    component.items = [makeItem({ name: 'emboarite', sprite: 'emboarite.png', fillStyle: 'black' })];
+    fixture.detectChanges();
+
+    const cards = fixture.nativeElement.querySelectorAll('.battle-prep-lead-card');
+    expect(cards[0].querySelector('.battle-prep-lead-mega')).toBeTruthy();
+    expect(cards[1].querySelector('.battle-prep-lead-mega')).toBeFalsy();
+  });
+
   // ── oddsPreview: live win-chance preview, same computeOdds() as the wheel ──
 
   it('computes a null preview for an empty team', () => {

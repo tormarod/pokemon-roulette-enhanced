@@ -107,6 +107,13 @@
                         {{ getMemberDelta(pokemon) > 0 ? '+' : '' }}{{ getMemberDelta(pokemon) }}
                     </span>
                 }
+                @if (getHeldMegaStone(pokemon); as megaStone) {
+                    <img class="battle-prep-lead-mega"
+                        [src]="megaStone.sprite"
+                        [style.background]="megaStone.fillStyle"
+                        [title]="'trainer.storage.heldMegaStone' | translate"
+                        alt="Mega Stone">
+                }
                 <img [src]="pokemon.sprite?.front_default" [alt]="pokemon.text | translate" class="battle-prep-lead-sprite">
                 <span class="battle-prep-lead-name" [class.battle-prep-lead-name-selected]="selectedLeadIndex === $index">{{ pokemon.text | translate }}</span>
                 <div class="battle-prep-lead-types">
