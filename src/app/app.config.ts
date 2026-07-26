@@ -21,6 +21,7 @@ import {
 import { TranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
 import {TranslateService, TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import { NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
+import { CURRENT_VERSION } from './data/release-notes';
 
 const httpLoaderFactory = () => new TranslateHttpLoader();
 const SUPPORTED_LANGS = ['en', 'es', 'fr', 'de', 'it', 'pt'];
@@ -52,11 +53,17 @@ export const appConfig: ApplicationConfig = {
       },
       defaultLanguage: 'en'
     })]),
+    // The locale files are the one thing the build doesn't fingerprint — JS and
+    // CSS get a content hash in their filename, `assets/i18n/*.json` keep theirs.
+    // A returning player therefore serves them from cache, so 4.0.1's malformed
+    // en.json stayed broken on their device even after the fix was deployed
+    // (only for English: the other locales had never been fetched, so they came
+    // down fresh). Versioning the URL makes every release a new cache key.
     {
       provide: TRANSLATE_HTTP_LOADER_CONFIG,
       useValue: {
         prefix: './assets/i18n/',
-        suffix: '.json'
+        suffix: `.json?v=${CURRENT_VERSION}`
       }
     },
     // Blocks the initial render on the translation file load, instead of
@@ -64,12 +71,18 @@ export const appConfig: ApplicationConfig = {
     // only after the first change-detection pass already rendered raw
     // 'a.b.c' keys). That flash was imperceptible on localhost's near-zero
     // latency but visible on a real network (e.g. GitHub Pages).
+    // Blocking the render means a failed load rejects the initializer, which
+    // aborts bootstrap and leaves a blank page — a malformed locale file used
+    // to take the whole app down that way. Degrade to raw keys instead: ugly,
+    // but the game still runs.
     provideAppInitializer(() => {
       const translate = inject(TranslateService);
       translate.addLangs(SUPPORTED_LANGS);
       translate.setDefaultLang('en');
       const savedLanguage = localStorage.getItem('language') || 'en';
-      return firstValueFrom(translate.use(savedLanguage));
+      return firstValueFrom(translate.use(savedLanguage)).catch(error => {
+        console.error(`Failed to load translations for "${savedLanguage}"`, error);
+      });
     }),
     // ngbTooltip's Popper positioning only keeps a tooltip inside the viewport
     // on its main axis (the axis a "top"/"bottom" placement offsets along,
