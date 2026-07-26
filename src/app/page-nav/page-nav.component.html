@@ -1,0 +1,12 @@
+<nav class="page-nav">
+  @for (entry of entries; track entry.id) {
+    <button type="button"
+            class="page-nav-pill"
+            [class.page-nav-pill-active]="entry.id === active"
+            [disabled]="entry.id === active"
+            (click)="go(entry.route)">
+      <ng-icon [name]="entry.icon"></ng-icon>
+      <span>{{ entry.labelKey | translate }}</span>
+    </button>
+  }
+</nav>
