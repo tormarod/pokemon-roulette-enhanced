@@ -64,12 +64,18 @@ export const appConfig: ApplicationConfig = {
     // only after the first change-detection pass already rendered raw
     // 'a.b.c' keys). That flash was imperceptible on localhost's near-zero
     // latency but visible on a real network (e.g. GitHub Pages).
+    // Blocking the render means a failed load rejects the initializer, which
+    // aborts bootstrap and leaves a blank page — a malformed locale file used
+    // to take the whole app down that way. Degrade to raw keys instead: ugly,
+    // but the game still runs.
     provideAppInitializer(() => {
       const translate = inject(TranslateService);
       translate.addLangs(SUPPORTED_LANGS);
       translate.setDefaultLang('en');
       const savedLanguage = localStorage.getItem('language') || 'en';
-      return firstValueFrom(translate.use(savedLanguage));
+      return firstValueFrom(translate.use(savedLanguage)).catch(error => {
+        console.error(`Failed to load translations for "${savedLanguage}"`, error);
+      });
     }),
     // ngbTooltip's Popper positioning only keeps a tooltip inside the viewport
     // on its main axis (the axis a "top"/"bottom" placement offsets along,
