@@ -1200,8 +1200,8 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
       const modalRef = await this.modalQueueService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
       modalRef.componentInstance.title = this.translateService.instant(this.pkmnTradeTitle);
       modalRef.componentInstance.images = [
-        { src: this.pkmnOut.sprite?.front_default, alt: this.translateService.instant(this.pkmnOut.text) },
-        { src: this.pkmnIn.sprite?.front_default, alt: this.translateService.instant(this.pkmnIn.text) }
+        { src: this.pokemonSpriteUrl(this.pkmnOut), alt: this.translateService.instant(this.pkmnOut.text) },
+        { src: this.pokemonSpriteUrl(this.pkmnIn), alt: this.translateService.instant(this.pkmnIn.text) }
       ];
       modalRef.componentInstance.lines = [
         `${this.translateService.instant('game.main.trade.sent')} ${this.translateService.instant(this.pkmnOut.text)} ${this.translateService.instant('game.main.trade.received')} ${this.translateService.instant(this.pkmnIn.text)}!`
@@ -1666,14 +1666,19 @@ export class RouletteContainerComponent implements OnInit, OnDestroy {
     modalRef.result.then(onDone, onDone);
   }
 
+  /** Artwork for a popup tile, shiny-aware like the team roster and pick wheels. */
+  private pokemonSpriteUrl(pokemon: PokemonItem): string | undefined {
+    return pokemon.shiny ? pokemon.sprite?.front_shiny : pokemon.sprite?.front_default;
+  }
+
   private async showpkmnEvoModal(): Promise<void> {
     this.playItemFoundAudio();
     if (!this.settingsService.currentSettings.lessExplanations) {
       const modalRef = await this.modalQueueService.open(EventPopupComponent, { centered: true, size: 'lg', windowClass: 'event-popup-modal' });
       modalRef.componentInstance.title = this.translateService.instant(this.pkmnEvoTitle);
       modalRef.componentInstance.images = [
-        { src: this.pkmnOut.sprite?.front_default, alt: this.translateService.instant(this.pkmnOut.text) },
-        { src: this.pkmnIn.sprite?.front_default, alt: this.translateService.instant(this.pkmnIn.text) }
+        { src: this.pokemonSpriteUrl(this.pkmnOut), alt: this.translateService.instant(this.pkmnOut.text) },
+        { src: this.pokemonSpriteUrl(this.pkmnIn), alt: this.translateService.instant(this.pkmnIn.text) }
       ];
       modalRef.componentInstance.lines = [
         `${this.translateService.instant('game.main.roulette.evolve.modal.your')} ${this.translateService.instant(this.pkmnOut.text)} ${this.translateService.instant('game.main.roulette.evolve.modal.to')} ${this.translateService.instant(this.pkmnIn.text)}!`

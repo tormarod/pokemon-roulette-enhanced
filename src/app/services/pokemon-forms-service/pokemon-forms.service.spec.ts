@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PokemonFormsService } from './pokemon-forms.service';
 import { PokemonItem } from '../../interfaces/pokemon-item';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 
 describe('PokemonFormsService', () => {
   let service: PokemonFormsService;
@@ -70,7 +71,7 @@ describe('PokemonFormsService', () => {
     expect(selectedPokemon.type1).toBe('psychic');
     expect(selectedPokemon.type2).toBeNull();
     expect(selectedPokemon.text).toBe('pokemon.deoxys-attack');
-    expect(selectedPokemon.sprite).toBeNull();
+    expect(selectedPokemon.sprite).toEqual(officialArtworkSprites(10001));
     expect(selectedPokemon).not.toBe(deoxysBase);
     expect(deoxysBase.pokemonId).toBe(386);
   });

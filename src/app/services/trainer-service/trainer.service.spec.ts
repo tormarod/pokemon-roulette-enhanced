@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { GameStateService } from '../game-state-service/game-state.service';
 import { GameState } from '../game-state-service/game-state';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 import { of } from 'rxjs';
 
 describe('TrainerService', () => {
@@ -254,6 +255,29 @@ describe('TrainerService', () => {
     expect(service.trainerTeam.filter(pokemon => pokemon.pokemonId === 10256).length).toBe(0);
     expect(service.storedPokemon.filter(pokemon => pokemon.pokemonId === 964).length).toBe(1);
     expect(service.storedPokemon.filter(pokemon => pokemon.pokemonId === 10256).length).toBe(0);
+  });
+
+  // The evolution popup reads `sprite.front_default` on the line after this call,
+  // so an alt-form evolution (Pikachu -> Alolan Raichu) must have its artwork
+  // resolved by the time replaceForEvolution returns, not one HTTP round trip later.
+  it('replaceForEvolution fills an alt-form sprite synchronously', () => {
+    const pikachu = { ...bulbasaur, text: 'pokemon.pikachu', pokemonId: 25 };
+    service.addToTeam(pikachu);
+    const teamPikachu = service.trainerTeam[0];
+
+    const alolanRaichu: PokemonItem = {
+      text: 'pokemon.raichu-alola',
+      pokemonId: 10100,
+      fillStyle: 'goldenrod',
+      sprite: null,
+      shiny: false,
+      power: 3,
+      weight: 1,
+    };
+    service.replaceForEvolution(teamPikachu, alolanRaichu);
+
+    expect(alolanRaichu.sprite).toEqual(officialArtworkSprites(10100));
+    expect(service.trainerTeam[0].sprite?.front_default).toContain('official-artwork/10100.png');
   });
 
   describe('sticky battle form transforms', () => {

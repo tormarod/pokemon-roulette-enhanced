@@ -1,7 +1,7 @@
 # Backlog: Pending changes, bug fixes, TODOs
 
 Owner: tormarod
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 > Running list, tracked in git so collaborators can see it. Not a shipped
 > changelog — just a place to park things noticed mid-session that aren't
@@ -13,6 +13,22 @@ Last updated: 2026-07-25
 ---
 
 ## Open items
+
+### Nine alt forms have no official artwork upstream (broken-image icon)
+
+Form sprites are now derived from the id (`officialArtworkSprites()`,
+`pokemon-service/official-artwork.ts`), which assumes
+`official-artwork/<id>.png` exists in the PokeAPI sprites repo. Checked all 249
+form/mega ids against the repo: 7 are missing only the **shiny** artwork
+(meowstic-female 10025, zarude-dada 10192, dudunsparce-three-segment 10255,
+maushold-family-of-three 10257, terapagos-stellar 10277, garchomp-mega-z 10309,
+magearna-original-mega 10318) and 2 are missing **both** (tatsugiri-curly-mega
+10322, tatsugiri-droopy-mega 10323). No regression — PokeAPI returned `null` for
+exactly those before, so they were blank then too — but they now render a broken
+image instead of nothing. Fix if it looks bad: give `EventPopupComponent` (and
+the aux-list pick tiles) an `(error)` fallback to a local placeholder, the way
+`evolution-line-modal.component.ts` (`onSpriteError`) and the item views
+(`ITEM_SPRITE_FALLBACK`) already do.
 
 ### Restore gen-9 Area Zero adventure-draw test coverage
 

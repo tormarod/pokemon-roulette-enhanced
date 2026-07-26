@@ -3,6 +3,7 @@ import { PokemonItem } from '../../interfaces/pokemon-item';
 import { evolutionChain } from './evolution-chain';
 import { PokemonService } from '../pokemon-service/pokemon.service';
 import { formAliasById } from '../pokemon-forms-service/pokemon-forms';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 import { NINCADA_ID } from '../../constants/pokemon-ids.constants';
 
 @Injectable({
@@ -125,7 +126,7 @@ export class EvolutionService {
     formPokemon.type1 = alias.form.type1;
     formPokemon.type2 = alias.form.type2;
     formPokemon.weight = alias.form.weight;
-    formPokemon.sprite = null;
+    formPokemon.sprite = officialArtworkSprites(alias.form.pokemonId);
 
     return formPokemon;
   }

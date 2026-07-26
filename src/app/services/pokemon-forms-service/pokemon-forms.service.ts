@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PokemonForm } from '../../interfaces/pokemon-form';
 import { pokemonForms } from './pokemon-forms';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,7 @@ export class PokemonFormsService {
     selectedPokemon.fillStyle = pokemonForm.fillStyle;
     selectedPokemon.type1 = pokemonForm.type1;
     selectedPokemon.type2 = pokemonForm.type2;
-    selectedPokemon.sprite = null;
+    selectedPokemon.sprite = officialArtworkSprites(pokemonForm.pokemonId);
 
     return selectedPokemon;
   }
