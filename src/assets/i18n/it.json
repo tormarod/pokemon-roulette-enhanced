@@ -143,6 +143,7 @@
   "stats": {
     "title": "Statistiche",
     "empty": "Gioca una partita per vedere le tue statistiche!",
+    "dataCard": "Data",
     "lifetime": {
       "title": "Totali di sempre",
       "runsPlayed": "Partite giocate",

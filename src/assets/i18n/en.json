@@ -143,6 +143,7 @@
   "stats": {
     "title": "Statistics",
     "empty": "Play a run to see your stats!",
+    "dataCard": "Data",
     "lifetime": {
       "title": "Lifetime Totals",
       "runsPlayed": "Runs Played",

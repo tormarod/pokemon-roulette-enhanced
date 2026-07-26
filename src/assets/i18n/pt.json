@@ -143,6 +143,7 @@
   "stats": {
     "title": "Estatísticas",
     "empty": "Jogue uma partida para ver suas estatísticas!",
+    "dataCard": "Data",
     "lifetime": {
       "title": "Totais Gerais",
       "runsPlayed": "Partidas Jogadas",

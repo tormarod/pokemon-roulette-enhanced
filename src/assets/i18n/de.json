@@ -143,6 +143,7 @@
   "stats": {
     "title": "Statistiken",
     "empty": "Spiele eine Runde, um deine Statistiken zu sehen!",
+    "dataCard": "Data",
     "lifetime": {
       "title": "Gesamtwerte",
       "runsPlayed": "Gespielte Runden",

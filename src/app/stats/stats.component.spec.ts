@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { NgIconsModule, provideIcons } from '@ng-icons/core';
-import { bootstrapController, bootstrapCupHotFill, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
+import { bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -42,7 +42,7 @@ describe('StatsComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        provideIcons({ bootstrapController, bootstrapCupHotFill, bootstrapPeopleFill }),
+        provideIcons({ bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill }),
         { provide: HttpClient, useValue: httpSpyObj },
       ]
     })
