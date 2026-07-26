@@ -20,6 +20,13 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run test -- --watch=false --browsers=ChromeHeadless
+      # Gate the deploy on the app actually booting. `ng deploy` builds again
+      # from the same commit, so this build exists only to give the smoke test
+      # something to load — a couple of extra minutes to stop shipping a white
+      # page. Uses the deployed base href so a broken asset path fails here.
+      - run: npx ng build --base-href=/pokemon-roulette-enhanced/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke -- --base-href=/pokemon-roulette-enhanced/
       - run: npx ng deploy --base-href=/pokemon-roulette-enhanced/ --name="github-actions[bot]" --email="github-actions[bot]@users.noreply.github.com"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -14,6 +14,7 @@ npm run build           # production build -> dist/pokemon-roulette-enhanced/
 npm run watch           # unoptimized dev build, rebuilds on change
 npm test                 # ng test — Karma + Jasmine, WATCH mode (stays open; see "Running tests locally")
 npm run test:local       # ng test --watch=false — one-shot run, auto-detected Chromium, exits when done (~10s)
+npm run test:smoke       # serves the last `ng build` output and loads every route in Chromium (see "Smoke test")
 npm run deploy           # manual deploy: builds and pushes to gh-pages branch via angular-cli-ghpages
 ```
 
@@ -25,7 +26,7 @@ Or narrow with Jasmine's `fdescribe`/`fit` in the spec itself.
 
 There is no lint script configured (no ESLint config in the repo).
 
-CI (`.github/workflows/node.js.yml`) builds and runs the full headless test suite on every push/PR to `main`. Deploy (`.github/workflows/deploy.yml`) runs on push to `main`, re-runs tests, then deploys to GitHub Pages — it's skipped automatically for changes that only touch `**.md`, `.gitignore`, or `LICENSE`. Deploy requires a `GH_TOKEN` repo secret (the default `GITHUB_TOKEN` can't trigger Pages rebuilds on this repo).
+CI (`.github/workflows/node.js.yml`) builds, runs the full headless test suite, then runs the smoke test on every push/PR to `main`. Deploy (`.github/workflows/deploy.yml`) runs on push to `main`, re-runs tests, builds and smoke-tests at the deployed base href, then deploys to GitHub Pages — it's skipped automatically for changes that only touch `**.md`, `.gitignore`, or `LICENSE`. Deploy requires a `GH_TOKEN` repo secret (the default `GITHUB_TOKEN` can't trigger Pages rebuilds on this repo).
 
 ## Running tests locally
 
@@ -48,6 +49,16 @@ Local runs are fast and reliable (~10s for the full suite, clean exit). `karma.c
       ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
   }
   ```
+
+## Smoke test
+
+`scripts/smoke-test.mjs` (`npm run test:smoke`) serves the last `ng build` output over a local static server and loads every route in Playwright Chromium, failing on an uncaught error, a console error, a same-origin 4xx/5xx, an empty page, or an untranslated `a.b.c` key left on screen. Third-party requests (analytics, sprite artwork) are stubbed, so it never depends on the network.
+
+**This exists because the unit suite structurally cannot catch a broken app.** Specs mock `HttpClient` and never bootstrap; anything that only fails in the built artifact — a static asset the build copies through unchecked, a bad base href, a bundle that throws on boot — passes 957 green specs and ships. Release 4.0.1 shipped a malformed `en.json` exactly that way and served a blank white page.
+
+- Run `ng build` first — the smoke test loads the artifact, it doesn't create one. Pass `--base-href=` / `--dist=` to match a non-default build.
+- It needs a Chromium: Playwright's own (`npx playwright install chromium`) or whatever `CHROME_BIN` points at, the same variable `karma.conf.js` uses.
+- **Anything served to the player that the build doesn't verify belongs here.** The `src/assets` files are copied verbatim with no schema, parse, or reference checking.
 
 ## Architecture
 

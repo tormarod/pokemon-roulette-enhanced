@@ -21,6 +21,7 @@ import {
 import { TranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
 import {TranslateService, TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import { NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
+import { CURRENT_VERSION } from './data/release-notes';
 
 const httpLoaderFactory = () => new TranslateHttpLoader();
 const SUPPORTED_LANGS = ['en', 'es', 'fr', 'de', 'it', 'pt'];
@@ -52,11 +53,17 @@ export const appConfig: ApplicationConfig = {
       },
       defaultLanguage: 'en'
     })]),
+    // The locale files are the one thing the build doesn't fingerprint — JS and
+    // CSS get a content hash in their filename, `assets/i18n/*.json` keep theirs.
+    // A returning player therefore serves them from cache, so 4.0.1's malformed
+    // en.json stayed broken on their device even after the fix was deployed
+    // (only for English: the other locales had never been fetched, so they came
+    // down fresh). Versioning the URL makes every release a new cache key.
     {
       provide: TRANSLATE_HTTP_LOADER_CONFIG,
       useValue: {
         prefix: './assets/i18n/',
-        suffix: '.json'
+        suffix: `.json?v=${CURRENT_VERSION}`
       }
     },
     // Blocks the initial render on the translation file load, instead of

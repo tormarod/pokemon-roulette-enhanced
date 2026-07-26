@@ -29,3 +29,9 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm run test -- --watch=false --browsers=ChromeHeadless
+    # The specs mock HttpClient and never bootstrap the app, so they can't see a
+    # failure that only exists in the built artifact — 4.0.1 shipped a malformed
+    # locale file past a fully green suite and rendered a blank page. This loads
+    # the real bundle in a real browser.
+    - run: npx playwright install --with-deps chromium
+    - run: npm run test:smoke
