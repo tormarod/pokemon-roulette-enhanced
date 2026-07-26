@@ -446,3 +446,13 @@ body.theme-plain-light .event-popup-modal .event-popup-tile {
   box-sizing: border-box;
   padding: 10px 12px;
 }
+
+/* Bootstrap's default link blue (#0d6efd) only manages ~3.4:1 contrast against
+   the dark panel card fill (#232629) — under the 4.5:1 WCAG AA text minimum.
+   A lighter blue restores it (~7.3:1) without touching plain-light, which
+   already reads fine at default. Lives here, not in a component stylesheet,
+   for the same body.theme-* encapsulation reason as the rest of this file. */
+body.theme-plain-dark .page-card a,
+body.theme-starters .page-card a {
+  color: #74b9ff;
+}
