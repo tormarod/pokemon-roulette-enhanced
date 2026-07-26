@@ -738,7 +738,7 @@ before/after — no visible difference. `npm run test:local` passes after each.
 - [x] Phase 3 — Stats
 - [x] Phase 4 — Coffee
 - [x] Phase 5 — Credits
-- [ ] Phase 6 — token migration of the five prefixes
+- [x] Phase 6 — token migration of the five prefixes
 - [ ] Phase 7 — i18n, version 4.1.0, release notes, README, backlog
 
 ## Global acceptance
