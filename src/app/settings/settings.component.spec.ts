@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 import { SettingsComponent } from './settings.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideIcons } from '@ng-icons/core';
-import { bootstrapController, bootstrapGear } from '@ng-icons/bootstrap-icons';
+import { bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
 import { SettingsService } from '../services/settings-service/settings.service';
 import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
@@ -22,7 +22,7 @@ describe('SettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SettingsComponent, TranslateModule.forRoot()],
       providers: [
-        provideIcons({ bootstrapController, bootstrapGear }),
+        provideIcons({ bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill }),
         { provide: HttpClient, useValue: httpSpyObj },
       ]
     })

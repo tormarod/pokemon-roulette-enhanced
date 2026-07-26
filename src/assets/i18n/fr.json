@@ -23,6 +23,12 @@
       "starters": "Départ",
       "plainDark": "Sombre Classique",
       "plainLight": "Clair Classique"
+    },
+    "group": {
+      "appearance": "Appearance",
+      "gameplay": "Gameplay",
+      "audio": "Audio",
+      "data": "Data"
     }
   },
   "coffee": {

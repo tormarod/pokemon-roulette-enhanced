@@ -23,6 +23,12 @@
       "starters": "Starter",
       "plainDark": "Einfaches Dunkel",
       "plainLight": "Einfaches Hell"
+    },
+    "group": {
+      "appearance": "Appearance",
+      "gameplay": "Gameplay",
+      "audio": "Audio",
+      "data": "Data"
     }
   },
   "coffee": {

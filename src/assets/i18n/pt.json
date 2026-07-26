@@ -23,6 +23,12 @@
       "starters": "Iniciais",
       "plainDark": "Escuro Simples",
       "plainLight": "Claro Simples"
+    },
+    "group": {
+      "appearance": "Appearance",
+      "gameplay": "Gameplay",
+      "audio": "Audio",
+      "data": "Data"
     }
   },
   "coffee": {

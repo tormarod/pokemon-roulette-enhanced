@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { LanguageSelectorComponent } from "../main-game/language-selector/language-selector.component";
 import { TranslatePipe } from '@ngx-translate/core';
-import { MainGameButtonComponent } from "../main-game-button/main-game-button.component";
+import { PageNavComponent } from "../page-nav/page-nav.component";
 import { RestartGameButtonComponent } from '../restart-game-button/restart-game-button.component';
 import { ThemeSelectorComponent } from './theme-selector/theme-selector.component';
 import { NgIconsModule } from '@ng-icons/core';
@@ -18,7 +18,7 @@ import { WhatsNewService } from '../services/whats-new-service/whats-new.service
     ThemeSelectorComponent,
     LanguageSelectorComponent,
     TranslatePipe,
-    MainGameButtonComponent,
+    PageNavComponent,
     RestartGameButtonComponent,
     NgIconsModule,
     CommonModule

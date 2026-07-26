@@ -23,6 +23,12 @@
       "starters": "Iniziali",
       "plainDark": "Scuro Semplice",
       "plainLight": "Chiaro Semplice"
+    },
+    "group": {
+      "appearance": "Appearance",
+      "gameplay": "Gameplay",
+      "audio": "Audio",
+      "data": "Data"
     }
   },
   "coffee": {
