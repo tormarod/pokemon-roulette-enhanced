@@ -5,12 +5,15 @@ import { NgIconsModule, provideIcons } from '@ng-icons/core';
 import { HttpClient } from '@angular/common/http';
 import {
   bootstrapArrowRepeat,
+  bootstrapBarChartFill,
   bootstrapBook,
   bootstrapCheck,
   bootstrapClock,
+  bootstrapController,
   bootstrapCupHotFill,
   bootstrapGear,
   bootstrapPcDisplayHorizontal,
+  bootstrapPeopleFill,
   bootstrapShare,
 } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
@@ -47,11 +50,14 @@ describe('MainGameComponent', () => {
           bootstrapShare,
           bootstrapClock,
           bootstrapArrowRepeat,
+          bootstrapBarChartFill,
           bootstrapBook,
+          bootstrapController,
           bootstrapGear,
           bootstrapCupHotFill,
           bootstrapCheck,
           bootstrapPcDisplayHorizontal,
+          bootstrapPeopleFill,
         }),
         {provide: HttpClient, useValue: httpSpyObj },
         { provide: AnalyticsService, useValue: analyticsServiceSpyObj }

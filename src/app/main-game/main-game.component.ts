@@ -9,8 +9,7 @@ import { ItemItem } from '../interfaces/item-item';
 import { RestartGameButtonComponent } from "../restart-game-button/restart-game-button.component";
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { AnalyticsService } from '../services/analytics-service/analytics.service';
-import { CoffeeButtonComponent } from "./coffee-button/coffee-button.component";
-import { StatsButtonComponent } from "./stats-button/stats-button.component";
+import { PageNavComponent } from '../page-nav/page-nav.component';
 import { NgIconsModule } from '@ng-icons/core';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
 import { ThemeService } from '../services/theme-service/theme.service';
@@ -20,7 +19,6 @@ import { TypeBiasEntry } from '../services/trainer-service/trainer.service';
 import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { RouletteContainerComponent } from './roulette-container/roulette-container.component';
-import { SettingsButtonComponent } from '../settings-button/settings-button.component';
 import { RareCandyService } from '../services/rare-candy-service/rare-candy.service';
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
 import { TypeBiasItemService } from '../services/type-bias-item-service/type-bias-item.service';
@@ -45,12 +43,10 @@ interface HoneyBiasGroup {
   imports: [
     CommonModule,
     RouletteContainerComponent,
-    SettingsButtonComponent,
+    PageNavComponent,
     TrainerTeamComponent,
     ItemsComponent,
     RestartGameButtonComponent,
-    CoffeeButtonComponent,
-    StatsButtonComponent,
     NgIconsModule,
     NgbCollapseModule,
     LanguageSelectorComponent,

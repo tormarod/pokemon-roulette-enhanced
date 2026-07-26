@@ -311,9 +311,18 @@ dark/light classes needed** (that is the whole point of Phase 0):
 }
 ```
 
-**Leave the five existing button components in place** — `main-game.component.html`
-still uses `settings-button`, `coffee-button`, `stats-button`, and
-`restart-game-button`. Only the four secondary pages switch to `app-page-nav`.
+**Post-plan addendum:** the original plan called for leaving `main-game.component.html`
+on its own `settings-button`/`coffee-button`/`stats-button`/`restart-game-button`
+rail, with only the four secondary pages switching to `app-page-nav`. That was
+revisited after Phase 6 shipped — `app-page-nav` (`active="game"`, which required
+widening its `active` `@Input` type to include `'game'`) now also renders as a
+full-width bar at the top of the main game screen, replacing
+`settings-button`/`coffee-button`/`stats-button` there too (this also added a
+Credits link to the main screen for the first time). `restart-game-button` and
+the language selector stay in the sidebar, unchanged. This made all five
+per-page button components (`main-game-button`, `settings-button`,
+`coffee-button`, `stats-button`, `credits-button`) fully unused app-wide, so
+they were deleted.
 
 `page-nav.component.spec.ts`: assert the component creates, that `entries` has
 five items, and that `go('stats')` calls `router.navigate(['stats'])`.
