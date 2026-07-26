@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { trainerSpriteData } from './trainer-sprite-data';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { PokemonService } from '../pokemon-service/pokemon.service';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 import { EvolutionService } from '../evolution-service/evolution.service';
 import { ItemItem } from '../../interfaces/item-item';
 import { ItemSpriteService } from '../item-sprite-service/item-sprite.service';
@@ -714,11 +715,14 @@ export class TrainerService implements OnDestroy {
     return replaced;
   }
 
+  /**
+   * Fills in the sprite of a form/mega replacement (those are built with
+   * `sprite: null`). Synchronous on purpose — callers such as the evolution and
+   * trade popups read `sprite.front_default` on the very next line.
+   */
   private loadPokemonSpriteIfMissing(pokemon: PokemonItem): void {
     if (!pokemon.sprite) {
-      this.pokemonService.getPokemonSprites(pokemon.pokemonId).subscribe(response => {
-        pokemon.sprite = response.sprite;
-      });
+      pokemon.sprite = officialArtworkSprites(pokemon.pokemonId);
     }
   }
 

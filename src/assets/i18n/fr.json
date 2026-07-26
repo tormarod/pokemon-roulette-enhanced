@@ -3199,6 +3199,7 @@
     "dark": "Ténèbres",
     "fairy": "Fée"
   },
+  "v4_0_1": "Version 4.0.1",
   "v4_0_0": "Version 4.0.0",
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
@@ -3226,6 +3227,9 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v4_0_1": {
+      "0": "🖼️ Alternate forms — Alolan Raichu and friends — now show their artwork in the evolution and trade popups and on the pick-a-Pokémon wheel, instead of an empty frame."
+    },
     "v4_0_0": {
       "0": "🎲 One game, one ruleset. Everything that used to be behind the optional mode toggle — battle prep, the Danger meter and threats, abilities, Coins and the Market — is now simply how the game plays, and the Settings toggle is gone. Want the untweaked original? Play zeroxm's version.",
       "1": "🪙 The \"Buy Potions\" card on the pre-adventure and Elite Four prep wheels now says \"Found Coins\", which is what it has actually been awarding.",

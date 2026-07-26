@@ -1,8 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, Observable, retry, throwError } from 'rxjs';
 import { PokemonItem } from '../../interfaces/pokemon-item';
 import { nationalDexPokemon } from './national-dex-pokemon';
+import { officialArtworkSprites } from './official-artwork';
 
 @Injectable({
   providedIn: 'root'
@@ -11,35 +10,20 @@ export class PokemonService {
 
   private readonly pokemonById: Map<number, PokemonItem>;
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.pokemonById = new Map(
       this.nationalDexPokemon.map(pokemon => [pokemon.pokemonId, pokemon])
     );
   }
 
-  private apiBaseUrl = 'https://pokeapi.co/api/v2';
   readonly nationalDexPokemon = nationalDexPokemon;
 
   /**
-   * Fetches the sprites for a given Pokémon by ID.
-   * @param pokemonId The ID of the Pokémon.
-   * @returns An Observable of the sprite URLs.
+   * Official-artwork URLs for a Pokémon id, derived locally — species entries
+   * already carry these URLs, and alternate forms follow the same paths.
    */
-  getPokemonSprites(pokemonId: number): Observable<{ sprite: { front_default: string; front_shiny: string; }; }> {
-    const url = `${this.apiBaseUrl}/pokemon/${pokemonId}`;
-    return this.http.get<any>(url).pipe(
-      retry({
-        count: 3,    // Retry up to 3 times
-        delay: 1000  // Wait 1 second between retries
-      }),
-      map((response) => ({
-        sprite: response.sprites.other['official-artwork']
-      })),
-      catchError((error) => {
-        console.error(`Failed to fetch Pokémon ${pokemonId}:`, error);
-        return throwError(() => new Error('Failed to fetch Pokémon data'));
-      })
-    );
+  getSpriteUrls(pokemonId: number): { front_default: string; front_shiny: string } {
+    return officialArtworkSprites(pokemonId);
   }
 
   getPokemonById(pokemonId: number): PokemonItem | undefined {

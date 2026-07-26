@@ -118,16 +118,14 @@ export class DevPanelComponent {
       return;
     }
 
-    this.pokemonService.getPokemonSprites(pokemon.pokemonId).subscribe(spriteData => {
-      const newPokemon: PokemonItem = {
-        ...pokemon,
-        power: this.addPokemonPower as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-        shiny: this.addPokemonShiny,
-        sprite: spriteData.sprite
-      };
-      this.trainerService.addToTeam(newPokemon);
-      this.addPokemonName = '';
-    });
+    const newPokemon: PokemonItem = {
+      ...pokemon,
+      power: this.addPokemonPower as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+      shiny: this.addPokemonShiny,
+      sprite: this.pokemonService.getSpriteUrls(pokemon.pokemonId)
+    };
+    this.trainerService.addToTeam(newPokemon);
+    this.addPokemonName = '';
   }
 
   removeFromTeam(pokemon: PokemonItem): void {
@@ -141,17 +139,15 @@ export class DevPanelComponent {
       return;
     }
 
-    this.pokemonService.getPokemonSprites(pokemon.pokemonId).subscribe(spriteData => {
-      const newPokemon: PokemonItem = {
-        ...pokemon,
-        power: this.addPokemonPower as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-        shiny: this.addPokemonShiny,
-        sprite: spriteData.sprite
-      };
-      const newStored = [...this.stored, newPokemon];
-      this.trainerService.commitTeamAndStorage(this.team, newStored);
-      this.addPokemonName = '';
-    });
+    const newPokemon: PokemonItem = {
+      ...pokemon,
+      power: this.addPokemonPower as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+      shiny: this.addPokemonShiny,
+      sprite: this.pokemonService.getSpriteUrls(pokemon.pokemonId)
+    };
+    const newStored = [...this.stored, newPokemon];
+    this.trainerService.commitTeamAndStorage(this.team, newStored);
+    this.addPokemonName = '';
   }
 
   removeFromPC(pokemon: PokemonItem): void {

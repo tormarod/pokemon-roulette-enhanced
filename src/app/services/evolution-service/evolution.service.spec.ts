@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { EvolutionService } from './evolution.service';
 import { HttpClient } from '@angular/common/http';
 import { PokemonItem } from '../../interfaces/pokemon-item';
+import { officialArtworkSprites } from '../pokemon-service/official-artwork';
 
 describe('EvolutionService', () => {
   let service: EvolutionService;
@@ -31,7 +32,9 @@ describe('EvolutionService', () => {
 
     const alolaRaichu = evolutions.find((pokemon) => pokemon.pokemonId === 10100) as PokemonItem;
     expect(alolaRaichu.text).toBe('pokemon.raichu-alola');
-    expect(alolaRaichu.sprite).toBeNull();
+    // Form artwork is derived from the id, not fetched — the evolution popup reads
+    // it synchronously right after the evolution resolves.
+    expect(alolaRaichu.sprite).toEqual(officialArtworkSprites(10100));
   });
 
   it('should resolve chained form evolutions where source and target are >10000', () => {
@@ -45,7 +48,7 @@ describe('EvolutionService', () => {
     expect(evolutions.length).toBe(1);
     expect(evolutions[0].pokemonId).toBe(10104);
     expect(evolutions[0].text).toBe('pokemon.ninetales-alola');
-    expect(evolutions[0].sprite).toBeNull();
+    expect(evolutions[0].sprite).toEqual(officialArtworkSprites(10104));
   });
 
   it('should carry form-specific types when evolving into an alternative form', () => {
