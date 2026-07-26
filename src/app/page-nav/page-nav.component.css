@@ -1,0 +1,31 @@
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+
+.page-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-tile-border);
+  background: var(--panel-tile-bg);
+  color: var(--panel-text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-nav-pill:hover:not(:disabled) {
+  border-color: var(--panel-text);
+}
+
+.page-nav-pill-active,
+.page-nav-pill:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

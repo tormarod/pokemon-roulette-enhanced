@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CoffeeComponent } from './coffee.component';
 import { NgIconsModule, provideIcons } from '@ng-icons/core';
-import { bootstrapController, bootstrapCupHotFill, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
+import { bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
 
 describe('CoffeeComponent', () => {
@@ -17,7 +17,7 @@ describe('CoffeeComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        provideIcons({ bootstrapController, bootstrapCupHotFill, bootstrapPeopleFill }),
+        provideIcons({ bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill }),
       ]
     })
     .compileComponents();

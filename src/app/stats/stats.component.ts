@@ -4,9 +4,7 @@ import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import domtoimage from 'dom-to-image-more';
-import { MainGameButtonComponent } from '../main-game-button/main-game-button.component';
-import { CoffeeButtonComponent } from '../main-game/coffee-button/coffee-button.component';
-import { CreditsButtonComponent } from '../main-game/credits-button/credits-button.component';
+import { PageNavComponent } from '../page-nav/page-nav.component';
 import { BattleType, StatsService } from '../services/stats-service/stats.service';
 import { PlayerGenerationStatsSummary, PlayerStatsSummary, TopEntry, TypeEntry } from '../services/stats-service/stats-selectors';
 import { RunLogEntry } from '../interfaces/player-stats';
@@ -28,9 +26,7 @@ export type ResettableSection = 'luck' | 'runHistory' | 'achievements';
   imports: [
     CommonModule,
     TranslatePipe,
-    MainGameButtonComponent,
-    CoffeeButtonComponent,
-    CreditsButtonComponent
+    PageNavComponent
   ],
   templateUrl: './stats.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

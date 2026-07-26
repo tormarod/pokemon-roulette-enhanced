@@ -23,6 +23,12 @@
       "starters": "Iniciales",
       "plainDark": "Oscuro Simple",
       "plainLight": "Claro Simple"
+    },
+    "group": {
+      "appearance": "Appearance",
+      "gameplay": "Gameplay",
+      "audio": "Audio",
+      "data": "Data"
     }
   },
   "coffee": {
@@ -33,6 +39,11 @@
     "supportFork": "Apoya este fork",
     "supportForkDescription": "¿Te gustan las nuevas funciones? También puedes apoyar al desarrollador detrás de este fork, siempre de forma opcional.",
     "buyMeACoffee": "Invítame un café",
+    "pixIntro": "🇧🇷 From Brazil? Send a PIX! 🇧🇷",
+    "pixCopy": "Click to copy!",
+    "pixCopied": "PIX copied!",
+    "internationalIntro": "🌐 Want an international option? 🌐",
+    "tryKofi": "Try Ko-fi:",
     "thanks": "¡Gracias por jugar!",
     "hope": "Ya sea que dones o simplemente compartas el juego con otros, ¡espero que te diviertas!",
     "supportNote": "Estás apoyando el trabajo de un desarrollador en un juego hecho por fans — no estás comprando nada de Nintendo, Game Freak o The Pokémon Company, ni tiene afiliación con ellos."
@@ -137,6 +148,7 @@
   "stats": {
     "title": "Estadísticas",
     "empty": "¡Juega una partida para ver tus estadísticas!",
+    "dataCard": "Data",
     "lifetime": {
       "title": "Totales de por vida",
       "runsPlayed": "Partidas jugadas",

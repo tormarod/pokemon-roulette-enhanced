@@ -1,0 +1,67 @@
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.setting-row + .setting-row {
+  border-top: 1px solid var(--panel-tile-border);
+}
+
+.setting-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.setting-hint {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+/* Radio group (character gender) stacks its options right-aligned. */
+.setting-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.setting-row-disabled {
+  opacity: 0.5;
+}
+
+.setting-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-tile-border);
+  background: var(--panel-tile-bg);
+  color: var(--panel-text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.setting-action-button:hover {
+  border-color: var(--panel-text);
+}
+
+/* Restart is the destructive action — separated from the rest of the Data card. */
+.setting-danger-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-tile-border);
+}
+
+@media (max-width: 480px) {
+  .setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CreditsComponent } from './credits.component';
 import { NgIconsModule, provideIcons } from '@ng-icons/core';
-import { bootstrapController, bootstrapCupHotFill } from '@ng-icons/bootstrap-icons';
+import { bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill } from '@ng-icons/bootstrap-icons';
 import { TranslateModule } from '@ngx-translate/core';
 
 describe('CreditsComponent', () => {
@@ -17,7 +17,7 @@ describe('CreditsComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        provideIcons({ bootstrapController, bootstrapCupHotFill }),
+        provideIcons({ bootstrapBarChartFill, bootstrapController, bootstrapCupHotFill, bootstrapGear, bootstrapPeopleFill }),
       ]
     })
     .compileComponents();

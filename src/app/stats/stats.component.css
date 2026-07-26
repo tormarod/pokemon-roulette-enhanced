@@ -1,25 +1,168 @@
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.stat-tile {
+  border: 1px solid var(--panel-tile-border);
+  background: var(--panel-tile-bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-tile-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  opacity: 0.55;
+}
+
+.stat-tile-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.page-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.page-card-header .page-card-title {
+  margin-bottom: 0;
+}
+
+/* Sub-heading for a section within a card (e.g. "Most-Owned Pokémon" inside the Pokémon card). */
+.page-card-subtitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.stats-notice {
+  border-left: 3px solid #2ecc71;
+}
+
+.stats-notice-error {
+  border-left-color: #e74c3c;
+}
+
+.top-owned-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.top-owned-tile {
+  text-align: center;
+}
+
+.favorite-type-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.favorite-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
 .run-history-list {
   max-height: 320px;
   overflow-y: auto;
 }
 
+.run-history-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.run-history-date {
+  opacity: 0.6;
+  font-size: 10px;
+}
+
+.result-badge {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.result-badge-win {
+  background: #2ecc71;
+  color: #10331f;
+}
+
+.result-badge-loss {
+  background: #e74c3c;
+}
+
+.stats-gen-select {
+  background: var(--panel-tile-bg);
+  color: var(--panel-text);
+  border-color: var(--panel-tile-border);
+}
+
 .type-bar-track {
   height: 10px;
   border-radius: 5px;
-  background: var(--bs-secondary-bg, #e9ecef);
+  background: var(--panel-tile-bg);
+  border: 1px solid var(--panel-tile-border);
   overflow: hidden;
 }
 
 .type-bar-fill {
   height: 100%;
-  background: var(--bs-primary, #0d6efd);
+  background: currentColor;
+  opacity: 0.75;
   border-radius: 5px;
 }
 
 .win-rate-trend-chart {
   width: 100%;
   height: 100px;
-  color: var(--bs-primary, #0d6efd);
+  color: currentColor;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.achievement-tile {
+  background: var(--panel-tile-bg);
+  border: 1px solid var(--panel-tile-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.stats-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /*
@@ -38,6 +181,9 @@
   color: #fff;
 }
 
-.achievement-tile {
-  border: 2px solid;
+/* Stays explicitly white regardless of the page's own theme — the .stat-tile
+   markup reused here doesn't set its own color, so without this it would
+   inherit --panel-text (dark) whenever the page itself is in plain-light. */
+.share-card-body {
+  color: #fff;
 }

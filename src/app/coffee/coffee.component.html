@@ -1,60 +1,47 @@
-<div class="row">
-    <div class="col-12 col-sm-2">
-        <div class="row py-4">
-            <div class="col-6 col-sm-12 mb-2">
-                <app-main-game-button></app-main-game-button>
-            </div>
-            <div class="col-6 col-sm-12 mb-2">
-                <app-credits-button></app-credits-button>
-            </div>
-            <div class="col-6 col-sm-12 mb-2">
-                <app-stats-button></app-stats-button>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-9">
-        <div class="container text-center">
-            <div class="mt-2">
-                <h3>{{ 'coffee.title' | translate}}</h3>
-                <p>{{ 'coffee.how_to_help' | translate }}</p>
-                <p>{{ 'coffee.donations' | translate }}</p>
-            </div>
-            <h1 class="mt-sm-5"><ng-icon name="bootstrapCupHotFill"></ng-icon></h1>
+<div class="page-shell">
+  <app-page-nav active="coffee"></app-page-nav>
+  <div class="page-title">
+    <ng-icon name="bootstrapCupHotFill"></ng-icon> {{ 'coffee.title' | translate }}
+  </div>
 
-            <div>
-                <h3>{{ 'coffee.supportFork' | translate }}</h3>
-                <p>{{ 'coffee.supportForkDescription' | translate }}</p>
-                <a href="https://ko-fi.com/tormarod" target="_blank" class="btn btn-danger">
-                    <ng-icon name="bootstrapCupHotFill"></ng-icon> {{ 'coffee.buyMeACoffee' | translate }}
-                </a>
-            </div>
+  <div class="page-card text-center">
+    <p>{{ 'coffee.how_to_help' | translate }}</p>
+    <p class="mb-0">{{ 'coffee.donations' | translate }}</p>
+  </div>
 
-            <div class="mt-5">
-                <h3>{{ 'coffee.support' | translate }}</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>🇧🇷 É do Brasil? 🇧🇷 Manda um PIX! 🇧🇷</p>
-                        <img src="qr_code.jpeg" alt="PIX QR Code" style="height: 225px;" class="img-fluid" (click)="copyPixCode()">
-                        <br>
-                        <a href="javascript:void(0)" class="link-primary" (click)="copyPixCode()">
-                            {{pixCodeCopied ? 'PIX copiado!' : 'Clique para copiar!'}}
-                        </a>
-                    </div>
-                    <div class="col-md-6 mt-md-0 mt-3">
-                        <p>🌐 Want an international option? 🌐</p><p>Try Ko-fi:</p>
-                        <a href="https://ko-fi.com/zeroxm" target="_blank" class="btn btn-danger">
-                            <ng-icon name="bootstrapCupHotFill"></ng-icon> Buy me a Coffee
-                        </a>
-                    </div>
-                </div>
-            </div>
+  <div class="page-card text-center">
+    <div class="page-card-title">{{ 'coffee.supportFork' | translate }}</div>
+    <p>{{ 'coffee.supportForkDescription' | translate }}</p>
+    <a href="https://ko-fi.com/tormarod" target="_blank" class="btn btn-danger">
+      <ng-icon name="bootstrapCupHotFill"></ng-icon> {{ 'coffee.buyMeACoffee' | translate }}
+    </a>
+  </div>
 
-            <div class="mt-5">
-                <h3>{{ 'coffee.thanks' | translate }}</h3>
-                <p>{{ 'coffee.hope' | translate }}</p>
-            </div>
-
-            <p class="text-muted small mt-4 mb-0"><em>{{ 'coffee.supportNote' | translate }}</em></p>
-        </div>
+  <div class="page-card text-center">
+    <div class="page-card-title">{{ 'coffee.support' | translate }}</div>
+    <div class="coffee-support-columns">
+      <div class="page-tile coffee-support-tile">
+        <p>{{ 'coffee.pixIntro' | translate }}</p>
+        <img src="qr_code.jpeg" alt="PIX QR Code" class="coffee-qr" (click)="copyPixCode()">
+        <br>
+        <a href="javascript:void(0)" class="link-primary" (click)="copyPixCode()">
+          {{ pixCodeCopied ? ('coffee.pixCopied' | translate) : ('coffee.pixCopy' | translate) }}
+        </a>
+      </div>
+      <div class="page-tile coffee-support-tile">
+        <p>{{ 'coffee.internationalIntro' | translate }}</p>
+        <p>{{ 'coffee.tryKofi' | translate }}</p>
+        <a href="https://ko-fi.com/zeroxm" target="_blank" class="btn btn-danger">
+          <ng-icon name="bootstrapCupHotFill"></ng-icon> {{ 'coffee.buyMeACoffee' | translate }}
+        </a>
+      </div>
     </div>
   </div>
+
+  <div class="page-card text-center">
+    <div class="page-card-title">{{ 'coffee.thanks' | translate }}</div>
+    <p class="mb-0">{{ 'coffee.hope' | translate }}</p>
+  </div>
+
+  <p class="page-subtitle"><em>{{ 'coffee.supportNote' | translate }}</em></p>
+</div>
