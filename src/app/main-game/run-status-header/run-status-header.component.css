@@ -1,26 +1,8 @@
-/* Binary dark/light card, matching the wheel-card / adventure-panel precedent
-   (CSS custom properties on theme classes; NEVER body.theme-* here — emulated
-   encapsulation makes those silently fail in component CSS). The --status-tile-*
-   vars inherit down into the projected danger meter — custom properties pierce
-   Angular's emulated encapsulation because they inherit via the DOM. */
-
-.status-card-dark {
-    --status-card-bg: #232629;
-    --status-card-border: #333;
-    --status-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
-    --status-text: #dfe6e9;
-    --status-tile-bg: rgba(255, 255, 255, 0.06);
-    --status-tile-border: rgba(255, 255, 255, 0.18);
-}
-
-.status-card-light {
-    --status-card-bg: #f5f6fa;
-    --status-card-border: #ccc;
-    --status-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-    --status-text: #2d3436;
-    --status-tile-bg: rgba(0, 0, 0, 0.035);
-    --status-tile-border: rgba(51, 51, 51, 0.22);
-}
+/* The six --panel-* tokens consumed below come from body.theme-* in
+   styles.css (custom properties inherit through the DOM regardless of
+   Angular's emulated encapsulation), not redeclared per-theme here. The
+   --panel-tile-* vars also inherit down into the projected danger meter
+   the same way. */
 
 .status-card {
     display: flex;
@@ -32,11 +14,11 @@
     box-sizing: border-box;
     margin: 16px auto;
     padding: 18px 20px;
-    background: var(--status-card-bg);
-    color: var(--status-text);
-    border: 1px solid var(--status-card-border);
+    background: var(--panel-card-bg);
+    color: var(--panel-text);
+    border: 1px solid var(--panel-card-border);
     border-radius: 14px;
-    box-shadow: var(--status-card-shadow);
+    box-shadow: var(--panel-card-shadow);
 }
 
 .status-next-up {
