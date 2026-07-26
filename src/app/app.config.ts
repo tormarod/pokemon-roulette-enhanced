@@ -20,6 +20,7 @@ import {
 } from '@ng-icons/bootstrap-icons';
 import { TranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
 import {TranslateService, TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import { NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
 
 const httpLoaderFactory = () => new TranslateHttpLoader();
 const SUPPORTED_LANGS = ['en', 'es', 'fr', 'de', 'it', 'pt'];
@@ -69,6 +70,24 @@ export const appConfig: ApplicationConfig = {
       translate.setDefaultLang('en');
       const savedLanguage = localStorage.getItem('language') || 'en';
       return firstValueFrom(translate.use(savedLanguage));
+    }),
+    // ngbTooltip's Popper positioning only keeps a tooltip inside the viewport
+    // on its main axis (the axis a "top"/"bottom" placement offsets along,
+    // which is confusingly the horizontal one) — the cross axis (vertical, for
+    // "top"/"bottom" tooltips) isn't checked by default, so a tooltip anchored
+    // near the bottom of the screen renders past the edge instead of shifting
+    // up. Enabling preventOverflow's altAxis check (plus a small edge padding)
+    // fixes that for every ngbTooltip in the app.
+    provideAppInitializer(() => {
+      const tooltipConfig = inject(NgbTooltipConfig);
+      tooltipConfig.popperOptions = (options) => {
+        options.modifiers = (options.modifiers ?? []).map(modifier =>
+          modifier.name === 'preventOverflow'
+            ? { ...modifier, options: { ...modifier.options, altAxis: true, padding: 8 } }
+            : modifier
+        );
+        return options;
+      };
     }),
   ]
 };
