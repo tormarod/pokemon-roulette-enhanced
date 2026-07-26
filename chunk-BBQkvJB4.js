@@ -1,1 +1,0 @@
-import {q as qv,al as rc,u as uE,am as oc}from'./main-XJFG44JA.js';var m=class t{static \u0275fac=function(n){return new(n||t)};static \u0275cmp=qv({type:t,selectors:[["app-not-found"]],decls:2,vars:0,template:function(n,c){n&1&&(rc(0,"p"),uE(1,"not-found works!"),oc());},encapsulation:2,changeDetection:1})};export{m as NotFoundComponent};
