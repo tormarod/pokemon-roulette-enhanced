@@ -1,0 +1,21 @@
+.coffee-support-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.coffee-support-tile {
+  flex: 1 1 240px;
+  text-align: center;
+}
+
+/* The QR needs a white quiet zone to stay scannable on a dark card. */
+.coffee-qr {
+  height: 225px;
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--panel-tile-border);
+  background: #fff;
+  padding: 8px;
+  box-sizing: border-box;
+}
