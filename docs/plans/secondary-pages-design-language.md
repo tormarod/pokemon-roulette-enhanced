@@ -732,9 +732,9 @@ before/after — no visible difference. `npm run test:local` passes after each.
 
 ## Phase checklist
 
-- [ ] Phase 0 — global tokens + page shell in `styles.css`
-- [ ] Phase 1 — `app-page-nav`
-- [ ] Phase 2 — Settings
+- [x] Phase 0 — global tokens + page shell in `styles.css`
+- [x] Phase 1 — `app-page-nav`
+- [x] Phase 2 — Settings
 - [ ] Phase 3 — Stats
 - [ ] Phase 4 — Coffee
 - [ ] Phase 5 — Credits
