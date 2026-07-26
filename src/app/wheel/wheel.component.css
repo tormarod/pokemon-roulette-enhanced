@@ -1,17 +1,11 @@
-/* Binary dark/light card, matching the battle-prep-panel precedent
-   (CSS custom properties on theme classes; NEVER body.theme-* here —
-   emulated encapsulation makes those silently fail in component CSS).
-   The --wheel-* vars also inherit down into projected content (battle
-   header + matchup strip) — custom properties pierce Angular's emulated
-   encapsulation because they inherit via the DOM. */
+/* The card/tile tokens come from the shared --panel-* set (body.theme-* in
+   styles.css — custom properties inherit through the DOM regardless of
+   Angular's emulated encapsulation). Only the chip/positive/negative accent
+   colors are genuinely bespoke to the wheel, so they're the only ones still
+   declared per-theme here. They (and --wheel-tile-* before this migration)
+   also inherit down into projected content (battle header + matchup strip). */
 
 .wheel-card-dark {
-    --wheel-card-bg: #232629;
-    --wheel-card-border: #333;
-    --wheel-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
-    --wheel-text: #dfe6e9;
-    --wheel-tile-bg: rgba(255, 255, 255, 0.06);
-    --wheel-tile-border: rgba(255, 255, 255, 0.18);
     --wheel-chip-neutral-bg: rgba(255, 255, 255, 0.08);
     /* Brightened vs. the light theme so they stay readable on the dark card. */
     --wheel-positive: #6fcf6f;
@@ -19,12 +13,6 @@
 }
 
 .wheel-card-light {
-    --wheel-card-bg: #f5f6fa;
-    --wheel-card-border: #ccc;
-    --wheel-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-    --wheel-text: #2d3436;
-    --wheel-tile-bg: rgba(0, 0, 0, 0.035);
-    --wheel-tile-border: rgba(51, 51, 51, 0.22);
     --wheel-chip-neutral-bg: rgba(0, 0, 0, 0.05);
     --wheel-positive: #2e7d32;
     --wheel-negative: #c62828;
@@ -41,11 +29,11 @@
     box-sizing: border-box;
     margin: 16px auto;
     padding: 22px;
-    background: var(--wheel-card-bg);
-    color: var(--wheel-text);
-    border: 1px solid var(--wheel-card-border);
+    background: var(--panel-card-bg);
+    color: var(--panel-text);
+    border: 1px solid var(--panel-card-border);
     border-radius: 14px;
-    box-shadow: var(--wheel-card-shadow);
+    box-shadow: var(--panel-card-shadow);
 }
 
 /* Pointer canvas sits to the right; this offset re-centers the wheel visually. */
@@ -58,11 +46,11 @@
 
 .spin-button {
     min-width: 200px;
-    border: 1px solid var(--wheel-text);
+    border: 1px solid var(--panel-text);
     border-radius: 999px;
     padding: 10px 32px;
     background: none;
-    color: var(--wheel-text);
+    color: var(--panel-text);
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.03em;
@@ -71,8 +59,8 @@
 }
 
 .spin-button:hover {
-    background: var(--wheel-text);
-    color: var(--wheel-card-bg);
+    background: var(--panel-text);
+    color: var(--panel-card-bg);
 }
 
 /* Fixed-height slot so the card never resizes when the chip appears. */
@@ -88,7 +76,7 @@
 .result-live {
     font-weight: 700;
     font-size: 14px;
-    color: var(--wheel-text);
+    color: var(--panel-text);
     white-space: nowrap;
 }
 
@@ -116,8 +104,8 @@
 
 .result-chip-neutral {
     background: var(--wheel-chip-neutral-bg);
-    border-color: var(--wheel-tile-border);
-    color: var(--wheel-text);
+    border-color: var(--panel-tile-border);
+    color: var(--panel-text);
     text-transform: uppercase;
 }
 
