@@ -707,6 +707,7 @@
     "title": "Market",
     "access": "Market",
     "unavailable": "The Market is closed during battle.",
+    "closedBeforeAdventure": "The Market opens once your adventure begins.",
     "subtitle": "Spend your coins to power up your team.",
     "buy": "Buy",
     "close": "Close",
@@ -3199,6 +3200,7 @@
     "dark": "Dark",
     "fairy": "Fairy"
   },
+  "v4_0_1": "Version 4.0.1",
   "v4_0_0": "Version 4.0.0",
   "v2_1_0": "Version 2.1.0",
   "v2_2_0": "Version 2.2.0",
@@ -3226,6 +3228,9 @@
     "title": "What's New",
     "dismiss": "Got it",
     "settingsEntry": "What's New",
+    "v4_0_1": {
+      "0": "🏪 The Market is now closed until your adventure actually starts — no more selling off your starting items on the character, generation or starter screens before the run has begun."
+    },
     "v4_0_0": {
       "0": "🎲 One game, one ruleset. Everything that used to be behind the optional mode toggle — battle prep, the Danger meter and threats, abilities, Coins and the Market — is now simply how the game plays, and the Settings toggle is gone. Want the untweaked original? Play zeroxm's version.",
       "1": "🪙 The \"Buy Potions\" card on the pre-adventure and Elite Four prep wheels now says \"Found Coins\", which is what it has actually been awarding.",

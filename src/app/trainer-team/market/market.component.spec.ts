@@ -19,6 +19,17 @@ describe('MarketComponent', () => {
   let itemsService: ItemsService;
   let marketStockService: MarketStockService;
 
+  /**
+   * Pop past the pre-run screens (character-select → starter-pokemon →
+   * start-adventure) so the Market's pre-run lockout is lifted — every test below
+   * that isn't specifically about that lockout runs from inside the adventure.
+   */
+  const enterAdventure = () => {
+    while (gameStateService.getStateStack().includes('start-adventure')) {
+      gameStateService.finishCurrentState();
+    }
+  };
+
   beforeEach(async () => {
     const httpSpy = jasmine.createSpyObj('HttpClient', ['get']);
     httpSpy.get.and.returnValue(of({
@@ -38,6 +49,7 @@ describe('MarketComponent', () => {
     itemsService = TestBed.inject(ItemsService);
     marketStockService = TestBed.inject(MarketStockService);
     gameStateService.resetGameState();
+    enterAdventure();
     trainerService.resetTeam();
     trainerService.resetItems();
     trainerService.resetCoins();
@@ -122,6 +134,32 @@ describe('MarketComponent', () => {
     gameStateService.setNextState('adventure-continues');
     gameStateService.finishCurrentState();
     expect(component.isAvailable).toBeTrue();
+  });
+
+  it('is unavailable before the adventure starts (character / generation / starter screens)', () => {
+    gameStateService.resetGameState();
+
+    expect(component.isAvailable).toBeFalse();
+    expect(component.accessTooltipKey).toBe('market.closedBeforeAdventure');
+  });
+
+  it('opens once the adventure is reached', () => {
+    gameStateService.resetGameState();
+    enterAdventure();
+
+    expect(component.isAvailable).toBeTrue();
+    expect(component.accessTooltipKey).toBe('market.access');
+  });
+
+  it('the starter kit cannot be pawned before the run starts', () => {
+    const potionGroup = component.sellable.find(g => g.name === 'potion')!;
+    gameStateService.resetGameState();
+    const before = trainerService.getItems().length;
+
+    component.sell(potionGroup);
+
+    expect(trainerService.getItems().length).toBe(before);
+    expect(trainerService.getCoins()).toBe(0);
   });
 
   it('groups held sellable items by name with a count and a sell value', () => {
