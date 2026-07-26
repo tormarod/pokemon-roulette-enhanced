@@ -1,27 +1,6 @@
-/* Binary dark/light card, matching the trainer-team/wheel/battle-prep-panel
-   precedent (CSS custom properties on theme classes; NEVER body.theme-* here —
-   emulated encapsulation makes those silently fail in component CSS). Declared
-   again here (rather than shared) because app-items is a sibling of
-   app-trainer-team, not a descendant — custom properties only inherit via the
-   DOM, so there's no ancestor to consume vars from. */
-
-.panel-dark {
-  --panel-card-bg: #232629;
-  --panel-card-border: #333;
-  --panel-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 12px 32px rgba(0, 0, 0, 0.5);
-  --panel-text: #dfe6e9;
-  --panel-tile-bg: rgba(255, 255, 255, 0.06);
-  --panel-tile-border: rgba(255, 255, 255, 0.18);
-}
-
-.panel-light {
-  --panel-card-bg: #f5f6fa;
-  --panel-card-border: #ccc;
-  --panel-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-  --panel-text: #2d3436;
-  --panel-tile-bg: rgba(0, 0, 0, 0.035);
-  --panel-tile-border: rgba(51, 51, 51, 0.22);
-}
+/* The six --panel-* tokens consumed below come from body.theme-* in
+   styles.css (custom properties inherit through the DOM regardless of
+   Angular's emulated encapsulation), not redeclared per-theme here. */
 
 .item-box {
   margin: 12px;
