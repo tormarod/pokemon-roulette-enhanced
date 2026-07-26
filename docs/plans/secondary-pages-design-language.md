@@ -735,7 +735,7 @@ before/after — no visible difference. `npm run test:local` passes after each.
 - [x] Phase 0 — global tokens + page shell in `styles.css`
 - [x] Phase 1 — `app-page-nav`
 - [x] Phase 2 — Settings
-- [ ] Phase 3 — Stats
+- [x] Phase 3 — Stats
 - [ ] Phase 4 — Coffee
 - [ ] Phase 5 — Credits
 - [ ] Phase 6 — token migration of the five prefixes
