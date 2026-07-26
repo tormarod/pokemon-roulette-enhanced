@@ -99,6 +99,8 @@ export class MarketComponent implements OnInit, OnDestroy {
   itemFoundAudio!: SoundFxHandle;
   /** True once the pre-battle prep is confirmed (spin imminent/underway). */
   private prepCommitted = false;
+  /** True while the run hasn't reached the adventure yet (see `isAvailable`). */
+  private beforeAdventure = true;
 
   readonly filters = MARKET_FILTERS;
   activeTab: 'buy' | 'sell' = 'buy';
@@ -127,6 +129,11 @@ export class MarketComponent implements OnInit, OnDestroy {
     }));
     this.subscriptions.add(this.gameStateService.currentState.subscribe(state => {
       this.currentGameState = state;
+      // Same signal MainGameComponent uses to gate the item panel: 'start-adventure'
+      // is pushed once at run setup and never re-pushed, so while it's still unpopped
+      // the player is on the pre-run screens (character / generation / starter / the
+      // one-time shininess check).
+      this.beforeAdventure = this.gameStateService.getStateStack().includes('start-adventure');
     }));
     this.subscriptions.add(this.battlePrepService.getPendingPrepObservable().subscribe(prep => {
       this.prepCommitted = prep !== null;
@@ -144,18 +151,33 @@ export class MarketComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Openable when a wheel isn't mid-spin and either we're not in a battle state, or
-   * we are but still in the pre-Confirm prep phase (no committed prep). This lets you
-   * spend coins to prepare for the fight in front of you, but never after committing.
+   * Openable when a wheel isn't mid-spin, the run has actually started, and either
+   * we're not in a battle state, or we are but still in the pre-Confirm prep phase
+   * (no committed prep). This lets you spend coins to prepare for the fight in front
+   * of you, but never after committing.
+   *
+   * The pre-run lockout closes the shop on the character / generation / starter
+   * screens. Buying there is moot anyway (a run starts on 0 coins), but selling
+   * wasn't: the starter kit could be pawned for coins before the run began — a
+   * zero-information trade the kit isn't meant to allow, and one the item panel
+   * already forbids (it's hidden until the adventure starts).
    */
   get isAvailable(): boolean {
-    if (this.wheelSpinning) {
+    if (this.wheelSpinning || this.beforeAdventure) {
       return false;
     }
     if (this.combatStates.has(this.currentGameState)) {
       return !this.prepCommitted;
     }
     return true;
+  }
+
+  /** Tooltip for the Market button: what it does, or why it's shut. */
+  get accessTooltipKey(): string {
+    if (this.isAvailable) {
+      return 'market.access';
+    }
+    return this.beforeAdventure ? 'market.closedBeforeAdventure' : 'market.unavailable';
   }
 
   openMarket(): void {
