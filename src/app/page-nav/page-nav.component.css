@@ -29,3 +29,31 @@
   opacity: 0.55;
   cursor: default;
 }
+
+/* Phone widths: five labelled pills wrap onto a second row and strand the last
+   entry on a line of its own. Icons alone fit in one row; the accessible name
+   still comes from the aria-label on the button. */
+@media (max-width: 575.98px) {
+  .page-nav {
+    flex-wrap: nowrap;
+    gap: 6px;
+    /* The row spans the full viewport here, so inset it or the end pills sit
+       flush against the screen edges. */
+    padding: 0 8px;
+    margin: 10px 0 16px;
+  }
+
+  .page-nav-pill {
+    gap: 0;
+    padding: 8px 0;
+    /* Equal shares of the row so the icons space out evenly. */
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .page-nav-label {
+    display: none;
+  }
+}

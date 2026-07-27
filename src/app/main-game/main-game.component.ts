@@ -1,12 +1,11 @@
 import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbCollapseModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { TrainerTeamComponent } from "../trainer-team/trainer-team.component";
 import { ItemsComponent } from "../items/items.component";
 import { GameStateService } from '../services/game-state-service/game-state.service';
 import { CommonModule } from '@angular/common';
 import { ItemItem } from '../interfaces/item-item';
-import { RestartGameButtonComponent } from "../restart-game-button/restart-game-button.component";
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { AnalyticsService } from '../services/analytics-service/analytics.service';
 import { PageNavComponent } from '../page-nav/page-nav.component';
@@ -17,7 +16,6 @@ import { Observable } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TypeBiasEntry } from '../services/trainer-service/trainer.service';
 import { PokemonType, getTypeIconUrl } from '../interfaces/pokemon-type';
-import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 import { RouletteContainerComponent } from './roulette-container/roulette-container.component';
 import { RareCandyService } from '../services/rare-candy-service/rare-candy.service';
 import { MegaStoneService } from '../services/mega-stone-service/mega-stone.service';
@@ -46,10 +44,8 @@ interface HoneyBiasGroup {
     PageNavComponent,
     TrainerTeamComponent,
     ItemsComponent,
-    RestartGameButtonComponent,
     NgIconsModule,
     NgbCollapseModule,
-    LanguageSelectorComponent,
     TranslatePipe
   ],
   templateUrl: './main-game.component.html',
@@ -63,7 +59,6 @@ export class MainGameComponent implements OnInit {
     private themeService: ThemeService,
     private gameStateService: GameStateService,
     private trainerService: TrainerService,
-    private modalService: NgbModal,
     private analyticsService: AnalyticsService,
     private rareCandyService: RareCandyService,
     private megaStoneService: MegaStoneService,
@@ -134,11 +129,6 @@ export class MainGameComponent implements OnInit {
   
   darkMode!: Observable<boolean>;
   mapIsCollapsed: boolean = true;
-
-  resetGameAction(): void {
-    this.resetGame();
-    this.modalService.dismissAll();
-  }
 
   rareCandyInterrupt(rareCandy: ItemItem): void {
     if(this.wheelSpinning || !this.itemsAvailable){

@@ -1,4 +1,16 @@
-<button class="btn btn-primary w-100"
-        (click)="showRestartGameConfirmModal()">
-    <ng-icon name="bootstrapArrowRepeat"></ng-icon> {{ 'game.restart.action' | translate }}
-</button>
+@if (compact) {
+    <button type="button"
+            class="restart-compact"
+            [attr.aria-label]="'game.restart.action' | translate"
+            placement="bottom"
+            container="body"
+            ngbTooltip="{{ 'game.restart.action' | translate }}"
+            (click)="showRestartGameConfirmModal()">
+        <ng-icon name="bootstrapArrowRepeat"></ng-icon>
+    </button>
+} @else {
+    <button class="btn btn-primary w-100"
+            (click)="showRestartGameConfirmModal()">
+        <ng-icon name="bootstrapArrowRepeat"></ng-icon> {{ 'game.restart.action' | translate }}
+    </button>
+}

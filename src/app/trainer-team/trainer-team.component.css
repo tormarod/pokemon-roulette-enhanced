@@ -31,9 +31,17 @@
   padding: 14px 18px;
 }
 
-.trainer-tile {
+.trainer-column {
   width: 64px;
   flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trainer-tile {
+  flex: 1;
+  min-height: 0;
   border-radius: 12px;
   border: 1px solid var(--panel-tile-border);
   background: var(--panel-tile-bg);
@@ -46,6 +54,13 @@
 .trainer-tile-img {
   width: 80%;
   height: auto;
+}
+
+/* app-restart-game-button is an unstyled custom element (inline by default) —
+   make it a block-level flex item so its inner width:100% button fills the
+   64px column. Same pattern as .utility-buttons > * below. */
+.trainer-column > app-restart-game-button {
+  display: flex;
 }
 
 .utility-middle {
