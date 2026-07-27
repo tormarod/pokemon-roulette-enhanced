@@ -31,6 +31,15 @@ describe('TrainerTeamComponent', () => {
   } as PokemonItem);
 
   beforeEach(async () => {
+    // Creating the fixture instantiates RunPersistenceService (injected by the
+    // component for the utility-rail restart button), whose constructor restores
+    // any saved run from localStorage — which would re-populate the team and the
+    // marked index straight after the resets below. Specs run in random order, so
+    // a run left behind by an earlier spec otherwise fails these assertions
+    // intermittently. Same clear-first convention the run-persistence, stats and
+    // pending-spin specs use.
+    localStorage.clear();
+
     const httpSpyObj = jasmine.createSpyObj('HttpClient', ['get']);
     modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open', 'dismissAll']);
 
