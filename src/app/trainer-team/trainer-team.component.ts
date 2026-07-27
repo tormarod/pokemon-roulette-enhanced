@@ -15,13 +15,16 @@ import { PokemonType, pokemonTypeColors } from '../interfaces/pokemon-type';
 import { MarkedTargetService } from '../services/marked-target-service/marked-target.service';
 import { AbilityService } from '../services/ability-service/ability.service';
 import { EvolutionLineModalComponent } from '../pokedex/evolution-line-modal/evolution-line-modal.component';
+import { RestartGameButtonComponent } from '../restart-game-button/restart-game-button.component';
+import { RunPersistenceService } from '../services/run-persistence-service/run-persistence.service';
 
 @Component({
   selector: 'app-trainer-team',
   imports: [
     NgbTooltipModule,
     BadgesComponent,
-    StoragePcComponent, TranslatePipe, PokedexComponent, MarketComponent],
+    StoragePcComponent, TranslatePipe, PokedexComponent, MarketComponent,
+    RestartGameButtonComponent],
   templateUrl: './trainer-team.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./trainer-team.component.css']
@@ -32,6 +35,7 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
               private darkModeService: DarkModeService,
               private markedTargetService: MarkedTargetService,
               private abilityService: AbilityService,
+              private runPersistenceService: RunPersistenceService,
               private modalService: NgbModal) { }
 
   trainer!: { sprite: string; };
@@ -47,6 +51,17 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   private coinGainTimeout: ReturnType<typeof setTimeout> | null = null;
 
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
+
+  /**
+   * Restart from the utility rail. Mirrors what MainGameComponent used to do
+   * for its own (now removed) restart button: wipe the run, then dismiss any
+   * modal left open behind the confirm dialog. Settings does the same minus
+   * the dismiss, plus a navigation back to the game.
+   */
+  onRestartGame(): void {
+    this.runPersistenceService.startFreshRun();
+    this.modalService.dismissAll();
+  }
 
   private trainerSubscription!: Subscription;
   private teamSubscription!: Subscription;

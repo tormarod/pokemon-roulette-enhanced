@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIconsModule, provideIcons } from '@ng-icons/core';
 import { bootstrapArrowRepeat } from '@ng-icons/bootstrap-icons';
 import { GameStateService } from '../services/game-state-service/game-state.service';
@@ -11,6 +11,7 @@ import { EventPopupComponent } from '../event-popup/event-popup.component';
   selector: 'app-restart-game-button',
   imports: [
     NgIconsModule,
+    NgbTooltipModule,
     TranslatePipe
   ],
   providers: [
@@ -32,6 +33,15 @@ export class RestartGameButtonComponent {
   }
 
   wheelSpinning: boolean = false;
+
+  /**
+   * Render as an icon-only ghost button instead of the full-width primary one.
+   * Used where restart is a background affordance rather than the point of the
+   * screen (the trainer-team utility rail); Settings and game-over keep the
+   * labelled button.
+   */
+  @Input() compact = false;
+
   @Output() restartEvent = new EventEmitter<boolean>();
 
   showRestartGameConfirmModal(): void {

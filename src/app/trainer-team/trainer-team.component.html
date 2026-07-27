@@ -2,9 +2,17 @@
 
     <!-- Utility rail: trainer tile, badges + PC/Pokédex, coins + Market -->
     <div class="panel-card utility-rail">
-        <span class="trainer-tile">
-            <img [src]="trainer.sprite" alt="Trainer Sprite" class="trainer-tile-img">
-        </span>
+        <div class="trainer-column">
+            <span class="trainer-tile">
+                <img [src]="trainer.sprite" alt="Trainer Sprite" class="trainer-tile-img">
+            </span>
+            <!-- Restart is run-scoped like the rest of the rail, but it's
+                 destructive, so it sits in the trainer column as a dim icon
+                 rather than joining the labelled PC/Pokédex/Market pills. -->
+            <app-restart-game-button [compact]="true"
+                                     (restartEvent)="onRestartGame()">
+            </app-restart-game-button>
+        </div>
         <div class="utility-middle">
             <app-badges [trainerBadges]="trainerBadges"></app-badges>
             <div class="utility-buttons">

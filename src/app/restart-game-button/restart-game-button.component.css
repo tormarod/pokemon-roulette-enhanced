@@ -1,0 +1,27 @@
+/* Compact (icon-only) variant, used by the trainer-team utility rail. Colours
+   come from the inherited --panel-* tokens declared on body.theme-* in
+   styles.css, so it stays legible in all three themes without hardcoding a
+   text colour against an unknown background. */
+.restart-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 3px 0;
+    border-radius: 10px;
+    border: 1px solid var(--panel-tile-border);
+    background: var(--panel-tile-bg);
+    color: var(--panel-text);
+    font-size: 14px;
+    line-height: 1;
+    /* Destructive action living next to everyday controls — deliberately the
+       quietest thing in the rail until deliberately hovered/focused. */
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+.restart-compact:hover,
+.restart-compact:focus-visible {
+    opacity: 1;
+    border-color: var(--panel-text);
+}

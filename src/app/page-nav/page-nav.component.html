@@ -4,9 +4,10 @@
             class="page-nav-pill"
             [class.page-nav-pill-active]="entry.id === active"
             [disabled]="entry.id === active"
+            [attr.aria-label]="entry.labelKey | translate"
             (click)="go(entry.route)">
       <ng-icon [name]="entry.icon"></ng-icon>
-      <span>{{ entry.labelKey | translate }}</span>
+      <span class="page-nav-label">{{ entry.labelKey | translate }}</span>
     </button>
   }
 </nav>
