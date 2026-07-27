@@ -1,8 +1,10 @@
 /* Tile sub-panel matching the battle-prep panel's "Matchup" card, restyled per
-   the 2a Universal Wheel handoff. The --wheel-* custom properties are defined
-   by the wheel card this strip is projected into (custom properties inherit
-   through the DOM despite Angular's emulated encapsulation); the fallbacks
-   keep today's light-theme colors if the strip is ever used standalone. */
+   the 2a Universal Wheel handoff. --panel-tile-* comes from the shared
+   body.theme-* tokens in styles.css (custom properties inherit through the
+   DOM despite Angular's emulated encapsulation); --wheel-positive/-negative
+   are still defined by the wheel card this strip is projected into, since
+   they're genuinely bespoke to the wheel. Fallbacks keep today's light-theme
+   colors if the strip is ever used standalone. */
 
 /* The host element defaults to display:inline, which would collapse the
    width:100% chain from the wheel card down to the tile — make it a block
@@ -18,8 +20,8 @@
     gap: 10px;
     width: 100%;
     box-sizing: border-box;
-    background: var(--wheel-tile-bg, rgba(0, 0, 0, 0.035));
-    border: 1px solid var(--wheel-tile-border, rgba(51, 51, 51, 0.22));
+    background: var(--panel-tile-bg, rgba(0, 0, 0, 0.035));
+    border: 1px solid var(--panel-tile-border, rgba(51, 51, 51, 0.22));
     border-radius: 10px;
     padding: 12px;
 }
@@ -27,7 +29,7 @@
 .matchup-divider {
     height: 1px;
     width: 100%;
-    background: var(--wheel-tile-border, rgba(51, 51, 51, 0.22));
+    background: var(--panel-tile-border, rgba(51, 51, 51, 0.22));
 }
 
 /* Opponent label stacked above its type icons. */

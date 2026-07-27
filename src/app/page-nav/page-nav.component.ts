@@ -16,7 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class PageNavComponent {
 
   /** Which entry renders as the current page. */
-  @Input() active: 'stats' | 'settings' | 'coffee' | 'credits' | null = null;
+  @Input() active: 'game' | 'stats' | 'settings' | 'coffee' | 'credits' | null = null;
 
   readonly entries: ReadonlyArray<{ id: string; route: string; icon: string; labelKey: string }> = [
     { id: 'game',     route: '',         icon: 'bootstrapController',   labelKey: 'game.main.game.button.title' },

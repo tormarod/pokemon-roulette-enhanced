@@ -1,16 +1,8 @@
 <div class="game-container">
+    <app-page-nav active="game"></app-page-nav>
     <div class="row">
         <div class="extra-options col-12 col-sm-3 d-flex flex-column">
             <div class="row col-12 col-sm-7 py-2">
-                <div class="col-6 col-sm-12 mb-2">
-                    <app-settings-button></app-settings-button>
-                </div>
-                <div class="col-6 col-sm-12 mb-2">
-                    <app-coffee-button></app-coffee-button>
-                </div>
-                <div class="col-6 col-sm-12 mb-2">
-                    <app-stats-button></app-stats-button>
-                </div>
                 <div class="col-6 col-sm-12 mb-2">
                     <app-restart-game-button (restartEvent)="resetGameAction()"></app-restart-game-button>
                 </div>

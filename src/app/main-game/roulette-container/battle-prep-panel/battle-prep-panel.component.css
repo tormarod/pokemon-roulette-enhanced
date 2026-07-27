@@ -1,8 +1,10 @@
+/* The card tokens (bg/border/shadow/text) come from the shared --panel-*
+   set (body.theme-* in styles.css). This panel has no tile-bg/tile-border
+   concept of its own — the sub/lead/divider/positive/negative/badge/outline
+   tokens below are all genuinely bespoke, so they stay declared per-theme
+   here. */
+
 .battle-prep-dark {
-    --bp-card-bg: #232629;
-    --bp-card-border: #333;
-    --bp-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 50px rgba(0, 0, 0, 0.5);
-    --bp-text: #dfe6e9;
     --bp-sub-bg: rgba(0, 0, 0, 0.2);
     --bp-sub-border: rgba(255, 255, 255, 0.12);
     --bp-divider: rgba(255, 255, 255, 0.1);
@@ -16,10 +18,6 @@
 }
 
 .battle-prep-light {
-    --bp-card-bg: #f5f6fa;
-    --bp-card-border: #ccc;
-    --bp-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 12px 30px rgba(0, 0, 0, 0.15);
-    --bp-text: #2d3436;
     --bp-sub-bg: rgba(0, 0, 0, 0.04);
     --bp-sub-border: rgba(0, 0, 0, 0.12);
     --bp-divider: rgba(0, 0, 0, 0.1);
@@ -37,11 +35,11 @@
     width: min(480px, 94vw);
     box-sizing: border-box;
     margin: 16px auto;
-    background: var(--bp-card-bg);
-    color: var(--bp-text);
-    border: 1px solid var(--bp-card-border);
+    background: var(--panel-card-bg);
+    color: var(--panel-text);
+    border: 1px solid var(--panel-card-border);
     border-radius: 14px;
-    box-shadow: var(--bp-card-shadow);
+    box-shadow: var(--panel-card-shadow);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -71,7 +69,7 @@
     margin: 0;
     font-size: 19px;
     font-weight: 700;
-    color: var(--bp-text);
+    color: var(--panel-text);
 }
 
 @media (min-width: 480px) {
@@ -111,7 +109,7 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     text-align: center;
-    color: var(--bp-text);
+    color: var(--panel-text);
 }
 
 .battle-prep-matchup-label-positive {
@@ -255,7 +253,7 @@
     border-radius: 10px;
     border: 1px solid var(--bp-lead-border);
     background: var(--bp-lead-bg);
-    color: var(--bp-text);
+    color: var(--panel-text);
     cursor: pointer;
 }
 
@@ -279,7 +277,7 @@
     font-size: clamp(10px, 1.6vw, 12px);
     font-weight: 400;
     text-align: center;
-    color: var(--bp-text);
+    color: var(--panel-text);
 }
 
 .battle-prep-lead-name-selected {
@@ -374,7 +372,7 @@
 
 .battle-prep-pill-outline {
     background: transparent;
-    color: var(--bp-text);
+    color: var(--panel-text);
     border: 1px solid var(--bp-outline-border);
 }
 

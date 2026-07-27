@@ -1,7 +1,8 @@
 /* 2e Status Header layout: label row (title / safe badge / percent) over a
    slim full-range-gradient pill track. Rendered inside RunStatusHeaderComponent's
-   card, whose --status-tile-* custom properties pierce emulated encapsulation
-   via DOM inheritance; the fallbacks keep the meter legible standalone. */
+   card; reads the shared --panel-tile-* tokens (body.theme-* in styles.css)
+   directly, which pierce emulated encapsulation via DOM inheritance. The
+   fallbacks keep the meter legible standalone. */
 
 .danger-meter {
     width: 100%;
@@ -43,8 +44,8 @@
     width: 100%;
     height: 10px;
     border-radius: 999px;
-    background-color: var(--status-tile-bg, rgba(128, 128, 128, 0.25));
-    border: 1px solid var(--status-tile-border, rgba(51, 51, 51, 0.22));
+    background-color: var(--panel-tile-bg, rgba(128, 128, 128, 0.25));
+    border: 1px solid var(--panel-tile-border, rgba(51, 51, 51, 0.22));
     overflow: hidden;
     box-sizing: border-box;
 }

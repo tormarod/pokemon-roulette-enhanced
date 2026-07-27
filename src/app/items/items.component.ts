@@ -1,10 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ItemItem } from '../interfaces/item-item';
-import { Observable, Subscription } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
-import { ThemeService } from '../services/theme-service/theme.service';
 import { TrainerService } from '../services/trainer-service/trainer.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { isMegaStoneItemName, isAbilityCapsuleName } from '../services/items-service/item-names';
@@ -35,7 +32,7 @@ const CATEGORY_ORDER: ItemCategory[] = ['battle', 'field', 'mega', 'capsule'];
 
 @Component({
   selector: 'app-items',
-  imports: [CommonModule, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './items.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './items.component.css'
@@ -44,13 +41,9 @@ export class ItemsComponent implements OnInit, OnDestroy {
 
   constructor(
     private darkModeService: DarkModeService,
-    private themeService: ThemeService,
     private trainerService: TrainerService,
     private translateService: TranslateService
-  ) {
-    this.darkMode = this.themeService.isDark$;
-    this.darkMode.pipe(takeUntilDestroyed()).subscribe(v => this.isDark = v);
-  }
+  ) {}
 
   trainerItems!: ItemItem[];
   @Output() rareCandyInterrupt = new EventEmitter<ItemItem>();
@@ -62,8 +55,6 @@ export class ItemsComponent implements OnInit, OnDestroy {
   private static readonly TYPE_BIAS_ITEM_NAMES = new Set(['honey', 'poke-radar']);
   private static readonly THREAT_SHIELD_ITEM_NAMES = new Set(['repel', 'max-repel']);
 
-  darkMode!: Observable<boolean>;
-  isDark = false;
   /** Index (into trainerItems) currently hovered — drives the name/description popover. */
   hoveredItemIndex: number | null = null;
   private itemsSubscription!: Subscription;

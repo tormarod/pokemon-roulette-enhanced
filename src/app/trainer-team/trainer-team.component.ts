@@ -1,9 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { PokemonItem } from '../interfaces/pokemon-item';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { DarkModeService } from '../services/dark-mode-service/dark-mode.service';
-import { ThemeService } from '../services/theme-service/theme.service';
 import { NgbModal, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { BadgesComponent } from "./badges/badges.component";
 import { Badge } from '../interfaces/badge';
@@ -20,7 +18,7 @@ import { EvolutionLineModalComponent } from '../pokedex/evolution-line-modal/evo
 
 @Component({
   selector: 'app-trainer-team',
-  imports: [CommonModule,
+  imports: [
     NgbTooltipModule,
     BadgesComponent,
     StoragePcComponent, TranslatePipe, PokedexComponent, MarketComponent],
@@ -32,7 +30,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
 
   constructor(private trainerService: TrainerService,
               private darkModeService: DarkModeService,
-              private themeService: ThemeService,
               private markedTargetService: MarkedTargetService,
               private abilityService: AbilityService,
               private modalService: NgbModal) { }
@@ -49,7 +46,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
   private previousCoins: number | null = null;
   private coinGainTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  darkMode!: Observable<boolean>;
   @Output() megaStoneInterrupt = new EventEmitter<ItemItem>();
 
   private trainerSubscription!: Subscription;
@@ -80,7 +76,6 @@ export class TrainerTeamComponent implements OnInit, OnDestroy {
       this.previousCoins = coins;
       this.coins = coins;
     });
-    this.darkMode = this.themeService.isDark$;
   }
 
   ngOnDestroy(): void {
