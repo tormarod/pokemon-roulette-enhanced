@@ -3212,6 +3212,7 @@
     "dark": "Ténèbres",
     "fairy": "Fée"
   },
+  "v4_0_2": "Version 4.0.2",
   "v4_0_1": "Version 4.0.1",
   "v4_0_0": "Version 4.0.0",
   "v2_1_0": "Version 2.1.0",
@@ -3240,6 +3241,10 @@
     "title": "Quoi de Neuf",
     "dismiss": "Compris",
     "settingsEntry": "Quoi de Neuf",
+    "v4_0_2": {
+      "0": "🧹 The game screen is tidier — the oversized Restart and Language buttons no longer sit above the game. Language now lives in Settings only, and Restart is a small icon beside your trainer sprite (same confirmation prompt as before).",
+      "1": "📱 On phones the top navigation now fits on a single row of icons instead of wrapping onto a second line."
+    },
     "v4_0_1": {
       "0": "🖼️ Alternate forms — Alolan Raichu and friends — now show their artwork in the evolution and trade popups and on the pick-a-Pokémon wheel, instead of an empty frame.",
       "1": "🏪 The Market is now closed until your adventure actually starts — no more selling off your starting items on the character, generation or starter screens before the run has begun."
